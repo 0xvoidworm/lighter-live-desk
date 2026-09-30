@@ -354,6 +354,14 @@ class Engine:
         snapshot = await self.account.snapshot(market_id)
         self.last_account_poll = time.monotonic()
         self.account_snapshot = snapshot
+        if (
+            self.config.mode == "live_capable"
+            and self.config.expected_account_type_code is not None
+        ):
+            if snapshot.account_type_code != self.config.expected_account_type_code:
+                self.entries_stopped = True
+                self.state = EngineState.PAUSED
+                self.reason = "tier akun berubah; entry diblok"
         if snapshot.equity > self.config.max_funding_usd:
             raise RuntimeError("dedicated account equity exceeds $50 cap")
         if snapshot.other_positions or snapshot.other_assets:
@@ -488,6 +496,8 @@ class Engine:
             and not self.db.unresolved()
             and self.db.flag("daily_stop_day") != datetime.now(JAKARTA).date().isoformat()
             and self.db.flag("total_loss_stop") != "1"
+            and Decimal(self.db.gross_deposits()) <= self.config.max_funding_usd
+            and snapshot.account_type_code == self.config.expected_account_type_code
             and self.data_valid()
             and self.last_decision.basis_bps is not None
         ):
@@ -571,6 +581,15 @@ class Engine:
 
     async def enter(self, side: str, kind: str = "ENTRY") -> None:
         if (
+            self.state != EngineState.LIVE
+            or self.config.mode != "live_capable"
+            or not self.config.allow_live_orders
+            or not self.session_end
+            or time.monotonic() >= self.session_end
+            or self.session_positions >= self.config.max_session_positions
+        ):
+            return
+        if (
             not self.account
             or not self.market
             or not self.account_snapshot
@@ -578,6 +597,17 @@ class Engine:
         ):
             return
         snap = self.account_snapshot
+        if (
+            time.time() - snap.received_at > 15
+            or snap.account_type_code != self.config.expected_account_type_code
+            or snap.active_orders
+            or self.db.flag("total_loss_stop") == "1"
+            or self.db.flag("daily_stop_day") == datetime.now(JAKARTA).date().isoformat()
+        ):
+            self.entries_stopped = True
+            self.state = EngineState.PAUSED
+            self.reason = "akun, tier, atau batas loss tidak siap saat entry"
+            return
         if snap.position_qty or self.db.unresolved():
             return
         quote = self.books["lighter"].quote()
@@ -587,7 +617,7 @@ class Engine:
         try:
             sizing = size_entry(
                 self.config,
-                snap.equity,
+                min(snap.equity, snap.available),
                 Decimal(0),
                 Decimal(0),
                 best,
@@ -802,6 +832,26 @@ class Engine:
             blockers.append("equity dedicated melebihi pagu")
         if self.account_snapshot and self.account_snapshot.equity <= self.config.exit_reserve_usd:
             blockers.append("equity tidak cukup untuk order dan cadangan exit")
+        if self.account_snapshot and self.market and not self.account_snapshot.position_qty:
+            quote = self.books["lighter"].quote()
+            if quote:
+                try:
+                    size_entry(
+                        self.config,
+                        min(self.account_snapshot.equity, self.account_snapshot.available),
+                        Decimal(0),
+                        Decimal(0),
+                        quote.ask,
+                        "buy",
+                        dec(self.market["min_base_amount"]),
+                        dec(self.market["min_quote_amount"]),
+                        int(self.market["size_decimals"]),
+                        int(self.market["price_decimals"]),
+                        Decimal(35),
+                        Decimal(0),
+                    )
+                except ValueError:
+                    blockers.append("ukuran minimum legal melampaui kapasitas dan cadangan")
         if Decimal(self.db.gross_deposits()) > self.config.max_funding_usd:
             blockers.append("total deposit melampaui pagu")
         if self.db.flag("daily_stop_day") == datetime.now(JAKARTA).date().isoformat():

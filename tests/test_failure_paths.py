@@ -155,6 +155,35 @@ def test_funding_flow_ledger_survives_restart_and_deduplicates(tmp_path) -> None
     db.close()
 
 
+def test_daily_equity_stop_is_persistent_after_restart(tmp_path) -> None:
+    def account(equity: str) -> AccountSnapshot:
+        return AccountSnapshot(
+            Decimal(equity),
+            Decimal(equity),
+            0,
+            Decimal(0),
+            Decimal(0),
+            Decimal(0),
+            Decimal(0),
+            Decimal(0),
+            (),
+            (),
+            (),
+            time.time(),
+        )
+
+    first = Engine(Config(), tmp_path)
+    first._update_baseline(account("50"))
+    first._update_baseline(account("44"))
+    assert first.entries_stopped and first.db.flag("daily_stop_day")
+    first.db.close()
+    first.recorder.close()
+    resumed = Engine(Config(), tmp_path)
+    assert any("harian" in reason for reason in resumed.live_blockers())
+    resumed.db.close()
+    resumed.recorder.close()
+
+
 def test_durable_intent_deduplicated_fill_and_consistent_backup(tmp_path) -> None:
     path = tmp_path / "state" / "desk.db"
     db = Database(path)
@@ -162,6 +191,11 @@ def test_durable_intent_deduplicated_fill_and_consistent_backup(tmp_path) -> Non
     db.close()  # crash/restart boundary after intent commit
     db = Database(path)
     assert db.unresolved()[0]["state"] == "INTENT"
+    db.intent(2, "ENTRY", "buy", "0.0002", "83000")
+    db.order_state(2, "SENT", "tx-2")
+    db.close()  # crash after send, before the fill is stored
+    db = Database(path)
+    assert [x["state"] for x in db.unresolved()] == ["INTENT", "SENT"]
     assert db.add_fill("trade-10", 1, "0.0001", "83000", "0", 123)
     assert not db.add_fill("trade-10", 1, "0.0001", "83000", "0", 123)
     target = tmp_path / "copy.db"
@@ -233,9 +267,32 @@ def test_api_rejects_cross_site_and_requires_csrf(tmp_path) -> None:
         assert ok.status_code == 200 and ok.json()["state"] == "QUEUED"
 
 
+def test_dashboard_api_does_not_expose_local_secret_file(tmp_path) -> None:
+    sentinel = "TEST_KEY_NEVER_EXPOSE_92f3"
+    (tmp_path / "secrets.json").write_text(
+        '{"api_private_key":"' + sentinel + '","api_key_index":1}'
+    )
+    db = Database(tmp_path / "state" / "desk.db")
+    db.save_status({"state": "READY", "reason": "test fixture"})
+    db.close()
+    with TestClient(create_app(tmp_path), base_url="http://127.0.0.1:8765") as client:
+        assert sentinel not in client.get("/api/status").text
+        assert sentinel not in client.get("/api/report").text
+
+
 @pytest.mark.asyncio
 async def test_timeout_after_durable_send_freezes_entries(tmp_path, monkeypatch) -> None:
-    engine = Engine(Config(), tmp_path)
+    engine = Engine(
+        Config(
+            mode="live_capable",
+            account_index=77,
+            expected_account_type_code=0,
+            allow_live_orders=True,
+        ),
+        tmp_path,
+    )
+    engine.state = "LIVE"
+    engine.session_end = time.monotonic() + 1800
     engine.market = {
         "market_id": 1,
         "min_base_amount": "0.00007",
@@ -269,22 +326,39 @@ async def test_timeout_after_durable_send_freezes_entries(tmp_path, monkeypatch)
     )
 
     class LostAck:
+        calls = 0
+
         async def send_ioc(self, *args, **kwargs):
+            self.calls += 1
             raise TimeoutError("network lost after possible accept")
 
-    engine.account = LostAck()  # type: ignore[assignment]
+    lost = LostAck()
+    engine.account = lost  # type: ignore[assignment]
     monkeypatch.setattr(engine, "data_valid", lambda: True)
     engine.last_decision = Decision("buy", Decimal(30), Decimal(0), Decimal(1), ())
     await engine.enter("buy")
     assert engine.state == EngineState.PAUSED and engine.entries_stopped
     assert engine.db.unresolved()[0]["state"] == "UNKNOWN"
+    engine.state = EngineState.LIVE  # even an incorrect retry request cannot duplicate it
+    await engine.enter("buy")
+    assert lost.calls == 1
     engine.db.close()
     engine.recorder.close()
 
 
 @pytest.mark.asyncio
 async def test_journal_failure_prevents_send(tmp_path, monkeypatch) -> None:
-    engine = Engine(Config(), tmp_path)
+    engine = Engine(
+        Config(
+            mode="live_capable",
+            account_index=77,
+            expected_account_type_code=0,
+            allow_live_orders=True,
+        ),
+        tmp_path,
+    )
+    engine.state = "LIVE"
+    engine.session_end = time.monotonic() + 1800
     engine.market = {
         "market_id": 1,
         "min_base_amount": "0.00007",
@@ -437,11 +511,18 @@ async def test_exit_is_reduce_only_and_duplicate_close_is_not_sent(tmp_path) -> 
             self.calls.append(kwargs)
             return None, Response(), None
 
+        async def create_sl_order(self, **kwargs):
+            self.calls.append(kwargs)
+            return None, Response(), None
+
     adapter.signer = Signer()
     intent = OrderIntent(2, "EXIT", "sell", Decimal("0.0001"), Decimal(83000), Stamp())
     await adapter.send_ioc(intent, 1, 5, 1)
     assert adapter.signer.calls[0]["reduce_only"] is True
     assert adapter.signer.calls[0]["base_amount"] == 10
+    stop = OrderIntent(3, "STOP", "sell", Decimal("0.0001"), Decimal(82500), Stamp())
+    await adapter.send_stop(stop, 1, 5, 1, Decimal(82750))
+    assert adapter.signer.calls[1]["reduce_only"] is True
 
     engine = Engine(Config(), tmp_path)
     engine.market = {"market_id": 1, "size_decimals": 5, "price_decimals": 1}
@@ -481,6 +562,52 @@ async def test_exit_is_reduce_only_and_duplicate_close_is_not_sent(tmp_path) -> 
     engine.account = sender  # type: ignore[assignment]
     assert "belum dikonfirmasi" in await engine.close_position()
     assert "sudah ada" in await engine.close_position()
+    assert sender.calls == 1 and engine.exit_id is not None
+    engine.db.close()
+    engine.recorder.close()
+
+
+@pytest.mark.asyncio
+async def test_stale_comparator_blocks_entry_but_position_timeout_exits(tmp_path) -> None:
+    engine = Engine(Config(), tmp_path)
+    engine.market = {"market_id": 1, "size_decimals": 5, "price_decimals": 1}
+    engine.account_snapshot = AccountSnapshot(
+        Decimal(48),
+        Decimal(38),
+        0,
+        Decimal("0.0001"),
+        Decimal(83000),
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        (),
+        (),
+        (),
+        time.time(),
+    )
+    engine.books["lighter"].lighter_snapshot(
+        {
+            "order_book": {
+                "nonce": 1,
+                "bids": [{"price": "83000", "size": "2"}],
+                "asks": [{"price": "83000.1", "size": "2"}],
+            }
+        },
+        Stamp(),
+    )
+    engine.position_opened_at = time.monotonic() - 181
+
+    class ExitSender:
+        calls = 0
+
+        async def send_ioc(self, *args):
+            self.calls += 1
+            return "exit-tx"
+
+    sender = ExitSender()
+    engine.account = sender  # type: ignore[assignment]
+    assert not engine.data_valid()  # Binance comparator is disconnected
+    await engine.manage_position()
     assert sender.calls == 1 and engine.exit_id is not None
     engine.db.close()
     engine.recorder.close()
