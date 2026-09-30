@@ -18,19 +18,19 @@ BASE_URL = "https://mainnet.zklighter.elliot.ai"
 
 
 class RateBudget:
-    """Local Standard-account budget. Keep 20/min for cancel, reconcile, exit."""
+    """Conservative local request budget; transaction SDK uses multiple API calls."""
 
     def __init__(self) -> None:
         self.calls: deque[float] = deque()
 
-    def claim(self, priority: str) -> None:
+    def claim(self, priority: str, cost: int = 1) -> None:
         now = time.monotonic()
         while self.calls and now - self.calls[0] >= 60:
             self.calls.popleft()
-        cap = 35 if priority == "entry" else 55
-        if len(self.calls) >= cap:
+        cap = 40 if priority == "entry" else 55
+        if len(self.calls) + cost > cap:
             raise RuntimeError("local Standard API rate reserve exhausted")
-        self.calls.append(now)
+        self.calls.extend([now] * cost)
 
 
 @dataclass(frozen=True)
@@ -48,6 +48,9 @@ class AccountSnapshot:
     other_assets: tuple[dict[str, Any], ...]
     received_at: float
     funding_flows: tuple[tuple[str, str], ...] = ()
+    account_trading_mode: int | None = None
+    margin_mode: int | None = None
+    initial_margin_fraction: Decimal | None = None
 
 
 class LighterAccount:
@@ -101,7 +104,7 @@ class LighterAccount:
     async def snapshot(self, market_id: int) -> AccountSnapshot:
         self.rate.claim("reconcile")
         response = await self.account_api.account(
-            by="index", value=str(self.account_index), active_only=True
+            by="index", value=str(self.account_index), active_only=False
         )
         if response.code != 200 or len(response.accounts) != 1:
             raise RuntimeError("dedicated Lighter account response invalid")
@@ -141,10 +144,13 @@ class LighterAccount:
             ),
             received_at=time.time(),
             funding_flows=flows,
+            account_trading_mode=acct.account_trading_mode,
+            margin_mode=position.margin_mode if position else None,
+            initial_margin_fraction=Decimal(position.initial_margin_fraction) if position else None,
         )
 
     async def funding_history(self, l1_address: str) -> tuple[tuple[str, str], ...]:
-        """Read all dedicated-account flows; unknown statuses or truncated history freeze entry."""
+        """Read dedicated-account deposits, withdrawals and perps transfers."""
         result: list[tuple[str, str]] = []
         for kind in ("deposit", "withdraw"):
             cursor: str | None = None
@@ -185,25 +191,98 @@ class LighterAccount:
                 cursor = next_cursor
             else:
                 raise RuntimeError("funding history exceeds verified page limit")
+        cursor = None
+        seen_cursors = set()
+        for _ in range(5):
+            self.rate.claim("reconcile")
+            page = await self.transaction_api.transfer_history(
+                authorization=self.auth(), account_index=self.account_index, cursor=cursor
+            )
+            if page.code != 200:
+                raise RuntimeError("Lighter transfer history unavailable")
+            for item in page.transfers:
+                if item.asset_id != 3:
+                    raise RuntimeError("non-USDC transfer requires review")
+                amount = Decimal(item.amount)
+                if amount <= 0:
+                    raise RuntimeError("invalid transfer amount")
+                if item.type == "L2TransferInflow" and item.to_account_index == self.account_index:
+                    if item.to_route != "perps":
+                        raise RuntimeError("non-perps transfer requires review")
+                    signed = amount
+                elif (
+                    item.type == "L2TransferOutflow"
+                    and item.from_account_index == self.account_index
+                ):
+                    if item.from_route != "perps":
+                        raise RuntimeError("non-perps transfer requires review")
+                    signed = -amount
+                else:
+                    raise RuntimeError("unknown transfer type or account requires review")
+                result.append((f"transfer:{item.id}:{item.type}", str(signed)))
+            next_cursor = page.cursor or None
+            if not next_cursor:
+                break
+            if next_cursor in seen_cursors:
+                raise RuntimeError("transfer pagination loop")
+            seen_cursors.add(next_cursor)
+            cursor = next_cursor
+        else:
+            raise RuntimeError("transfer history exceeds verified page limit")
         return tuple(result)
 
     async def order_statuses(self, client_ids: list[int]) -> dict[int, dict[str, Any]]:
         if not client_ids:
             return {}
+        if len(client_ids) > 20:
+            raise RuntimeError("too many unresolved orders for verified status query")
         self.rate.claim("reconcile")
         response = await self.order_api.account_orders(
             authorization=self.auth(),
-            client_order_indexes=",".join(map(str, client_ids[:20])),
+            client_order_indexes=",".join(map(str, client_ids)),
             account_index=self.account_index,
         )
         if response.code != 200:
             raise RuntimeError("Lighter order status request failed")
         return {o.client_order_index: o.to_dict() for o in response.orders}
 
+    async def recent_trades(self, market_id: int, after_id: int) -> list[dict[str, Any]]:
+        """Fetch complete newer fill history or fail closed on pagination limits."""
+        found: list[dict[str, Any]] = []
+        cursor: str | None = None
+        seen: set[str] = set()
+        for _ in range(5):
+            self.rate.claim("reconcile")
+            page = await self.order_api.trades(
+                sort_by="trade_id",
+                sort_dir="desc",
+                limit=100,
+                authorization=self.auth(),
+                account_index=self.account_index,
+                market_id=market_id,
+                cursor=cursor,
+            )
+            if page.code != 200:
+                raise RuntimeError("Lighter trade history unavailable")
+            trades = [trade.to_dict() for trade in page.trades]
+            for trade in trades:
+                if int(trade["trade_id"]) <= after_id:
+                    return found
+                found.append(trade)
+            if len(trades) < 100:
+                return found
+            cursor = page.next_cursor or None
+            if not cursor:
+                return found
+            if cursor in seen:
+                raise RuntimeError("Lighter trade history pagination incomplete")
+            seen.add(cursor)
+        raise RuntimeError("Lighter trade history exceeds verified page limit")
+
     async def send_ioc(
         self, intent: OrderIntent, market_id: int, size_decimals: int, price_decimals: int
     ) -> str:
-        self.rate.claim("entry" if intent.kind in {"ENTRY", "PROBE"} else "exit")
+        self.rate.claim("entry" if intent.kind in {"ENTRY", "PROBE"} else "exit", cost=2)
         base = int(intent.quantity * (10**size_decimals))
         price = int(intent.limit_price * (10**price_decimals))
         if base <= 0 or price <= 0:
@@ -234,7 +313,7 @@ class LighterAccount:
         price_decimals: int,
         trigger_price: Decimal,
     ) -> str:
-        self.rate.claim("exit")
+        self.rate.claim("exit", cost=2)
         async with self.lock:
             _tx, response, error = await asyncio.wait_for(
                 self.signer.create_sl_order(
@@ -255,7 +334,7 @@ class LighterAccount:
     async def cancel(self, market_id: int, exchange_order_index: int) -> str:
         if exchange_order_index <= 0:
             raise ValueError("exchange order index required for cancel")
-        self.rate.claim("exit")
+        self.rate.claim("exit", cost=2)
         async with self.lock:
             _tx, response, error = await asyncio.wait_for(
                 self.signer.cancel_order(market_index=market_id, order_index=exchange_order_index),

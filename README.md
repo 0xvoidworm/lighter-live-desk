@@ -14,4 +14,4 @@ cd frontend && npm ci && cd ..
 
 Open `http://127.0.0.1:5173`. The engine is the only order sender. Restarting the browser or dashboard does not create another engine.
 
-See [RUNBOOK.md](RUNBOOK.md) for user services, keys, funding, stop and recovery. See [PROGRESS.md](PROGRESS.md) for verified status and outstanding live blockers.
+See [RUNBOOK.md](RUNBOOK.md) for user services, keys, funding, stop and recovery. See [PROGRESS.md](PROGRESS.md) for verified status and [AUDIT_2026-09-30.md](AUDIT_2026-09-30.md) for the Binance and order-path evidence. Mainnet orders remain untested.

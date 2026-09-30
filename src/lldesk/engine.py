@@ -76,6 +76,16 @@ class Engine:
         if opened:
             self.position_opened_at = time.monotonic() - max(0, time.time() - float(opened))
 
+    def margin_settings_valid(self, snap: AccountSnapshot) -> bool:
+        return (
+            self.config.expected_account_trading_mode is not None
+            and self.config.expected_margin_mode is not None
+            and self.config.expected_initial_margin_fraction is not None
+            and snap.account_trading_mode == self.config.expected_account_trading_mode
+            and snap.margin_mode == self.config.expected_margin_mode
+            and snap.initial_margin_fraction == self.config.expected_initial_margin_fraction
+        )
+
     def exclusive(self) -> None:
         path = self.root / "state" / "engine.lock"
         lock_file = path.open("w")
@@ -270,40 +280,51 @@ class Engine:
                 for x in (group if isinstance(group, list) else [group])
             ]
         for trade in trades:
-            client_id = (
-                trade.get("ask_client_id")
-                if trade.get("ask_account_id") == event.account_index
-                else trade.get("bid_client_id")
+            self._record_trade(trade, event.account_index)
+
+    def _record_trade(self, trade: dict, account_index: int) -> None:
+        ask_owned = str(trade.get("ask_account_id")) == str(account_index)
+        bid_owned = str(trade.get("bid_account_id")) == str(account_index)
+        if not ask_owned and not bid_owned:
+            self.db.set_flag("account_incident_pending", "1")
+            raise ValueError("trade from another account")
+        if ask_owned and bid_owned:
+            self.db.set_flag("account_incident_pending", "1")
+            raise ValueError("self trade needs manual review")
+        client_id = trade.get("ask_client_id" if ask_owned else "bid_client_id")
+        if client_id is None:
+            self.db.set_flag("account_incident_pending", "1")
+            raise ValueError("trade missing client ID")
+        known = self.db.conn.execute(
+            "SELECT 1 FROM intents WHERE client_id=?", (int(client_id),)
+        ).fetchone()
+        if not known:
+            self.db.set_flag("account_incident_pending", "1")
+            raise ValueError("trade without local intent")
+        maker = bool(trade["is_maker_ask"]) == ask_owned
+        fee_micro = trade.get("maker_fee" if maker else "taker_fee")
+        if fee_micro is None:
+            self.db.set_flag("account_incident_pending", "1")
+            raise ValueError("trade fee unavailable")
+        inserted = self.db.add_fill(
+            str(trade["trade_id"]),
+            int(client_id),
+            str(trade["size"]),
+            str(trade["price"]),
+            str(dec(fee_micro) / Decimal(1_000_000)),
+            trade.get("timestamp"),
+        )
+        if inserted:
+            self.db.event(
+                "FILL",
+                {
+                    "trade_id": trade["trade_id"],
+                    "client_id": client_id,
+                    "size": trade["size"],
+                    "price": trade["price"],
+                },
             )
-            if client_id is None:
-                continue
-            known = self.db.conn.execute(
-                "SELECT 1 FROM intents WHERE client_id=?", (int(client_id),)
-            ).fetchone()
-            if not known:
-                self.entries_stopped = True
-                self.state = EngineState.PAUSED
-                self.reason = "fill tanpa intent lokal; periksa transaksi manual"
-            fee_micro = trade.get("taker_fee", trade.get("maker_fee", 0))
-            inserted = self.db.add_fill(
-                str(trade["trade_id"]),
-                int(client_id),
-                str(trade["size"]),
-                str(trade["price"]),
-                str(dec(fee_micro) / Decimal(1_000_000)),
-                trade.get("timestamp"),
-            )
-            if inserted:
-                self.db.event(
-                    "FILL",
-                    {
-                        "trade_id": trade["trade_id"],
-                        "client_id": client_id,
-                        "size": trade["size"],
-                        "price": trade["price"],
-                    },
-                )
-                self.entries_stopped = True
+            self.entries_stopped = True
 
     def data_valid(self) -> bool:
         now = time.monotonic_ns()
@@ -311,6 +332,9 @@ class Engine:
         return (
             all(book.valid and now - book.updated_ns < max_age for book in self.books.values())
             and self.books["binance"].bridged
+            and self.feeds is not None
+            and self.feeds.binance_public_ok
+            and self.feeds.binance_trades_ok
             and self.fx is not None
             and time.monotonic() - self.fx_at < 15
             and self.queue.qsize() < 1500
@@ -362,6 +386,10 @@ class Engine:
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
                 self.reason = "tier akun berubah; entry diblok"
+        if self.config.mode == "live_capable" and not self.margin_settings_valid(snapshot):
+            self.entries_stopped = True
+            self.state = EngineState.PAUSED
+            self.reason = "mode akun atau margin BTC belum terverifikasi"
         if snapshot.equity > self.config.max_funding_usd:
             raise RuntimeError("dedicated account equity exceeds $50 cap")
         if snapshot.other_positions or snapshot.other_assets:
@@ -391,6 +419,12 @@ class Engine:
                 self.state = EngineState.PAUSED
                 self.reason = "order manual/tidak dikenal; perlu rekonsiliasi"
         statuses = await self.account.order_statuses([x["client_id"] for x in unresolved])
+        after_id = int(self.db.flag("last_trade_id") or "0")
+        trades = await self.account.recent_trades(market_id, after_id)
+        for trade in reversed(trades):
+            self._record_trade(trade, self.account.account_index)
+        if trades:
+            self.db.set_flag("last_trade_id", str(max(int(t["trade_id"]) for t in trades)))
         for intent in unresolved:
             matched_order = statuses.get(intent["client_id"])
             if not matched_order:
@@ -496,8 +530,11 @@ class Engine:
             and not self.db.unresolved()
             and self.db.flag("daily_stop_day") != datetime.now(JAKARTA).date().isoformat()
             and self.db.flag("total_loss_stop") != "1"
+            and self.db.flag("funding_change_pending") != "1"
+            and self.db.flag("account_incident_pending") != "1"
             and Decimal(self.db.gross_deposits()) <= self.config.max_funding_usd
             and snapshot.account_type_code == self.config.expected_account_type_code
+            and self.margin_settings_valid(snapshot)
             and self.data_valid()
             and self.last_decision.basis_bps is not None
         ):
@@ -506,8 +543,15 @@ class Engine:
 
     def _update_baseline(self, snap: AccountSnapshot) -> None:
         day = datetime.now(JAKARTA).date().isoformat()
+        known_flows = {row[0] for row in self.db.conn.execute("SELECT flow_id FROM funding_flows")}
+        new_flows = {flow_id for flow_id, _ in snap.funding_flows} - known_flows
         flow = Decimal(self.db.record_flows(snap.funding_flows))
         self.current_flow = flow
+        if new_flows and self.db.flag("live_ever") == "1":
+            self.db.set_flag("funding_change_pending", "1")
+            self.entries_stopped = True
+            self.state = EngineState.PAUSED
+            self.reason = "arus dana berubah setelah sesi live; perlu audit manual"
         if Decimal(self.db.gross_deposits()) > self.config.max_funding_usd:
             self.entries_stopped = True
             self.state = EngineState.PAUSED
@@ -600,6 +644,7 @@ class Engine:
         if (
             time.time() - snap.received_at > 15
             or snap.account_type_code != self.config.expected_account_type_code
+            or not self.margin_settings_valid(snap)
             or snap.active_orders
             or self.db.flag("total_loss_stop") == "1"
             or self.db.flag("daily_stop_day") == datetime.now(JAKARTA).date().isoformat()
@@ -786,6 +831,7 @@ class Engine:
         blockers = self.live_blockers()
         if blockers:
             return "live diblok: " + ", ".join(blockers)
+        self.db.set_flag("live_ever", "1")
         self.session_end = time.monotonic() + self.config.session_seconds
         self.session_positions = 0
         self.entries_stopped = False
@@ -854,15 +900,27 @@ class Engine:
                     blockers.append("ukuran minimum legal melampaui kapasitas dan cadangan")
         if Decimal(self.db.gross_deposits()) > self.config.max_funding_usd:
             blockers.append("total deposit melampaui pagu")
+        if (
+            self.account_snapshot
+            and self.account_snapshot.equity > 0
+            and Decimal(self.db.gross_deposits()) <= 0
+        ):
+            blockers.append("asal dana akun belum tercatat di riwayat")
         if self.db.flag("daily_stop_day") == datetime.now(JAKARTA).date().isoformat():
             blockers.append("batas loss harian sudah dipicu")
         if self.db.flag("total_loss_stop") == "1":
             blockers.append("batas loss total sudah dipicu")
+        if self.db.flag("funding_change_pending") == "1":
+            blockers.append("arus dana berubah setelah sesi live")
+        if self.db.flag("account_incident_pending") == "1":
+            blockers.append("trade akun tidak dikenal atau tidak lengkap")
         if (
             self.account_snapshot
             and self.config.expected_account_type_code != self.account_snapshot.account_type_code
         ):
             blockers.append("tier akun belum cocok dengan verifikasi lokal")
+        if self.account_snapshot and not self.margin_settings_valid(self.account_snapshot):
+            blockers.append("mode akun atau margin BTC belum cocok dengan verifikasi lokal")
         if self.account_snapshot and (
             self.account_snapshot.other_positions or self.account_snapshot.other_assets
         ):
@@ -939,6 +997,11 @@ class Engine:
                 "realized_pnl": str(snap.realized_pnl),
                 "funding": str(snap.funding),
                 "account_type_code": snap.account_type_code,
+                "account_trading_mode": snap.account_trading_mode,
+                "margin_mode": snap.margin_mode,
+                "initial_margin_fraction": str(snap.initial_margin_fraction)
+                if snap.initial_margin_fraction is not None
+                else None,
                 "age_s": round(time.time() - snap.received_at, 1),
                 "daily_loss": str(self.baseline.daily_loss(snap.equity, self.current_flow))
                 if self.baseline
@@ -974,6 +1037,10 @@ class Engine:
             if self.last_cancel_ack_ms
             else None,
             "reconnects": self.feeds.reconnects if self.feeds else {},
+            "binance_streams": {
+                "public": self.feeds.binance_public_ok if self.feeds else False,
+                "market": self.feeds.binance_trades_ok if self.feeds else False,
+            },
             "live_blockers": self.live_blockers(),
             "engine_pid": os.getpid(),
         }

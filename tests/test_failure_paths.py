@@ -4,6 +4,7 @@ import asyncio
 import sqlite3
 import time
 from decimal import Decimal
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,7 +14,7 @@ from lldesk.api import create_app
 from lldesk.config import Config
 from lldesk.db import Database
 from lldesk.engine import Engine
-from lldesk.market import Book, Feeds, GapError
+from lldesk.market import BINANCE_MARKET_WS, BINANCE_PUBLIC_WS, Book, Feeds, GapError
 from lldesk.models import EngineState, OrderIntent, Quote, Stamp
 from lldesk.risk import EquityBaseline, size_entry
 from lldesk.strategy import Decision, DeviationStrategy
@@ -33,6 +34,29 @@ def test_binance_duplicate_bridge_and_gap() -> None:
     with pytest.raises(GapError):
         book.binance_delta({"U": 103, "u": 103, "pu": 101, "b": [], "a": []}, Stamp())
     assert not book.valid and book.gaps == 1
+
+
+def test_binance_first_delta_must_bridge_snapshot() -> None:
+    book = Book("binance")
+    book.binance_snapshot(
+        {"lastUpdateId": 100, "bids": [["100", "2"]], "asks": [["101", "1"]]}, Stamp()
+    )
+    with pytest.raises(GapError):
+        book.binance_delta({"U": 101, "u": 102, "pu": 100, "b": [], "a": []}, Stamp())
+    assert not book.valid
+
+
+def test_binance_streams_use_official_routes_and_equal_snapshot_bridge() -> None:
+    assert "/public/stream" in BINANCE_PUBLIC_WS
+    assert "bookTicker" in BINANCE_PUBLIC_WS and "depth@100ms" in BINANCE_PUBLIC_WS
+    assert "aggTrade" not in BINANCE_PUBLIC_WS
+    assert "/market/stream" in BINANCE_MARKET_WS and "aggTrade" in BINANCE_MARKET_WS
+    book = Book("binance")
+    book.binance_snapshot(
+        {"lastUpdateId": 100, "bids": [["100", "2"]], "asks": [["101", "1"]]}, Stamp()
+    )
+    book.binance_delta({"U": 99, "u": 100, "pu": 98, "b": [], "a": []}, Stamp())
+    assert book.bridged and book.sequence == 100
 
 
 def test_lighter_nonce_gap_ignores_noncontinuous_offset() -> None:
@@ -113,6 +137,7 @@ def test_entry_size_does_not_expand_to_market_minimum() -> None:
             Decimal(500),
             Decimal(0),
         )
+
     with pytest.raises(ValueError, match="capacity"):
         size_entry(
             cfg,
@@ -127,6 +152,16 @@ def test_entry_size_does_not_expand_to_market_minimum() -> None:
             1,
             Decimal(35),
             Decimal(0),
+        )
+
+
+def test_live_config_requires_verified_margin_settings() -> None:
+    with pytest.raises(ValueError, match="margin settings"):
+        Config(
+            mode="live_capable",
+            account_index=77,
+            expected_account_type_code=0,
+            allow_live_orders=True,
         )
 
 
@@ -155,6 +190,38 @@ def test_funding_flow_ledger_survives_restart_and_deduplicates(tmp_path) -> None
     db.close()
 
 
+@pytest.mark.asyncio
+async def test_transfer_inflow_is_counted_in_funding_cap() -> None:
+    adapter = LighterAccount(Config(mode="live_capable", account_index=77))
+
+    class History:
+        async def deposit_history(self, **kwargs):
+            return SimpleNamespace(code=200, deposits=[], cursor="")
+
+        async def withdraw_history(self, **kwargs):
+            return SimpleNamespace(code=200, withdraws=[], cursor="")
+
+        async def transfer_history(self, **kwargs):
+            return SimpleNamespace(
+                code=200,
+                cursor="",
+                transfers=[
+                    SimpleNamespace(
+                        id="x",
+                        amount="12",
+                        asset_id=3,
+                        type="L2TransferInflow",
+                        to_account_index=77,
+                        to_route="perps",
+                    )
+                ],
+            )
+
+    adapter.transaction_api = History()
+    adapter.auth = lambda: "fixture"  # type: ignore[method-assign]
+    assert await adapter.funding_history("wallet") == (("transfer:x:L2TransferInflow", "12"),)
+
+
 def test_daily_equity_stop_is_persistent_after_restart(tmp_path) -> None:
     def account(equity: str) -> AccountSnapshot:
         return AccountSnapshot(
@@ -180,6 +247,50 @@ def test_daily_equity_stop_is_persistent_after_restart(tmp_path) -> None:
     first.recorder.close()
     resumed = Engine(Config(), tmp_path)
     assert any("harian" in reason for reason in resumed.live_blockers())
+    resumed.db.close()
+    resumed.recorder.close()
+
+
+def test_funding_change_after_live_stays_blocked_after_restart(tmp_path) -> None:
+    snap = AccountSnapshot(
+        Decimal(40),
+        Decimal(40),
+        0,
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        (),
+        (),
+        (),
+        time.time(),
+        (("deposit:1", "40"),),
+    )
+    engine = Engine(Config(), tmp_path)
+    engine._update_baseline(snap)
+    engine.db.set_flag("live_ever", "1")
+    extra = AccountSnapshot(
+        Decimal(45),
+        Decimal(45),
+        0,
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        Decimal(0),
+        (),
+        (),
+        (),
+        time.time(),
+        (("deposit:1", "40"), ("transfer:2:L2TransferInflow", "5")),
+    )
+    engine._update_baseline(extra)
+    assert engine.db.flag("funding_change_pending") == "1"
+    engine.db.close()
+    engine.recorder.close()
+    resumed = Engine(Config(), tmp_path)
+    assert "arus dana berubah setelah sesi live" in resumed.live_blockers()
     resumed.db.close()
     resumed.recorder.close()
 
@@ -223,14 +334,83 @@ def test_second_engine_cannot_take_order_lock(tmp_path) -> None:
 
 def test_rate_budget_preserves_exit_and_reconcile_capacity() -> None:
     budget = RateBudget()
-    for _ in range(35):
+    for _ in range(40):
         budget.claim("entry")
     with pytest.raises(RuntimeError):
         budget.claim("entry")
-    for _ in range(20):
+    for _ in range(15):
         budget.claim("exit")
     with pytest.raises(RuntimeError):
         budget.claim("reconcile")
+
+
+def test_transaction_reservation_counts_sdk_requests() -> None:
+    budget = RateBudget()
+    for _ in range(39):
+        budget.claim("entry")
+    with pytest.raises(RuntimeError):
+        budget.claim("entry", cost=2)
+    budget.claim("exit", cost=2)
+    assert len(budget.calls) == 41
+
+
+@pytest.mark.asyncio
+async def test_trade_history_paginates_until_saved_id() -> None:
+    adapter = LighterAccount(Config(mode="live_capable", account_index=77))
+
+    class Trade:
+        def __init__(self, trade_id):
+            self.trade_id = trade_id
+
+        def to_dict(self):
+            return {"trade_id": self.trade_id}
+
+    class Page:
+        code = 200
+
+        def __init__(self, trades, cursor):
+            self.trades = trades
+            self.next_cursor = cursor
+
+    class Orders:
+        async def trades(self, **kwargs):
+            if kwargs["cursor"] is None:
+                return Page([Trade(x) for x in range(200, 100, -1)], "older")
+            return Page([Trade(100), Trade(99)], None)
+
+    adapter.order_api = Orders()
+    adapter.auth = lambda: "fixture"  # type: ignore[method-assign]
+    trades = await adapter.recent_trades(1, 100)
+    assert len(trades) == 100 and trades[0]["trade_id"] == 200
+
+
+def test_trade_from_another_account_or_unknown_intent_is_rejected(tmp_path) -> None:
+    engine = Engine(Config(), tmp_path)
+    trade = {
+        "trade_id": 3,
+        "ask_account_id": 88,
+        "bid_account_id": 99,
+        "ask_client_id": 1,
+        "bid_client_id": 2,
+        "is_maker_ask": False,
+        "size": "0.0001",
+        "price": "83000",
+        "maker_fee": 0,
+        "taker_fee": 0,
+    }
+    with pytest.raises(ValueError, match="another account"):
+        engine._record_trade(trade, 77)
+    trade["ask_account_id"] = 77
+    with pytest.raises(ValueError, match="without local intent"):
+        engine._record_trade(trade, 77)
+    assert engine.db.conn.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 0
+    assert engine.db.flag("account_incident_pending") == "1"
+    engine.db.close()
+    engine.recorder.close()
+    resumed = Engine(Config(), tmp_path)
+    assert "trade akun tidak dikenal atau tidak lengkap" in resumed.live_blockers()
+    resumed.db.close()
+    resumed.recorder.close()
 
 
 def test_strategy_needs_real_coverage_and_variation(monkeypatch) -> None:
@@ -287,6 +467,9 @@ async def test_timeout_after_durable_send_freezes_entries(tmp_path, monkeypatch)
             mode="live_capable",
             account_index=77,
             expected_account_type_code=0,
+            expected_account_trading_mode=0,
+            expected_margin_mode=0,
+            expected_initial_margin_fraction=Decimal(1),
             allow_live_orders=True,
         ),
         tmp_path,
@@ -323,6 +506,9 @@ async def test_timeout_after_durable_send_freezes_entries(tmp_path, monkeypatch)
         (),
         (),
         time.time(),
+        account_trading_mode=0,
+        margin_mode=0,
+        initial_margin_fraction=Decimal(1),
     )
 
     class LostAck:
@@ -353,6 +539,9 @@ async def test_journal_failure_prevents_send(tmp_path, monkeypatch) -> None:
             mode="live_capable",
             account_index=77,
             expected_account_type_code=0,
+            expected_account_trading_mode=0,
+            expected_margin_mode=0,
+            expected_initial_margin_fraction=Decimal(1),
             allow_live_orders=True,
         ),
         tmp_path,
@@ -389,6 +578,9 @@ async def test_journal_failure_prevents_send(tmp_path, monkeypatch) -> None:
         (),
         (),
         time.time(),
+        account_trading_mode=0,
+        margin_mode=0,
+        initial_margin_fraction=Decimal(1),
     )
 
     class NeverSend:
@@ -420,6 +612,8 @@ async def test_partial_fill_then_cancel_still_protects_real_position(tmp_path) -
     engine.db.order_state(1, "CANCEL_REQUESTED")
 
     class Exchange:
+        account_index = 77
+
         async def snapshot(self, market_id):
             return AccountSnapshot(
                 Decimal(50),
@@ -439,6 +633,25 @@ async def test_partial_fill_then_cancel_still_protects_real_position(tmp_path) -
         async def order_statuses(self, ids):
             return {1: {"status": "canceled", "filled_base_amount": "0.0001"}}
 
+        async def recent_trades(self, market_id, after_id):
+            if after_id >= 100:
+                return []
+            return [
+                {
+                    "trade_id": 100,
+                    "ask_account_id": 999,
+                    "bid_account_id": 77,
+                    "ask_client_id": 9,
+                    "bid_client_id": 1,
+                    "is_maker_ask": True,
+                    "size": "0.0001",
+                    "price": "83000",
+                    "taker_fee": 1000,
+                    "maker_fee": 0,
+                    "timestamp": 123,
+                }
+            ]
+
         async def send_stop(self, *args):
             return "stop-tx"
 
@@ -450,6 +663,10 @@ async def test_partial_fill_then_cancel_still_protects_real_position(tmp_path) -
     )
     assert engine.protection_id == 2
     assert engine.db.unresolved()[0]["kind"] == "STOP"
+    assert engine.db.conn.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 1
+    assert engine.db.conn.execute("SELECT fee FROM fills").fetchone()[0] == "0.001"
+    await engine.reconcile()
+    assert engine.db.conn.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 1
     engine.db.close()
     engine.recorder.close()
 
@@ -461,6 +678,7 @@ async def test_unowned_position_pauses_without_sending_order(tmp_path) -> None:
 
     class ManualPosition:
         called = False
+        account_index = 77
 
         async def snapshot(self, market_id):
             return AccountSnapshot(
@@ -480,6 +698,9 @@ async def test_unowned_position_pauses_without_sending_order(tmp_path) -> None:
 
         async def order_statuses(self, ids):
             return {}
+
+        async def recent_trades(self, market_id, after_id):
+            return []
 
         async def send_stop(self, *args):
             self.called = True

@@ -7,12 +7,12 @@ type Status = {
   connected?: boolean; state?: string; reason?: string; mode?: string; updated_at?: number;
   market_id?: number | null; quotes?: Record<string, Venue>; fx_usdcusdt?: string | null;
   decision?: { side?: string | null; deviation_bps?: string | null; basis_bps?: string | null; reasons?: string[]; version?: string };
-  account?: { equity: string; available: string; position_qty: string; position_price: string; unrealized_pnl: string; realized_pnl: string; funding: string; age_s: number; daily_loss?: string; total_loss?: string; funding_budget_remaining?: string; effective_exposure_usd?: string; recorded_fees?: string } | null;
+  account?: { equity: string; available: string; position_qty: string; position_price: string; unrealized_pnl: string; realized_pnl: string; funding: string; age_s: number; daily_loss?: string; total_loss?: string; funding_budget_remaining?: string; effective_exposure_usd?: string; recorded_fees?: string; account_trading_mode?: number | null; margin_mode?: number | null; initial_margin_fraction?: string | null } | null;
   entries_stopped?: boolean; session_remaining_s?: number; session_positions?: number; max_session_positions?: number;
   probe_used?: boolean;
   pending_orders?: { client_id: number; kind: string; state: string; qty: string; side: string }[];
   protection_id?: number | null; protection_confirmed?: boolean; exit_id?: number | null; journal_ok?: boolean; queue_backlog?: number;
-  event_loop_lag_ms?: number; last_order_ack_ms?: number | null; last_cancel_ack_ms?: number | null; reconnects?: Record<string, number>; live_blockers?: string[];
+  event_loop_lag_ms?: number; last_order_ack_ms?: number | null; last_cancel_ack_ms?: number | null; reconnects?: Record<string, number>; binance_streams?: { public?: boolean; market?: boolean }; live_blockers?: string[];
   events?: { at: number; kind: string; body: Record<string, unknown> }[];
 }
 
@@ -88,6 +88,7 @@ function App() {
           <div className="kv"><span>Eksposur efektif + entry pending</span><strong>{account ? '$' + money(account.effective_exposure_usd) : '—'}</strong></div>
           <div className="kv"><span>Loss harian / total</span><strong>{account ? `${money(account.daily_loss)} / ${money(account.total_loss)}` : '—'}</strong></div>
           <div className="kv"><span>Budget pendanaan tersisa</span><strong>{account ? '$' + money(account.funding_budget_remaining) : '—'}</strong></div>
+          <div className="kv"><span>Mode akun / margin BTC / fraksi awal</span><strong>{account ? `${account.account_trading_mode ?? '—'} / ${account.margin_mode ?? '—'} / ${account.initial_margin_fraction ?? '—'}` : '—'}</strong></div>
           <div className="kv"><span>Proteksi</span><strong>{data.protection_id ? `#${data.protection_id} · ${data.protection_confirmed ? 'dikonfirmasi bursa' : 'belum dikonfirmasi'}` : 'Belum terkonfirmasi'}</strong></div>
         </section>
       </div>
@@ -110,6 +111,7 @@ function App() {
 
       <section className="card telemetry"><div className="sectionHead"><h2>Telemetri & jurnal</h2><span className={`pill ${data.journal_ok ? 'good' : 'bad'}`}>Jurnal {data.journal_ok ? 'sehat' : 'belum sehat'}</span></div>
         <div className="metrics four"><div><span>Queue backlog</span><strong>{data.queue_backlog ?? '—'}</strong></div><div><span>Event loop lag</span><strong>{data.event_loop_lag_ms ?? '—'} ms</strong></div><div><span>Reconnect Binance</span><strong>{data.reconnects?.binance ?? '—'}</strong></div><div><span>Reconnect Lighter</span><strong>{data.reconnects?.lighter ?? '—'}</strong></div></div>
+        <div className="kv"><span>Binance public / market</span><strong>{connected ? `${data.binance_streams?.public ? 'tersambung' : 'terputus'} / ${data.binance_streams?.market ? 'tersambung' : 'terputus'}` : '—'}</strong></div>
         <div className="metrics four"><div><span>Ack order lokal</span><strong>{data.last_order_ack_ms ?? '—'} ms</strong></div><div><span>Ack cancel lokal</span><strong>{data.last_cancel_ack_ms ?? '—'} ms</strong></div><div><span>Gap Binance</span><strong>{q.binance?.gaps ?? '—'}</strong></div><div><span>Gap Lighter</span><strong>{q.lighter?.gaps ?? '—'}</strong></div></div>
         <div className="sectionHead space"><h2>Order belum final</h2></div><div className="orderList">{data.pending_orders?.length ? data.pending_orders.map(o => <div className="kv" key={o.client_id}><span>#{o.client_id} {o.kind} {o.side} {o.qty}</span><strong>{o.state}</strong></div>) : <p className="subtle">Tidak ada order tercatat yang belum final.</p>}</div>
         <div className="sectionHead space"><h2>Peristiwa terakhir</h2></div><div className="events">{data.events?.length ? data.events.map((e, i) => <div key={i}><time>{time(e.at)}</time><b>{e.kind}</b><span>{JSON.stringify(e.body)}</span></div>) : <p className="subtle">Belum ada peristiwa.</p>}</div>

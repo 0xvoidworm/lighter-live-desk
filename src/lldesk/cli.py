@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+from decimal import Decimal
 from pathlib import Path
 
 import uvicorn
@@ -55,7 +56,12 @@ def main() -> None:
         ):
             print(f"{key}: {m[key]}")
     elif args.command == "account-check":
-        asyncio.run(account_check())
+        try:
+            asyncio.run(account_check())
+        except Exception as exc:
+            raise SystemExit(
+                f"account-check gagal: {type(exc).__name__}; periksa konfigurasi dan akun lokal"
+            ) from None
     elif args.command == "backup":
         db = Database(repo_root() / "state" / "desk.db")
         try:
@@ -74,11 +80,28 @@ async def account_check() -> None:
         snapshot = await adapter.snapshot(int(market["market_id"]))
         print(f"account_index: {adapter.account_index}")
         print(f"account_type_code: {snapshot.account_type_code}")
+        print(f"account_trading_mode: {snapshot.account_trading_mode}")
+        print(f"BTC_margin_mode: {snapshot.margin_mode}")
+        print(f"BTC_initial_margin_fraction: {snapshot.initial_margin_fraction}")
         print(f"equity: {snapshot.equity}")
         print(f"available: {snapshot.available}")
         print(f"BTC_position_qty: {snapshot.position_qty}")
         print(f"active_orders: {len(snapshot.active_orders)}")
         print(f"other_positions: {len(snapshot.other_positions)}")
         print(f"other_assets: {len(snapshot.other_assets)}")
+        print(f"funding_flows: {len(snapshot.funding_flows)}")
+        print(
+            "gross_history_inflow: "
+            + str(
+                sum(
+                    (
+                        Decimal(amount)
+                        for _, amount in snapshot.funding_flows
+                        if Decimal(amount) > 0
+                    ),
+                    Decimal(0),
+                )
+            )
+        )
     finally:
         await adapter.close()

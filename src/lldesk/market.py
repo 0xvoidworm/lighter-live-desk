@@ -14,10 +14,10 @@ import websockets
 
 from .models import MarketEvent, Quote, Stamp
 
-BINANCE_WS = (
-    "wss://fstream.binance.com/public/stream?streams="
-    "btcusdt@bookTicker/btcusdt@depth@100ms/btcusdt@aggTrade"
+BINANCE_PUBLIC_WS = (
+    "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
 )
+BINANCE_MARKET_WS = "wss://fstream.binance.com/market/stream?streams=btcusdt@aggTrade"
 BINANCE_DEPTH = "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=1000"
 LIGHTER_WS = "wss://mainnet.zklighter.elliot.ai/stream"
 LIGHTER_MARKETS = "https://mainnet.zklighter.elliot.ai/api/v1/orderBookDetails?filter=perp"
@@ -71,9 +71,9 @@ class Book:
         if self.sequence is None:
             raise GapError("Binance delta before snapshot")
         u, first = int(data["u"]), int(data["U"])
-        if u <= self.sequence:
+        if u < self.sequence or (self.bridged and u <= self.sequence):
             return
-        if first > self.sequence + 1:
+        if first > self.sequence + (1 if self.bridged else 0):
             self.gaps += 1
             self.invalidate()
             raise GapError("Binance sequence gap")
@@ -186,6 +186,8 @@ class Feeds:
         self.market_id = market_id
         self.queue = queue
         self.reconnects = {"binance": 0, "lighter": 0}
+        self.binance_public_ok = False
+        self.binance_trades_ok = False
 
     async def emit(
         self, venue: str, kind: str, payload: dict[str, Any], exchange_ms: int | None = None
@@ -205,11 +207,17 @@ class Feeds:
             raise GapError(f"{venue} queue overflow; resync required") from exc
 
     async def binance(self) -> None:
+        async with asyncio.TaskGroup() as group:
+            group.create_task(self._binance_public())
+            group.create_task(self._binance_trades())
+
+    async def _binance_public(self) -> None:
         while True:
             try:
                 async with websockets.connect(
-                    BINANCE_WS, ping_interval=20, max_queue=256, open_timeout=10
+                    BINANCE_PUBLIC_WS, ping_interval=20, max_queue=256, open_timeout=10
                 ) as ws:
+                    self.binance_public_ok = True
                     buffered: list[dict[str, Any]] = []
                     snap_task = asyncio.create_task(self._binance_snapshot())
                     try:
@@ -235,6 +243,25 @@ class Feeds:
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
+                self.binance_public_ok = False
+                self.reconnects["binance"] += 1
+                await self.emit("binance", "disconnect", {"reason": type(exc).__name__})
+                await asyncio.sleep(min(2 ** min(self.reconnects["binance"], 5), 30))
+
+    async def _binance_trades(self) -> None:
+        while True:
+            try:
+                async with websockets.connect(
+                    BINANCE_MARKET_WS, ping_interval=20, max_queue=256, open_timeout=10
+                ) as ws:
+                    self.binance_trades_ok = True
+                    async for raw in ws:
+                        message = json.loads(raw)
+                        await self._binance_message(message.get("data", message))
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                self.binance_trades_ok = False
                 self.reconnects["binance"] += 1
                 await self.emit("binance", "disconnect", {"reason": type(exc).__name__})
                 await asyncio.sleep(min(2 ** min(self.reconnects["binance"], 5), 30))

@@ -15,6 +15,9 @@ class Config(BaseModel):
     mode: str = "observe"
     account_index: int | None = None
     expected_account_type_code: int | None = None
+    expected_account_trading_mode: int | None = None
+    expected_margin_mode: int | None = None
+    expected_initial_margin_fraction: Decimal | None = None
     account_type: str = "standard"
     market_symbol: str = "BTC"
     max_funding_usd: Decimal = Decimal("50")
@@ -56,6 +59,15 @@ class Config(BaseModel):
             raise ValueError("allow_live_orders requires live_capable mode")
         if self.allow_live_orders and self.expected_account_type_code is None:
             raise ValueError("verify the account tier code locally before enabling live orders")
+        if self.allow_live_orders and any(
+            value is None
+            for value in (
+                self.expected_account_trading_mode,
+                self.expected_margin_mode,
+                self.expected_initial_margin_fraction,
+            )
+        ):
+            raise ValueError("verify account trading and BTC margin settings before live orders")
         return self
 
 
