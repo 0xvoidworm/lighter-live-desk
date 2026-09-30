@@ -5,7 +5,7 @@ After=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=%h/lighter-live-desk
-ExecStart=%h/.local/bin/uv run --frozen lldesk engine
+ExecStart=%h/lighter-live-desk/.venv/bin/lldesk engine
 Restart=on-failure
 RestartSec=5
 UMask=0077

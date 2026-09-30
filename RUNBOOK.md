@@ -26,6 +26,8 @@ systemctl --user start lighter-live-desk-engine.service lighter-live-desk-api.se
 
 Buka `http://127.0.0.1:8765`. Unit tidak di-*enable* otomatis. Jika nanti diaktifkan saat login, engine selalu mulai dengan entry berhenti dan rekonsiliasi dahulu. Lihat log melalui `journalctl --user -u lighter-live-desk-engine.service -f`; jangan menyalin log berisi data akun ke ruang publik.
 
+Unit memakai `~/lighter-live-desk/.venv/bin/lldesk` yang dibuat oleh `uv sync` di atas. Unit telah dipasang pada user ini dan diuji start/stop; status akhirnya `inactive` dan `disabled`.
+
 ## Pendanaan dan key lokal
 
 1. Siapkan akun/subakun Lighter **Standard** khusus eksperimen, kosong dari posisi, order, dan aset lain. Pastikan wilayah, akun, dan akses pengguna memenuhi aturan platform. Konfirmasi jenis akun, margin konservatif, market BTC perpetual, biaya aktual, dan batas min order di UI serta `uv run --frozen lldesk market-check`.
