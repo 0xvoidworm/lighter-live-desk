@@ -1,0 +1,47 @@
+[project]
+name = "lighter-live-desk"
+version = "0.1.0"
+description = "Local, safety-gated BTC perpetual desk for Lighter Standard"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "aiohttp>=3.11,<4",
+  "fastapi>=0.115,<1",
+  "httpx>=0.28,<1",
+  "lighter-sdk @ git+https://github.com/elliottech/lighter-python.git@78db23f632de8deca9a232a61bbd3bf6e79fc522",
+  "pydantic>=2.10,<3",
+  "uvicorn>=0.34,<1",
+  "websockets>=15,<17",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "pytest-asyncio>=0.25,<2", "ruff>=0.11,<1", "mypy>=1.15,<2"]
+
+[project.scripts]
+lldesk = "lldesk.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lldesk"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src/lldesk"]
+ignore_missing_imports = true
+check_untyped_defs = true

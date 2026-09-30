@@ -1,0 +1,15 @@
+[Unit]
+Description=Lighter Live Desk local dashboard API
+After=lighter-live-desk-engine.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/lighter-live-desk
+ExecStart=%h/.local/bin/uv run --frozen lldesk api
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

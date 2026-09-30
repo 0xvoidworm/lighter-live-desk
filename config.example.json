@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "mode": "observe",
+  "account_index": null,
+  "expected_account_type_code": null,
+  "account_type": "standard",
+  "market_symbol": "BTC",
+  "max_funding_usd": "50",
+  "max_entry_notional_usd": "25",
+  "max_trade_risk_usd": "0.50",
+  "daily_loss_limit_usd": "5",
+  "max_total_loss_usd": "50",
+  "max_effective_leverage": "1",
+  "exit_reserve_usd": "2",
+  "max_quote_basis_bps": "10",
+  "max_data_age_ms": 1500,
+  "warmup_seconds": 600,
+  "max_hold_seconds": 180,
+  "session_seconds": 1800,
+  "max_session_positions": 3,
+  "allow_live_orders": false
+}

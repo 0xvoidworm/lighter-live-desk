@@ -1,0 +1,14 @@
+.venv/
+node_modules/
+frontend/dist/
+state/
+config.json
+secrets.json
+*.db
+*.db-*
+*.log
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.pyc
