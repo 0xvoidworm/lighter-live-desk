@@ -1,0 +1,25 @@
+# Decisions and API evidence
+
+Checked 2026-09-30 (Asia/Jakarta), Fedora 44, user `yuri`, home `/home/yuri`.
+
+| Source | Verified finding |
+| --- | --- |
+| [Lighter WebSocket](https://apidocs.lighter.xyz/docs/websocket-reference) | Mainnet `wss://mainnet.zklighter.elliot.ai/stream`; ping at least every 2 minutes. Book sends a snapshot on subscribe, then changes; continuity uses `begin_nonce == previous nonce`. `offset` increases but is not continuous or stable across server reconnect. |
+| [Lighter orderBookDetails](https://apidocs.lighter.xyz/reference/orderbookdetails) and public response | `GET /api/v1/orderBookDetails?filter=perp` on 2026-09-30 returned BTC market ID **1**, min base `0.00007`, min quote `10.000000`, size decimals 5, price decimals 1, quote asset ID 0, fees 0/0. IDs and limits must be rechecked on each engine start. |
+| [Lighter account types](https://apidocs.lighter.xyz/docs/account-types) | Standard shown as 0 maker/taker fee; taker and cancel 300 ms; maker latency listed as 0 ms here. |
+| [Lighter fees](https://docs.lighter.xyz/trading/trading-fees) | Standard shown as 0 maker/taker fee; taker/cancel 300 ms; **maker latency 200 ms**, conflicting with account types. Do not assume either maker number. Strategy uses IOC taker and measures actual timing. |
+| [Lighter limits](https://apidocs.lighter.xyz/docs/rate-limits) | Standard 60 requests/min. `sendTx`, `sendTxBatch`, `nextNonce` have weight 6; active/inactive/account orders weight 100 and other REST weight 300 for premium weighted comparison. WS 200 client messages/min, 50 inflight, 500 subscriptions/connection. Reserve capacity for reconcile/exit. |
+| [Binance USD-M WS](https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams) | Public combined stream path is `/public/stream`; use `btcusdt@bookTicker`, `btcusdt@depth@100ms`, `btcusdt@aggTrade`. Depth uses U/u/pu and REST snapshot. Binance is data only. |
+| [Official SDK](https://github.com/elliottech/lighter-python) | `lighter-sdk` version 1.1.5, pinned Git commit `78db23f632de8deca9a232a61bbd3bf6e79fc522`. `SignerClient.create_order` supports IOC, reduce-only and trigger price. Its bundled signer library owns cryptography. |
+| [Lighter deposits](https://apidocs.lighter.xyz/docs/deposits-transfers-and-withdrawals) | Perpetual collateral is USDC. Universal Deposit Address supports USDT on listed chains and credits USDC; conversion/bridge costs remain part of the $50 source budget. No transfer performed. Account-specific history fields/status still need live verification. |
+| [Binance public spot endpoint](https://developers.binance.com/en/docs/products/spot/rest-api) | `data-api.binance.vision` USDCUSDT bookTicker is reachable and supplies a capped 10 bps quote normalization check. This is a spot FX proxy, not proof of exact perpetual collateral conversion. |
+
+Python 3.12 is used because the requested architecture and official Lighter signer SDK are Python based; this is a direct task requirement and avoids implementing signing in Rust.
+
+The public market response is observational evidence only. Before any real order, the dedicated account's tier, fee, margin mode, min order, tick/step, collateral and usable equity must be fetched and matched with local limits. USDT possession does not prove the Lighter deposit asset/network. No automated funding transfer is implemented.
+
+Local integration check: Lighter BTC book and Binance Spot USDCUSDT quote were received. `fstream.binance.com` and `fapi.binance.com` refused connections on this laptop, so Binance USD-M depth/trades and full paired-feed behavior remain unverified. Engine keeps entry disabled; no alternate endpoint was used to bypass that restriction.
+
+SDK `cancel_order(market_index, order_index)` takes the **exchange order index**, while local intent identity is `client_order_index`. The engine resolves the exchange index through authenticated order status before cancel; if unavailable it retains UNKNOWN and blocks entry. SDK model fields and account-wide active orders were checked against the pinned source, but live response values remain unverified.
+
+Risk parameters (entry $25, risk $0.50, daily equity loss $5, total $50, hold 180 s, session 30 min/3 positions, initial 8 bps or 4 MAD signal) are `HEURISTIC_UNVALIDATED`. One probe and one session would test execution plumbing only, not profitability or production maturity. The Binance maker latency discrepancy is unresolved and measured order/cancel timing needs a real account.
