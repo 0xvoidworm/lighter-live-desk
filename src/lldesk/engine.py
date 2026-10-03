@@ -1156,6 +1156,19 @@ class Engine:
             self.exit_id = client_id
             self.db.order_state(client_id, OrderState.SENT)
             sent_at = time.monotonic()
+            self.db.event(
+                "EXIT_DISPATCH",
+                {
+                    "client_id": client_id,
+                    "side": side,
+                    "quantity": str(qty),
+                    "reference_price": str(best),
+                    "limit_price": str(price),
+                    "slippage_limit_bps": str((Decimal(30), Decimal(60), Decimal(100))[attempts]),
+                    "reduce_only": True,
+                    "attempt": attempts + 1,
+                },
+            )
             tx = await self.account.send_ioc(
                 OrderIntent(client_id, "EXIT", side, qty, price, Stamp()),
                 int(self.market["market_id"]),

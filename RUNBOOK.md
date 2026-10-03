@@ -1,5 +1,20 @@
 # Runbook Lighter Live Desk
 
+Sebelum probe setelah perubahan parameter signing, jalankan
+`uv run --frozen pytest -q tests/test_sdk_signing.py`. Regresi ini memeriksa
+pin distribusi resmi, melewati adapter entry/stop/cancel/close dan signer native
+yang sesungguhnya dengan key sementara; nonce lookup dan transport diganti,
+seluruh I/O jaringan diblokir. IOC lama expiry -1 harus ditolak sebelum
+transport, IOC expiry 0 dan stop helper resmi harus berhasil ditandatangani.
+Ini bukti lokal, bukan bukti penerimaan atau fill mainnet.
+
+Izin baru untuk satu percobaan hanya boleh mengaktifkan ulang flag sekali-pakai
+setelah intent lama terminal dan ketidakpastian broadcast terselesaikan serta
+account-check terbaru membuktikan posisi/order nol. Simpan backup dan event
+PROBE_REARM_AUTHORIZATION; jangan hapus intent, fill, counter ID, atau audit
+lama. Tidak ada rearm otomatis sesudah entry gagal/ambigu. EXIT_DISPATCH
+mencatat harga acuan dan batas slippage sebelum close reduce-only dikirim.
+
 IOC entry/exit harus mengirim order_expiry=0. Percobaan 3 Oktober berhenti
 di signing lokal karena adapter memakai default SDK -1; tidak ada broadcast,
 fill, stop atau close mainnet. Penolakan lokal yang definitif dicatat REJECTED,
