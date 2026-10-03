@@ -11,7 +11,7 @@ import pytest
 
 from lldesk.account import AccountSnapshot, DispatchBlocked, LocalOrderRejected, RateBudget
 from lldesk.config import Config
-from lldesk.engine import JAKARTA, Engine
+from lldesk.engine import JAKARTA, Engine, TradeFeeUnavailable
 from lldesk.models import EngineState, OrderState, Stamp
 from lldesk.strategy import Decision
 
@@ -123,6 +123,70 @@ def engine(tmp_path):
 async def drain(engine):
     await asyncio.gather(*engine.entry_tasks)
     await asyncio.sleep(0)
+
+
+async def test_missing_mainnet_fee_reduces_fresh_exposure_without_claiming_audit(engine):
+    engine.probe_active = True
+    engine.db.set_flag("probe_pending", "1")
+    engine.db.intent(1, "PROBE", "buy", "0.00012", "83001")
+    engine.account.current = replace(
+        engine.account_snapshot,
+        position_qty=Decimal("0.00012"),
+        position_price=Decimal("83000"),
+    )
+    trade = {
+        "trade_id": 33141524453,
+        "ask_account_id": 88,
+        "bid_account_id": 77,
+        "ask_client_id": 999,
+        "bid_client_id": 1,
+        "is_maker_ask": True,
+        "maker_fee": None,
+        "taker_fee": None,
+        "size": "0.00012",
+        "price": "83000",
+    }
+
+    async def trades(*args, **kwargs):
+        return [trade]
+
+    engine.account.recent_trades = trades
+    audit_before = engine.last_reconcile_ok
+    for _ in range(2):
+        with pytest.raises(TradeFeeUnavailable):
+            await engine.reconcile()
+    assert len(engine.account.sent) == 1
+    assert engine.account.sent[0].kind == "EXIT"
+    assert engine.account.sent[0].quantity == Decimal("0.00012")
+    assert engine.account_snapshot.position_qty == Decimal("0.00012")
+    assert engine.entries_stopped and engine.manual_exposure
+    assert engine.db.flag("close_requested") == "1"
+    assert engine.db.flag("account_incident_pending") == "1"
+    assert engine.db.flag("probe_pending") == "1"
+    assert engine.last_reconcile_ok == audit_before
+    assert engine.db.conn.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 0
+
+
+def test_missing_fee_repeat_requires_matching_previously_audited_fill(engine):
+    engine.db.intent(1, "PROBE", "buy", "0.00012", "83001")
+    engine.db.add_fill("123", 1, "0.00012", "83000", "0", None)
+    trade = {
+        "trade_id": 123,
+        "ask_account_id": 88,
+        "bid_account_id": 77,
+        "ask_client_id": 999,
+        "bid_client_id": 1,
+        "is_maker_ask": True,
+        "taker_fee": None,
+        "size": "0.00012",
+        "price": "83000",
+    }
+    engine._record_trade(trade, 77)
+    assert engine.db.flag("account_incident_pending") is None
+    assert engine.db.conn.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 1
+    trade["price"] = "83001"
+    with pytest.raises(ValueError, match="economics changed"):
+        engine._record_trade(trade, 77)
 
 
 async def test_probe_does_not_open_strategy_even_with_immediate_signal(engine):

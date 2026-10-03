@@ -36,6 +36,10 @@ JAKARTA = ZoneInfo("Asia/Jakarta")
 ACCOUNT_RECONCILE_INTERVAL_SECONDS = 12
 
 
+class TradeFeeUnavailable(ValueError):
+    """A known account fill needs a fee audit; exposure still needs reduction."""
+
+
 class Engine:
     def __init__(self, config: Config, root: Path | None = None):
         self.config = config
@@ -363,8 +367,27 @@ class Engine:
         maker = bool(trade["is_maker_ask"]) == ask_owned
         fee_micro = trade.get("maker_fee" if maker else "taker_fee")
         if fee_micro is None:
+            stored = self.db.conn.execute(
+                "SELECT client_id,qty,price FROM fills WHERE fill_id=?",
+                (str(trade["trade_id"]),),
+            ).fetchone()
+            if stored is not None:
+                if (
+                    stored[0] == int(client_id)
+                    and dec(stored[1]) == dec(trade["size"])
+                    and dec(stored[2]) == dec(trade["price"])
+                ):
+                    return  # Previously audited fill; no invented fee for a new trade.
+                self.db.set_flag("account_incident_pending", "1")
+                raise ValueError("previously audited trade economics changed")
+            if self.db.flag("account_incident_pending") != "1":
+                self.db.event(
+                    "FEE_AUDIT_BLOCKED",
+                    {"client_id": client_id, "trade_id": trade["trade_id"]},
+                )
             self.db.set_flag("account_incident_pending", "1")
-            raise ValueError("trade fee unavailable")
+            self.db.set_flag("close_requested", "1")
+            raise TradeFeeUnavailable("trade fee unavailable")
         inserted = self.db.add_fill(
             str(trade["trade_id"]),
             int(client_id),
@@ -568,7 +591,20 @@ class Engine:
             statuses = await self.account.order_statuses(client_ids)
             trades = await self.account.recent_trades(market_id, after_id)
         for trade in reversed(trades):
-            self._record_trade(trade, self.account.account_index)
+            try:
+                self._record_trade(trade, self.account.account_index)
+            except TradeFeeUnavailable:
+                # Do not let missing accounting metadata hide fresh exposure.
+                # Audit remains failed, while the established exit path uses
+                # actual exchange size and remains reduce-only / once in flight.
+                self.account_snapshot = snapshot
+                self.manual_exposure = bool(snapshot.position_qty)
+                self.entries_stopped = True
+                self.state = EngineState.PAUSED
+                self.reason = "fee fill belum tersedia; audit tertahan, close darurat"
+                if snapshot.position_qty:
+                    await self.close_position()
+                raise
         if trades:
             self.db.set_flag("last_trade_id", str(max(int(t["trade_id"]) for t in trades)))
         for intent in unresolved:
