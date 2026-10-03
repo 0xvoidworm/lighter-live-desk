@@ -8,6 +8,15 @@ seluruh I/O jaringan diblokir. IOC lama expiry -1 harus ditolak sebelum
 transport, IOC expiry 0 dan stop helper resmi harus berhasil ditandatangani.
 Ini bukti lokal, bukan bukti penerimaan atau fill mainnet.
 
+Pada percobaan kedua, entry/fill dan close darurat reduce-only mainnet terbukti,
+tetapi stop tidak dikirim: API trade tidak memberi fee dan ledger menahan
+rekonsiliasi. Lihat AUDIT_PROBE_2026-10-03_SECOND.md. Fee yang hilang sekarang
+memicu pengurangan exposure dengan snapshot aktual melalui close darurat;
+full audit tetap gagal sampai metadata fee diaudit. Jangan mengisi fee null
+dengan nol tanpa bukti. Fill yang sudah diaudit hanya dapat didedup jika ID,
+ukuran dan harga cocok. Lifecycle dengan stop diterima exchange masih belum
+dibuktikan; START_LIVE tetap tidak diizinkan.
+
 Izin baru untuk satu percobaan hanya boleh mengaktifkan ulang flag sekali-pakai
 setelah intent lama terminal dan ketidakpastian broadcast terselesaikan serta
 account-check terbaru membuktikan posisi/order nol. Simpan backup dan event
@@ -15,7 +24,7 @@ PROBE_REARM_AUTHORIZATION; jangan hapus intent, fill, counter ID, atau audit
 lama. Tidak ada rearm otomatis sesudah entry gagal/ambigu. EXIT_DISPATCH
 mencatat harga acuan dan batas slippage sebelum close reduce-only dikirim.
 
-IOC entry/exit harus mengirim order_expiry=0. Percobaan 3 Oktober berhenti
+IOC entry/exit harus mengirim order_expiry=0. Percobaan pertama 3 Oktober berhenti
 di signing lokal karena adapter memakai default SDK -1; tidak ada broadcast,
 fill, stop atau close mainnet. Penolakan lokal yang definitif dicatat REJECTED,
 hasil network/API yang tidak pasti tetap UNKNOWN. probe_used tidak direset
@@ -38,11 +47,12 @@ detik tetap berlaku meskipun polling akun gagal. Stop tidak dikirim ulang pada
 hasil ambigu. Pending probe bertahan sampai cleanup dan audit dana lengkap,
 termasuk ketika posisi telah flat sebelum restart.
 
-Status 2026-10-03: akun Standard dan setting BTC Cross 1x sudah diverifikasi
-di UI/API nyata. Mode lokal `live_capable` dengan `allow_live_orders=false`;
-entry tetap berhenti. Feed publik Binance dan Lighter sudah diverifikasi
-bersama. Order/fill, proteksi dan close mainnet belum diuji. Sebelum probe
-pertama, gunakan jalur probe khusus seperti catatan di bawah.
+Status 2026-10-03 setelah percobaan kedua: akun Standard dan setting BTC Cross
+1x diverifikasi di UI/API nyata. Saldo 49,430576 USDC, posisi/order nol, mode
+lokal `live_capable` dengan `allow_live_orders=false`, entry tetap berhenti.
+Feed Binance/Lighter, entry/fill dan close darurat mainnet telah diverifikasi;
+proteksi exchange belum dibuktikan. Percobaan tambahan membutuhkan izin baru
+dan tetap memakai jalur probe khusus seperti catatan di bawah.
 Bukti jaringan sebelum perbaikan ada di `AUDIT_2026-09-30.md`; hasil perbaikan ada di
 `LOCAL_FIX_2026-09-30.md`. Jangan menyebut dashboard siap live sampai
 `live_blockers` kosong, hasil `account-check` cocok dengan akun dedicated, dan

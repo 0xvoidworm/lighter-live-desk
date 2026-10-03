@@ -1,5 +1,31 @@
 # Progress
 
+## Terbaru — 3 Oktober 2026, entry terisi dan close darurat selesai
+
+Izin baru satu entry digunakan setelah audit percobaan lama, regresi signer
+native tanpa jaringan, 193 tes, dan preflight READY lolos. Entry client 2 BUY
+0,00012 BTC terisi 84.539,0. API trade tidak memberi fee, sehingga rekonsiliasi
+berhenti sebelum stop dipasang. Lifecycle proteksi gagal; close darurat client 3
+reduce-only terisi penuh pada 84.543,8. Account/order REST sesudahnya membuktikan
+posisi dan seluruh order nol, ledger kas cocok, saldo 49,430576 USDC, PnL kas
++0,000576 dan biaya net agregat nol. Field fee per trade API tetap tidak tersedia;
+provenance fee ledger adalah audit kas, bukan fee API. Durasi posisi 200,257
+detik melampaui rencana 180; clock exchange/lokal berbeda sekitar 6h33m dan
+keduanya dipertahankan di audit.
+
+Commit fa95fb9 memverifikasi signing IOC/stop/cancel/close sesungguhnya dengan
+key sementara tanpa broadcast dan mencatat quote close. Commit 285727b memastikan
+fee hilang tidak menahan pengurangan exposure: snapshot posisi segar dipakai
+untuk close darurat sekali dalam flight, audit tetap gagal, fee nol tidak diisi
+otomatis. 195 tes/lint/format/mypy/SQLite lulus. Izin order dimatikan, probe_used
+tetap 1, probe_pending 0. IDLE terverifikasi 23:34:59 WIB setelah restart/warm-up:
+PID 86819, saldo tetap, posisi/order/proteksi/exit nol, umur full audit dana
+11 detik, kedua feed valid, error/reconnect proses akhir nol. Tidak ada entry
+kedua, START_LIVE atau deposit tambahan. Stop diterima exchange masih belum
+dibuktikan; tidak ada kesimpulan strategi profit.
+
+Detail: AUDIT_PROBE_2026-10-03_SECOND.md dan audits/probe-20261003-second.json.
+
 ## Terbaru — 3 Oktober 2026, percobaan probe ditolak sebelum broadcast
 
 Pengguna mengizinkan satu percobaan entry dengan proteksi/cancel/close, melarang

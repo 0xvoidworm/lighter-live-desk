@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "outcome": "PROTECTION_NOT_INSTALLED_EMERGENCY_CLOSE_FILLED",
+  "full_protected_lifecycle_passed": false,
+  "previous_attempt": {
+    "audit": "audits/probe-20261003.json",
+    "client_id": "1",
+    "state": "REJECTED",
+    "broadcast": false,
+    "basis": "Pinned local signing rejection before send_tx; native regression reproduced error; not based on failed accountTxs query"
+  },
+  "authorization": {
+    "new_entry_limit": 1,
+    "entry_attempts_used": 1,
+    "START_LIVE": false,
+    "additional_deposit": false,
+    "probe_used_retained": true
+  },
+  "commits": {
+    "native_signing_and_quote_audit": "fa95fb9",
+    "fee_failure_emergency_close_fix": "285727b"
+  },
+  "account_index": 751745,
+  "api_key_index": 4,
+  "account_type": "Standard",
+  "trading_mode": "Unified",
+  "margin_mode": "Cross 1x",
+  "caps": {
+    "notional": "25",
+    "effective_leverage": "1",
+    "planned_risk": "0.50",
+    "daily_loss": "5",
+    "source_spent": "50",
+    "source_remaining": "0"
+  },
+  "preflight_artifacts": [
+    "initial-preflight.json",
+    "preview.json",
+    "command.json"
+  ],
+  "local_tests": {
+    "before_broadcast_passed": 193,
+    "after_fee_failure_fix_passed": 195,
+    "native_signer_regressions": 3,
+    "signing_network": "blocked; ephemeral key; actual native crypto unchanged",
+    "lint_format_mypy": "PASS"
+  },
+  "broadcast": {
+    "entry": true,
+    "stop": false,
+    "cancel": false,
+    "close": true
+  },
+  "transactions": [
+    {
+      "client_id": "2",
+      "kind": "PROBE",
+      "side": "buy",
+      "order_index": "844421373195178",
+      "trade_id": "33141524453",
+      "tx_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+      "quantity": "0.00012",
+      "fill_price": "84539.0",
+      "reference_price": "84539.1",
+      "slippage_bps_adverse_positive": "-0.0118288460605802522146560000",
+      "limit_price": "84556.1",
+      "reduce_only": false,
+      "order_status": "filled",
+      "exchange_timestamp_ms_raw": 1791020396773,
+      "exchange_timestamp_utc_raw": "2026-10-03T09:39:56.773000+00:00",
+      "api_taker_fee_raw": null,
+      "ledger_fee": "0",
+      "fee_provenance": "aggregate cash audit; API per-trade fee absent"
+    },
+    {
+      "client_id": "3",
+      "kind": "EXIT",
+      "side": "sell",
+      "order_index": "562953474977251",
+      "trade_id": "33141644233",
+      "tx_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+      "quantity": "0.00012",
+      "fill_price": "84543.8",
+      "reference_price": "84543.8",
+      "slippage_bps_adverse_positive": "-0",
+      "limit_price": "84290.1",
+      "reduce_only": true,
+      "order_status": "filled",
+      "exchange_timestamp_ms_raw": 1791020597030,
+      "exchange_timestamp_utc_raw": "2026-10-03T09:43:17.030000+00:00",
+      "api_taker_fee_raw": null,
+      "ledger_fee": "0",
+      "fee_provenance": "aggregate cash audit; API per-trade fee absent"
+    }
+  ],
+  "protection": {
+    "stop_local_signing_valid": true,
+    "stop_sent_mainnet": false,
+    "stop_accepted_mainnet": false,
+    "stop_triggered_mainnet": false,
+    "failure": "Trade response omitted maker_fee/taker_fee; ledger raised ValueError before publishing fresh exposure/protect_position",
+    "emergency_close": "actual exchange size, LIMIT IOC expiry 0 reduce-only, fresh REST bid, confirmed filled"
+  },
+  "duration": {
+    "planned_max_hold_seconds": 180,
+    "exchange_fill_to_close_ms": 200257,
+    "planned_hold_limit_exceeded": true,
+    "timestamp_caveat": "Raw exchange timestamps differ from local UTC by about 6h33m. Preserve both clocks; cause not established; no fabricated adjustment."
+  },
+  "funds": {
+    "available_before": "49.430000",
+    "available_after": "49.430576",
+    "equity_after": "49.430576",
+    "gross_pnl": "0.000576",
+    "net_pnl_from_cash": "0.000576",
+    "aggregate_net_costs": "0.000000",
+    "api_per_trade_fee": "unavailable",
+    "fee_evidence": "cash delta exactly equals gross fill PnL; unchanged external flows; API position funding reported 0",
+    "funding_flows": [
+      [
+        "deposit:130682965109",
+        "49.430000"
+      ]
+    ]
+  },
+  "cleanup": {
+    "position_qty": "0.00000",
+    "all_active_orders": 0,
+    "entry_status": "filled",
+    "exit_status": "filled",
+    "unresolved_intents": 0,
+    "full_funding_and_cash_audit_at_unix": 1791044593.5814717,
+    "ledger_matches": true,
+    "probe_pending": false,
+    "probe_used": true,
+    "allow_live_orders": false
+  },
+  "connection_evidence": {
+    "prior_runtime_reconciliation_timeout_count": 6,
+    "first_WIB": "2026-10-03 22:08:41.311",
+    "last_WIB": "2026-10-03 22:09:41.456",
+    "observed_error_span_seconds": "60.144342",
+    "exact_recovery_not_logged": true,
+    "current_account_readings_recovered": true,
+    "root_network_cause": "not established"
+  },
+  "events": [
+    {
+      "at_unix": 1791043997.128937,
+      "at_utc": "2026-10-03T16:13:17.128937+00:00",
+      "kind": "COMMAND",
+      "body": {
+        "kind": "PROBE_ONCE",
+        "result": "satu probe diminta; hasilnya menunggu rekonsiliasi"
+      }
+    },
+    {
+      "at_unix": 1791043997.135568,
+      "at_utc": "2026-10-03T16:13:17.135568+00:00",
+      "kind": "ENTRY_DISPATCH",
+      "body": {
+        "client_id": 2,
+        "kind": "PROBE",
+        "side": "buy",
+        "quantity": "0.00012",
+        "quote_reference": "84539.1",
+        "limit_price": "84556.1",
+        "planned_risk": "0.0375429084",
+        "equity_before": "49.43",
+        "available_before": "49.430000",
+        "slippage_bps": "2",
+        "stop_distance_bps": "35",
+        "stop_limit_slippage_bps": "30",
+        "max_hold_seconds": 180,
+        "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+        "spread_bps": "0.05914440520541739093919541134",
+        "depth_price": "84539.1",
+        "min_base_amount": "0.00007",
+        "min_quote_amount": "10.000000",
+        "size_decimals": 5,
+        "price_decimals": 1
+      }
+    },
+    {
+      "at_unix": 1791044180.8020298,
+      "at_utc": "2026-10-03T16:16:20.802030+00:00",
+      "kind": "EXIT_DISPATCH",
+      "body": {
+        "client_id": 3,
+        "side": "sell",
+        "quantity": "0.00012",
+        "reference_price": "84543.8",
+        "limit_price": "84290.1",
+        "slippage_limit_bps": "30",
+        "reduce_only": true,
+        "attempt": 1,
+        "emergency": true,
+        "reason": "mainnet trade fee fields absent; reconciliation blocked before protection"
+      }
+    },
+    {
+      "at_unix": 1791044593.5825415,
+      "at_utc": "2026-10-03T16:23:13.582541+00:00",
+      "kind": "AUDITED_FILL",
+      "body": {
+        "client_id": 2,
+        "trade_id": "33141524453",
+        "quantity": "0.00012",
+        "price": "84539.0",
+        "fee": "0",
+        "fee_source": "aggregate cash audit; raw API fee absent",
+        "exchange_timestamp_ms": 1791020396773,
+        "order_index": "844421373195178"
+      }
+    },
+    {
+      "at_unix": 1791044593.5826645,
+      "at_utc": "2026-10-03T16:23:13.582664+00:00",
+      "kind": "AUDITED_FILL",
+      "body": {
+        "client_id": 3,
+        "trade_id": "33141644233",
+        "quantity": "0.00012",
+        "price": "84543.8",
+        "fee": "0",
+        "fee_source": "aggregate cash audit; raw API fee absent",
+        "exchange_timestamp_ms": 1791020597030,
+        "order_index": "562953474977251"
+      }
+    },
+    {
+      "at_unix": 1791044593.5827427,
+      "at_utc": "2026-10-03T16:23:13.582743+00:00",
+      "kind": "FEE_CASH_AUDIT",
+      "body": {
+        "trade_ids": [
+          "33141644233",
+          "33141524453"
+        ],
+        "gross_pnl": "0.000576",
+        "cash_delta": "0.000576",
+        "aggregate_net_costs": "0.000000",
+        "raw_fee_fields_absent": true,
+        "external_flows_unchanged": true,
+        "position_zero": true,
+        "all_orders_zero": true,
+        "artifact": "/home/yuri/Workspace/outputs/lighter-mainnet-probe-20261003-second/cash-ledger-audit.json"
+      }
+    },
+    {
+      "at_unix": 1791044593.5828826,
+      "at_utc": "2026-10-03T16:23:13.582883+00:00",
+      "kind": "PROBE_COMPLETION_AUDIT",
+      "body": {
+        "outcome": "PROTECTION_NOT_INSTALLED_EMERGENCY_CLOSE_FILLED",
+        "position_zero": true,
+        "all_orders_zero": true,
+        "cash_ledger_matches": true,
+        "stop_accepted": false,
+        "probe_used_retained": true
+      }
+    }
+  ],
+  "final_runtime": {
+    "captured_at_unix": 1791045299.420877,
+    "status": {
+      "state": "IDLE",
+      "reason": "standby; akun flat, data segar, entry dinonaktifkan",
+      "engine_pid": 86819,
+      "allow_live_orders": false,
+      "live_entry_scope": "probe_only",
+      "entries_stopped": true,
+      "probe_used": true,
+      "probe_active": false,
+      "protection_id": null,
+      "protection_confirmed": false,
+      "exit_id": null,
+      "pending_orders": [],
+      "account": {
+        "equity": "49.430576",
+        "available": "49.430576",
+        "position_qty": "0.00000",
+        "position_price": "0.0",
+        "unrealized_pnl": "0.000000",
+        "realized_pnl": "0.000000",
+        "funding": "0",
+        "account_type_code": 0,
+        "account_trading_mode": 1,
+        "margin_mode": 0,
+        "initial_margin_fraction": "100.00",
+        "age_s": 11.9,
+        "funding_audit_age_s": 11.0,
+        "daily_loss": "0",
+        "total_loss": "0",
+        "source_funding_spent_usd": "50",
+        "source_funding_budget_remaining": "0",
+        "gross_history_inflow": "49.430000",
+        "effective_exposure_usd": "0.000000",
+        "recorded_fees": "0"
+      },
+      "quotes": {
+        "binance": {
+          "valid": true,
+          "bid": "84547.30",
+          "ask": "84547.40",
+          "age_ms": 66,
+          "gaps": 0,
+          "spread_bps": "0.01182769182002747572809792383",
+          "buy_25_vwap": "84547.39999999999999999999999",
+          "sell_25_vwap": "84547.30000000000000000000001"
+        },
+        "lighter": {
+          "valid": true,
+          "bid": "84551.1",
+          "ask": "84552.3",
+          "age_ms": 32,
+          "gaps": 0,
+          "spread_bps": "0.1419249997338906254989550772",
+          "buy_25_vwap": "84552.30000000000000000000001",
+          "sell_25_vwap": "84551.10000000000000000000001"
+        }
+      },
+      "binance_streams": {
+        "public": true,
+        "market": true
+      },
+      "request_budget": {
+        "used_last_60s": 32,
+        "normal_cap": 40,
+        "urgent_read_cap": 47,
+        "transaction_cap": 55,
+        "transaction_slots_remaining": 23
+      },
+      "reconnects": {
+        "binance": 0,
+        "lighter": 0
+      },
+      "journal_ok": true,
+      "updated_at": 1791045299.2967896
+    },
+    "unresolved_intents": 0,
+    "new_entry_count": 1,
+    "all_active_orders": 0,
+    "full_funding_audit_fresh": true,
+    "cash_ledger_matches": true,
+    "unit": {
+      "active": true,
+      "autostart": false,
+      "automatic_restarts": 0
+    }
+  },
+  "next_blocker": "Exchange-accepted reduce-only stop and complete protected lifecycle remain unproven; no second entry authorized in this task",
+  "strategy_profitability_claim": false
+}
