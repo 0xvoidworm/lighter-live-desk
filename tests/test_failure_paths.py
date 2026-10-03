@@ -772,6 +772,7 @@ async def test_exit_is_reduce_only_and_duplicate_close_is_not_sent(tmp_path) -> 
     intent = OrderIntent(2, "EXIT", "sell", Decimal("0.0001"), Decimal(83000), Stamp())
     await adapter.send_ioc(intent, 1, 5, 1)
     assert adapter.signer.calls[0]["reduce_only"] is True
+    assert adapter.signer.calls[0]["order_expiry"] == 0
     assert adapter.signer.calls[0]["base_amount"] == 10
     stop = OrderIntent(3, "STOP", "sell", Decimal("0.0001"), Decimal(82500), Stamp())
     await adapter.send_stop(stop, 1, 5, 1, Decimal(82750))

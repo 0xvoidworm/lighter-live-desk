@@ -1,9 +1,10 @@
 # Audit probe mainnet — 3 Oktober 2026
 
-Status awal: belum ada entry mainnet. Pengguna mengizinkan tepat satu percobaan
+Hasil: percobaan ditolak signing lokal sebelum broadcast; siklus mainnet belum
+terbukti. Tidak ada entry kedua. Pengguna mengizinkan tepat satu percobaan
 entry probe dengan proteksi/cancel/close, melarang START_LIVE/strategi dan deposit
 tambahan. Izin lokal memakai live_entry_scope=probe_only; probe_used persisten.
-Dokumen ini akan dilengkapi dengan hasil transaksi dan bukti cleanup.
+Cleanup serta audit dana lengkap berhasil, dan izin order dimatikan lagi.
 
 ## Gangguan sebelum probe
 
@@ -85,5 +86,61 @@ Backup sebelum probe: state/backups/pre-probe-20261003.db (ignored).
 
 ## Hasil aktual
 
-Menunggu warm-up dan preflight lengkap. Belum boleh menyatakan probe berhasil,
-stop terpicu, atau strategi menguntungkan.
+Preflight runtime setelah warm-up lolos: READY, probe_blockers kosong, akun
+flat, dua feed valid, snapshot/audit dana segar, journal sehat, scope probe-only
+dan 22 slot transaksi tersedia. Preview minimum 0,00012 BTC, notional batas
+10,146216 USD. Nilai tepat pada dispatch dicatat berikut:
+
+| Field | Hasil |
+| --- | --- |
+| Waktu percobaan WIB | 21:29:14,143 |
+| Client ID lokal | 1 |
+| Sisi / ukuran | BUY / 0,00012 BTC |
+| Ask acuan dispatch | 84.541,6 |
+| Batas harga IOC | 84.558,6 |
+| Notional maksimum pada limit | 10,147032 USD |
+| Risiko terencana | 0,0375440184 USD |
+| Hasil signing | OrderExpiry is invalid |
+| SendTx / order ID bursa / trade ID | Tidak ada |
+| Fill / fee transaksi / PnL | 0 / 0 USDC / 0 USDC |
+| Equity / available sebelum dan sesudah | 49,43 / 49,430000 USDC |
+| Stop / close mainnet | Tidak dikirim karena tidak ada fill |
+
+Adapter sebelumnya tidak mengisi order_expiry untuk IOC. Default SDK -1
+ditolak signer. Diagnosis lokal dengan parameter yang sama mereproduksi error;
+expiry 0 menghasilkan signing valid tanpa mengirimnya. Source SDK pinned
+create_order kembali sebelum send_tx pada error signing. Adapter sekarang
+mengirim expiry 0 dan mengenali error signing lokal yang definitif sebagai
+REJECTED, tanpa mengulang entry. 190 tes/lint/format/mypy lulus setelah fix;
+tes parameter expiry juga memeriksa IOC exit reduce-only.
+
+Intent semula UNKNOWN karena adapter menutupi alasan SDK. Audit yang memiliki
+bukti penolakan sebelum pengiriman mengubah hanya intent 1 menjadi REJECTED
+dan mencatat LOCAL_REJECTION_AUDIT. probe_used tetap 1, tidak direset. Engine
+kemudian mengonfirmasi posisi/order/proteksi/exit nol serta audit dana lengkap
+baru pada 21:38:45 WIB; probe_pending menjadi 0. Izin order dimatikan dan
+engine direstart 21:38:49 WIB untuk verifikasi IDLE setelah warm-up.
+
+Query tambahan accountTxs ditolak ForbiddenException; hasil itu bukan bukti
+tidak ada transaksi. Bukti tidak dibroadcast berasal dari jalur error signer
+lokal sebelum send_tx, disertai tx_hash null, fill nol, dan rekonsiliasi akun.
+Tidak ada packet capture yang dijadikan bukti. API next_nonce masih melaporkan
+1 pada diagnosis read-only, tanpa klaim timestamp nonce sebelum percobaan.
+
+Belum dibuktikan: fill mainnet, penerimaan stop exchange, stop terpicu, close
+reduce-only aktual, fee/slippage eksekusi. Tidak ada kesimpulan profit strategi.
+Sesuai batas satu percobaan dan larangan mengulang entry yang ditolak, tidak
+ada order baru setelah fix. Percobaan berikutnya membutuhkan izin baru.
+
+Bukti tanpa key/token di Workspace/outputs/lighter-mainnet-probe-20261003:
+preview.json, rejected-attempt.json, initial-preflight.json,
+final-validation.json dan final-runtime.json. Salinan audit versi Git:
+audits/probe-20261003.json.
+
+Verifikasi akhir 21:51:23 WIB: IDLE, engine/API PID 80858/50780 aktif,
+NRestarts=0, autostart disabled, allow_live_orders=false, entry berhenti,
+probe_used=1 dan probe_pending=0. Posisi/order/proteksi/exit nol, equity
+49,43 dan available 49,430000 USDC, audit dana lengkap berumur 7,3 detik.
+Quote Binance/Lighter valid (63/127 ms), reconnect nol, error rekonsiliasi/
+setup/jurnal nol sejak restart akhir. DOM IDLE, sisa budget sumber $0,
+tombol live/probe nonaktif. Pengamatan IDLE sebelumnya juga lulus 21:49:37.

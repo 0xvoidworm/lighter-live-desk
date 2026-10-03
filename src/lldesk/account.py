@@ -22,6 +22,10 @@ class DispatchBlocked(RuntimeError):
     """The order was definitively blocked before calling the signer."""
 
 
+class LocalOrderRejected(RuntimeError):
+    """The pinned SDK rejected local signing before sendTx could be called."""
+
+
 class RateBudget:
     """Conservative local request budget; transaction SDK uses multiple API calls."""
 
@@ -350,9 +354,12 @@ class LighterAccount:
                     order_type=self.signer.ORDER_TYPE_LIMIT,
                     time_in_force=self.signer.ORDER_TIME_IN_FORCE_IMMEDIATE_OR_CANCEL,
                     reduce_only=intent.kind not in {"ENTRY", "PROBE"},
+                    order_expiry=0,
                 ),
                 timeout=10,
             )
+        if response is None and _tx is None and error == "OrderExpiry is invalid":
+            raise LocalOrderRejected("OrderExpiry is invalid")
         if error or response is None or response.code != 200:
             raise RuntimeError("Lighter rejected or did not acknowledge IOC")
         return str(response.tx_hash)

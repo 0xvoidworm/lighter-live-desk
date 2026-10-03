@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from lldesk.account import AccountSnapshot, DispatchBlocked, RateBudget
+from lldesk.account import AccountSnapshot, DispatchBlocked, LocalOrderRejected, RateBudget
 from lldesk.config import Config
 from lldesk.engine import JAKARTA, Engine
 from lldesk.models import EngineState, OrderState, Stamp
@@ -672,3 +672,19 @@ async def test_foreground_polls_stop_before_confirmation_deadline_and_then_close
         await asyncio.gather(task, return_exceptions=True)
         if engine.reconcile_task:
             await asyncio.gather(engine.reconcile_task, return_exceptions=True)
+
+
+async def test_local_signing_rejection_is_final_and_never_rearms_probe(engine):
+    from unittest.mock import AsyncMock
+
+    engine.account.send_ioc = AsyncMock(side_effect=LocalOrderRejected("OrderExpiry is invalid"))
+    await engine.probe_once()
+    await drain(engine)
+    assert not engine.db.unresolved()
+    row = engine.db.conn.execute("SELECT state FROM intents").fetchone()
+    assert row[0] == OrderState.REJECTED
+    await Engine.safe_reconcile(engine)
+    assert not engine.probe_active
+    assert engine.db.flag("probe_used") == "1"
+    assert "probe diblok" in await engine.probe_once()
+    engine.account.send_ioc.assert_awaited_once()

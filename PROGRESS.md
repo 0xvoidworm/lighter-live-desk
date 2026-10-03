@@ -1,5 +1,50 @@
 # Progress
 
+## Terbaru — 3 Oktober 2026, percobaan probe ditolak sebelum broadcast
+
+Pengguna mengizinkan satu percobaan entry dengan proteksi/cancel/close, melarang
+START_LIVE/strategi dan deposit tambahan. Scope backend probe_only menolak
+strategi bahkan saat izin order aktif. Account-check aktual cocok: akun 751745,
+Standard/Unified, key 4, margin Cross 1x (0/100.00), 49,43 USDC, posisi/order/
+aset lain nol dan satu inflow 49,43. Sisa budget sumber diperbaiki menjadi nol;
+50 USDT sumber telah dipakai termasuk biaya. Riwayat timeout dianalisis menjadi
+tiga episode dengan waktu audit akun pulih yang terdokumentasi, tanpa menebak
+ISP/router/exchange. Detail: AUDIT_PROBE_2026-10-03.md.
+
+Perbaikan lifecycle meliputi konfirmasi stop sebelum close normal, close
+darurat bila stop gagal/ambigu, delapan slot transaksi yang dilindungi dari
+GET urgent (pagu 40/47/55), polling probe dua detik dengan admission kapasitas,
+pending persisten sampai full audit, dan race fill sesudah snapshot flat.
+189 tes/build/lint/format/mypy lulus sebelum percobaan; commit 91ffbb3.
+
+Preflight runtime lulus setelah warm-up 600 detik dan cadangan cukup. Satu
+perintah PROBE_ONCE diterima 21:29:14 WIB, client ID lokal 1, BUY 0,00012 BTC,
+ask acuan 84.541,6 dan limit IOC 84.558,6 (notional 10,147032 USD). Signer
+menolak OrderExpiry is invalid sebelum sendTx: adapter memakai default -1
+untuk IOC, yang membutuhkan 0. Diagnosis lokal mereproduksi jalur error
+SDK pinned; signing expiry 0 valid tetapi tidak dibroadcast. Query tambahan
+accountTxs ForbiddenException tidak dipakai sebagai bukti absensi transaksi.
+
+Tidak ada transaksi/order/trade ID bursa atau fill. Intent UNKNOWN diaudit
+menjadi REJECTED berdasarkan bukti penolakan sebelum pengiriman, tanpa reset
+probe_used dan tanpa entry kedua. Engine menyelesaikan audit dana lengkap serta
+cleanup pada 21:38:45 WIB. Fee/PnL transaksi nol; equity/available tetap
+49,43/49,430000 USDC. IOC entry/exit kini mengirim expiry 0 dan penolakan lokal
+yang definitif mempunyai jalur REJECTED; hasil network ambigu tetap UNKNOWN.
+190 tes lulus setelah fix; Ruff/format, mypy dan whitespace lulus.
+
+Izin order dimatikan, engine restart 21:38:49 WIB. IDLE teramati 21:49:37 dan
+21:51:23 WIB; engine/API PID 80858/50780 aktif, NRestarts=0, autostart disabled.
+Posisi/order/proteksi/exit nol, probe_used=1, probe_pending=0, entry berhenti,
+saldo tetap. Dua feed valid; error rekonsiliasi/setup/jurnal dan reconnect nol
+pada proses akhir. UI IDLE, budget sumber $0, tombol live/probe nonaktif.
+
+Siklus mainnet belum dibuktikan: entry/fill, stop diterima/terpicu, close
+reduce-only dan slippage aktual belum terjadi. Tidak ada kesimpulan profit
+strategi. Batas satu percobaan yang ditolak menghentikan retry otomatis;
+percobaan berikutnya membutuhkan izin baru. Bukti tanpa key/token:
+audits/probe-20261003.json dan Workspace/outputs/lighter-mainnet-probe-20261003.
+
 ## Terbaru — 3 Oktober 2026, laporan lanjutan pukul 20:20 WIB
 
 Pemeriksaan read-only 2026-10-03 20:20:46 WIB: engine masih PID 63783 dan

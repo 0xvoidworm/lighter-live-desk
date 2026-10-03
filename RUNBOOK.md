@@ -1,5 +1,11 @@
 # Runbook Lighter Live Desk
 
+IOC entry/exit harus mengirim order_expiry=0. Percobaan 3 Oktober berhenti
+di signing lokal karena adapter memakai default SDK -1; tidak ada broadcast,
+fill, stop atau close mainnet. Penolakan lokal yang definitif dicatat REJECTED,
+hasil network/API yang tidak pasti tetap UNKNOWN. probe_used tidak direset
+dan tidak ada entry kedua sesudah fix. Lihat AUDIT_PROBE_2026-10-03.md.
+
 Izin satu probe memakai `live_entry_scope: "probe_only"` (default). Walaupun
 `allow_live_orders=true`, backend menolak START_LIVE dan dispatch ENTRY strategi;
 PROBE tetap sekali-pakai melalui flag persisten. Jangan mengubah scope ke

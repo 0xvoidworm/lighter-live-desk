@@ -1,0 +1,206 @@
+{
+  "outcome": "REJECTED_BEFORE_BROADCAST",
+  "mainnet_lifecycle_completed": false,
+  "authorized_entry_attempt_limit": 1,
+  "local_probe_attempts": 1,
+  "mainnet_entry_transactions_sent": 0,
+  "retry_sent": false,
+  "account_index": 751745,
+  "api_key_index": 4,
+  "pre_entry_code_commit": "91ffbb3",
+  "attempt_timestamp_epoch": 1791037754.1432292,
+  "attempt_timestamp_wib": "2026-10-03 21:29:14.143 WIB",
+  "entry_parameters": {
+    "client_id": 1,
+    "kind": "PROBE",
+    "side": "buy",
+    "quantity": "0.00012",
+    "quote_reference": "84541.6",
+    "limit_price": "84558.6",
+    "planned_risk": "0.0375440184",
+    "equity_before": "49.43",
+    "available_before": "49.430000",
+    "slippage_bps": "2",
+    "stop_distance_bps": "35",
+    "stop_limit_slippage_bps": "30",
+    "max_hold_seconds": 180,
+    "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+    "spread_bps": "0.07097122944643623885603840963",
+    "depth_price": "84541.6",
+    "min_base_amount": "0.00007",
+    "min_quote_amount": "10.000000",
+    "size_decimals": 5,
+    "price_decimals": 1
+  },
+  "actual_fill_quantity_btc": "0",
+  "actual_fill_price": null,
+  "exchange_order_id": null,
+  "transaction_hash": null,
+  "trade_ids": [],
+  "actual_execution_slippage_bps": null,
+  "actual_trade_fees_usdc": "0",
+  "actual_trade_pnl_usdc": "0",
+  "balances": {
+    "equity_before": "49.43",
+    "equity_after": "49.43",
+    "available_before": "49.430000",
+    "available_after": "49.430000"
+  },
+  "protection": {
+    "submitted": false,
+    "accepted_by_exchange": false,
+    "triggered": false
+  },
+  "close": {
+    "submitted": false,
+    "reduce_only_execution_proven": false
+  },
+  "rejection": {
+    "phase": "local SDK signing",
+    "sdk_error": "OrderExpiry is invalid",
+    "ioc_expiry_passed_by_original_adapter": -1,
+    "required_ioc_expiry": 0,
+    "proof": "Pinned SDK sign_create_order with the attempted parameters returns local expiry error; create_order returns on that error before send_tx. Local diagnostic with expiry 0 signs successfully but was not broadcast.",
+    "limitations": "No packet capture; accountTxs read-only diagnostic returned ForbiddenException and was not used as proof of transaction absence."
+  },
+  "cleanup": {
+    "full_reconciliation_verified": true,
+    "verified_at_epoch": 1791038325.318783,
+    "position_qty": "0.00000",
+    "pending_orders": [],
+    "protection_id": null,
+    "exit_id": null,
+    "funding_audit_age_s": 1.1,
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "probe_pending_flag": "0",
+    "probe_used_flag": "1"
+  },
+  "evidence": {
+    "retrieved_epoch": 1791038449.3256154,
+    "intents": [
+      {
+        "client_id": 1,
+        "kind": "PROBE",
+        "side": "buy",
+        "requested_qty": "0.00012",
+        "requested_limit_price": "84558.6",
+        "state": "REJECTED",
+        "tx_hash": null,
+        "created_at": 1791037754.1432292,
+        "updated_at": 1791038272.422731
+      }
+    ],
+    "fills": [],
+    "events": [
+      {
+        "at": 1791038272.42017,
+        "kind": "LOCAL_REJECTION_AUDIT",
+        "body": {
+          "client_id": 1,
+          "sdk_commit": "78db23f632de8deca9a232a61bbd3bf6e79fc522",
+          "error": "OrderExpiry is invalid",
+          "order_expiry": -1,
+          "send_tx_called": false,
+          "basis": "identical local signing parameters reproduce rejection; pinned create_order returns before send_tx on this error",
+          "audit_actor": "Codex",
+          "no_retry": true
+        }
+      },
+      {
+        "at": 1791037754.145825,
+        "kind": "ENTRY_DISPATCH",
+        "body": {
+          "client_id": 1,
+          "kind": "PROBE",
+          "side": "buy",
+          "quantity": "0.00012",
+          "quote_reference": "84541.6",
+          "limit_price": "84558.6",
+          "planned_risk": "0.0375440184",
+          "equity_before": "49.43",
+          "available_before": "49.430000",
+          "slippage_bps": "2",
+          "stop_distance_bps": "35",
+          "stop_limit_slippage_bps": "30",
+          "max_hold_seconds": 180,
+          "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+          "spread_bps": "0.07097122944643623885603840963",
+          "depth_price": "84541.6",
+          "min_base_amount": "0.00007",
+          "min_quote_amount": "10.000000",
+          "size_decimals": 5,
+          "price_decimals": 1
+        }
+      },
+      {
+        "at": 1791037754.1401508,
+        "kind": "COMMAND",
+        "body": {
+          "kind": "PROBE_ONCE",
+          "result": "satu probe diminta; hasilnya menunggu rekonsiliasi"
+        }
+      }
+    ]
+  },
+  "final_idle_verification": {
+    "at_epoch": 1791039083.08575,
+    "at_wib": "2026-10-03 21:51:23.085 WIB",
+    "engine_pid": 80858,
+    "api_pid": 50780,
+    "state": "IDLE",
+    "allow_live_orders": false,
+    "entries_stopped": true,
+    "probe_used": true,
+    "probe_active": false,
+    "account": {
+      "equity": "49.43",
+      "available": "49.430000",
+      "position_qty": "0.00000",
+      "position_price": "0.0",
+      "unrealized_pnl": "0.000000",
+      "realized_pnl": "0.000000",
+      "funding": "0",
+      "account_type_code": 0,
+      "account_trading_mode": 1,
+      "margin_mode": 0,
+      "initial_margin_fraction": "100.00",
+      "age_s": 8.1,
+      "funding_audit_age_s": 7.3,
+      "daily_loss": "0",
+      "total_loss": "0",
+      "source_funding_spent_usd": "50",
+      "source_funding_budget_remaining": "0",
+      "gross_history_inflow": "49.430000",
+      "effective_exposure_usd": "0E-7",
+      "recorded_fees": "0"
+    },
+    "pending_orders": [],
+    "protection_id": null,
+    "exit_id": null,
+    "journal_ok": true,
+    "reconnects": {
+      "binance": 0,
+      "lighter": 0
+    },
+    "request_budget": {
+      "used_last_60s": 40,
+      "normal_cap": 40,
+      "urgent_read_cap": 47,
+      "transaction_cap": 55,
+      "transaction_slots_remaining": 15
+    },
+    "autostart": "disabled",
+    "automatic_restarts": 0,
+    "reconciliation_errors_after_restart": 0,
+    "setup_errors_after_restart": 0,
+    "journal_errors_after_restart": 0,
+    "dashboard": {
+      "state": "IDLE",
+      "source_budget_remaining": "0",
+      "start_live_disabled": true,
+      "probe_disabled": true
+    }
+  }
+}

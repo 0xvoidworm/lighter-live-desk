@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 
 import httpx
 
-from .account import AccountSnapshot, DispatchBlocked, LighterAccount
+from .account import AccountSnapshot, DispatchBlocked, LighterAccount, LocalOrderRejected
 from .config import Config, load_config, repo_root
 from .db import Database
 from .market import FX_BOOK, Book, Feeds, GapError, Recorder, dec, market_metadata
@@ -1053,6 +1053,19 @@ class Engine:
             self.db.order_state(client_id, OrderState.SENT, tx)
             self.last_order_ack_ms = (time.monotonic() - sent_at) * 1000
             await self.safe_reconcile()
+        except LocalOrderRejected as exc:
+            self.db.order_state(client_id, OrderState.REJECTED, reason=str(exc))
+            self.db.event(
+                "LOCAL_ORDER_REJECTION",
+                {
+                    "client_id": client_id,
+                    "reason": str(exc),
+                    "send_tx_called": False,
+                },
+            )
+            self.entries_stopped = True
+            self.state = EngineState.PAUSED
+            self.reason = "signing lokal ditolak sebelum sendTx; entry tidak diulang"
         except DispatchBlocked:
             if "client_id" in locals():
                 self.db.order_state(client_id, OrderState.CANCELED, reason="local dispatch blocked")
