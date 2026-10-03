@@ -693,6 +693,7 @@ async def test_partial_fill_then_cancel_still_protects_real_position(tmp_path) -
         engine.db.conn.execute("SELECT state FROM intents WHERE client_id=1").fetchone()[0]
         == "CANCELED"
     )
+    await engine.manage_position()
     assert engine.protection_id == 2
     assert engine.db.unresolved()[0]["kind"] == "STOP"
     assert engine.db.conn.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 1

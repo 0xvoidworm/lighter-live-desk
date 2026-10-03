@@ -69,8 +69,9 @@
       "exchange_timestamp_ms_raw": 1791020396773,
       "exchange_timestamp_utc_raw": "2026-10-03T09:39:56.773000+00:00",
       "api_taker_fee_raw": null,
-      "ledger_fee": "0",
-      "fee_provenance": "aggregate cash audit; API per-trade fee absent"
+      "ledger_fee": null,
+      "fee_provenance": "API fee absent; cash equality does not establish per-trade fee",
+      "fee_status": "unknown"
     },
     {
       "client_id": "3",
@@ -89,8 +90,9 @@
       "exchange_timestamp_ms_raw": 1791020597030,
       "exchange_timestamp_utc_raw": "2026-10-03T09:43:17.030000+00:00",
       "api_taker_fee_raw": null,
-      "ledger_fee": "0",
-      "fee_provenance": "aggregate cash audit; API per-trade fee absent"
+      "ledger_fee": null,
+      "fee_provenance": "API fee absent; cash equality does not establish per-trade fee",
+      "fee_status": "unknown"
     }
   ],
   "protection": {
@@ -113,15 +115,15 @@
     "equity_after": "49.430576",
     "gross_pnl": "0.000576",
     "net_pnl_from_cash": "0.000576",
-    "aggregate_net_costs": "0.000000",
     "api_per_trade_fee": "unavailable",
-    "fee_evidence": "cash delta exactly equals gross fill PnL; unchanged external flows; API position funding reported 0",
+    "fee_evidence": "Individual API fees unknown; cash difference is only an aggregate audit observation",
     "funding_flows": [
       [
         "deposit:130682965109",
         "49.430000"
       ]
-    ]
+    ],
+    "gross_pnl_minus_cash_change": "0.000000"
   },
   "cleanup": {
     "position_qty": "0.00000",
@@ -130,10 +132,12 @@
     "exit_status": "filled",
     "unresolved_intents": 0,
     "full_funding_and_cash_audit_at_unix": 1791044593.5814717,
-    "ledger_matches": true,
+    "ledger_matches": false,
     "probe_pending": false,
     "probe_used": true,
-    "allow_live_orders": false
+    "allow_live_orders": false,
+    "cash_ledger_matches": true,
+    "fee_audit_complete": false
   },
   "connection_evidence": {
     "prior_runtime_reconciliation_timeout_count": 6,
@@ -349,6 +353,16 @@
       "automatic_restarts": 0
     }
   },
-  "next_blocker": "Exchange-accepted reduce-only stop and complete protected lifecycle remain unproven; no second entry authorized in this task",
-  "strategy_profitability_claim": false
+  "next_blocker": "Two unknown trade fees block new entry; exchange-accepted stop and complete protected mainnet lifecycle remain unproven",
+  "strategy_profitability_claim": false,
+  "financial_correction": {
+    "date": "2026-10-04",
+    "migration_version": 3,
+    "event": "FEE_PROVENANCE_CORRECTION",
+    "pending_fee_count": 2,
+    "cash_delta_usdc": "0.000576",
+    "per_trade_fee": null,
+    "historical_events_and_runtime_snapshots": "Retained unchanged as observations before correction; their inferred zero fees are superseded",
+    "audit": "AUDIT_PROTECTION_FIX_2026-10-04.md"
+  }
 }

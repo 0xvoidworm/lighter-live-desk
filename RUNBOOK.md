@@ -10,9 +10,10 @@ Ini bukti lokal, bukan bukti penerimaan atau fill mainnet.
 
 Pada percobaan kedua, entry/fill dan close darurat reduce-only mainnet terbukti,
 tetapi stop tidak dikirim: API trade tidak memberi fee dan ledger menahan
-rekonsiliasi. Lihat AUDIT_PROBE_2026-10-03_SECOND.md. Fee yang hilang sekarang
-memicu pengurangan exposure dengan snapshot aktual melalui close darurat;
-full audit tetap gagal sampai metadata fee diaudit. Jangan mengisi fee null
+rekonsiliasi. Lihat AUDIT_PROBE_2026-10-03_SECOND.md dan
+AUDIT_PROTECTION_FIX_2026-10-04.md. Fee yang hilang sekarang disimpan sebagai
+unknown/NULL dan tidak menahan worker proteksi, cancel, posisi, atau close;
+audit fee tetap pending dan memblokir entry berikutnya. Jangan mengisi fee null
 dengan nol tanpa bukti. Fill yang sudah diaudit hanya dapat didedup jika ID,
 ukuran dan harga cocok. Lifecycle dengan stop diterima exchange masih belum
 dibuktikan; START_LIVE tetap tidak diizinkan.
@@ -43,13 +44,27 @@ preflight juga menyisakan kapasitas pembacaan setelah entry. Ini lebih rendah
 dari batas Standard 60 pada [dokumen rate limit resmi](https://apidocs.lighter.xyz/docs/rate-limits).
 Probe menutup normal hanya setelah stop reduce-only terverifikasi dari status
 bursa. Stop gagal/tidak pasti meminta close darurat; deadline konfirmasi delapan
-detik tetap berlaku meskipun polling akun gagal. Stop tidak dikirim ulang pada
+detik sejak exposure diketahui tetap berlaku meskipun pembukuan gagal. Batas
+pemasangan stop 3 detik terpisah dari konfirmasi 8 detik dan hold 180 detik.
+Worker risiko berjalan tanpa lock rekonsiliasi; GET posisi/status maksimum
+2 detik per panggilan. Polling posisi terlindungi memakai pagu normal 40,
+pemulihan mendesak memakai 47; delapan slot tersisa untuk transaksi di pagu 55.
+Antrean lock signer, nonce dan submission stop/cancel/close bersama-sama
+dibatasi 3 detik; timeout menjadi UNKNOWN, bukan bukti order tidak terkirim.
+Hold proses aktif memakai monotonic clock, pengiriman close diminta mulai
+detik 177 agar ada ruang 3 detik sebelum rencana 180. Setelah restart, deadline
+lama dianggap jatuh tempo dan exposure dibaca ulang sebelum close. Tidak ada
+jaminan konfirmasi fill pada detik 180; proses tetap memantau sampai flat dan
+order bersih. Snapshot posisi aktual diperlukan, bukan ukuran tebakan.
+Stop tidak dikirim ulang pada
 hasil ambigu. Pending probe bertahan sampai cleanup dan audit dana lengkap,
 termasuk ketika posisi telah flat sebelum restart.
 
 Status 2026-10-03 setelah percobaan kedua: akun Standard dan setting BTC Cross
 1x diverifikasi di UI/API nyata. Saldo 49,430576 USDC, posisi/order nol, mode
 lokal `live_capable` dengan `allow_live_orders=false`, entry tetap berhenti.
+Koreksi 4 Oktober: dua fee unknown, recorded_fees null, audit net kas cocok;
+pending fee melarang probe berikutnya sampai ada bukti biaya yang sah.
 Feed Binance/Lighter, entry/fill dan close darurat mainnet telah diverifikasi;
 proteksi exchange belum dibuktikan. Percobaan tambahan membutuhkan izin baru
 dan tetap memakai jalur probe khusus seperti catatan di bawah.
@@ -146,7 +161,7 @@ diverifikasi; jangan menyalinnya ke akun lain tanpa pemeriksaan ulang.
 4. Edit `config.json`: set `mode` ke `live_capable`, isi `account_index` dedicated, tetapi biarkan `allow_live_orders: false`. Jalankan `uv run --frozen lldesk account-check`; cocokkan account index, `account_type_code`, `account_trading_mode`, `BTC_margin_mode`, `BTC_initial_margin_fraction`, equity, posisi, aset, order aktif dan gross history inflow dengan UI resmi. Konfigurasikan BTC margin konservatif di UI, tanpa menaikkan leverage untuk memenuhi minimum order. Isi keempat `expected_*` dari nilai akun yang diverifikasi; aplikasi menolak live bila BTC margin setting tidak tersedia atau berubah. Pastikan equity dan **jumlah seluruh inflow historis** tidak melebihi pagu, termasuk biaya sumber dana yang tidak terlihat oleh aplikasi. Riwayat deposit, withdrawal dan transfer harus cocok; bila tidak, hentikan setup dan audit secara manual. Tetap pertahankan `allow_live_orders: false` setelah pemeriksaan akun. Mengaktifkan order memerlukan instruksi jelas pengguna untuk uji transaksi, lalu restart engine; restart tetap tidak membuka entry dengan sendirinya.
 5. Untuk satu probe, tunggu status READY, entry strategi berhenti, kedua feed valid, snapshot akun segar, warm-up sekurangnya 10 menit, dan `probe_blockers` kosong. Klik langsung **Probe 1×**; tidak perlu menekan **Mulai sesi live**. Perintah melewati preflight yang sama dengan live, lalu membuka state PROBING dengan entry strategi tetap berhenti dan satu task IOC minimum legal. Window probe maksimum `max_hold_seconds` (180 detik pada konfigurasi ini); dispatch memeriksa lagi mode order, data, akun/tier/margin, dana/cadangan, loss/insiden dan epoch pembatalan sebelum signer. Stop/cancel/close tetap responsif saat task menunggu signer. Flag sekali-pakai disimpan sebelum pengiriman; jangan ulangi probe atau menghapus flag jika hasil tidak pasti. Pantau fill, stop, fee, penutupan dan ledger sampai bursa mengonfirmasi posisi flat serta seluruh order/proteksi selesai. Akhir probe menjaga entry strategi berhenti; restart merekonsiliasi tanpa mengulang probe. PROBE tidak masuk statistik posisi strategi. Sesi strategi maksimum 30 menit/tiga posisi adalah tahap terpisah setelah uji transaksi dan validasi strategi.
 
-Kode adapter membaca riwayat deposit, withdrawal dan transfer akun via SDK. Status selain `completed`, aset selain USDC, transfer selain inflow/outflow perps yang dikenali, riwayat terlalu panjang, atau respons tidak tersedia menghentikan entry untuk peninjauan. Jika arus dana baru muncul setelah sesi live pernah dimulai, flag persisten `funding_change_pending` menghentikan entry. Trade yang bukan milik akun, tanpa intent lokal, atau tanpa fee memicu `account_incident_pending`. Keduanya memerlukan audit manual; jangan hapus flag atau database untuk memaksa live. Kelengkapan dan kemungkinan overlap antar riwayat SDK belum dapat diverifikasi tanpa akun nyata.
+Kode adapter membaca riwayat deposit, withdrawal dan transfer akun via SDK. Status selain `completed`, aset selain USDC, transfer selain inflow/outflow perps yang dikenali, riwayat terlalu panjang, atau respons tidak tersedia menghentikan entry untuk peninjauan. Jika arus dana baru muncul setelah sesi live pernah dimulai, flag persisten `funding_change_pending` menghentikan entry. Trade yang bukan milik akun atau tanpa intent lokal memicu `account_incident_pending`. Fee kosong disimpan unknown dan memblokir entry lewat pending_fee_count; proteksi dan close berjalan terpisah. Keduanya memerlukan audit manual; jangan hapus flag atau database untuk memaksa live. Kelengkapan dan kemungkinan overlap antar riwayat SDK belum dapat diverifikasi tanpa akun nyata.
 
 ## Stop, close, dan insiden
 

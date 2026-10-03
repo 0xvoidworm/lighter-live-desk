@@ -119,10 +119,43 @@ class LighterAccount:
         return await self._snapshot(market_id, "reconcile")
 
     async def probe_snapshot(
-        self, market_id: int, verified_flows: tuple[tuple[str, str], ...] | None = None
+        self,
+        market_id: int,
+        verified_flows: tuple[tuple[str, str], ...] | None = None,
+        *,
+        priority: str = "probe_read",
     ) -> AccountSnapshot:
         """Priority exposure reads; None requires a complete funding audit."""
-        return await self._snapshot(market_id, "probe_read", verified_flows)
+        return await self._snapshot(market_id, priority, verified_flows)
+
+    async def position_snapshot(
+        self,
+        market_id: int,
+        previous: AccountSnapshot | None = None,
+        *,
+        priority: str = "probe_read",
+    ) -> AccountSnapshot:
+        """One priority GET. Cached orders/flows are NOT a fresh cleanup/funding audit."""
+        acct, received_at = await self._read_account(priority)
+        return self._parse_account(
+            acct,
+            market_id,
+            received_at,
+            previous.active_orders if previous else (),
+            previous.funding_flows if previous else (),
+        )
+
+    async def _read_account(self, priority: str) -> tuple[Any, float]:
+        self.rate.claim(priority)
+        response = await self.account_api.account(
+            by="index", value=str(self.account_index), active_only=False
+        )
+        if response.code != 200 or len(response.accounts) != 1:
+            raise RuntimeError("dedicated Lighter account response invalid")
+        acct = response.accounts[0]
+        if acct.index != self.account_index:
+            raise RuntimeError("Lighter returned a different account")
+        return acct, time.time()
 
     async def _snapshot(
         self,
@@ -130,16 +163,7 @@ class LighterAccount:
         priority: str,
         verified_flows: tuple[tuple[str, str], ...] | None = None,
     ) -> AccountSnapshot:
-        self.rate.claim(priority)
-        response = await self.account_api.account(
-            by="index", value=str(self.account_index), active_only=False
-        )
-        received_at = time.time()
-        if response.code != 200 or len(response.accounts) != 1:
-            raise RuntimeError("dedicated Lighter account response invalid")
-        acct = response.accounts[0]
-        if acct.index != self.account_index:
-            raise RuntimeError("Lighter returned a different account")
+        acct, received_at = await self._read_account(priority)
         self.rate.claim(priority)
         orders = await self.order_api.account_active_orders(
             authorization=self.auth(), account_index=self.account_index
@@ -153,6 +177,18 @@ class LighterAccount:
                 if priority == "reconcile"
                 else await self.funding_history(acct.l1_address, priority=priority)
             )
+        return self._parse_account(
+            acct, market_id, received_at, tuple(o.to_dict() for o in orders.orders), flows
+        )
+
+    def _parse_account(
+        self,
+        acct: Any,
+        market_id: int,
+        received_at: float,
+        active_orders: tuple[dict[str, Any], ...],
+        flows: tuple[tuple[str, str], ...],
+    ) -> AccountSnapshot:
         position = next((p for p in acct.positions if p.market_id == market_id), None)
         qty = (
             Decimal(position.position) * (1 if position.sign >= 0 else -1)
@@ -168,7 +204,7 @@ class LighterAccount:
             unrealized_pnl=Decimal(position.unrealized_pnl) if position else Decimal(0),
             realized_pnl=Decimal(position.realized_pnl) if position else Decimal(0),
             funding=Decimal(position.total_funding_paid_out or "0") if position else Decimal(0),
-            active_orders=tuple(o.to_dict() for o in orders.orders),
+            active_orders=active_orders,
             other_positions=tuple(
                 p.to_dict()
                 for p in acct.positions
@@ -338,7 +374,7 @@ class LighterAccount:
         price = int(intent.limit_price * (10**price_decimals))
         if base <= 0 or price <= 0:
             raise ValueError("invalid scaled order quantity or price")
-        async with self.lock:
+        async with asyncio.timeout(10 if intent.kind in {"ENTRY", "PROBE"} else 3), self.lock:
             if intent.kind in {"ENTRY", "PROBE"} and (
                 dispatch_check is None or not dispatch_check()
             ):
@@ -372,7 +408,7 @@ class LighterAccount:
         price_decimals: int,
         trigger_price: Decimal,
     ) -> str:
-        async with self.lock:
+        async with asyncio.timeout(3), self.lock:
             self.rate.claim("exit", cost=2)
             _tx, response, error = await asyncio.wait_for(
                 self.signer.create_sl_order(
@@ -393,7 +429,7 @@ class LighterAccount:
     async def cancel(self, market_id: int, exchange_order_index: int) -> str:
         if exchange_order_index <= 0:
             raise ValueError("exchange order index required for cancel")
-        async with self.lock:
+        async with asyncio.timeout(3), self.lock:
             self.rate.claim("exit", cost=2)
             _tx, response, error = await asyncio.wait_for(
                 self.signer.cancel_order(market_index=market_id, order_index=exchange_order_index),

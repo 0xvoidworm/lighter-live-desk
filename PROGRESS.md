@@ -1,5 +1,29 @@
 # Progress
 
+## Terbaru — 4 Oktober 2026, proteksi terpisah dari fee pending
+
+Tidak ada entry/START_LIVE/deposit baru. Posisi dan seluruh order tetap nol,
+saldo terbaca 49,430576 USDC. Dua fee hasil probe kedua dikoreksi dari inferensi
+nol menjadi unknown/NULL; perubahan kas +0,000576 tetap tercatat dan audit net
+kas cocok. Unknown fee memblokir entry berikutnya, bukan stop/cancel/close.
+
+Worker risiko terpisah membaca posisi/status exchange tanpa lock/history
+pembukuan. Ukuran partial aktual dipakai; hasil stop/close ambigu tidak dikirim
+ulang secara buta. Pemasangan stop mempunyai batas 3 detik dan konfirmasi
+8 detik sejak exposure diketahui. Deadline hold aktif memakai monotonic clock,
+close diminta mulai detik 177 dari anggaran 180; restart meminta pemulihan/close
+konservatif tanpa memulai hold baru. Batas mencakup antrean lock signer dan
+pengiriman, bukan janji fill exchange tepat waktu. Pagu 40/47/55 dipertahankan.
+
+211 tes, Ruff/format, mypy dan build UI lulus; signer native SDK asli menguji
+entry/stop/cancel/close tanpa jaringan/broadcast. Penerimaan stop mainnet belum
+dibuktikan. Probe berikutnya masih diblokir fee pending dan tidak diizinkan
+dalam tugas ini. Detail: AUDIT_PROTECTION_FIX_2026-10-04.md serta
+audits/protection-fix-20261004.json.
+Runtime 01:35:03 WIB masih WARMING_UP karena coverage feed setelah reconnect;
+quote/stream saat itu valid dan audit akun <15 detik. Guard tetap dipertahankan,
+izin order false, entry berhenti, probe_used 1/probe_pending 0.
+
 ## Terbaru — 3 Oktober 2026, entry terisi dan close darurat selesai
 
 Izin baru satu entry digunakan setelah audit percobaan lama, regresi signer
@@ -8,8 +32,9 @@ native tanpa jaringan, 193 tes, dan preflight READY lolos. Entry client 2 BUY
 berhenti sebelum stop dipasang. Lifecycle proteksi gagal; close darurat client 3
 reduce-only terisi penuh pada 84.543,8. Account/order REST sesudahnya membuktikan
 posisi dan seluruh order nol, ledger kas cocok, saldo 49,430576 USDC, PnL kas
-+0,000576 dan biaya net agregat nol. Field fee per trade API tetap tidak tersedia;
-provenance fee ledger adalah audit kas, bukan fee API. Durasi posisi 200,257
++0,000576 dan selisih gross PnL terhadap perubahan kas nol. Field fee per trade
+API tetap tidak tersedia; inferensi nol dalam ledger kemudian dikoreksi menjadi
+unknown pada 4 Oktober. Durasi posisi 200,257
 detik melampaui rencana 180; clock exchange/lokal berbeda sekitar 6h33m dan
 keduanya dipertahankan di audit.
 

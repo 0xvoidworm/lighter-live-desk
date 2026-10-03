@@ -162,6 +162,7 @@ async def test_confirmed_stop_covers_latest_position_quantity(engine):
     )
     engine.account = exchange
     await engine.reconcile()
+    await engine.manage_position()
     stop_id = engine.protection_id
     exchange.statuses[stop_id] = {
         "status": "pending",

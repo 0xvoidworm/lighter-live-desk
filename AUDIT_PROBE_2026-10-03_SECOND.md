@@ -55,10 +55,12 @@ Hash close:
 Slippage terhadap quote dispatch: entry −0,0118288461 bps (menguntungkan),
 close 0 bps terhadap bid 84.543,8; close limit 84.290,1 (30 bps).
 
-PnL kas bersih +0,000576 USDC. Biaya net agregat dari rekonsiliasi kas 0,000000;
-API maker_fee/taker_fee kosong pada kedua trade. Fee ledger 0 mempunyai provenance
-audit kas, bukan field fee per trade dari API. Tidak ada asumsi umum bahwa
-fee null selalu nol. Bukti raw dan provenance disimpan dalam JSON.
+Perubahan kas bersih +0,000576 USDC. Selisih antara gross PnL fill dan perubahan
+kas adalah 0,000000, tetapi **ini bukan bukti fee per trade nol**. API maker_fee/
+taker_fee kosong pada kedua trade. Koreksi 4 Oktober menyimpan kedua fee sebagai
+unknown/NULL; audit net kas tetap cocok, audit fee belum lengkap. Pencatatan nol
+berdasarkan audit kas pada laporan/event lama telah dikoreksi melalui migration
+3 dan event FEE_PROVENANCE_CORRECTION, tanpa menghapus bukti historis.
 
 Dispatch lokal entry 23:13:17,135 WIB, close 23:16:20,802 WIB. Raw timestamp
 exchange entry 1791020396773, close 1791020597030: durasi fill-to-close 200,257
@@ -89,8 +91,12 @@ Audit kas manual hanya diselesaikan setelah full account/funding/trade/order
 check membuktikan dua trade milik intent lokal, kedua order filled, qty sama,
 tidak ada posisi/order/aset lain, inflow tidak berubah, dan selisih saldo persis
 sama dengan PnL fill. Event AUDITED_FILL, FEE_CASH_AUDIT dan PROBE_COMPLETION_AUDIT
-menyimpan dasar penyelesaian. probe_used=1 dipertahankan; probe_pending=0 dan
+menyimpan dasar penyelesaian kas saat itu; penyimpulan fee nol tidak sah dan
+dikoreksi pada 4 Oktober. probe_used=1 dipertahankan; probe_pending=0 dan
 account incident/close request baru diselesaikan berdasarkan bukti tersebut.
+
+Perbaikan pemisahan proteksi/pembukuan dan deadline sesudah audit ini berada di
+AUDIT_PROTECTION_FIX_2026-10-04.md. Tidak ada entry baru dalam tugas perbaikan.
 
 Enam timeout pada proses sebelumnya tercatat 22:08:41,311–22:09:41,456 WIB
 (span error 60,144342 detik). Waktu pemulihan tepat tidak dicatat log; pembacaan

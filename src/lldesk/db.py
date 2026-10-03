@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS intents(client_id INTEGER PRIMARY KEY,
   qty TEXT NOT NULL, limit_price TEXT NOT NULL, state TEXT NOT NULL, tx_hash TEXT,
   reason TEXT, created_at REAL NOT NULL, updated_at REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS fills(fill_id TEXT PRIMARY KEY, client_id INTEGER NOT NULL,
-  qty TEXT NOT NULL, price TEXT NOT NULL, fee TEXT NOT NULL,
+  qty TEXT NOT NULL, price TEXT NOT NULL, fee TEXT,
   exchange_ms INTEGER, received_at REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS equity_marks(id INTEGER PRIMARY KEY AUTOINCREMENT, day TEXT NOT NULL,
   equity TEXT NOT NULL, cumulative_flow TEXT NOT NULL, recorded_at REAL NOT NULL);
@@ -44,6 +44,48 @@ class Database:
         self.conn.executescript(SCHEMA)
         self.conn.execute("INSERT OR IGNORE INTO migrations VALUES(1, ?)", (time.time(),))
         self.conn.execute("INSERT OR IGNORE INTO migrations VALUES(2, ?)", (time.time(),))
+        self._migrate_pending_fees()
+
+    def _migrate_pending_fees(self) -> None:
+        if self.conn.execute("SELECT 1 FROM migrations WHERE version=3").fetchone():
+            return
+        self.conn.execute("BEGIN IMMEDIATE")
+        try:
+            self.conn.execute(
+                "CREATE TABLE fills_new(fill_id TEXT PRIMARY KEY, client_id INTEGER NOT NULL, "
+                "qty TEXT NOT NULL, price TEXT NOT NULL, fee TEXT, exchange_ms INTEGER, "
+                "received_at REAL NOT NULL)"
+            )
+            self.conn.execute("INSERT INTO fills_new SELECT * FROM fills")
+            self.conn.execute("DROP TABLE fills")
+            self.conn.execute("ALTER TABLE fills_new RENAME TO fills")
+            # Historical cash equality did not establish individual trade fees.
+            corrected = []
+            for (body,) in self.conn.execute("SELECT body FROM events WHERE kind='AUDITED_FILL'"):
+                item = json.loads(body)
+                if item.get("fee_source") == "aggregate cash audit; raw API fee absent":
+                    self.conn.execute(
+                        "UPDATE fills SET fee=NULL WHERE fill_id=?", (str(item["trade_id"]),)
+                    )
+                    corrected.append(str(item["trade_id"]))
+            if corrected:
+                self.event(
+                    "FEE_PROVENANCE_CORRECTION",
+                    {
+                        "trade_ids": corrected,
+                        "fee": None,
+                        "reason": "cash delta does not prove individual trade fees",
+                        "cash_audit_preserved": True,
+                    },
+                )
+            self.conn.execute("INSERT INTO migrations VALUES(3, ?)", (time.time(),))
+            self.conn.commit()
+        except Exception:
+            self.conn.rollback()
+            raise
+
+    def pending_fees(self) -> int:
+        return int(self.conn.execute("SELECT COUNT(*) FROM fills WHERE fee IS NULL").fetchone()[0])
 
     def close(self) -> None:
         self.conn.close()
@@ -172,8 +214,31 @@ class Database:
         return [dict(zip(keys, row, strict=True)) for row in rows]
 
     def add_fill(
-        self, fill_id: str, client_id: int, qty: str, price: str, fee: str, exchange_ms: int | None
+        self,
+        fill_id: str,
+        client_id: int,
+        qty: str,
+        price: str,
+        fee: str | None,
+        exchange_ms: int | None,
     ) -> bool:
+        from decimal import Decimal
+
+        stored = self.conn.execute(
+            "SELECT client_id,qty,price,fee FROM fills WHERE fill_id=?", (fill_id,)
+        ).fetchone()
+        if stored:
+            if (
+                stored[0] != client_id
+                or Decimal(stored[1]) != Decimal(qty)
+                or Decimal(stored[2]) != Decimal(price)
+            ):
+                raise ValueError("previously audited trade economics changed")
+            if fee is not None:
+                if stored[3] is not None and Decimal(stored[3]) != Decimal(fee):
+                    raise ValueError("trade fee changed")
+                self.conn.execute("UPDATE fills SET fee=? WHERE fill_id=?", (fee, fill_id))
+            return False
         cur = self.conn.execute(
             "INSERT OR IGNORE INTO fills VALUES(?, ?, ?, ?, ?, ?, ?)",
             (fill_id, client_id, qty, price, fee, exchange_ms, time.time()),

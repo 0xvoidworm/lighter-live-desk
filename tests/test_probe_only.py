@@ -11,7 +11,7 @@ import pytest
 
 from lldesk.account import AccountSnapshot, DispatchBlocked, LocalOrderRejected, RateBudget
 from lldesk.config import Config
-from lldesk.engine import JAKARTA, Engine, TradeFeeUnavailable
+from lldesk.engine import JAKARTA, Engine
 from lldesk.models import EngineState, OrderState, Stamp
 from lldesk.strategy import Decision
 
@@ -42,8 +42,11 @@ class Exchange:
     async def snapshot(self, market_id):
         return replace(self.current, received_at=time.time())
 
-    async def probe_snapshot(self, market_id, verified_flows=None):
+    async def probe_snapshot(self, market_id, verified_flows=None, **kwargs):
         self.probe_scopes.append(verified_flows)
+        return await self.snapshot(market_id)
+
+    async def position_snapshot(self, market_id, previous=None, **kwargs):
         return await self.snapshot(market_id)
 
     async def order_statuses(self, ids, **kwargs):
@@ -125,7 +128,9 @@ async def drain(engine):
     await asyncio.sleep(0)
 
 
-async def test_missing_mainnet_fee_reduces_fresh_exposure_without_claiming_audit(engine):
+async def test_missing_mainnet_fee_preserves_fill_for_protection_and_blocks_next_entry(engine):
+    from unittest.mock import AsyncMock
+
     engine.probe_active = True
     engine.db.set_flag("probe_pending", "1")
     engine.db.intent(1, "PROBE", "buy", "0.00012", "83001")
@@ -151,20 +156,24 @@ async def test_missing_mainnet_fee_reduces_fresh_exposure_without_claiming_audit
         return [trade]
 
     engine.account.recent_trades = trades
-    audit_before = engine.last_reconcile_ok
+    engine.account.send_stop = AsyncMock(return_value="mock stop ack")
     for _ in range(2):
-        with pytest.raises(TradeFeeUnavailable):
-            await engine.reconcile()
+        await engine.reconcile()
+    await engine.manage_position()
+    engine.account.send_stop.assert_awaited_once()
+    assert engine.account.send_stop.call_args.args[0].quantity == Decimal("0.00012")
+    engine.protection_confirmed = True
+    await engine.manage_position()
     assert len(engine.account.sent) == 1
     assert engine.account.sent[0].kind == "EXIT"
     assert engine.account.sent[0].quantity == Decimal("0.00012")
     assert engine.account_snapshot.position_qty == Decimal("0.00012")
-    assert engine.entries_stopped and engine.manual_exposure
+    assert engine.entries_stopped and not engine.manual_exposure
     assert engine.db.flag("close_requested") == "1"
-    assert engine.db.flag("account_incident_pending") == "1"
+    assert engine.db.pending_fees() == 1
     assert engine.db.flag("probe_pending") == "1"
-    assert engine.last_reconcile_ok == audit_before
-    assert engine.db.conn.execute("SELECT COUNT(*) FROM fills").fetchone()[0] == 0
+    assert engine.db.conn.execute("SELECT fee FROM fills").fetchone()[0] is None
+    assert any("fee trade belum" in b for b in engine.live_blockers())
 
 
 def test_missing_fee_repeat_requires_matching_previously_audited_fill(engine):
@@ -682,6 +691,7 @@ async def test_fill_after_flat_snapshot_cannot_finish_probe_or_discard_ownership
     )
     await Engine.safe_reconcile(engine)
     assert not engine.manual_exposure
+    await engine.manage_position()
     engine.account.send_stop.assert_awaited_once()
 
 
@@ -726,7 +736,7 @@ async def test_foreground_polls_stop_before_confirmation_deadline_and_then_close
 
     engine.safe_reconcile = reconcile
     engine.close_position = close
-    task = asyncio.create_task(engine._loop())
+    task = asyncio.create_task(engine.loop())
     try:
         await asyncio.wait_for(closed.wait(), 1)
         assert engine.protection_confirmed
