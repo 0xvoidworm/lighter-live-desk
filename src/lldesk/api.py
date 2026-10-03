@@ -12,12 +12,14 @@ from fastapi.staticfiles import StaticFiles
 from .config import repo_root
 from .db import Database
 
-ALLOWED_HOSTS = {"127.0.0.1", "localhost"}
+ALLOWED_HOSTS = {"127.0.0.1", "localhost", "lighter.localhost"}
 ALLOWED_ORIGINS = {
     "http://127.0.0.1:5173",
     "http://localhost:5173",
     "http://127.0.0.1:8765",
     "http://localhost:8765",
+    "http://lighter.localhost:8765",
+    "http://lighter.localhost:5173",
 }
 COMMANDS = {"START_LIVE", "STOP_ENTRIES", "CANCEL_ENTRIES", "CLOSE_POSITION", "PROBE_ONCE"}
 

@@ -13,16 +13,27 @@ from zoneinfo import ZoneInfo
 
 import httpx
 
-from .account import AccountSnapshot, LighterAccount
+from .account import AccountSnapshot, DispatchBlocked, LighterAccount
 from .config import Config, load_config, repo_root
 from .db import Database
 from .market import FX_BOOK, Book, Feeds, GapError, Recorder, dec, market_metadata
-from .models import AccountEvent, EngineState, MarketEvent, OrderIntent, OrderState, Stamp
+from .models import (
+    TERMINAL_ORDER_STATES,
+    AccountEvent,
+    EngineState,
+    MarketEvent,
+    OrderIntent,
+    OrderState,
+    Stamp,
+    normalize_order_state,
+)
 from .risk import EquityBaseline, limit_price, size_entry
 from .strategy import Decision, DeviationStrategy
 
 LOG = logging.getLogger("lldesk.engine")
 JAKARTA = ZoneInfo("Asia/Jakarta")
+# Eight reads per flat-account reconcile fit the 40/min local read budget.
+ACCOUNT_RECONCILE_INTERVAL_SECONDS = 12
 
 
 class Engine:
@@ -49,9 +60,11 @@ class Engine:
         self.last_decision = Decision(None, None, None, None, ("BELUM_ADA_DATA",))
         self.last_account_poll = 0.0
         self.last_reconcile_ok = 0.0
+        self.reconcile_failed = True
         self.session_end = 0.0
         self.session_positions = 0
         self.entries_stopped = True
+        self.probe_active = self.db.flag("probe_pending") == "1"
         self.last_position_qty = Decimal(0)
         self.position_opened_at = 0.0
         self.protection_id: int | None = None
@@ -64,6 +77,11 @@ class Engine:
         self.last_cancel_ack_ms: float | None = None
         self.journal_ok = True
         self.tasks: list[asyncio.Task] = []
+        self.reconcile_task: asyncio.Task | None = None
+        self.reconcile_lock = asyncio.Lock()
+        self.entry_epoch = 0
+        self.entry_tasks: set[asyncio.Task] = set()
+        self.dispatching_entries: set[int] = set()
         self._restore_order_ids()
 
     def _restore_order_ids(self) -> None:
@@ -105,12 +123,14 @@ class Engine:
         try:
             self.market = await market_metadata()
             self._check_market()
-            self.feeds = Feeds(int(self.market["market_id"]), self.queue)
+            self.feeds = Feeds(
+                int(self.market["market_id"]), self.queue, self.config.binance_dns_mode
+            )
             if self.config.mode == "live_capable":
                 try:
                     self.account = LighterAccount(self.config)
                     await self.account.open()
-                    await self.reconcile()
+                    await self.safe_reconcile()
                 except Exception as exc:
                     self.state = EngineState.PAUSED
                     self.reason = f"akun belum siap: {type(exc).__name__}"
@@ -131,6 +151,11 @@ class Engine:
                 )
             await self.loop()
         finally:
+            self.entry_epoch += 1
+            self.entries_stopped = True
+            if self.reconcile_task:
+                self.tasks.append(self.reconcile_task)
+            self.tasks.extend(self.entry_tasks)
             for task in self.tasks:
                 task.cancel()
             await asyncio.gather(*self.tasks, return_exceptions=True)
@@ -172,12 +197,29 @@ class Engine:
                 await asyncio.sleep(10)
 
     async def loop(self) -> None:
+        try:
+            await self._loop()
+        finally:
+            if self.reconcile_task:
+                self.reconcile_task.cancel()
+                await asyncio.gather(self.reconcile_task, return_exceptions=True)
+
+    async def _loop(self) -> None:
+        last_status_at = 0.0
         while True:
             start = time.monotonic()
             try:
-                event = await asyncio.wait_for(self.queue.get(), timeout=0.5)
+                event = await asyncio.wait_for(self.queue.get(), timeout=0.05)
                 self.on_market(event)
                 self.queue.task_done()
+                # Preserve every event's order while amortizing coordinator work.
+                # A time bound keeps commands responsive even under a sustained burst.
+                batch_end = time.monotonic() + 0.01
+                for _ in range(255):
+                    if self.queue.empty() or time.monotonic() >= batch_end:
+                        break
+                    self.on_market(self.queue.get_nowait())
+                    self.queue.task_done()
             except TimeoutError:
                 pass
             except GapError as exc:
@@ -198,29 +240,46 @@ class Engine:
                     self.on_account(self.account_queue.get_nowait())
                     self.account_queue.task_done()
             except Exception as exc:
+                self.reconcile_failed = True
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
                 self.reason = f"feed akun perlu rekonsiliasi: {type(exc).__name__}"
             await self.commands()
-            if self.account and time.monotonic() - self.last_account_poll >= 10:
-                await self.safe_reconcile()
+            if (
+                self.account
+                and not (self.probe_active and self.entry_tasks)
+                and time.monotonic() - self.last_account_poll
+                >= (2 if self.probe_active else ACCOUNT_RECONCILE_INTERVAL_SECONDS)
+                and self.probe_read_ready()
+                and (self.reconcile_task is None or self.reconcile_task.done())
+            ):
+                self.reconcile_task = asyncio.create_task(self.safe_reconcile())
             self.decide()
             await self.manage_position()
-            if self.state == EngineState.LIVE and time.monotonic() >= self.session_end:
+            if (
+                (self.state == EngineState.LIVE or self.probe_active)
+                and self.session_end
+                and time.monotonic() >= self.session_end
+            ):
                 self.entries_stopped = True
                 await self.cancel_entries()
+                if self.probe_active:
+                    self.session_end = 0.0
                 self.state = EngineState.PAUSED
                 self.reason = "batas waktu sesi; posisi tetap dikelola"
-            self.lag_ms = max(0.0, (time.monotonic() - start - 0.5) * 1000)
+            self.lag_ms = max(0.0, (time.monotonic() - start - 0.05) * 1000)
             try:
-                self.db.save_status(self.status())
-                self.journal_ok = True
+                if time.monotonic() - last_status_at >= 0.25:
+                    self.db.save_status(self.status())
+                    last_status_at = time.monotonic()
+                    self.journal_ok = True
             except Exception:
                 self.journal_ok = False
                 self.entries_stopped = True
                 self.state = EngineState.HALTED
                 self.reason = "jurnal/database gagal ditulis"
                 LOG.exception("journal failure")
+            await asyncio.sleep(0)
 
     async def restart_feeds(self) -> None:
         if not self.feeds:
@@ -340,6 +399,50 @@ class Engine:
             and self.queue.qsize() < 1500
         )
 
+    def idle_valid(self) -> bool:
+        """Healthy flat monitoring; live margin verification remains a separate gate."""
+        snap = self.account_snapshot
+        now = time.monotonic()
+        return bool(
+            not self.config.allow_live_orders
+            and self.entries_stopped
+            and not self.probe_active
+            and now >= self.session_end
+            and self.account
+            and snap
+            and not self.reconcile_failed
+            and now - self.last_reconcile_ok < 15
+            and time.time() - snap.received_at < 15
+            and self.config.expected_account_type_code is not None
+            and snap.account_type_code == self.config.expected_account_type_code
+            and self.config.expected_account_trading_mode is not None
+            and snap.account_trading_mode == self.config.expected_account_trading_mode
+            and not snap.position_qty
+            and not snap.active_orders
+            and not snap.other_positions
+            and not snap.other_assets
+            and not self.manual_exposure
+            and self.exit_id is None
+            and self.protection_id is None
+            and not self.db.unresolved()
+            and self.db.flag("close_requested") != "1"
+            and self.db.flag("daily_stop_day") != datetime.now(JAKARTA).date().isoformat()
+            and all(
+                self.db.flag(flag) != "1"
+                for flag in (
+                    "total_loss_stop",
+                    "funding_change_pending",
+                    "account_incident_pending",
+                    "probe_pending",
+                )
+            )
+            and Decimal(self.db.gross_deposits()) <= self.config.max_funding_usd
+            and 0 < snap.equity <= self.config.max_funding_usd
+            and self.journal_ok
+            and self.data_valid()
+            and self.last_decision.basis_bps is not None
+        )
+
     def decide(self) -> None:
         self.last_decision = self.strategy.evaluate(
             self.books["lighter"].quote(), self.books["binance"].quote(), self.data_valid(), self.fx
@@ -350,6 +453,19 @@ class Engine:
         if self.state == EngineState.WARMING_UP and self.last_decision.basis_bps is not None:
             self.state = EngineState.READY
             self.reason = "data siap; mode observasi" if not self.account else "siap untuk sesi"
+        if self.state not in {
+            EngineState.STARTING,
+            EngineState.HALTED,
+            EngineState.LIVE,
+            EngineState.PROBING,
+        }:
+            if self.idle_valid():
+                self.state = EngineState.IDLE
+                self.reason = "standby; akun flat, data segar, entry dinonaktifkan"
+            elif self.state == EngineState.IDLE:
+                self.entries_stopped = True
+                self.state = EngineState.PAUSED
+                self.reason = "idle ditahan; akun, pasar, atau jurnal belum valid"
         if (
             self.state == EngineState.LIVE
             and not self.entries_stopped
@@ -359,13 +475,22 @@ class Engine:
             if not self.db.unresolved() and (
                 not self.account_snapshot or not self.account_snapshot.position_qty
             ):
-                asyncio.create_task(self.enter(self.last_decision.side))
+                task = asyncio.create_task(
+                    self.enter(self.last_decision.side, scheduled_epoch=self.entry_epoch)
+                )
+                self.entry_tasks.add(task)
+                task.add_done_callback(self.entry_tasks.discard)
                 self.entries_stopped = True  # prevent duplicate signal while send is in flight
 
     async def safe_reconcile(self) -> None:
         try:
-            await self.reconcile()
+            async with self.reconcile_lock:
+                self.last_account_poll = time.monotonic()
+                async with asyncio.timeout(8):
+                    await self.reconcile()
+                self.reconcile_failed = False
         except Exception as exc:
+            self.reconcile_failed = True
             self.entries_stopped = True
             self.state = EngineState.PAUSED
             self.reason = f"rekonsiliasi gagal: {type(exc).__name__}"
@@ -375,9 +500,28 @@ class Engine:
         if not self.account or not self.market:
             return
         market_id = int(self.market["market_id"])
-        snapshot = await self.account.snapshot(market_id)
+        exposure_only = bool(
+            self.probe_active
+            and self.account_snapshot
+            and (
+                self.account_snapshot.position_qty
+                or self.db.unresolved()
+                or self.protection_id is not None
+                or self.exit_id is not None
+                or self.entry_tasks
+                or self.dispatching_entries
+            )
+        )
+        if self.probe_active:
+            flows = (
+                self.account_snapshot.funding_flows
+                if exposure_only and self.account_snapshot
+                else None
+            )
+            snapshot = await self.account.probe_snapshot(market_id, flows)
+        else:
+            snapshot = await self.account.snapshot(market_id)
         self.last_account_poll = time.monotonic()
-        self.account_snapshot = snapshot
         if (
             self.config.mode == "live_capable"
             and self.config.expected_account_type_code is not None
@@ -386,31 +530,28 @@ class Engine:
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
                 self.reason = "tier akun berubah; entry diblok"
-        if self.config.mode == "live_capable" and not self.margin_settings_valid(snapshot):
+        # A flat account can monitor while the API omits its BTC margin settings.
+        # Live entry still requires those settings in live_blockers and dispatch.
+        if (
+            self.config.mode == "live_capable"
+            and not self.margin_settings_valid(snapshot)
+            and (self.config.allow_live_orders or snapshot.position_qty)
+        ):
             self.entries_stopped = True
             self.state = EngineState.PAUSED
             self.reason = "mode akun atau margin BTC belum terverifikasi"
-        if snapshot.equity > self.config.max_funding_usd:
-            raise RuntimeError("dedicated account equity exceeds $50 cap")
         if snapshot.other_positions or snapshot.other_assets:
-            raise RuntimeError("dedicated account has unrelated positions or assets")
+            self.entries_stopped = True
+            self.state = EngineState.PAUSED
+            self.reason = "akun memiliki aset/posisi lain; entry diblok"
         if (
             snapshot.position_qty
             and abs(snapshot.position_qty * snapshot.position_price)
             > self.config.max_entry_notional_usd
         ):
-            raise RuntimeError("position exceeds $25 cap")
-        last_flat = float(self.db.flag("last_flat_epoch") or "0")
-        own_entry = self.db.conn.execute(
-            "SELECT 1 FROM intents WHERE kind IN ('ENTRY','PROBE') "
-            "AND created_at>? ORDER BY created_at DESC LIMIT 1",
-            (last_flat,),
-        ).fetchone()
-        self.manual_exposure = bool(snapshot.position_qty and not own_entry)
-        if self.manual_exposure:
             self.entries_stopped = True
             self.state = EngineState.PAUSED
-            self.reason = "posisi tanpa entry lokal; periksa intervensi manual"
+            self.reason = "posisi melampaui pagu; entry diblok"
         unresolved = self.db.unresolved()
         known = {x["client_id"] for x in unresolved}
         for order in snapshot.active_orders:
@@ -418,9 +559,14 @@ class Engine:
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
                 self.reason = "order manual/tidak dikenal; perlu rekonsiliasi"
-        statuses = await self.account.order_statuses([x["client_id"] for x in unresolved])
+        client_ids = [x["client_id"] for x in unresolved]
         after_id = int(self.db.flag("last_trade_id") or "0")
-        trades = await self.account.recent_trades(market_id, after_id)
+        if self.probe_active:
+            statuses = await self.account.order_statuses(client_ids, priority="probe_read")
+            trades = await self.account.recent_trades(market_id, after_id, priority="probe_read")
+        else:
+            statuses = await self.account.order_statuses(client_ids)
+            trades = await self.account.recent_trades(market_id, after_id)
         for trade in reversed(trades):
             self._record_trade(trade, self.account.account_index)
         if trades:
@@ -431,47 +577,97 @@ class Engine:
                 continue  # uncertain intent stays frozen
             status = str(matched_order.get("status", ""))
             filled = dec(matched_order.get("filled_base_amount", "0"))
-            if status == "filled":
-                new_state = OrderState.FILLED
-            elif status.startswith("canceled"):
-                new_state = OrderState.CANCELED
-            elif status == "rejected":
-                new_state = OrderState.REJECTED
-            elif filled > 0:
-                new_state = OrderState.PARTIAL
-            elif status in {"open", "pending", "in-progress"}:
-                new_state = OrderState.OPEN
-            else:
-                new_state = OrderState.UNKNOWN
+            new_state = normalize_order_state(status, filled)
             self.db.order_state(intent["client_id"], new_state)
+            self.db.event(
+                "ORDER_STATUS",
+                {
+                    "client_id": intent["client_id"],
+                    "order": {
+                        key: matched_order.get(key)
+                        for key in (
+                            "order_index",
+                            "client_order_index",
+                            "market_index",
+                            "status",
+                            "type",
+                            "is_ask",
+                            "reduce_only",
+                            "remaining_base_amount",
+                            "filled_base_amount",
+                            "price",
+                            "trigger_price",
+                        )
+                    },
+                },
+            )
+        last_flat = float(self.db.flag("last_flat_epoch") or "0")
+        own_qty = sum(
+            (
+                dec(qty) * (1 if side == "buy" else -1)
+                for qty, side in self.db.conn.execute(
+                    "SELECT f.qty,i.side FROM fills f JOIN intents i ON i.client_id=f.client_id "
+                    "WHERE i.created_at>?",
+                    (last_flat,),
+                )
+            ),
+            Decimal(0),
+        )
+        # Publish account exposure only after ownership evidence is available.
+        # The foreground loop keeps managing the last fully reconciled snapshot.
+        self.account_snapshot = snapshot
+        self.manual_exposure = bool(snapshot.position_qty and own_qty != snapshot.position_qty)
+        if self.probe_active and own_qty != snapshot.position_qty:
+            # A fill can arrive after the account GET. Do not declare flat or
+            # retry a filled close using that older snapshot; fetch again promptly.
+            self.last_account_poll = time.monotonic() - ACCOUNT_RECONCILE_INTERVAL_SECONDS
+        if self.manual_exposure:
+            self.entries_stopped = True
+            self.state = EngineState.PAUSED
+            self.reason = "posisi tidak cocok dengan fill lokal; periksa intervensi manual"
         if self.protection_id is not None:
             protected = statuses.get(self.protection_id)
-            self.protection_confirmed = bool(
-                protected
-                and protected.get("status") in {"pending", "open"}
-                and bool(protected.get("reduce_only"))
-            )
-        self._update_baseline(snapshot)
+            previously_confirmed = self.protection_confirmed
+            self.protection_confirmed = self.stop_covers_position(protected, snapshot)
+            if self.protection_confirmed and not previously_confirmed:
+                self.db.event(
+                    "PROTECTION_CONFIRMED",
+                    {
+                        "client_id": self.protection_id,
+                        "position_qty": str(snapshot.position_qty),
+                        "snapshot_received_at": snapshot.received_at,
+                        "order_index": protected.get("order_index") if protected else None,
+                    },
+                )
+            if previously_confirmed and not self.protection_confirmed and not self.manual_exposure:
+                self.entries_stopped = True
+                self.db.set_flag("close_requested", "1")
+        if not exposure_only:
+            self._update_baseline(snapshot)
         if self.db.flag("close_requested") == "1":
             await self.cancel_entries()
-        if self.exit_id is not None and snapshot.position_qty:
+        if self.exit_id is not None and snapshot.position_qty and own_qty == snapshot.position_qty:
             exit_status = statuses.get(self.exit_id)
-            if exit_status and exit_status.get("status") in {"filled", "canceled", "rejected"}:
+            if (
+                exit_status
+                and normalize_order_state(str(exit_status.get("status", "")))
+                in TERMINAL_ORDER_STATES
+            ):
                 self.exit_id = None
         if snapshot.position_qty != self.last_position_qty:
             if not self.last_position_qty and snapshot.position_qty:
                 if not self.position_opened_at:
                     self.position_opened_at = time.monotonic()
                     self.db.set_flag("position_opened_epoch", str(time.time()))
-                    self.db.set_flag("exit_attempts", "0")
+                    if not self.db.flag("exit_attempts"):
+                        self.db.set_flag("exit_attempts", "0")
             if self.last_position_qty and not snapshot.position_qty:
                 self.db.set_flag("close_requested", "0")
-                if self.db.flag("probe_pending") == "1":
-                    self.db.set_flag("probe_pending", "0")
-                else:
+                if self.db.flag("probe_pending") != "1":
                     self.session_positions += 1
                 self.position_opened_at = 0.0
                 self.db.set_flag("position_opened_epoch", "")
+                self.db.set_flag("exit_attempts", "0")
             self.last_position_qty = snapshot.position_qty
         if (
             snapshot.position_qty
@@ -485,6 +681,7 @@ class Engine:
             and self.protection_id is not None
             and not self.protection_confirmed
             and self.exit_id is None
+            and not self.manual_exposure
             and time.monotonic() - self.protect_sent_at > 8
         ):
             self.reason = "stop tidak terkonfirmasi; meminta tutup posisi"
@@ -495,7 +692,11 @@ class Engine:
             self.db.set_flag("close_requested", "0")
         if not snapshot.position_qty and self.protection_id is not None:
             stop_status = statuses.get(self.protection_id)
-            if stop_status and stop_status.get("status") in {"filled", "canceled"}:
+            if (
+                stop_status
+                and normalize_order_state(str(stop_status.get("status", "")))
+                in TERMINAL_ORDER_STATES
+            ):
                 self.protection_id = None
                 self.protection_confirmed = False
             elif stop_status and stop_status.get("status") in {"pending", "open"}:
@@ -510,19 +711,49 @@ class Engine:
                         if order_index <= 0:
                             raise ValueError("stop exchange order index unavailable")
                         sent_at = time.monotonic()
-                        await self.account.cancel(market_id, order_index)
+                        tx = await self.account.cancel(market_id, order_index)
+                        self.db.event(
+                            "CANCEL_ACK",
+                            {
+                                "client_id": stop_id,
+                                "order_index": order_index,
+                                "tx_hash": tx,
+                            },
+                        )
                         self.last_cancel_ack_ms = (time.monotonic() - sent_at) * 1000
                     except Exception:
                         self.db.order_state(stop_id, OrderState.UNKNOWN)
                         self.reason = "posisi flat; cancel stop belum pasti"
-        if not snapshot.position_qty and not any(
-            x["kind"] in {"ENTRY", "PROBE"} for x in self.db.unresolved()
+        if (
+            not snapshot.position_qty
+            and not own_qty
+            and not any(x["kind"] in {"ENTRY", "PROBE"} for x in self.db.unresolved())
         ):
             self.db.set_flag("last_flat_epoch", str(time.time()))
+        if (
+            self.probe_active
+            and not exposure_only
+            and not snapshot.position_qty
+            and not own_qty
+            and not snapshot.active_orders
+            and not self.db.unresolved()
+            and self.protection_id is None
+            and self.exit_id is None
+            and not self.entry_tasks
+            and not self.dispatching_entries
+        ):
+            self.probe_active = False
+            self.db.set_flag("probe_pending", "0")
+            self.session_end = 0.0
+            self.entries_stopped = True
+            if self.state != EngineState.HALTED:
+                self.state = EngineState.PAUSED
+                self.reason = "probe selesai menurut rekonsiliasi; entry strategi tetap berhenti"
         if self.state == EngineState.RECONCILING:
             self.state = EngineState.WARMING_UP
             self.reason = "rekonsiliasi selesai; menunggu data valid"
-        self.last_reconcile_ok = time.monotonic()
+        if not exposure_only:
+            self.last_reconcile_ok = time.monotonic()
         if (
             self.state == EngineState.PAUSED
             and not snapshot.position_qty
@@ -540,6 +771,30 @@ class Engine:
         ):
             self.state = EngineState.READY
             self.reason = "akun dan pasar tersinkron; entry menunggu perintah"
+
+    def stop_covers_position(self, order: dict | None, snap: AccountSnapshot) -> bool:
+        if not order or not self.market or not snap.position_qty:
+            return False
+        try:
+            short = snap.position_qty < 0
+            trigger = dec(order["trigger_price"])
+            side = "buy" if short else "sell"
+            expected = snap.position_price * (Decimal("1.0035") if short else Decimal("0.9965"))
+            expected = limit_price(
+                expected, side, Decimal(1).scaleb(-int(self.market["price_decimals"])), Decimal(0)
+            )
+            return (
+                order.get("status") in {"pending", "open"}
+                and order.get("reduce_only") is True
+                and order.get("is_ask") is (not short)
+                and int(order["market_index"]) == int(self.market["market_id"])
+                and order.get("type") in {"stop-loss", "stop-loss-limit"}
+                and dec(order["remaining_base_amount"]) == abs(snap.position_qty)
+                and trigger > 0
+                and trigger == expected
+            )
+        except (KeyError, ValueError, TypeError, ArithmeticError):
+            return False
 
     def _update_baseline(self, snap: AccountSnapshot) -> None:
         day = datetime.now(JAKARTA).date().isoformat()
@@ -605,6 +860,17 @@ class Engine:
             self.protect_sent_at = time.monotonic()
             self.db.order_state(client_id, OrderState.SENT)
             sent_at = time.monotonic()
+            self.db.event(
+                "STOP_DISPATCH",
+                {
+                    "client_id": client_id,
+                    "quantity": str(qty),
+                    "side": side,
+                    "trigger_price": str(trigger),
+                    "limit_price": str(limit),
+                    "reduce_only": True,
+                },
+            )
             tx = await self.account.send_stop(
                 OrderIntent(client_id, "STOP", side, qty, limit, Stamp()),
                 int(self.market["market_id"]),
@@ -622,15 +888,23 @@ class Engine:
             self.entries_stopped = True
             self.state = EngineState.PAUSED
             self.reason = "proteksi posisi belum pasti; perlu tutup posisi"
+            self.db.set_flag("close_requested", "1")
 
-    async def enter(self, side: str, kind: str = "ENTRY") -> None:
+    async def enter(
+        self, side: str, kind: str = "ENTRY", *, scheduled_epoch: int | None = None
+    ) -> None:
+        epoch = self.entry_epoch if scheduled_epoch is None else scheduled_epoch
+        entry_state = EngineState.PROBING if kind == "PROBE" else EngineState.LIVE
         if (
-            self.state != EngineState.LIVE
+            epoch != self.entry_epoch
+            or self.state != entry_state
+            or (kind == "PROBE" and not self.probe_active)
             or self.config.mode != "live_capable"
             or not self.config.allow_live_orders
+            or (kind != "PROBE" and self.config.live_entry_scope != "strategy")
             or not self.session_end
             or time.monotonic() >= self.session_end
-            or self.session_positions >= self.config.max_session_positions
+            or (kind != "PROBE" and self.session_positions >= self.config.max_session_positions)
         ):
             return
         if (
@@ -673,6 +947,7 @@ class Engine:
                 int(self.market["price_decimals"]),
                 Decimal("35"),
                 Decimal("0"),
+                minimum_only=kind == "PROBE",
             )
             depth_price = self.books["lighter"].price_for(side, sizing.quantity)
             if depth_price is None:
@@ -687,23 +962,120 @@ class Engine:
                 raise ValueError("depth, spread and uncertainty erase expected edge")
             client_id = self.db.next_client_id()
             self.db.intent(client_id, kind, side, str(sizing.quantity), str(sizing.price))
-            self.db.order_state(client_id, OrderState.SENT)
+
+            def before_dispatch() -> bool:
+                current = self.account_snapshot
+                row = self.db.conn.execute(
+                    "SELECT state FROM intents WHERE client_id=?", (client_id,)
+                ).fetchone()
+                if (
+                    self.entry_epoch != epoch
+                    or self.state != entry_state
+                    or (kind == "PROBE" and not self.probe_active)
+                    or (kind == "PROBE" and not self.entry_rate_ready())
+                    or self.config.mode != "live_capable"
+                    or not self.config.allow_live_orders
+                    or (kind != "PROBE" and self.config.live_entry_scope != "strategy")
+                    or time.monotonic() >= self.session_end
+                    or not self.data_valid()
+                    or not self.account
+                    or not self.market
+                    or current is None
+                    or time.time() - current.received_at > 15
+                    or current.account_type_code != self.config.expected_account_type_code
+                    or not self.margin_settings_valid(current)
+                    or current.position_qty
+                    or current.active_orders
+                    or current.other_positions
+                    or current.other_assets
+                    or self.manual_exposure
+                    or not self.journal_ok
+                    or (
+                        kind == "PROBE"
+                        and (
+                            self.reconcile_failed
+                            or time.monotonic() - self.last_reconcile_ok > 15
+                            or self.last_decision.basis_bps is None
+                        )
+                    )
+                    or sizing.quantity * sizing.price
+                    > min(current.equity, current.available) - self.config.exit_reserve_usd
+                    or sizing.quantity * sizing.price
+                    > current.equity * self.config.max_effective_leverage
+                    or not row
+                    or row[0] != OrderState.INTENT
+                    or self.db.flag("total_loss_stop") == "1"
+                    or self.db.flag("daily_stop_day") == datetime.now(JAKARTA).date().isoformat()
+                    or self.db.flag("funding_change_pending") == "1"
+                    or self.db.flag("account_incident_pending") == "1"
+                    or self.db.flag("close_requested") == "1"
+                ):
+                    return False
+                self.db.order_state(client_id, OrderState.SENT)
+                self.dispatching_entries.add(client_id)
+                self.db.event(
+                    "ENTRY_DISPATCH",
+                    {
+                        "client_id": client_id,
+                        "kind": kind,
+                        "side": side,
+                        "quantity": str(sizing.quantity),
+                        "quote_reference": str(best),
+                        "limit_price": str(sizing.price),
+                        "planned_risk": str(sizing.planned_risk),
+                        "equity_before": str(current.equity),
+                        "available_before": str(current.available),
+                        "slippage_bps": "2",
+                        "stop_distance_bps": "35",
+                        "stop_limit_slippage_bps": "30",
+                        "max_hold_seconds": self.config.max_hold_seconds,
+                        "side_reason": "fixed BUY probe; lifecycle test, no strategy signal"
+                        if kind == "PROBE"
+                        else "existing strategy",
+                        "spread_bps": str(spread_bps),
+                        "depth_price": str(depth_price),
+                        "min_base_amount": self.market["min_base_amount"],
+                        "min_quote_amount": self.market["min_quote_amount"],
+                        "size_decimals": self.market["size_decimals"],
+                        "price_decimals": self.market["price_decimals"],
+                    },
+                )
+                return True
+
             sent_at = time.monotonic()
             tx = await self.account.send_ioc(
                 OrderIntent(client_id, kind, side, sizing.quantity, sizing.price, Stamp()),
                 int(self.market["market_id"]),
                 int(self.market["size_decimals"]),
                 int(self.market["price_decimals"]),
+                dispatch_check=before_dispatch,
             )
             self.db.order_state(client_id, OrderState.SENT, tx)
             self.last_order_ack_ms = (time.monotonic() - sent_at) * 1000
             await self.safe_reconcile()
+        except DispatchBlocked:
+            if "client_id" in locals():
+                self.db.order_state(client_id, OrderState.CANCELED, reason="local dispatch blocked")
+            self.entries_stopped = True
+            self.reason = "entry dibatalkan sebelum signer"
+        except asyncio.CancelledError:
+            if "client_id" in locals():
+                state = (
+                    OrderState.UNKNOWN
+                    if client_id in self.dispatching_entries
+                    else OrderState.CANCELED
+                )
+                self.db.order_state(client_id, state, reason="entry task canceled")
+            raise
         except Exception as exc:
             if "client_id" in locals():
                 self.db.order_state(client_id, OrderState.UNKNOWN, reason=type(exc).__name__)
             self.entries_stopped = True
             self.state = EngineState.PAUSED
             self.reason = f"entry tidak pasti: {type(exc).__name__}"
+        finally:
+            if "client_id" in locals():
+                self.dispatching_entries.discard(client_id)
 
     async def manage_position(self) -> None:
         if not self.account_snapshot or not self.account_snapshot.position_qty:
@@ -714,15 +1086,26 @@ class Engine:
             time.monotonic() - self.position_opened_at >= self.config.max_hold_seconds
         )
         session_over = self.session_end and time.monotonic() >= self.session_end
-        probe_fill = self.db.flag("probe_pending") == "1"
+        probing = self.probe_active or self.db.flag("probe_pending") == "1"
+        probe_fill = probing and self.protection_confirmed
+        protection_timeout = bool(
+            not self.protection_confirmed
+            and self.protection_id is not None
+            and time.monotonic() - self.protect_sent_at > 8
+        )
         recovered = False
-        if self.data_valid() and self.last_decision.basis_bps is not None:
+        if not probing and self.data_valid() and self.last_decision.basis_bps is not None:
             deviation = self.last_decision.deviation_bps
             if deviation is not None:
                 recovered = abs(deviation - self.last_decision.basis_bps) <= 2
         close_requested = self.db.flag("close_requested") == "1"
         if (
-            timed_out or session_over or recovered or probe_fill or close_requested
+            timed_out
+            or session_over
+            or recovered
+            or probe_fill
+            or close_requested
+            or protection_timeout
         ) and self.exit_id is None:
             await self.close_position()
 
@@ -783,13 +1166,16 @@ class Engine:
         for command_id, kind in self.db.pending_commands():
             result = ""
             if kind == "STOP_ENTRIES":
+                self.entry_epoch += 1
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
                 result = "entry dihentikan"
             elif kind == "CANCEL_ENTRIES":
+                self.entry_epoch += 1
                 self.entries_stopped = True
                 result = await self.cancel_entries()
             elif kind == "CLOSE_POSITION":
+                self.entry_epoch += 1
                 self.entries_stopped = True
                 result = await self.close_position()
             elif kind == "START_LIVE":
@@ -802,6 +1188,8 @@ class Engine:
             self.db.event("COMMAND", {"kind": kind, "result": result})
 
     async def cancel_entries(self) -> str:
+        self.entry_epoch += 1
+        self.entries_stopped = True
         if not self.account or not self.market:
             return "akun tidak tersedia"
         active = [
@@ -814,8 +1202,16 @@ class Engine:
             return "tidak ada entry aktif lokal"
         for item in active:
             client_id = item["client_id"]
+            if item["state"] == OrderState.INTENT and client_id not in self.dispatching_entries:
+                self.db.order_state(
+                    client_id, OrderState.CANCELED, reason="local queued entry canceled"
+                )
+                continue
             try:
-                status = await self.account.order_statuses([client_id])
+                if self.probe_active:
+                    status = await self.account.order_statuses([client_id], priority="probe_read")
+                else:
+                    status = await self.account.order_statuses([client_id])
                 order_index = int(status.get(client_id, {}).get("order_index") or 0)
                 if order_index <= 0:
                     raise ValueError("entry exchange order index unavailable")
@@ -840,32 +1236,89 @@ class Engine:
         return "sesi live dimulai"
 
     async def probe_once(self) -> str:
-        if self.state != EngineState.LIVE or self.entries_stopped:
-            return "probe diblok: sesi live belum aktif"
-        if self.db.flag("probe_used") == "1":
-            return "probe sudah pernah digunakan"
-        if self.db.unresolved() or not self.account_snapshot or self.account_snapshot.position_qty:
-            return "probe diblok: posisi/order belum flat"
-        if not self.data_valid():
-            return "probe diblok: data pasar belum valid"
+        blockers = self.probe_blockers()
+        if blockers:
+            return "probe diblok: " + ", ".join(blockers)
         self.db.set_flag("probe_used", "1")
         self.db.set_flag("probe_pending", "1")
+        self.db.set_flag("live_ever", "1")
+        self.probe_active = True
+        self.entry_epoch += 1
         self.entries_stopped = True
-        await self.enter("buy", kind="PROBE")
+        self.session_end = time.monotonic() + self.config.max_hold_seconds
+        self.state = EngineState.PROBING
+        self.reason = "satu probe berjalan; entry strategi tetap berhenti"
+        task = asyncio.create_task(
+            self.enter("buy", kind="PROBE", scheduled_epoch=self.entry_epoch)
+        )
+        self.entry_tasks.add(task)
+        task.add_done_callback(self.entry_tasks.discard)
         return "satu probe diminta; hasilnya menunggu rekonsiliasi"
 
-    def live_blockers(self) -> list[str]:
+    def entry_rate_ready(self) -> bool:
+        rate = getattr(self.account, "rate", None)
+        return bool(
+            rate is not None
+            and rate.can_claim("entry", cost=2)
+            and rate.can_claim("probe_read", cost=14)
+        )
+
+    def probe_read_ready(self) -> bool:
+        if not self.probe_active:
+            return True
+        rate = getattr(self.account, "rate", None)
+        if rate is None:
+            return False
+        pending = bool(
+            (self.account_snapshot and self.account_snapshot.position_qty)
+            or self.db.unresolved()
+            or self.protection_id is not None
+            or self.exit_id is not None
+            or self.entry_tasks
+            or self.dispatching_entries
+        )
+        return rate.can_claim("probe_read", cost=4 if pending else 8)
+
+    def probe_blockers(self) -> list[str]:
+        blockers = self.live_blockers(for_probe=True)
+        if not self.entry_rate_ready():
+            blockers.append("jatah pengiriman entry belum tersedia")
+        if self.reconcile_task is not None and not self.reconcile_task.done():
+            blockers.append("rekonsiliasi akun masih berjalan")
+        if self.db.flag("probe_used") == "1":
+            blockers.append("probe sudah pernah digunakan")
+        if not self.entries_stopped or time.monotonic() < self.session_end:
+            blockers.append("sesi lain belum selesai")
+        if self.entry_tasks or self.dispatching_entries:
+            blockers.append("pengiriman entry belum selesai")
+        if self.manual_exposure or self.protection_id is not None or self.exit_id is not None:
+            blockers.append("posisi, proteksi, atau exit belum bersih")
+        if self.db.flag("close_requested") == "1":
+            blockers.append("permintaan close belum selesai")
+        return blockers
+
+    def live_blockers(self, *, for_probe: bool = False) -> list[str]:
         blockers = []
+        if not for_probe and self.config.live_entry_scope != "strategy":
+            blockers.append("izin entry hanya untuk satu probe; START_LIVE dilarang")
         if self.config.mode != "live_capable" or not self.config.allow_live_orders:
             blockers.append("konfigurasi observe/allow_live_orders=false")
+        if self.probe_active or self.db.flag("probe_pending") == "1":
+            blockers.append("uji probe belum selesai")
         if not self.account or not self.account_snapshot:
             blockers.append("akun/kunci belum tersambung")
+        if not self.market:
+            blockers.append("metadata BTC belum tersedia")
         if self.account_snapshot and self.account_snapshot.active_orders:
             blockers.append("ada order aktif di bursa")
-        if self.state != EngineState.READY:
+        if self.state == EngineState.IDLE:
+            blockers.append("mode idle; entry dinonaktifkan")
+        elif self.state != EngineState.READY:
             blockers.append("engine belum READY")
         if time.monotonic() - self.last_reconcile_ok > 15:
             blockers.append("rekonsiliasi akun belum segar")
+        if self.account and self.reconcile_failed:
+            blockers.append("rekonsiliasi akun terakhir gagal")
         if self.last_decision.basis_bps is None or not self.data_valid():
             blockers.append("data atau warm-up belum valid")
         if self.db.unresolved():
@@ -874,8 +1327,6 @@ class Engine:
             blockers.append("masih ada posisi")
         if self.account_snapshot and time.time() - self.account_snapshot.received_at > 15:
             blockers.append("snapshot akun basi")
-        if self.account_snapshot and self.account_snapshot.equity > 50:
-            blockers.append("equity dedicated melebihi pagu")
         if self.account_snapshot and self.account_snapshot.equity <= self.config.exit_reserve_usd:
             blockers.append("equity tidak cukup untuk order dan cadangan exit")
         if self.account_snapshot and self.market and not self.account_snapshot.position_qty:
@@ -942,7 +1393,9 @@ class Engine:
             q = book.quote()
             depth_qty = Decimal(25) / q.ask if q else Decimal(0)
             quotes[venue] = {
-                "valid": book.valid,
+                "valid": bool(
+                    q and now - book.updated_ns < self.config.max_data_age_ms * 1_000_000
+                ),
                 "bid": str(q.bid) if q else None,
                 "ask": str(q.ask) if q else None,
                 "age_ms": round((now - book.updated_ns) / 1e6) if book.updated_ns else None,
@@ -953,6 +1406,9 @@ class Engine:
             }
         snap = self.account_snapshot
         pending = self.db.unresolved()
+        rate = getattr(self.account, "rate", None)
+        if rate is not None:
+            rate.can_claim("exit", cost=0)  # prune expired slots without consuming any
         pending_entry = sum(
             (
                 dec(x["qty"]) * dec(x["limit_price"])
@@ -970,6 +1426,17 @@ class Engine:
         )
         return {
             "mode": self.config.mode,
+            "allow_live_orders": self.config.allow_live_orders,
+            "live_entry_scope": self.config.live_entry_scope,
+            "request_budget": None
+            if rate is None
+            else {
+                "used_last_60s": len(rate.calls),
+                "normal_cap": 40,
+                "urgent_read_cap": 47,
+                "transaction_cap": 55,
+                "transaction_slots_remaining": max(0, 55 - len(rate.calls)),
+            },
             "state": self.state,
             "reason": self.reason,
             "market_id": self.market["market_id"] if self.market else None,
@@ -1003,15 +1470,27 @@ class Engine:
                 if snap.initial_margin_fraction is not None
                 else None,
                 "age_s": round(time.time() - snap.received_at, 1),
+                "funding_audit_age_s": round(time.monotonic() - self.last_reconcile_ok, 1)
+                if self.last_reconcile_ok
+                else None,
                 "daily_loss": str(self.baseline.daily_loss(snap.equity, self.current_flow))
                 if self.baseline
                 else None,
                 "total_loss": str(self.baseline.total_loss(snap.equity, self.current_flow))
                 if self.baseline
                 else None,
-                "funding_budget_remaining": str(
-                    max(Decimal(0), self.config.max_funding_usd - Decimal(self.db.gross_deposits()))
-                ),
+                "source_funding_spent_usd": str(self.config.source_funding_spent_usd)
+                if self.config.source_funding_spent_usd is not None
+                else None,
+                "source_funding_budget_remaining": str(
+                    max(
+                        Decimal(0),
+                        self.config.max_funding_usd - self.config.source_funding_spent_usd,
+                    )
+                )
+                if self.config.source_funding_spent_usd is not None
+                else None,
+                "gross_history_inflow": self.db.gross_deposits(),
                 "effective_exposure_usd": str(exposure + pending_entry),
                 "recorded_fees": str(fees),
             },
@@ -1021,6 +1500,8 @@ class Engine:
             else 0,
             "session_positions": self.session_positions,
             "probe_used": self.db.flag("probe_used") == "1",
+            "probe_active": self.probe_active,
+            "probe_blockers": self.probe_blockers(),
             "max_session_positions": self.config.max_session_positions,
             "pending_orders": pending,
             "protection_id": self.protection_id,

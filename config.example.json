@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "mode": "observe",
+  "binance_dns_mode": "system",
   "account_index": null,
   "expected_account_type_code": null,
   "expected_account_trading_mode": null,
@@ -21,5 +22,7 @@
   "max_hold_seconds": 180,
   "session_seconds": 1800,
   "max_session_positions": 3,
-  "allow_live_orders": false
+  "allow_live_orders": false,
+  "live_entry_scope": "probe_only",
+  "source_funding_spent_usd": null
 }

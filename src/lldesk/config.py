@@ -4,6 +4,7 @@ import json
 import os
 from decimal import Decimal
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -13,6 +14,7 @@ class Config(BaseModel):
 
     schema_version: int = 1
     mode: str = "observe"
+    binance_dns_mode: Literal["system", "doh"] = "system"
     account_index: int | None = None
     expected_account_type_code: int | None = None
     expected_account_trading_mode: int | None = None
@@ -34,9 +36,15 @@ class Config(BaseModel):
     session_seconds: int = Field(default=1800, ge=60, le=1800)
     max_session_positions: int = Field(default=3, ge=1, le=3)
     allow_live_orders: bool = False
+    live_entry_scope: Literal["probe_only", "strategy"] = "probe_only"
+    source_funding_spent_usd: Decimal | None = None
 
     @model_validator(mode="after")
     def limits(self) -> Config:
+        if self.source_funding_spent_usd is not None and not (
+            0 <= self.source_funding_spent_usd <= self.max_funding_usd
+        ):
+            raise ValueError("source funding spent must stay within the source budget")
         if self.schema_version != 1 or self.mode not in {"observe", "live_capable"}:
             raise ValueError("unsupported config version or mode")
         if self.account_type != "standard" or self.market_symbol != "BTC":

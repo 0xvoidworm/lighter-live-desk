@@ -38,6 +38,8 @@ def size_entry(
     stop_bps: Decimal,
     fee_bps: Decimal,
     slip_bps: Decimal = Decimal("2"),
+    *,
+    minimum_only: bool = False,
 ) -> Sizing:
     if equity <= 0 or price <= 0 or stop_bps <= 0:
         raise ValueError("invalid equity, price or stop distance")
@@ -53,6 +55,16 @@ def size_entry(
         raise ValueError("no entry capacity after reserve and pending orders")
     per_base_loss = bounded_price * (stop_bps + 2 * fee_bps + slip_bps) / 10000
     qty = floor_step(min(cap / bounded_price, config.max_trade_risk_usd / per_base_loss), step)
+    if minimum_only:
+        minimum = max(
+            min_base,
+            min_quote / bounded_price,
+            min_quote * (1 + slip_bps / 10000) / price,
+        )
+        minimum = (minimum / step).to_integral_value(rounding=ROUND_CEILING) * step
+        if minimum > qty:
+            raise ValueError("legal minimum order exceeds configured risk or notional cap")
+        qty = minimum
     notional = qty * bounded_price
     if qty < min_base or notional < min_quote:
         raise ValueError("legal minimum order exceeds configured risk or notional cap")

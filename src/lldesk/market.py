@@ -9,10 +9,12 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+import aiohttp
 import httpx
 import websockets
 
 from .models import MarketEvent, Quote, Stamp
+from .network import DnsMode, binance_session
 
 BINANCE_PUBLIC_WS = (
     "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
@@ -73,12 +75,12 @@ class Book:
         u, first = int(data["u"]), int(data["U"])
         if u < self.sequence or (self.bridged and u <= self.sequence):
             return
-        if first > self.sequence + (1 if self.bridged else 0):
+        if not self.bridged and first > self.sequence:
             self.gaps += 1
             self.invalidate()
             raise GapError("Binance sequence gap")
         prev = data.get("pu")
-        if prev is not None and self.bridged and int(prev) != self.sequence:
+        if self.bridged and (prev is None or int(prev) != self.sequence):
             self.gaps += 1
             self.invalidate()
             raise GapError("Binance pu gap")
@@ -182,9 +184,12 @@ class Recorder:
 
 
 class Feeds:
-    def __init__(self, market_id: int, queue: asyncio.Queue[MarketEvent]):
+    def __init__(
+        self, market_id: int, queue: asyncio.Queue[MarketEvent], dns_mode: DnsMode = "system"
+    ):
         self.market_id = market_id
         self.queue = queue
+        self.dns_mode = dns_mode
         self.reconnects = {"binance": 0, "lighter": 0}
         self.binance_public_ok = False
         self.binance_trades_ok = False
@@ -214,16 +219,16 @@ class Feeds:
     async def _binance_public(self) -> None:
         while True:
             try:
-                async with websockets.connect(
-                    BINANCE_PUBLIC_WS, ping_interval=20, max_queue=256, open_timeout=10
-                ) as ws:
-                    self.binance_public_ok = True
+                async with (
+                    binance_session(self.dns_mode) as client,
+                    client.ws_connect(BINANCE_PUBLIC_WS, heartbeat=20) as ws,
+                ):
                     buffered: list[dict[str, Any]] = []
-                    snap_task = asyncio.create_task(self._binance_snapshot())
+                    snap_task = asyncio.create_task(self._binance_snapshot(client))
                     try:
                         while not snap_task.done():
                             try:
-                                raw = await asyncio.wait_for(ws.recv(), timeout=1)
+                                raw = await ws.receive_str(timeout=1)
                             except TimeoutError:
                                 continue
                             msg = json.loads(raw)
@@ -235,12 +240,18 @@ class Feeds:
                     finally:
                         if not snap_task.done():
                             snap_task.cancel()
+                        await asyncio.gather(snap_task, return_exceptions=True)
                     for data in buffered:
                         await self._binance_message(data)
-                    async for raw in ws:
-                        message = json.loads(raw)
+                    self.binance_public_ok = True
+                    async for frame in ws:
+                        if frame.type != aiohttp.WSMsgType.TEXT:
+                            raise ConnectionError("Binance public stream closed")
+                        message = json.loads(frame.data)
                         await self._binance_message(message.get("data", message))
+                    raise ConnectionError("Binance public stream ended")
             except asyncio.CancelledError:
+                self.binance_public_ok = False
                 raise
             except Exception as exc:
                 self.binance_public_ok = False
@@ -251,14 +262,19 @@ class Feeds:
     async def _binance_trades(self) -> None:
         while True:
             try:
-                async with websockets.connect(
-                    BINANCE_MARKET_WS, ping_interval=20, max_queue=256, open_timeout=10
-                ) as ws:
+                async with (
+                    binance_session(self.dns_mode) as client,
+                    client.ws_connect(BINANCE_MARKET_WS, heartbeat=20) as ws,
+                ):
                     self.binance_trades_ok = True
-                    async for raw in ws:
-                        message = json.loads(raw)
+                    async for frame in ws:
+                        if frame.type != aiohttp.WSMsgType.TEXT:
+                            raise ConnectionError("Binance market stream closed")
+                        message = json.loads(frame.data)
                         await self._binance_message(message.get("data", message))
+                    raise ConnectionError("Binance market stream ended")
             except asyncio.CancelledError:
+                self.binance_trades_ok = False
                 raise
             except Exception as exc:
                 self.binance_trades_ok = False
@@ -266,11 +282,10 @@ class Feeds:
                 await self.emit("binance", "disconnect", {"reason": type(exc).__name__})
                 await asyncio.sleep(min(2 ** min(self.reconnects["binance"], 5), 30))
 
-    async def _binance_snapshot(self) -> dict[str, Any]:
-        async with httpx.AsyncClient(timeout=10) as client:
-            response = await client.get(BINANCE_DEPTH)
+    async def _binance_snapshot(self, client: aiohttp.ClientSession) -> dict[str, Any]:
+        async with client.get(BINANCE_DEPTH) as response:
             response.raise_for_status()
-            return response.json()
+            return await response.json()
 
     async def _binance_message(self, data: dict[str, Any]) -> None:
         if data.get("s") != "BTCUSDT" or data.get("st", 1) != 1:

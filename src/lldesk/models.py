@@ -10,7 +10,9 @@ class EngineState(StrEnum):
     STARTING = "STARTING"
     RECONCILING = "RECONCILING"
     WARMING_UP = "WARMING_UP"
+    IDLE = "IDLE"
     READY = "READY"
+    PROBING = "PROBING"
     LIVE = "LIVE"
     PAUSED = "PAUSED"
     RECOVERING = "RECOVERING"
@@ -28,6 +30,21 @@ class OrderState(StrEnum):
     CANCEL_REQUESTED = "CANCEL_REQUESTED"
     CANCELED = "CANCELED"
     REJECTED = "REJECTED"
+
+
+TERMINAL_ORDER_STATES = {OrderState.FILLED, OrderState.CANCELED, OrderState.REJECTED}
+
+
+def normalize_order_state(status: str, filled: Decimal = Decimal(0)) -> OrderState:
+    if status == "filled":
+        return OrderState.FILLED
+    if status == "canceled" or status.startswith("canceled-"):
+        return OrderState.CANCELED
+    if status == "rejected":
+        return OrderState.REJECTED
+    if status in {"open", "pending", "in-progress"}:
+        return OrderState.PARTIAL if filled > 0 else OrderState.OPEN
+    return OrderState.UNKNOWN
 
 
 @dataclass(frozen=True)

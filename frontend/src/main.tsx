@@ -7,9 +7,9 @@ type Status = {
   connected?: boolean; state?: string; reason?: string; mode?: string; updated_at?: number;
   market_id?: number | null; quotes?: Record<string, Venue>; fx_usdcusdt?: string | null;
   decision?: { side?: string | null; deviation_bps?: string | null; basis_bps?: string | null; reasons?: string[]; version?: string };
-  account?: { equity: string; available: string; position_qty: string; position_price: string; unrealized_pnl: string; realized_pnl: string; funding: string; age_s: number; daily_loss?: string; total_loss?: string; funding_budget_remaining?: string; effective_exposure_usd?: string; recorded_fees?: string; account_trading_mode?: number | null; margin_mode?: number | null; initial_margin_fraction?: string | null } | null;
+  account?: { equity: string; available: string; position_qty: string; position_price: string; unrealized_pnl: string; realized_pnl: string; funding: string; age_s: number; daily_loss?: string; total_loss?: string; source_funding_budget_remaining?: string | null; effective_exposure_usd?: string; recorded_fees?: string; account_trading_mode?: number | null; margin_mode?: number | null; initial_margin_fraction?: string | null } | null;
   entries_stopped?: boolean; session_remaining_s?: number; session_positions?: number; max_session_positions?: number;
-  probe_used?: boolean;
+  probe_used?: boolean; probe_active?: boolean; probe_blockers?: string[];
   pending_orders?: { client_id: number; kind: string; state: string; qty: string; side: string }[];
   protection_id?: number | null; protection_confirmed?: boolean; exit_id?: number | null; journal_ok?: boolean; queue_backlog?: number;
   event_loop_lag_ms?: number; last_order_ack_ms?: number | null; last_cancel_ack_ms?: number | null; reconnects?: Record<string, number>; binance_streams?: { public?: boolean; market?: boolean }; live_blockers?: string[];
@@ -21,12 +21,10 @@ const time = (x?: number) => x ? new Date(x * 1000).toLocaleTimeString('id-ID') 
 
 function App() {
   const [data, setData] = useState<Status>({ state: 'DISCONNECTED', reason: 'Menghubungkan…' })
-  const [csrf, setCsrf] = useState('')
   const [notice, setNotice] = useState('')
 
   useEffect(() => {
     let live = true
-    fetch('/api/csrf').then(r => r.json()).then(v => { if (live) setCsrf(v.token) }).catch(() => {})
     const poll = async () => {
       try {
         const res = await fetch('/api/status', { cache: 'no-store' })
@@ -43,9 +41,12 @@ function App() {
   }, [])
 
   async function command(kind: string) {
-    if (!csrf) return
     setNotice('Mengirim permintaan…')
     try {
+      const tokenResponse = await fetch('/api/csrf', { cache: 'no-store' })
+      if (!tokenResponse.ok) throw new Error('CSRF tidak tersedia')
+      const { token: csrf } = await tokenResponse.json()
+      if (!csrf) throw new Error('CSRF tidak tersedia')
       const r = await fetch(`/api/command/${kind}`, { method: 'POST', headers: { 'X-CSRF-Token': csrf } })
       const v = await r.json()
       setNotice(r.ok ? `${v.message} (#${v.command_id})` : `${v.detail || 'Perintah gagal'}`)
@@ -87,7 +88,8 @@ function App() {
           <div className="kv"><span>Fee tercatat</span><strong>{account ? money(account.recorded_fees) : '—'}</strong></div>
           <div className="kv"><span>Eksposur efektif + entry pending</span><strong>{account ? '$' + money(account.effective_exposure_usd) : '—'}</strong></div>
           <div className="kv"><span>Loss harian / total</span><strong>{account ? `${money(account.daily_loss)} / ${money(account.total_loss)}` : '—'}</strong></div>
-          <div className="kv"><span>Budget pendanaan tersisa</span><strong>{account ? '$' + money(account.funding_budget_remaining) : '—'}</strong></div>
+          <div className="kv"><span>Sisa budget sumber</span><strong>{account?.source_funding_budget_remaining != null ? '$' + money(account.source_funding_budget_remaining) : 'Belum dicatat'}</strong></div>
+          <p className="hint">Budget sumber mencakup biaya transfer dan konversi. Saldo Lighter bukan sisa jatah deposit.</p>
           <div className="kv"><span>Mode akun / margin BTC / fraksi awal</span><strong>{account ? `${account.account_trading_mode ?? '—'} / ${account.margin_mode ?? '—'} / ${account.initial_margin_fraction ?? '—'}` : '—'}</strong></div>
           <div className="kv"><span>Proteksi</span><strong>{data.protection_id ? `#${data.protection_id} · ${data.protection_confirmed ? 'dikonfirmasi bursa' : 'belum dikonfirmasi'}` : 'Belum terkonfirmasi'}</strong></div>
         </section>
@@ -102,8 +104,8 @@ function App() {
         </section>
 
         <section className="card"><div className="sectionHead"><h2>Kontrol sesi</h2><span className="subtle">{data.session_remaining_s || 0} dtk tersisa · {data.session_positions || 0}/{data.max_session_positions || 3} posisi</span></div>
-          <p className="hint">Perintah hanya dicatat di antrean. Hasil order, cancel, dan close harus dikonfirmasi oleh Lighter.</p>
-          <div className="actions"><button disabled={!connected || !csrf} onClick={() => command('START_LIVE')}>Mulai sesi live</button><button disabled={!connected || !csrf} onClick={() => command('STOP_ENTRIES')}>Hentikan entry</button><button disabled={!connected || !csrf} onClick={() => command('CANCEL_ENTRIES')}>Batalkan entry</button><button className="danger" disabled={!connected || !csrf} onClick={() => command('CLOSE_POSITION')}>Minta tutup posisi</button><button disabled={!connected || !csrf || data.probe_used} onClick={() => command('PROBE_ONCE')}>Probe 1×</button></div>
+          <p className="hint">Probe 1× menguji satu transaksi dari status READY; entry strategi tetap berhenti. Perintah dicatat di antrean dan hasil order, cancel, serta close harus dikonfirmasi oleh Lighter.</p>
+          <div className="actions"><button disabled={!connected || data.state !== 'READY' || !!data.live_blockers?.length} onClick={() => command('START_LIVE')}>Mulai sesi live</button><button disabled={!connected} onClick={() => command('STOP_ENTRIES')}>Hentikan entry</button><button disabled={!connected} onClick={() => command('CANCEL_ENTRIES')}>Batalkan entry</button><button className="danger" disabled={!connected} onClick={() => command('CLOSE_POSITION')}>Minta tutup posisi</button><button disabled={!connected || data.state !== 'READY' || !data.entries_stopped || !data.probe_blockers || !!data.probe_blockers.length || data.probe_used} onClick={() => command('PROBE_ONCE')}>Probe 1×</button></div>
           {notice && <div className="notice">{notice}</div>}
           <a className="export" href="/api/report" download="lighter-live-desk-report.json">Ekspor laporan JSON ↗</a>
         </section>

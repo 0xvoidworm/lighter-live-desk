@@ -4,6 +4,7 @@ import asyncio
 import json
 import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
@@ -17,19 +18,28 @@ from .models import AccountEvent, OrderIntent, Stamp
 BASE_URL = "https://mainnet.zklighter.elliot.ai"
 
 
+class DispatchBlocked(RuntimeError):
+    """The order was definitively blocked before calling the signer."""
+
+
 class RateBudget:
     """Conservative local request budget; transaction SDK uses multiple API calls."""
 
     def __init__(self) -> None:
         self.calls: deque[float] = deque()
 
-    def claim(self, priority: str, cost: int = 1) -> None:
+    def can_claim(self, priority: str, cost: int = 1) -> bool:
         now = time.monotonic()
         while self.calls and now - self.calls[0] >= 60:
             self.calls.popleft()
-        cap = 40 if priority == "entry" else 55
-        if len(self.calls) + cost > cap:
+        # Urgent account reads must leave eight slots for stop/close/cancel.
+        cap = {"exit": 55, "probe_read": 47}.get(priority, 40)
+        return len(self.calls) + cost <= cap
+
+    def claim(self, priority: str, cost: int = 1) -> None:
+        if not self.can_claim(priority, cost):
             raise RuntimeError("local Standard API rate reserve exhausted")
+        now = time.monotonic()
         self.calls.extend([now] * cost)
 
 
@@ -102,22 +112,43 @@ class LighterAccount:
         return token
 
     async def snapshot(self, market_id: int) -> AccountSnapshot:
-        self.rate.claim("reconcile")
+        return await self._snapshot(market_id, "reconcile")
+
+    async def probe_snapshot(
+        self, market_id: int, verified_flows: tuple[tuple[str, str], ...] | None = None
+    ) -> AccountSnapshot:
+        """Priority exposure reads; None requires a complete funding audit."""
+        return await self._snapshot(market_id, "probe_read", verified_flows)
+
+    async def _snapshot(
+        self,
+        market_id: int,
+        priority: str,
+        verified_flows: tuple[tuple[str, str], ...] | None = None,
+    ) -> AccountSnapshot:
+        self.rate.claim(priority)
         response = await self.account_api.account(
             by="index", value=str(self.account_index), active_only=False
         )
+        received_at = time.time()
         if response.code != 200 or len(response.accounts) != 1:
             raise RuntimeError("dedicated Lighter account response invalid")
         acct = response.accounts[0]
         if acct.index != self.account_index:
             raise RuntimeError("Lighter returned a different account")
-        self.rate.claim("reconcile")
+        self.rate.claim(priority)
         orders = await self.order_api.account_active_orders(
             authorization=self.auth(), account_index=self.account_index
         )
         if orders.code != 200:
             raise RuntimeError("Lighter active orders request failed")
-        flows = await self.funding_history(acct.l1_address)
+        flows = verified_flows
+        if flows is None:
+            flows = (
+                await self.funding_history(acct.l1_address)
+                if priority == "reconcile"
+                else await self.funding_history(acct.l1_address, priority=priority)
+            )
         position = next((p for p in acct.positions if p.market_id == market_id), None)
         qty = (
             Decimal(position.position) * (1 if position.sign >= 0 else -1)
@@ -142,21 +173,23 @@ class LighterAccount:
             other_assets=tuple(
                 a.to_dict() for a in acct.assets if a.symbol != "USDC" and Decimal(a.balance) != 0
             ),
-            received_at=time.time(),
+            received_at=received_at,
             funding_flows=flows,
             account_trading_mode=acct.account_trading_mode,
             margin_mode=position.margin_mode if position else None,
             initial_margin_fraction=Decimal(position.initial_margin_fraction) if position else None,
         )
 
-    async def funding_history(self, l1_address: str) -> tuple[tuple[str, str], ...]:
+    async def funding_history(
+        self, l1_address: str, *, priority: str = "reconcile"
+    ) -> tuple[tuple[str, str], ...]:
         """Read dedicated-account deposits, withdrawals and perps transfers."""
         result: list[tuple[str, str]] = []
         for kind in ("deposit", "withdraw"):
             cursor: str | None = None
             seen_cursors: set[str] = set()
             for _ in range(5):
-                self.rate.claim("reconcile")
+                self.rate.claim(priority)
                 if kind == "deposit":
                     page = await self.transaction_api.deposit_history(
                         authorization=self.auth(),
@@ -185,6 +218,9 @@ class LighterAccount:
                 next_cursor = page.cursor or None
                 if not next_cursor:
                     break
+                # Mainnet can echo the requested cursor on an empty terminal page.
+                if not items and next_cursor == cursor:
+                    break
                 if next_cursor in seen_cursors:
                     raise RuntimeError("funding pagination loop")
                 seen_cursors.add(next_cursor)
@@ -194,7 +230,7 @@ class LighterAccount:
         cursor = None
         seen_cursors = set()
         for _ in range(5):
-            self.rate.claim("reconcile")
+            self.rate.claim(priority)
             page = await self.transaction_api.transfer_history(
                 authorization=self.auth(), account_index=self.account_index, cursor=cursor
             )
@@ -223,6 +259,8 @@ class LighterAccount:
             next_cursor = page.cursor or None
             if not next_cursor:
                 break
+            if not page.transfers and next_cursor == cursor:
+                break
             if next_cursor in seen_cursors:
                 raise RuntimeError("transfer pagination loop")
             seen_cursors.add(next_cursor)
@@ -231,12 +269,14 @@ class LighterAccount:
             raise RuntimeError("transfer history exceeds verified page limit")
         return tuple(result)
 
-    async def order_statuses(self, client_ids: list[int]) -> dict[int, dict[str, Any]]:
+    async def order_statuses(
+        self, client_ids: list[int], *, priority: str = "reconcile"
+    ) -> dict[int, dict[str, Any]]:
         if not client_ids:
             return {}
         if len(client_ids) > 20:
             raise RuntimeError("too many unresolved orders for verified status query")
-        self.rate.claim("reconcile")
+        self.rate.claim(priority)
         response = await self.order_api.account_orders(
             authorization=self.auth(),
             client_order_indexes=",".join(map(str, client_ids)),
@@ -246,13 +286,15 @@ class LighterAccount:
             raise RuntimeError("Lighter order status request failed")
         return {o.client_order_index: o.to_dict() for o in response.orders}
 
-    async def recent_trades(self, market_id: int, after_id: int) -> list[dict[str, Any]]:
+    async def recent_trades(
+        self, market_id: int, after_id: int, *, priority: str = "reconcile"
+    ) -> list[dict[str, Any]]:
         """Fetch complete newer fill history or fail closed on pagination limits."""
         found: list[dict[str, Any]] = []
         cursor: str | None = None
         seen: set[str] = set()
         for _ in range(5):
-            self.rate.claim("reconcile")
+            self.rate.claim(priority)
             page = await self.order_api.trades(
                 sort_by="trade_id",
                 sort_dir="desc",
@@ -280,14 +322,24 @@ class LighterAccount:
         raise RuntimeError("Lighter trade history exceeds verified page limit")
 
     async def send_ioc(
-        self, intent: OrderIntent, market_id: int, size_decimals: int, price_decimals: int
+        self,
+        intent: OrderIntent,
+        market_id: int,
+        size_decimals: int,
+        price_decimals: int,
+        *,
+        dispatch_check: Callable[[], bool] | None = None,
     ) -> str:
-        self.rate.claim("entry" if intent.kind in {"ENTRY", "PROBE"} else "exit", cost=2)
         base = int(intent.quantity * (10**size_decimals))
         price = int(intent.limit_price * (10**price_decimals))
         if base <= 0 or price <= 0:
             raise ValueError("invalid scaled order quantity or price")
         async with self.lock:
+            if intent.kind in {"ENTRY", "PROBE"} and (
+                dispatch_check is None or not dispatch_check()
+            ):
+                raise DispatchBlocked("entry no longer authorized before signer dispatch")
+            self.rate.claim("entry" if intent.kind in {"ENTRY", "PROBE"} else "exit", cost=2)
             _tx, response, error = await asyncio.wait_for(
                 self.signer.create_order(
                     market_index=market_id,
@@ -313,8 +365,8 @@ class LighterAccount:
         price_decimals: int,
         trigger_price: Decimal,
     ) -> str:
-        self.rate.claim("exit", cost=2)
         async with self.lock:
+            self.rate.claim("exit", cost=2)
             _tx, response, error = await asyncio.wait_for(
                 self.signer.create_sl_order(
                     market_index=market_id,
@@ -334,8 +386,8 @@ class LighterAccount:
     async def cancel(self, market_id: int, exchange_order_index: int) -> str:
         if exchange_order_index <= 0:
             raise ValueError("exchange order index required for cancel")
-        self.rate.claim("exit", cost=2)
         async with self.lock:
+            self.rate.claim("exit", cost=2)
             _tx, response, error = await asyncio.wait_for(
                 self.signer.cancel_order(market_index=market_id, order_index=exchange_order_index),
                 timeout=10,

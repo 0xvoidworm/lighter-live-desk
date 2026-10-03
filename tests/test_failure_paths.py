@@ -46,6 +46,36 @@ def test_binance_first_delta_must_bridge_snapshot() -> None:
     assert not book.valid
 
 
+def test_local_dns_dashboard_alias_keeps_origin_and_csrf_guards(tmp_path) -> None:
+    db = Database(tmp_path / "state" / "desk.db")
+    db.save_status({"state": "READY"})
+    db.close()
+    with TestClient(create_app(tmp_path), base_url="http://lighter.localhost:8765") as client:
+        assert client.get("/api/status").status_code == 200
+        token = client.get("/api/csrf").json()["token"]
+        assert client.post("/api/command/STOP_ENTRIES").status_code == 403
+        assert (
+            client.get("/api/status", headers={"origin": "https://evil.example"}).status_code == 403
+        )
+        response = client.post(
+            "/api/command/STOP_ENTRIES",
+            headers={"x-csrf-token": token, "origin": "http://lighter.localhost:8765"},
+        )
+        assert response.status_code == 200
+
+
+def test_binance_futures_uses_pu_after_bridge_with_nonconsecutive_U() -> None:
+    book = Book("binance")
+    book.binance_snapshot(
+        {"lastUpdateId": 100, "bids": [["100", "2"]], "asks": [["101", "1"]]}, Stamp()
+    )
+    book.binance_delta({"U": 99, "u": 102, "pu": 98, "b": [], "a": []}, Stamp())
+    book.binance_delta({"U": 110, "u": 120, "pu": 102, "b": [], "a": []}, Stamp())
+    assert book.valid and book.bridged and book.sequence == 120
+    with pytest.raises(GapError, match="pu gap"):
+        book.binance_delta({"U": 125, "u": 130, "pu": 119, "b": [], "a": []}, Stamp())
+
+
 def test_binance_streams_use_official_routes_and_equal_snapshot_bridge() -> None:
     assert "/public/stream" in BINANCE_PUBLIC_WS
     assert "bookTicker" in BINANCE_PUBLIC_WS and "depth@100ms" in BINANCE_PUBLIC_WS
@@ -471,6 +501,7 @@ async def test_timeout_after_durable_send_freezes_entries(tmp_path, monkeypatch)
             expected_margin_mode=0,
             expected_initial_margin_fraction=Decimal(1),
             allow_live_orders=True,
+            live_entry_scope="strategy",
         ),
         tmp_path,
     )
@@ -543,6 +574,7 @@ async def test_journal_failure_prevents_send(tmp_path, monkeypatch) -> None:
             expected_margin_mode=0,
             expected_initial_margin_fraction=Decimal(1),
             allow_live_orders=True,
+            live_entry_scope="strategy",
         ),
         tmp_path,
     )
