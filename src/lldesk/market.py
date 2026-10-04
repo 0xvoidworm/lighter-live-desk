@@ -3,7 +3,9 @@ from __future__ import annotations
 import asyncio
 import gzip
 import json
+import os
 import time
+import uuid
 from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
@@ -15,6 +17,7 @@ import websockets
 
 from .models import MarketEvent, Quote, Stamp
 from .network import DnsMode, binance_session
+from .transport_trace import TransportTrace
 
 BINANCE_PUBLIC_WS = (
     "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
@@ -28,6 +31,15 @@ FX_BOOK = "https://data-api.binance.vision/api/v3/ticker/bookTicker?symbol=USDCU
 
 class GapError(Exception):
     pass
+
+
+def websocket_closed(ws: Any, channel: str, frame_type: str | None = None) -> ConnectionError:
+    error = ConnectionError(f"Binance {channel} websocket closed")
+    error.ws_close_code = ws.close_code  # type: ignore[attr-defined]
+    error.ws_frame_type = frame_type  # type: ignore[attr-defined]
+    cause = ws.exception()
+    error.ws_cause = type(cause).__name__ if cause else None  # type: ignore[attr-defined]
+    return error
 
 
 def dec(value: Any) -> Decimal:
@@ -44,6 +56,7 @@ class Book:
     updated_ns: int = 0
     gaps: int = 0
     bridged: bool = False
+    stamp: Stamp = field(default_factory=lambda: Stamp(receipt_ns=0, monotonic_ns=0))
 
     def invalidate(self) -> None:
         self.valid = False
@@ -68,6 +81,7 @@ class Book:
         self.sequence = int(data["lastUpdateId"])
         self.valid = bool(self.bids and self.asks)
         self.updated_ns = stamp.monotonic_ns
+        self.stamp = stamp
 
     def binance_delta(self, data: dict[str, Any], stamp: Stamp) -> None:
         if self.sequence is None:
@@ -89,6 +103,7 @@ class Book:
         self.bridged = True
         self.valid = bool(self.bids and self.asks)
         self.updated_ns = stamp.monotonic_ns
+        self.stamp = stamp
 
     def lighter_snapshot(self, data: dict[str, Any], stamp: Stamp) -> None:
         body = data.get("order_book", data)
@@ -97,6 +112,7 @@ class Book:
         self.sequence = int(body["nonce"])
         self.valid = bool(self.bids and self.asks)
         self.updated_ns = stamp.monotonic_ns
+        self.stamp = stamp
 
     def lighter_delta(self, data: dict[str, Any], stamp: Stamp) -> None:
         body = data.get("order_book", data)
@@ -113,6 +129,7 @@ class Book:
         self.sequence = nonce
         self.valid = bool(self.bids and self.asks)
         self.updated_ns = stamp.monotonic_ns
+        self.stamp = stamp
 
     def quote(self) -> Quote | None:
         if not self.valid or not self.bids or not self.asks:
@@ -120,7 +137,7 @@ class Book:
         bid, ask = max(self.bids), min(self.asks)
         if bid <= 0 or ask <= bid:
             return None
-        return Quote(bid, ask, self.bids[bid], self.asks[ask], Stamp())
+        return Quote(bid, ask, self.bids[bid], self.asks[ask], self.stamp)
 
     def price_for(self, side: str, quantity: Decimal) -> Decimal | None:
         levels = self.asks if side == "buy" else self.bids
@@ -158,13 +175,19 @@ class Recorder:
         self.directory = directory
         self.hour = ""
         self.handle: Any = None
+        self.run_id = uuid.uuid4().hex
+        self.segment = 0
+        self.last_flush = time.monotonic()
 
     def write(self, event: MarketEvent) -> None:
         hour = time.strftime("%Y%m%d-%H", time.gmtime())
         if hour != self.hour:
             if self.handle:
                 self.handle.close()
-            self.handle = gzip.open(self.directory / f"market-{hour}.jsonl.gz", "at")
+            self.segment += 1
+            # Never append a new deflate stream after an unclean older process exit.
+            name = f"market-{hour}-{self.run_id}-{self.segment:04d}.jsonl.gz"
+            self.handle = gzip.open(self.directory / name, "xt")
             self.hour = hour
         self.handle.write(
             json.dumps(
@@ -173,10 +196,19 @@ class Recorder:
                     "kind": event.kind,
                     "payload": event.payload,
                     "receipt_ns": event.stamp.receipt_ns,
+                    "exchange_ms": event.stamp.exchange_ms,
+                    "monotonic_ns": event.stamp.monotonic_ns,
+                    "recorded_ns": time.time_ns(),
+                    "recorded_monotonic_ns": time.monotonic_ns(),
+                    "run_id": self.run_id,
+                    "pid": os.getpid(),
                 }
             )
             + "\n"
         )
+        if time.monotonic() - self.last_flush >= 1:
+            self.handle.flush()
+            self.last_flush = time.monotonic()
 
     def close(self) -> None:
         if self.handle:
@@ -193,6 +225,7 @@ class Feeds:
         self.reconnects = {"binance": 0, "lighter": 0}
         self.binance_public_ok = False
         self.binance_trades_ok = False
+        self.transport_trace = TransportTrace()
         self.channels: dict[str, dict[str, Any]] = {
             name: {
                 "connected": False,
@@ -201,6 +234,7 @@ class Feeds:
                 "retry_delay_s": 0,
                 "last_error": None,
                 "last_disconnect_at": None,
+                "last_transport_detail": None,
                 "_started": None,
                 "_last_frame": None,
             }
@@ -228,6 +262,12 @@ class Feeds:
         state.update(
             retry_delay_s=delay, last_error=type(exc).__name__, last_disconnect_at=time.time()
         )
+        detail = {
+            "close_code": getattr(exc, "ws_close_code", None),
+            "frame_type": getattr(exc, "ws_frame_type", None),
+            "cause": getattr(exc, "ws_cause", None),
+        }
+        state["last_transport_detail"] = detail
         self.reconnects[venue] += 1
         await self.emit(
             venue,
@@ -237,6 +277,7 @@ class Feeds:
                 "channel": channel,
                 "retry_delay_s": delay,
                 "consecutive_failures": state["consecutive_failures"],
+                "transport_detail": detail,
             },
         )
         await asyncio.sleep(delay)
@@ -254,9 +295,15 @@ class Feeds:
         }
 
     async def emit(
-        self, venue: str, kind: str, payload: dict[str, Any], exchange_ms: int | None = None
+        self,
+        venue: str,
+        kind: str,
+        payload: dict[str, Any],
+        exchange_ms: int | None = None,
+        *,
+        stamp: Stamp | None = None,
     ) -> None:
-        event = MarketEvent(venue, kind, payload, Stamp(exchange_ms=exchange_ms))
+        event = MarketEvent(venue, kind, payload, stamp or Stamp(exchange_ms=exchange_ms))
         try:
             self.queue.put_nowait(event)
         except asyncio.QueueFull as exc:
@@ -279,11 +326,13 @@ class Feeds:
         while True:
             try:
                 async with (
-                    binance_session(self.dns_mode) as client,
+                    binance_session(
+                        self.dns_mode, trace_configs=[self.transport_trace.config()]
+                    ) as client,
                     client.ws_connect(BINANCE_PUBLIC_WS, heartbeat=20) as ws,
                 ):
                     self.channel_started("binance_public")
-                    buffered: list[dict[str, Any]] = []
+                    buffered: list[tuple[dict[str, Any], Stamp]] = []
                     snap_task = asyncio.create_task(self._binance_snapshot(client))
                     try:
                         while not snap_task.done():
@@ -293,25 +342,30 @@ class Feeds:
                                 continue
                             msg = json.loads(raw)
                             data = msg.get("data", msg)
-                            buffered.append(data)
+                            buffered.append(
+                                (data, Stamp(exchange_ms=data.get("T") or data.get("E")))
+                            )
                             if len(buffered) > 2048:
                                 raise GapError("Binance bootstrap buffer overflow")
-                        await self.emit("binance", "snapshot", await snap_task)
+                        snapshot = await snap_task
+                        await self.emit(
+                            "binance", "snapshot", snapshot, snapshot.get("T") or snapshot.get("E")
+                        )
                     finally:
                         if not snap_task.done():
                             snap_task.cancel()
                         await asyncio.gather(snap_task, return_exceptions=True)
-                    for data in buffered:
-                        if await self._binance_message(data):
+                    for data, stamp in buffered:
+                        if await self._binance_message(data, stamp=stamp):
                             self.channel_data("binance_public")
                     self.binance_public_ok = True
                     async for frame in ws:
                         if frame.type != aiohttp.WSMsgType.TEXT:
-                            raise ConnectionError("Binance public stream closed")
+                            raise websocket_closed(ws, "public", frame.type.name)
                         message = json.loads(frame.data)
                         if await self._binance_message(message.get("data", message)):
                             self.channel_data("binance_public")
-                    raise ConnectionError("Binance public stream ended")
+                    raise websocket_closed(ws, "public")
             except asyncio.CancelledError:
                 self.binance_public_ok = False
                 self.channels["binance_public"]["connected"] = False
@@ -324,18 +378,20 @@ class Feeds:
         while True:
             try:
                 async with (
-                    binance_session(self.dns_mode) as client,
+                    binance_session(
+                        self.dns_mode, trace_configs=[self.transport_trace.config()]
+                    ) as client,
                     client.ws_connect(BINANCE_MARKET_WS, heartbeat=20) as ws,
                 ):
                     self.channel_started("binance_market")
                     self.binance_trades_ok = True
                     async for frame in ws:
                         if frame.type != aiohttp.WSMsgType.TEXT:
-                            raise ConnectionError("Binance market stream closed")
+                            raise websocket_closed(ws, "market", frame.type.name)
                         message = json.loads(frame.data)
                         if await self._binance_message(message.get("data", message)):
                             self.channel_data("binance_market")
-                    raise ConnectionError("Binance market stream ended")
+                    raise websocket_closed(ws, "market")
             except asyncio.CancelledError:
                 self.binance_trades_ok = False
                 self.channels["binance_market"]["connected"] = False
@@ -349,12 +405,12 @@ class Feeds:
             response.raise_for_status()
             return await response.json()
 
-    async def _binance_message(self, data: dict[str, Any]) -> bool:
+    async def _binance_message(self, data: dict[str, Any], *, stamp: Stamp | None = None) -> bool:
         if data.get("s") != "BTCUSDT" or data.get("st", 1) != 1:
             return False
         kind = data.get("e")
         if kind in {"depthUpdate", "bookTicker", "aggTrade"}:
-            await self.emit("binance", kind, data, data.get("T") or data.get("E"))
+            await self.emit("binance", kind, data, data.get("T") or data.get("E"), stamp=stamp)
             return True
         return False
 

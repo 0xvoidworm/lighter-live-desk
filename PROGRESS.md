@@ -1,5 +1,34 @@
 # Progress
 
+## Terbaru — 5 Oktober 2026, diagnosis sesi tanpa order
+
+Dari 8814332, otorisasi sesi tetap closed; tanpa entry/signing order/broadcast.
+Coverage 589,243 detik disebabkan gap 10,532 yang belum keluar dari rolling
+600 detik, bukan buffer reconnect dibuang. Timeout delapan detik terbukti
+di PID116516; endpoint/fase transport lama tidak direkam, akar eksternal
+belum pasti. Trace GET sekarang memisahkan DNS/pool/connect-TLS/headers/body
+dan lock rekonsiliasi, tanpa kredensial atau request tambahan.
+
+Stamp book dan depth buffer bootstrap dipertahankan; data tertahan tidak
+dianggap baru saat flush. Recorder eksklusif per run/PID menyimpan FX dan
+timestamp sumber; legacy gzip rusak tidak diubah atau dipakai sebagai replay
+as-of yang sah. Strategi/threshold/fee/risk/coverage/cadence/kuota tidak diubah.
+
+Estimasi snapshot: basis tersedia 743,337 detik; guard tercatat lolos 230,817
+detik; reserve request memblokir 942,486 detik (tumpang tindih). Seluruh guard
+kontinu tidak bisa dibuktikan karena metadata lama terbatas. Nol kandidat;
+residual max2,957553 bps <8 dan buffer biaya. Normalisasi/arah/basis causal
+benar; 8 bps berasal dari default heuristik, belum kalibrasi terukur.
+
+295 tes, mypy, Ruff/format lulus. Drill read-only 180s dan verifikasi route
+35,477s: nol reconnect, seluruh 24 GET/3 rekonsiliasi pada window final lolos,
+exit reserve minimal15. 01:00:14 WIB: equity49,430756, semua posisi/order nol,
+kas matched, 4 exact fee NULL dengan reported0,0000 DP4, engineIDLE,
+entries stopped/allow_live_orders=false, sesi closed, autostart tidak dibuka.
+Bukti AUDIT_SESSION_DIAGNOSIS_2026-10-05.md dan audits/session-diagnosis-20261005.*.
+Usulan berikut: observasi tanpa order 20 menit dengan trace/rekaman baru untuk
+menilai jendela layak dan biaya/latensi, tanpa memilih threshold baru.
+
 ## Terbaru — 4 Oktober 2026, satu sesi strategi terbatas selesai
 
 Sesi f4645c06-b55d-45f4-b642-66b5e8c23864 berjalan 21:30:23–21:53:18 WIB

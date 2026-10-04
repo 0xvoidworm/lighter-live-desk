@@ -1,0 +1,790 @@
+{
+  "baseline_commit": "8814332",
+  "session_id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+  "session_entry_active_s": 1369.263598203659,
+  "sampled_interval_s": 1369.260525226593,
+  "max_snapshot_interval_s": 0.5577430725097656,
+  "sampling_method": "left-held status snapshots; not continuous proof. Historical FX age, queue, signing-lock state and reconcile success age were not recorded per evaluation.",
+  "groups": {
+    "basis_available": {
+      "duration_s": 743.3368153572083,
+      "signed_bps": {
+        "n": 1468,
+        "min": "-1.955544857763360356309670000",
+        "p05": "-0.6750235997645718830764032500",
+        "median": "0.109728345092110043075780000",
+        "p95": "1.235132326355347984562234500",
+        "p99": "2.698887524604703116705220000",
+        "max": "2.957553360492583249433890000"
+      },
+      "absolute_bps": {
+        "n": 1468,
+        "min": "0.000137306841915507725750000",
+        "p05": "0.03290758119115930495991400000",
+        "median": "0.358260494478361641104820000",
+        "p95": "1.347274171498385641146757500",
+        "p99": "2.698887524604703116705220000",
+        "max": "2.957553360492583249433890000"
+      },
+      "excursions": {
+        "positive_gt_0.5_bps": {
+          "total_s": 116.32571792602539,
+          "longest_observed_episode_s": 15.65325403213501
+        },
+        "negative_gt_0.5_bps": {
+          "total_s": 75.38668036460876,
+          "longest_observed_episode_s": 24.235859155654907
+        },
+        "absolute_gt_0.5_bps": {
+          "total_s": 191.71239829063416,
+          "longest_observed_episode_s": 24.235859155654907
+        },
+        "positive_gt_1_bps": {
+          "total_s": 52.63618803024292,
+          "longest_observed_episode_s": 13.632900953292847
+        },
+        "negative_gt_1_bps": {
+          "total_s": 8.0881187915802,
+          "longest_observed_episode_s": 3.036144971847534
+        },
+        "absolute_gt_1_bps": {
+          "total_s": 60.72430682182312,
+          "longest_observed_episode_s": 13.632900953292847
+        },
+        "positive_gt_2_bps": {
+          "total_s": 16.708086729049683,
+          "longest_observed_episode_s": 6.565515041351318
+        },
+        "negative_gt_2_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_2_bps": {
+          "total_s": 16.708086729049683,
+          "longest_observed_episode_s": 6.565515041351318
+        },
+        "positive_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "positive_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "positive_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        }
+      },
+      "lighter_spread_bps": {
+        "n": 1468,
+        "min": "0.01173823960446827828783689481",
+        "p05": "0.01174157567091413794030165160",
+        "median": "0.01175518418316457786839718651",
+        "p95": "0.6810901199658045788044754667",
+        "p99": "0.7753746584173585897581196515",
+        "max": "1.198973114791096566705221881"
+      },
+      "minimum_size_impact_upper_bound_bps": {
+        "buy": {
+          "n": 1468,
+          "min": "0",
+          "p05": "0.00",
+          "median": "0",
+          "p95": "0.00",
+          "p99": "0.02708319878818373199713530000",
+          "max": "0.278071157021394113533940000"
+        },
+        "sell": {
+          "n": 1468,
+          "min": "0",
+          "p05": "0.00",
+          "median": "0.0037483085345723902559360000",
+          "p95": "0.1685829490773576971326951500",
+          "p99": "0.2989048736090889113730080000",
+          "max": "0.5190936859556958232626900000"
+        }
+      }
+    },
+    "observable_guards_pass": {
+      "duration_s": 230.81721091270447,
+      "signed_bps": {
+        "n": 456,
+        "min": "-1.955544857763360356309670000",
+        "p05": "-0.6017800972343899659354725000",
+        "median": "0.112269367035876451253992500",
+        "p95": "1.259704385745841938297380000",
+        "p99": "2.704178416702409755783762000",
+        "max": "2.957553360492583249433890000"
+      },
+      "absolute_bps": {
+        "n": 456,
+        "min": "0.001042223879371155209140000",
+        "p05": "0.03636098178362140728891125000",
+        "median": "0.335353983762088996070355000",
+        "p95": "1.388126677882245508360710000",
+        "p99": "2.704178416702409755783762000",
+        "max": "2.957553360492583249433890000"
+      },
+      "excursions": {
+        "positive_gt_0.5_bps": {
+          "total_s": 44.52797293663025,
+          "longest_observed_episode_s": 4.0399391651153564
+        },
+        "negative_gt_0.5_bps": {
+          "total_s": 24.2615168094635,
+          "longest_observed_episode_s": 4.034846782684326
+        },
+        "absolute_gt_0.5_bps": {
+          "total_s": 68.78948974609375,
+          "longest_observed_episode_s": 4.0399391651153564
+        },
+        "positive_gt_1_bps": {
+          "total_s": 20.76534414291382,
+          "longest_observed_episode_s": 4.0399391651153564
+        },
+        "negative_gt_1_bps": {
+          "total_s": 3.032917022705078,
+          "longest_observed_episode_s": 2.0233850479125977
+        },
+        "absolute_gt_1_bps": {
+          "total_s": 23.798261165618896,
+          "longest_observed_episode_s": 4.0399391651153564
+        },
+        "positive_gt_2_bps": {
+          "total_s": 5.562136173248291,
+          "longest_observed_episode_s": 3.0356271266937256
+        },
+        "negative_gt_2_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_2_bps": {
+          "total_s": 5.562136173248291,
+          "longest_observed_episode_s": 3.0356271266937256
+        },
+        "positive_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "positive_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "positive_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        }
+      },
+      "lighter_spread_bps": {
+        "n": 456,
+        "min": "0.01173841872935138780390032439",
+        "p05": "0.01174222297894325864301000144",
+        "median": "0.02348575588918283208381672742",
+        "p95": "0.7043228991808724682526453194",
+        "p99": "0.8156613813826807094083970936",
+        "max": "0.9752572534758227264315278345"
+      },
+      "minimum_size_impact_upper_bound_bps": {
+        "buy": {
+          "n": 456,
+          "min": "0",
+          "p05": "0.00",
+          "median": "0",
+          "p95": "0.00",
+          "p99": "0.04550062258450812533523650000",
+          "max": "0.236135100838538446529360000"
+        },
+        "sell": {
+          "n": 456,
+          "min": "0",
+          "p05": "0.00",
+          "median": "0.0037505681404241018446040000",
+          "p95": "0.1797510655282097700104777500",
+          "p99": "0.2807223808176163405838380000",
+          "max": "0.5190936859556958232626900000"
+        }
+      }
+    },
+    "blocked_with_basis": {
+      "duration_s": 512.5196044445038,
+      "signed_bps": {
+        "n": 1012,
+        "min": "-1.779250878338319996859390000",
+        "p05": "-0.6750949169359891990957672500",
+        "median": "0.107444864043613281942297500",
+        "p95": "1.223860868613256767448890000",
+        "p99": "2.638833744658356918868729100",
+        "max": "2.870307902469295904301940000"
+      },
+      "absolute_bps": {
+        "n": 1012,
+        "min": "0.000137306841915507725750000",
+        "p05": "0.02565352713605794778734275000",
+        "median": "0.364037825203648967114365000",
+        "p95": "1.279428151883657155820997500",
+        "p99": "2.638833744658356918868729100",
+        "max": "2.870307902469295904301940000"
+      },
+      "excursions": {
+        "positive_gt_0.5_bps": {
+          "total_s": 71.79774498939514,
+          "longest_observed_episode_s": 9.087810039520264
+        },
+        "negative_gt_0.5_bps": {
+          "total_s": 51.125163555145264,
+          "longest_observed_episode_s": 9.10741114616394
+        },
+        "absolute_gt_0.5_bps": {
+          "total_s": 122.9229085445404,
+          "longest_observed_episode_s": 9.10741114616394
+        },
+        "positive_gt_1_bps": {
+          "total_s": 31.8708438873291,
+          "longest_observed_episode_s": 7.067456960678101
+        },
+        "negative_gt_1_bps": {
+          "total_s": 5.055201768875122,
+          "longest_observed_episode_s": 1.0127599239349365
+        },
+        "absolute_gt_1_bps": {
+          "total_s": 36.926045656204224,
+          "longest_observed_episode_s": 7.067456960678101
+        },
+        "positive_gt_2_bps": {
+          "total_s": 11.145950555801392,
+          "longest_observed_episode_s": 3.5298879146575928
+        },
+        "negative_gt_2_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_2_bps": {
+          "total_s": 11.145950555801392,
+          "longest_observed_episode_s": 3.5298879146575928
+        },
+        "positive_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_3_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "positive_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_5_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "positive_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "negative_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        },
+        "absolute_gt_8_bps": {
+          "total_s": 0.0,
+          "longest_observed_episode_s": 0.0
+        }
+      },
+      "lighter_spread_bps": {
+        "n": 1012,
+        "min": "0.01173823960446827828783689481",
+        "p05": "0.01174134199313700719399448396",
+        "median": "0.01175491472985261035573622377",
+        "p95": "0.6698599557633919830799738052",
+        "p99": "0.7523480606743535174449162106",
+        "max": "1.198973114791096566705221881"
+      },
+      "minimum_size_impact_upper_bound_bps": {
+        "buy": {
+          "n": 1012,
+          "min": "0",
+          "p05": "0.00",
+          "median": "0",
+          "p95": "0.00",
+          "p99": "0.02084263181937465389008210000",
+          "max": "0.278071157021394113533940000"
+        },
+        "sell": {
+          "n": 1012,
+          "min": "0",
+          "p05": "0.00",
+          "median": "0.0037481244081870493116750000",
+          "p95": "0.1591104613683961775073394500",
+          "p99": "0.2989048736090889113730080000",
+          "max": "0.4924438319337210026449100000"
+        }
+      }
+    }
+  },
+  "blocker_seconds_overlapping": {
+    "engine_state": 16.75618600845337,
+    "request_reserve": 942.4856791496277,
+    "basis_or_scale_unavailable": 625.9237098693848,
+    "quote_age_or_book": 37.203498125076294,
+    "coverage": 589.2427651882172,
+    "feed_channel": 4.568498134613037,
+    "account_or_funding_age": 5.6940813064575195
+  },
+  "primary_blocker_seconds": {
+    "engine_state": 0.507896900177002,
+    "observable_guards_pass": 230.81721091270447,
+    "request_reserve": 512.0117075443268,
+    "basis_or_scale_unavailable": 625.9237098693848
+  },
+  "closest_subthreshold_observations": [
+    {
+      "direction": "long",
+      "at_utc": "2026-10-04T14:33:39.395923+00:00",
+      "raw_bps": "0.597827568935844642818350000",
+      "basis_bps": "2.553372426699204999128020000",
+      "residual_bps": "-1.955544857763360356309670000",
+      "threshold_bps": "8",
+      "spread_plus_buffer_bps": "5.634177964429662617322923420",
+      "rejected_by": [
+        "DEVIASI_KURANG",
+        "BIAYA_DAN_BUFFER_MELEBIHI_PELUANG"
+      ],
+      "directional_flow_depth_filters": "not evaluated without threshold candidate"
+    },
+    {
+      "direction": "short",
+      "at_utc": "2026-10-04T14:48:05.971041+00:00",
+      "raw_bps": "5.294471216160214905229500000",
+      "basis_bps": "2.336917855667631655795610000",
+      "residual_bps": "2.957553360492583249433890000",
+      "threshold_bps": "8",
+      "spread_plus_buffer_bps": "5.011751316294316417117672393",
+      "rejected_by": [
+        "DEVIASI_KURANG",
+        "BIAYA_DAN_BUFFER_MELEBIHI_PELUANG"
+      ],
+      "directional_flow_depth_filters": "not evaluated without threshold candidate"
+    }
+  ],
+  "formal_signal_candidates": 0,
+  "coverage_transitions": [
+    {
+      "at_utc": "2026-10-04T14:30:23.530899+00:00",
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 630.0,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 606,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 581,
+        "max_sample_gap_s": 1.815,
+        "allowed_gap_s": 5,
+        "long_gap_count": 0,
+        "gap_wait_remaining_s": 0,
+        "last_sample_age_s": 0.6,
+        "warmup_complete": true,
+        "coverage_complete": true,
+        "ready": true,
+        "buffer_started_at": 1791123592.0538862,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:35:17.246930+00:00",
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 923.8,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 885,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 578,
+        "max_sample_gap_s": 10.532,
+        "allowed_gap_s": 5,
+        "long_gap_count": 1,
+        "gap_wait_remaining_s": 589.2,
+        "last_sample_age_s": 0.3,
+        "warmup_complete": true,
+        "coverage_complete": false,
+        "ready": false,
+        "buffer_started_at": 1791123592.0538862,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:45:06.489695+00:00",
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 1513.1,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 1457,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 573,
+        "max_sample_gap_s": 3.619,
+        "allowed_gap_s": 5,
+        "long_gap_count": 0,
+        "gap_wait_remaining_s": 0,
+        "last_sample_age_s": 0.0,
+        "warmup_complete": true,
+        "coverage_complete": true,
+        "ready": true,
+        "buffer_started_at": 1791123592.0538862,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      }
+    }
+  ],
+  "feed_transitions": [
+    {
+      "at_utc": "2026-10-04T14:30:23.530899+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 12
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 553
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 92
+        }
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:48:18.614873+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": false,
+          "reconnects": 1,
+          "consecutive_failures": 1,
+          "retry_delay_s": 2,
+          "last_error": "ConnectionError",
+          "last_disconnect_at": 1791125298.2087653,
+          "last_frame_age_ms": 364
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 26
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 4
+        }
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:48:20.648544+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 1,
+          "consecutive_failures": 1,
+          "retry_delay_s": 0,
+          "last_error": "ConnectionError",
+          "last_disconnect_at": 1791125298.2087653,
+          "last_frame_age_ms": 2370
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 31
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 3
+        }
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:52:16.473012+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": false,
+          "reconnects": 2,
+          "consecutive_failures": 1,
+          "retry_delay_s": 2,
+          "last_error": "ConnectionError",
+          "last_disconnect_at": 1791125536.1253786,
+          "last_frame_age_ms": 255
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 57
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 80
+        }
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:52:19.007839+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 2,
+          "consecutive_failures": 1,
+          "retry_delay_s": 0,
+          "last_error": "ConnectionError",
+          "last_disconnect_at": 1791125536.1253786,
+          "last_frame_age_ms": 8
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 94
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 45
+        }
+      }
+    }
+  ],
+  "original_process_reconcile_warnings": [
+    {
+      "utc": "2026-10-04T14:53:12.791263+00:00",
+      "pid": "116516",
+      "message": "2026-10-04 21:53:12,790 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "utc": "2026-10-04T14:53:38.648050+00:00",
+      "pid": "116516",
+      "message": "2026-10-04 21:53:38,647 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "utc": "2026-10-04T14:55:25.143766+00:00",
+      "pid": "116516",
+      "message": "2026-10-04 21:55:25,143 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    }
+  ],
+  "readonly_observations": [
+    {
+      "source_sha256": "ac1ba93e81ce2942ca57f70c8453492799931841414a27a1536ef1f5a9c67cab",
+      "start_utc": "2026-10-04T17:42:44.585797+00:00",
+      "end_utc": "2026-10-04T17:45:44.092977+00:00",
+      "samples": 353,
+      "routes": {
+        "/api/v1/account": 14,
+        "/api/v1/accountActiveOrders": 13,
+        "/api/v1/trades": 13
+      },
+      "outcomes": {
+        "ok": 40
+      },
+      "request_elapsed_ms": {
+        "n": 40,
+        "min": 99.381,
+        "p05": 102.77845,
+        "median": 111.0295,
+        "p95": 132.74265000000003,
+        "p99": 135.43318,
+        "max": 136.696
+      },
+      "reconciliation_elapsed_ms": {
+        "n": 14,
+        "min": 929.0868489988497,
+        "p05": 945.8986400981303,
+        "median": 988.4288525008742,
+        "p95": 1047.62446620025,
+        "p99": 1057.5461348376484,
+        "max": 1060.026551996998
+      },
+      "max_reconcile_lock_wait_ms": 0.014443998225033283,
+      "max_event_loop_lag_ms": 3.4,
+      "max_queue_backlog": 471,
+      "minimum_transaction_slots": 15,
+      "reconnects": {
+        "binance": 0,
+        "lighter": 0
+      },
+      "final": {
+        "equity_usdc": "49.430756",
+        "position_qty": "0.00000",
+        "unresolved_intents": 0,
+        "exchange_active_order_count": null,
+        "other_exchange_position_count": null,
+        "allow_live_orders": false,
+        "session_status": "closed"
+      }
+    },
+    {
+      "source_sha256": "6ea39c4835ae260ed047b65b3da5f6c9ab4c15f61beb533fe599030966c93b45",
+      "start_utc": "2026-10-04T17:59:39.345057+00:00",
+      "end_utc": "2026-10-04T18:00:14.305571+00:00",
+      "samples": 69,
+      "routes": {
+        "/api/v1/account": 3,
+        "/api/v1/accountActiveOrders": 3,
+        "/api/v1/deposit/history": 6,
+        "/api/v1/withdraw/history": 6,
+        "/api/v1/transfer/history": 3,
+        "/api/v1/trades": 3
+      },
+      "outcomes": {
+        "ok": 24
+      },
+      "request_elapsed_ms": {
+        "n": 24,
+        "min": 102.942,
+        "p05": 105.5191,
+        "median": 114.158,
+        "p95": 127.71045,
+        "p99": 131.71938999999998,
+        "max": 132.641
+      },
+      "reconciliation_elapsed_ms": {
+        "n": 3,
+        "min": 930.5035569996107,
+        "p05": 932.8761353994196,
+        "median": 954.2293409976992,
+        "p95": 959.9136374999944,
+        "p99": 960.4189083001984,
+        "max": 960.5452260002494
+      },
+      "max_reconcile_lock_wait_ms": 0.010645999282132834,
+      "max_event_loop_lag_ms": 3.0,
+      "max_queue_backlog": 1,
+      "minimum_transaction_slots": 15,
+      "reconnects": {
+        "binance": 0,
+        "lighter": 0
+      },
+      "final": {
+        "equity_usdc": "49.430756",
+        "position_qty": "0.00000",
+        "unresolved_intents": 0,
+        "exchange_active_order_count": 0,
+        "other_exchange_position_count": 0,
+        "allow_live_orders": false,
+        "session_status": "closed"
+      }
+    }
+  ],
+  "historical_source_sha256": "1827fcd2a40309ba1b495fcb920202d7e7d4ea12fcdc4ebbb4b672340f34b977",
+  "historical_fee_exact_unknown_count": 4,
+  "threshold_origin": "4b5af97, hardcoded unvalidated heuristic max(8,4*MAD*1.4826); no measured calibration found",
+  "legacy_recording_limit": "hour-14 gzip corrupt and not tied to engine run; replay source quote mismatch; no defensible full depth/latency replay",
+  "depth_bound_method": "0 <= minimum-size impact <= saved $25 VWAP impact versus BBO, same side/book; minimum quantity .00012 BTC (~$10.2) below saved quote size. No measured execution slippage.",
+  "no_new_authorization_or_broadcast": true
+}

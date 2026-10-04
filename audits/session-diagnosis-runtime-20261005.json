@@ -1,0 +1,24 @@
+{
+  "engine_pid": 135588,
+  "source_hashes": {
+    "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+    "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+    "src/lldesk/models.py": "2483fe1e54ce25f7cf5fbed91960c0c61110e9f149ae209bc455e4ebc1e36fdd",
+    "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+    "src/lldesk/market.py": "994a6ea159d7728ab4e3181e5ad0c761f445a9b932b9dea3df32e0cdf76e5b0f",
+    "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+    "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c",
+    "src/lldesk/account.py": "51e9af1d866a6aad97c53665dc53ee276c72a878d6b02db060d57ec84edfe091",
+    "src/lldesk/engine.py": "90bd6122661ab1563fffb9c4c6545d8ae8413f2bd26f4da4d0255ebf49469a04",
+    "src/lldesk/api.py": "0af5a083539e1b76e6f422cc9438ef6f28bab0ad65e688b7a2f2f9fff6040a30",
+    "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+    "src/lldesk/network.py": "e347100f00f69bf9f4b0516a0a960a1d4b49c8deb276564dda9a160cc3f72c29",
+    "src/lldesk/session.py": "ad5b70a1c7971491c775db2b32a68aa283c76c8fe3d244bc08999dcde0d109e2",
+    "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+    "src/lldesk/transport_trace.py": "b38d9758f7e9e02f6c8a7f861c9ba4a3e6bba6a87c2a76abe7948e19b6f8be76"
+  },
+  "final_state": "IDLE",
+  "authorization": false,
+  "broadcast": false,
+  "duration_s": 35.47696285499842
+}

@@ -14,6 +14,7 @@ import websockets
 
 from .config import Config, load_secrets
 from .models import AccountEvent, OrderIntent, Stamp
+from .transport_trace import TransportTrace
 
 BASE_URL = "https://mainnet.zklighter.elliot.ai"
 
@@ -82,6 +83,7 @@ class LighterAccount:
         self.transaction_api: Any = None
         self.lock = asyncio.Lock()
         self.rate = RateBudget()
+        self.transport_trace = TransportTrace()
 
     async def open(self) -> None:
         secrets = load_secrets()
@@ -99,6 +101,7 @@ class LighterAccount:
             self.signer = None
             raise RuntimeError("Lighter signer key/account check failed")
         self.api = lighter.ApiClient(configuration=lighter.Configuration(host=BASE_URL))
+        self.transport_trace.install(self.api.rest_client)
         self.account_api = lighter.AccountApi(self.api)
         self.order_api = lighter.OrderApi(self.api)
         self.transaction_api = lighter.TransactionApi(self.api)

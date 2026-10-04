@@ -1,0 +1,70 @@
+{
+  "captured_at_utc": "2026-10-04T18:11:29.296321+00:00",
+  "engine_pid": 135588,
+  "state": "IDLE",
+  "entries_stopped": true,
+  "allow_live_orders": false,
+  "account": {
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "exchange_active_order_count": 0,
+    "other_exchange_position_count": 0,
+    "position_price": "0.0",
+    "unrealized_pnl": "0.000000",
+    "realized_pnl": "0.000000",
+    "funding": "0",
+    "account_type_code": 0,
+    "account_trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "age_s": 0.9,
+    "funding_audit_age_s": 0.1,
+    "daily_loss": "0",
+    "total_loss": "0",
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "effective_exposure_usd": "0.000000",
+    "recorded_fees": null,
+    "known_fees": "0",
+    "pending_fee_count": 4,
+    "fee_audit_complete": false,
+    "position_read_age_s": 0.1
+  },
+  "request_budget": {
+    "used_last_60s": 40,
+    "normal_cap": 40,
+    "urgent_read_cap": 47,
+    "transaction_cap": 55,
+    "transaction_slots_remaining": 15
+  },
+  "reconnects": {
+    "binance": 0,
+    "lighter": 0
+  },
+  "net_cash_audit": {
+    "status": "matched",
+    "net_difference_usdc": "0.000000",
+    "cash_change_usdc": "0.000000",
+    "individual_fees_known": false
+  },
+  "session_status": "closed",
+  "entry_attempts": 0,
+  "unresolved_intents": 0,
+  "fee_exact_unknown_count": 4,
+  "fee_reports_covered": 4,
+  "fee_reported_total_usdc": "0.0000",
+  "reported_fee_precision_decimals": 4,
+  "probe_accept_reported_fees": false,
+  "session_accept_reported_fees": false,
+  "limits": {
+    "max_entry_notional_usd": "25",
+    "max_trade_risk_usd": "0.50",
+    "daily_loss_limit_usd": "5",
+    "max_effective_leverage": "1",
+    "max_data_age_ms": 1500,
+    "warmup_seconds": 600,
+    "max_hold_seconds": 180
+  }
+}

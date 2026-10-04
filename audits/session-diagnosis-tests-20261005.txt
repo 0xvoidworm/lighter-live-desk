@@ -1,0 +1,29 @@
+Baseline: 8814332. Diagnosis only; no entry/broadcast/session authorization.
+Environment: existing Python 3.12 .venv and pinned installed lighter SDK.
+
+.venv/bin/python -m pytest -q
+295 passed, 3 warnings in 8.78s
+Warnings: existing SDK/websockets and Starlette test-client deprecations.
+
+.venv/bin/mypy src/lldesk
+Success: no issues found in 15 source files
+
+.venv/bin/ruff check src tests scripts/analyze_session_diagnostics.py
+All checks passed!
+
+.venv/bin/ruff format --check src tests scripts/analyze_session_diagnostics.py
+30 files already formatted
+
+13 diagnostic test cases: real installed SDK GET against localhost (no orders),
+headers/body cancellation, connection pool queue, DNS failure, funding routes,
+credential redaction, preserved book/bootstrap stamp, duplicate freshness,
+isolated gzip recorder, WS close details, normalized long/short and causal basis.
+
+Readonly runtime drill: 180 seconds, followed by 35.477 seconds for all funding
+trace routes; not a live strategy/probe session. Final bounded window: 24 GET,
+3 completed reconciliations, all successful, no reconnect, min exit slots 15.
+Fresh final exchange snapshot: BTC/other positions 0, global active orders 0;
+equity 49.430756 USDC. IDLE, order permission false, prior session closed.
+
+No strategy/risk/config guard changes. Fee exact remains NULL; reported policy
+and source funding limits unchanged. Strategy/risk source hashes unchanged.

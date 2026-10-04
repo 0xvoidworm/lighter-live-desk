@@ -68,6 +68,8 @@ class Engine:
         self.last_account_poll = 0.0
         self.last_reconcile_ok = 0.0
         self.reconcile_failed = True
+        self.last_reconcile_diagnostic: dict = {}
+        self.last_decision_inputs: dict = {}
         self.session_end = 0.0
         self.session_positions = 0
         self.entries_stopped = True
@@ -223,6 +225,19 @@ class Engine:
                         raise ValueError("bad FX quote")
                     self.fx = (bid + ask) / 2
                     self.fx_at = time.monotonic()
+                    self.recorder.write(
+                        MarketEvent(
+                            "binance",
+                            "fx",
+                            {
+                                "symbol": "USDCUSDT",
+                                "rate": str(self.fx),
+                                "bid": str(bid),
+                                "ask": str(ask),
+                            },
+                            Stamp(),
+                        )
+                    )
                 except Exception:
                     self.fx = None
                 await asyncio.sleep(10)
@@ -496,9 +511,29 @@ class Engine:
         )
 
     def decide(self) -> None:
-        self.last_decision = self.strategy.evaluate(
-            self.books["lighter"].quote(), self.books["binance"].quote(), self.data_valid(), self.fx
-        )
+        lighter, binance = self.books["lighter"].quote(), self.books["binance"].quote()
+        valid = self.data_valid()
+        self.last_decision_inputs = {
+            "evaluated_at": time.time(),
+            "monotonic_ns": time.monotonic_ns(),
+            "data_valid": valid,
+            "fx": str(self.fx) if self.fx is not None else None,
+            "fx_age_s": time.monotonic() - self.fx_at if self.fx is not None else None,
+            "queue_backlog": self.queue.qsize(),
+            "quotes": {
+                name: {
+                    "bid": str(q.bid),
+                    "ask": str(q.ask),
+                    "receipt_ns": q.stamp.receipt_ns,
+                    "monotonic_ns": q.stamp.monotonic_ns,
+                    "exchange_ms": q.stamp.exchange_ms,
+                }
+                if q
+                else None
+                for name, q in (("lighter", lighter), ("binance", binance))
+            },
+        }
+        self.last_decision = self.strategy.evaluate(lighter, binance, valid, self.fx)
         if self.state == EngineState.RECOVERING and self.data_valid():
             self.state = EngineState.WARMING_UP
             self.reason = "feed tersambung kembali; evaluasi coverage"
@@ -543,19 +578,46 @@ class Engine:
                 self.entries_stopped = True  # prevent duplicate signal while send is in flight
 
     async def safe_reconcile(self) -> None:
+        started = time.monotonic()
+        acquired: float | None = None
+        trace = getattr(self.account, "transport_trace", None)
+        trace_start = trace.sequence if trace else 0
+        task_id = id(asyncio.current_task())
+        outcome, error = "cancelled", None
         try:
             async with self.reconcile_lock:
+                acquired = time.monotonic()
                 self.last_account_poll = time.monotonic()
                 async with asyncio.timeout(8):
                     await self.reconcile()
                 self.reconcile_failed = False
+                outcome = "ok"
         except Exception as exc:
+            outcome, error = "error", type(exc).__name__
             self.reconcile_failed = True
             self.entries_stopped = True
             self.state = EngineState.PAUSED
             self.reason = f"rekonsiliasi gagal: {type(exc).__name__}"
             LOG.warning("reconciliation blocked: %s", type(exc).__name__)
             self.end_session("rekonsiliasi gagal: " + type(exc).__name__)
+        finally:
+            rate = getattr(self.account, "rate", None)
+            requests = (
+                [r for r in trace.completed if r["id"] > trace_start and r["task"] == task_id]
+                if trace
+                else []
+            )
+            self.last_reconcile_diagnostic = {
+                "finished_at": time.time(),
+                "elapsed_ms": (time.monotonic() - started) * 1000,
+                "lock_wait_ms": ((acquired or time.monotonic()) - started) * 1000,
+                "request_deadline_s": 8,
+                "outcome": outcome,
+                "error": error,
+                "requests": requests,
+                "request_used_60s": len(rate.calls) if rate else None,
+            }
+            self.db.event("ACCOUNT_RECONCILE_DIAGNOSTIC", self.last_reconcile_diagnostic)
 
     def _start_position_deadline(self) -> None:
         if not self.position_opened_at:
@@ -2278,6 +2340,8 @@ class Engine:
                 "bid": str(q.bid) if q else None,
                 "ask": str(q.ask) if q else None,
                 "age_ms": round((now - book.updated_ns) / 1e6) if book.updated_ns else None,
+                "receipt_ns": q.stamp.receipt_ns if q else None,
+                "exchange_ms": q.stamp.exchange_ms if q else None,
                 "gaps": book.gaps,
                 "spread_bps": str((q.ask - q.bid) / q.mid * 10000) if q else None,
                 "buy_25_vwap": str(book.price_for("buy", depth_qty)) if q else None,
@@ -2342,8 +2406,16 @@ class Engine:
             if self.market
             else None,
             "quotes": quotes,
+            "decision_inputs": self.last_decision_inputs,
+            "reconcile_diagnostic": self.last_reconcile_diagnostic,
+            "transport_trace": self.account.transport_trace.status()
+            if self.account and hasattr(self.account, "transport_trace")
+            else None,
             "coverage": self.strategy.coverage(),
             "feed_channels": getattr(self.feeds, "channel_status", lambda: {})(),
+            "binance_transport_trace": self.feeds.transport_trace.status()
+            if self.feeds and hasattr(self.feeds, "transport_trace")
+            else None,
             "fee_lookup": self.db.fee_lookup_status(),
             "fee_reports": self.db.fee_report_status(),
             "net_cash_audit": self.db.net_cash_status(str(snap.equity), str(snap.position_qty))
@@ -2370,6 +2442,8 @@ class Engine:
                 "equity": str(snap.equity),
                 "available": str(snap.available),
                 "position_qty": str(snap.position_qty),
+                "exchange_active_order_count": len(snap.active_orders),
+                "other_exchange_position_count": len(snap.other_positions),
                 "position_price": str(snap.position_price),
                 "unrealized_pnl": str(snap.unrealized_pnl),
                 "realized_pnl": str(snap.realized_pnl),

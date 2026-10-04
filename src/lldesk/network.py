@@ -88,7 +88,9 @@ class BinanceResolver(AbstractResolver):
 
 
 @asynccontextmanager
-async def binance_session(mode: DnsMode = "system") -> AsyncIterator[aiohttp.ClientSession]:
+async def binance_session(
+    mode: DnsMode = "system", *, trace_configs: list[aiohttp.TraceConfig] | None = None
+) -> AsyncIterator[aiohttp.ClientSession]:
     resolver = BinanceResolver(mode)
     try:
         connector = aiohttp.TCPConnector(
@@ -98,6 +100,7 @@ async def binance_session(mode: DnsMode = "system") -> AsyncIterator[aiohttp.Cli
             connector=connector,
             timeout=aiohttp.ClientTimeout(total=10, connect=5),
             trust_env=False,
+            trace_configs=trace_configs,
         ) as client:
             yield client
     finally:
