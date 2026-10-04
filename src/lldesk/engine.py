@@ -17,6 +17,7 @@ import httpx
 from .account import AccountSnapshot, DispatchBlocked, LighterAccount, LocalOrderRejected
 from .config import Config, load_config, repo_root
 from .db import Database
+from .fee_audit import collect_export
 from .market import FX_BOOK, Book, Feeds, GapError, Recorder, dec, market_metadata
 from .models import (
     TERMINAL_ORDER_STATES,
@@ -29,6 +30,7 @@ from .models import (
     normalize_order_state,
 )
 from .risk import EquityBaseline, limit_price, size_entry
+from .session import BoundedSession, parameter_hash
 from .strategy import Decision, DeviationStrategy
 
 LOG = logging.getLogger("lldesk.engine")
@@ -96,6 +98,16 @@ class Engine:
         self.dispatching_entries: set[int] = set()
         self.probe_preflight_fingerprint: dict | None = None
         self.probe_preflight_equity: Decimal | None = None
+        self.session = BoundedSession(self.db)
+        self.session_cleanup_task: asyncio.Task | None = None
+        self.fee_audit_task: asyncio.Task | None = None
+        self.last_session_sample = 0.0
+        self.last_complete_snapshot: AccountSnapshot | None = None
+        record = self.session.read()
+        if record and record["status"] in {"active", "ending"}:
+            self.session_end = time.monotonic() + max(0, record["deadline_epoch"] - time.time())
+            self.session.stop("restart: entry tidak dilanjutkan otomatis")
+            self.db.set_flag("close_requested", "1")
         self._restore_order_ids()
 
     def _restore_order_ids(self) -> None:
@@ -227,6 +239,8 @@ class Engine:
                     self.risk_task,
                     self.risk_poll_task,
                     self.risk_action_task,
+                    self.session_cleanup_task,
+                    self.fee_audit_task,
                 )
                 if t is not None
             ]
@@ -278,17 +292,16 @@ class Engine:
             if (
                 self.account
                 and not (self.probe_active and self.entry_tasks)
+                and not self.entry_tasks
+                and (self.fee_audit_task is None or self.fee_audit_task.done())
                 and time.monotonic() - self.last_account_poll >= ACCOUNT_RECONCILE_INTERVAL_SECONDS
                 and self.probe_read_ready()
                 and (self.reconcile_task is None or self.reconcile_task.done())
             ):
                 self.reconcile_task = asyncio.create_task(self.safe_reconcile())
             self.decide()
-            if (
-                (self.state == EngineState.LIVE or self.probe_active)
-                and self.session_end
-                and time.monotonic() >= self.session_end
-            ):
+            self.session_tick()
+            if self.probe_active and self.session_end and time.monotonic() >= self.session_end:
                 self.entries_stopped = True
                 await self.cancel_entries()
                 if self.probe_active:
@@ -433,9 +446,13 @@ class Engine:
         )
 
     def idle_valid(self) -> bool:
-        """Healthy flat monitoring; live margin verification remains a separate gate."""
+        """Flat monitoring; closed/disarmed sessions display feed readiness separately."""
         snap = self.account_snapshot
         now = time.monotonic()
+        record = self.session.read()
+        closed_session_flat = bool(
+            record and record["status"] == "closed" and self.session_flat_clean()
+        )
         return bool(
             not self.config.allow_live_orders
             and self.entries_stopped
@@ -472,8 +489,10 @@ class Engine:
             and Decimal(self.db.gross_deposits()) <= self.config.max_funding_usd
             and 0 < snap.equity <= self.config.max_funding_usd
             and self.journal_ok
-            and self.data_valid()
-            and self.last_decision.basis_bps is not None
+            and (
+                closed_session_flat
+                or (self.data_valid() and self.last_decision.basis_bps is not None)
+            )
         )
 
     def decide(self) -> None:
@@ -494,7 +513,12 @@ class Engine:
         }:
             if self.idle_valid():
                 self.state = EngineState.IDLE
-                self.reason = "standby; akun flat, data segar, entry dinonaktifkan"
+                record = self.session.read()
+                self.reason = (
+                    "standby; sesi selesai, akun/order bersih, izin order mati"
+                    if record and record["status"] == "closed"
+                    else "standby; akun flat, data segar, entry dinonaktifkan"
+                )
             elif self.state == EngineState.IDLE:
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
@@ -502,11 +526,14 @@ class Engine:
         if (
             self.state == EngineState.LIVE
             and not self.entries_stopped
-            and self.session_positions < self.config.max_session_positions
+            and self.session_entry_ready()
             and self.last_decision.side
         ):
-            if not self.db.unresolved() and (
-                not self.account_snapshot or not self.account_snapshot.position_qty
+            if (
+                not self.entry_tasks
+                and not self.dispatching_entries
+                and not self.db.unresolved()
+                and (not self.account_snapshot or not self.account_snapshot.position_qty)
             ):
                 task = asyncio.create_task(
                     self.enter(self.last_decision.side, scheduled_epoch=self.entry_epoch)
@@ -528,6 +555,7 @@ class Engine:
             self.state = EngineState.PAUSED
             self.reason = f"rekonsiliasi gagal: {type(exc).__name__}"
             LOG.warning("reconciliation blocked: %s", type(exc).__name__)
+            self.end_session("rekonsiliasi gagal: " + type(exc).__name__)
 
     def _start_position_deadline(self) -> None:
         if not self.position_opened_at:
@@ -631,6 +659,7 @@ class Engine:
                     )
                 if old_confirmed and not self.protection_confirmed and snap.position_qty:
                     self.db.set_flag("close_requested", "1")
+                    self.end_session("proteksi exchange hilang/tidak cocok")
                 if flat_verified and stop:
                     state = normalize_order_state(str(stop.get("status", "")))
                     if state in TERMINAL_ORDER_STATES:
@@ -657,6 +686,7 @@ class Engine:
             self.entries_stopped = True
             self.reason = f"pemulihan exposure tertahan: {type(exc).__name__}"
             self.db.event("EXPOSURE_RECOVERY_FAILED", {"error_type": type(exc).__name__})
+            self.end_session("pemulihan exposure gagal: " + type(exc).__name__)
 
     async def _cancel_flat_stop(self, stop: dict) -> None:
         if self.protection_id is None or not self.account or not self.market:
@@ -682,6 +712,7 @@ class Engine:
 
     async def risk_loop(self) -> None:
         while True:
+            self.session_tick(risk_only=True)
             now = time.monotonic()
             snap = self.account_snapshot
             urgent = bool(
@@ -734,6 +765,8 @@ class Engine:
                     )
                 )
                 if overdue:
+                    if unprotected:
+                        self.end_session("deadline proteksi terlewati")
                     self.entries_stopped = True
                     self.db.set_flag("close_requested", "1")
                     # Release queued/hung entry/stop operations; never replay their intent.
@@ -751,7 +784,7 @@ class Engine:
             return
         market_id = int(self.market["market_id"])
         exposure_only = bool(
-            self.probe_active
+            (self.probe_active or self.session_open())
             and self.account_snapshot
             and (
                 self.account_snapshot.position_qty
@@ -762,7 +795,7 @@ class Engine:
                 or self.dispatching_entries
             )
         )
-        if self.probe_active:
+        if self.probe_active or self.session_open():
             flows = (
                 self.account_snapshot.funding_flows
                 if exposure_only and self.account_snapshot
@@ -884,6 +917,7 @@ class Engine:
             self.entries_stopped = True
             self.state = EngineState.PAUSED
             self.reason = "posisi tidak cocok dengan fill lokal; periksa intervensi manual"
+            self.end_session("posisi tidak cocok dengan ledger")
         if self.protection_id is not None:
             protected = statuses.get(self.protection_id)
             previously_confirmed = self.protection_confirmed
@@ -896,6 +930,8 @@ class Engine:
             if previously_confirmed and not self.protection_confirmed and not self.manual_exposure:
                 self.entries_stopped = True
                 self.db.set_flag("close_requested", "1")
+                if snapshot.position_qty:
+                    self.end_session("proteksi exchange hilang/tidak cocok")
         if not exposure_only:
             self._update_baseline(snapshot)
         if self.db.flag("close_requested") == "1":
@@ -1004,6 +1040,7 @@ class Engine:
             self.reason = "rekonsiliasi selesai; menunggu data valid"
         if not exposure_only:
             self.last_reconcile_ok = time.monotonic()
+            self.last_complete_snapshot = snapshot
         if (
             self.state == EngineState.PAUSED
             and not snapshot.position_qty
@@ -1175,6 +1212,7 @@ class Engine:
             self.state = EngineState.PAUSED
             self.reason = "proteksi posisi belum pasti; perlu tutup posisi"
             self.db.set_flag("close_requested", "1")
+            self.end_session("proteksi gagal atau ambigu")
             if isinstance(exc, asyncio.CancelledError):
                 raise
 
@@ -1192,7 +1230,7 @@ class Engine:
             or (kind != "PROBE" and self.config.live_entry_scope != "strategy")
             or not self.session_end
             or time.monotonic() >= self.session_end
-            or (kind != "PROBE" and self.session_positions >= self.config.max_session_positions)
+            or (kind != "PROBE" and not self.session_entry_ready())
         ):
             return
         if (
@@ -1203,6 +1241,8 @@ class Engine:
         ):
             return
         snap = self.account_snapshot
+        fingerprint_before = self.db.accounting_fingerprint()
+        equity_before = snap.equity
         if (
             time.time() - snap.received_at > 15
             or snap.account_type_code != self.config.expected_account_type_code
@@ -1235,8 +1275,8 @@ class Engine:
                 int(self.market["size_decimals"]),
                 int(self.market["price_decimals"]),
                 Decimal("35"),
-                Decimal("0"),
-                minimum_only=kind == "PROBE",
+                dec(self.market.get("taker_fee", "0")),
+                minimum_only=True,
             )
             depth_price = self.books["lighter"].price_for(side, sizing.quantity)
             if depth_price is None:
@@ -1261,7 +1301,17 @@ class Engine:
                     self.entry_epoch != epoch
                     or self.state != entry_state
                     or (kind == "PROBE" and not self.probe_active)
-                    or (kind == "PROBE" and not self.entry_rate_ready())
+                    or not self.entry_rate_ready()
+                    or (
+                        kind == "ENTRY"
+                        and (
+                            not self.session_entry_ready()
+                            or self.last_decision.side != side
+                            or fingerprint_before != self.db.accounting_fingerprint()
+                            or current is None
+                            or current.equity != equity_before
+                        )
+                    )
                     or self.config.mode != "live_capable"
                     or self.entry_fee_blockers(kind, frozen=kind == "PROBE")
                     or not self.config.allow_live_orders
@@ -1279,9 +1329,10 @@ class Engine:
                     or current.other_positions
                     or current.other_assets
                     or self.manual_exposure
+                    or any(x["client_id"] != client_id for x in self.db.unresolved())
                     or not self.journal_ok
                     or (
-                        kind == "PROBE"
+                        kind in {"PROBE", "ENTRY"}
                         and (
                             self.reconcile_failed
                             or time.monotonic() - self.last_reconcile_ok > 15
@@ -1301,7 +1352,11 @@ class Engine:
                     or self.db.flag("close_requested") == "1"
                 ):
                     return False
-                self.db.order_state(client_id, OrderState.SENT)
+                if kind == "ENTRY":
+                    if not self.session.consume(client_id):
+                        return False
+                else:
+                    self.db.order_state(client_id, OrderState.SENT)
                 self.dispatching_entries.add(client_id)
                 self.db.event(
                     "ENTRY_DISPATCH",
@@ -1322,6 +1377,10 @@ class Engine:
                         "side_reason": "fixed BUY probe; lifecycle test, no strategy signal"
                         if kind == "PROBE"
                         else "existing strategy",
+                        "signal": self.decision_evidence() if kind == "ENTRY" else None,
+                        "session_id": (self.session.read() or {}).get("id")
+                        if kind == "ENTRY"
+                        else None,
                         "spread_bps": str(spread_bps),
                         "depth_price": str(depth_price),
                         "min_base_amount": self.market["min_base_amount"],
@@ -1369,6 +1428,8 @@ class Engine:
                     else OrderState.CANCELED
                 )
                 self.db.order_state(client_id, state, reason="entry task canceled")
+                if state == OrderState.UNKNOWN:
+                    self.end_session("pengiriman entry terinterupsi; rekonsiliasi prioritas")
             raise
         except Exception as exc:
             if "client_id" in locals():
@@ -1376,6 +1437,7 @@ class Engine:
             self.entries_stopped = True
             self.state = EngineState.PAUSED
             self.reason = f"entry tidak pasti: {type(exc).__name__}"
+            self.end_session(self.reason)
         finally:
             if "client_id" in locals():
                 self.dispatching_entries.discard(client_id)
@@ -1415,6 +1477,8 @@ class Engine:
             deviation = self.last_decision.deviation_bps
             if deviation is not None:
                 recovered = abs(deviation - self.last_decision.basis_bps) <= 2
+                if self.session_open() and not self.protection_confirmed:
+                    recovered = False  # Normal reversion exit follows verified protection.
         close_requested = self.db.flag("close_requested") == "1"
         if (
             timed_out
@@ -1424,6 +1488,18 @@ class Engine:
             or close_requested
             or protection_timeout
         ) and self.exit_id is None:
+            self.db.event(
+                "EXIT_REASON",
+                {
+                    "timed_out": bool(timed_out),
+                    "session_over": bool(session_over),
+                    "recovered": recovered,
+                    "probe": bool(probe_fill),
+                    "close_requested": close_requested,
+                    "protection_timeout": protection_timeout,
+                    "signal": self.decision_evidence(),
+                },
+            )
             self.db.set_flag("close_requested", "1")
             await self.close_position()
         elif self.protection_id is None and not self.manual_exposure and self.exit_id is None:
@@ -1506,6 +1582,7 @@ class Engine:
         for command_id, kind in self.db.pending_commands():
             result = ""
             if kind == "STOP_ENTRIES":
+                self.end_session("entry dihentikan melalui perintah")
                 self.entry_epoch += 1
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
@@ -1567,12 +1644,322 @@ class Engine:
                 self.db.order_state(client_id, OrderState.UNKNOWN)
         return "cancel diminta; hasil menunggu rekonsiliasi"
 
+    def decision_evidence(self) -> dict:
+        d = self.last_decision
+        return {
+            "side": d.side,
+            "deviation_bps": str(d.deviation_bps) if d.deviation_bps is not None else None,
+            "basis_bps": str(d.basis_bps) if d.basis_bps is not None else None,
+            "scale_bps": str(d.scale_bps) if d.scale_bps is not None else None,
+            "threshold_bps": str(max(Decimal(8), d.scale_bps * 4))
+            if d.scale_bps is not None
+            else None,
+            "reasons": d.reasons,
+            "version": d.version,
+        }
+
+    def session_open(self) -> bool:
+        record = self.session.read()
+        return bool(record and record["status"] in {"active", "ending"})
+
+    def session_entry_ready(self) -> bool:
+        record = self.session.read()
+        return bool(
+            record
+            and record["status"] == "active"
+            and len(record["attempts"]) < record["max_attempts"]
+            and self.session_end
+            and time.monotonic() < self.session_end
+            and time.time() < record["deadline_epoch"]
+            and record["parameter_hash"] == parameter_hash(self.config)
+        )
+
+    def session_flat_clean(self) -> bool:
+        snap, full = self.account_snapshot, self.last_complete_snapshot
+        record = self.session.read()
+        last_attempt = (
+            max((a["consumed_at"] for a in record["attempts"]), default=0) if record else 0
+        )
+        return bool(
+            snap
+            and full
+            and not snap.position_qty
+            and not full.position_qty
+            and not full.active_orders
+            and not self.db.unresolved()
+            and not self._own_quantity()
+            and not self.entry_tasks
+            and not self.dispatching_entries
+            and self.exit_id is None
+            and self.protection_id is None
+            and not snap.other_positions
+            and not snap.other_assets
+            and full.received_at >= last_attempt
+            and time.time() - full.received_at < 15
+            and not self.reconcile_failed
+            and time.monotonic() - self.last_reconcile_ok < 15
+        )
+
+    def end_session(self, reason: str) -> None:
+        if not self.session_open():
+            return
+        record = self.session.read()
+        if record and record["status"] == "active":
+            self.entry_epoch += 1
+            self.session.stop(reason)
+        self.entries_stopped = True
+        self.db.set_flag("close_requested", "1")
+        self.state = EngineState.PAUSED
+        self.reason = "sesi berakhir; cleanup/proteksi/exit tetap berjalan"
+
+    def session_tick(self, *, risk_only: bool = False) -> None:
+        record = self.session.read()
+        if not record or record["status"] not in {"active", "ending"}:
+            return
+        if record["status"] == "active":
+            if time.monotonic() >= self.session_end or time.time() >= record["deadline_epoch"]:
+                self.end_session("deadline 30 menit tercapai")
+            elif not self.journal_ok:
+                self.end_session("jurnal gagal; entry sesi dihentikan")
+            elif record["parameter_hash"] != parameter_hash(self.config):
+                self.end_session("parameter beku berubah")
+            elif any(
+                self.db.flag(flag) == "1"
+                for flag in (
+                    "account_incident_pending",
+                    "funding_change_pending",
+                    "total_loss_stop",
+                )
+            ):
+                self.end_session("insiden akun/dana atau batas loss")
+            elif self.db.flag("daily_stop_day") == datetime.now(JAKARTA).date().isoformat():
+                self.end_session("batas loss harian")
+            elif (
+                self.account_snapshot
+                and self.session_flat_clean()
+                and self.db.net_cash_status(str(self.account_snapshot.equity), "0")["status"]
+                == "unexplained_difference"
+            ):
+                self.end_session("selisih kas yang tidak dijelaskan")
+        record = self.session.read()
+        assert record is not None
+        if record["status"] == "ending":
+            cancelable = any(
+                x["kind"] == "ENTRY"
+                and x["state"] not in {OrderState.UNKNOWN, OrderState.CANCEL_REQUESTED}
+                for x in self.db.unresolved()
+            )
+            if cancelable and (
+                self.session_cleanup_task is None or self.session_cleanup_task.done()
+            ):
+                self.session_cleanup_task = asyncio.create_task(self.cancel_entries())
+            if self.account_snapshot and self.account_snapshot.position_qty:
+                self.db.set_flag("close_requested", "1")
+        if risk_only:
+            return
+        now = time.monotonic()
+        if now - self.last_session_sample >= 1:
+            self.last_session_sample = now
+            self.db.event(
+                "STRATEGY_OBSERVATION",
+                {
+                    "session_id": record["id"],
+                    "signal": self.decision_evidence(),
+                    "state": self.state,
+                    "entries_stopped": self.entries_stopped,
+                    "entry_blockers": self.entry_fee_blockers("ENTRY")
+                    if self.session_flat_clean()
+                    else ["posisi/order atau rekonsiliasi belum bersih"],
+                },
+            )
+        if not self.session_flat_clean() or self.account_snapshot is None:
+            return
+        if record["status"] == "active" and len(record["attempts"]) >= record["max_attempts"]:
+            self.end_session("kuota tiga percobaan habis; posisi terakhir selesai")
+            record = self.session.read()
+            assert record is not None
+        cash = self.db.net_cash_status(str(self.account_snapshot.equity), "0")
+        needs_audit = bool(
+            cash["status"] != "matched"
+            or not self.db.fee_report_status()["all_unknown_fills_covered"]
+        )
+        fingerprint = self.db.accounting_fingerprint()
+        if needs_audit and (self.fee_audit_task is None or self.fee_audit_task.done()):
+            audit_key = "session_export:" + record["id"] + ":" + str(len(fingerprint["fills"]))
+            attempts = int(self.db.flag(audit_key) or "0")
+            last = float(self.db.flag(audit_key + ":at") or "0")
+            if (
+                attempts < 3
+                and time.time() - last >= 20
+                and self.account
+                and (self.reconcile_task is None or self.reconcile_task.done())
+                and self.account.rate.can_claim("reconcile", cost=4)
+            ):
+                self.db.set_flag(audit_key, str(attempts + 1))
+                self.db.set_flag(audit_key + ":at", str(time.time()))
+                self.fee_audit_task = asyncio.create_task(self.audit_session_cash())
+        busy = self.fee_audit_task is not None and not self.fee_audit_task.done()
+        if record["status"] == "ending":
+            # Revoking entry authority must not wait indefinitely for fee metadata.
+            # Audit pending remains visible; operational cleanup has independent proof.
+            if not busy and (not needs_audit or time.time() - record["entry_stopped_at"] >= 60):
+                self.finish_session(cash)
+            return
+        if needs_audit or busy or self.entry_fee_blockers("ENTRY"):
+            self.entries_stopped = True
+            return
+        completed = [
+            a["client_id"]
+            for a in record["attempts"]
+            if self.db.conn.execute(
+                "SELECT 1 FROM fills WHERE client_id=?", (a["client_id"],)
+            ).fetchone()
+        ]
+        if completed != record["completed_positions"]:
+            record["completed_positions"] = completed
+            self.session.write(record)
+        self.session_positions = len(completed)
+        self.db.set_flag("close_requested", "0")
+        if (
+            self.data_valid()
+            and self.last_decision.basis_bps is not None
+            and self.strategy.coverage()["ready"]
+            and self.entry_rate_ready()
+        ):
+            self.entries_stopped = False
+            self.state = EngineState.LIVE
+            self.reason = "sesi terbatas; menunggu sinyal strategi dan guard"
+
+    async def audit_session_cash(self) -> None:
+        record = self.session.read()
+        if not record or not self.account or not self.account_snapshot:
+            return
+        fingerprint = self.db.accounting_fingerprint()
+        try:
+            # Only authorized fills may renew this session's entry audit binding.
+            historical = {row[0] for row in record["initial_fingerprint"]["fills"]}
+            new = self.db.conn.execute(
+                "SELECT f.fill_id,f.qty,f.price,f.fee,i.side,i.client_id,i.kind,i.created_at "
+                "FROM fills f JOIN intents i USING(client_id)"
+            ).fetchall()
+            new = [row for row in new if row[0] not in historical]
+            allowed = {a["client_id"] for a in record["attempts"]}
+            if fingerprint["flows"] != record["initial_fingerprint"]["flows"] or any(
+                row[7] < record["started_at"]
+                or (row[6] == "ENTRY" and row[5] not in allowed)
+                or row[6] not in {"ENTRY", "STOP", "EXIT"}
+                for row in new
+            ):
+                self.end_session("fill/dana tak terduga saat audit sesi")
+                return
+            async with asyncio.timeout(12):
+                reports = await collect_export(
+                    self.account, self.db, self.root / "state" / "audits" / record["id"]
+                )
+                snap = await self.account.probe_snapshot(
+                    1, self.account_snapshot.funding_flows, priority="reconcile"
+                )
+            if (
+                snap.position_qty
+                or snap.active_orders
+                or fingerprint != self.db.accounting_fingerprint()
+                or time.monotonic() - self.last_reconcile_ok >= 15
+            ):
+                return
+            if sum((dec(row[1]) * (1 if row[4] == "buy" else -1) for row in new), Decimal(0)):
+                return
+            by_id = {r["trade_id"]: r for r in reports}
+            gross = sum(
+                (dec(row[1]) * dec(row[2]) * (1 if row[4] == "sell" else -1) for row in new),
+                Decimal(0),
+            )
+            fees = sum(
+                (
+                    dec(row[3]) if row[3] is not None else dec(by_id[row[0]]["reported_fee_usdc"])
+                    for row in new
+                ),
+                Decimal(0),
+            )
+            delta = snap.equity - dec(record["equity_before"])
+            residual = delta - gross + fees
+            proof = {
+                "session_id": record["id"],
+                "equity_before": record["equity_before"],
+                "equity_after": str(snap.equity),
+                "cash_change_usdc": str(delta),
+                "gross_fill_pnl_usdc": str(gross),
+                "reported_or_exact_fee_sum_usdc": str(fees),
+                "reported_precision_decimals": sorted({r["precision_decimals"] for r in reports}),
+                "net_residual_usdc": str(residual),
+                "fingerprint": fingerprint,
+                "fee_exact_complete": not bool(self.db.pending_fees()),
+                "source": "matched official CSV, fresh flat/global orders, full funding reconcile",
+                "captured_at_utc": datetime.now(JAKARTA).isoformat(),
+            }
+            self.db.event("STRATEGY_CASH_AUDIT_RESULT", proof)
+            if residual:
+                self.end_session("selisih kas/ledger setelah transaksi")
+                return
+            self.db.event("NET_CASH_AUDIT", proof)
+            current = self.session.read()
+            assert current is not None
+            current.update(audited_fingerprint=fingerprint, audited_equity=str(snap.equity))
+            self.session.write(current)
+        except Exception as exc:
+            self.db.event(
+                "STRATEGY_FEE_AUDIT_PENDING",
+                {"session_id": record["id"], "error_type": type(exc).__name__},
+            )
+            self.entries_stopped = True
+
+    def finish_session(self, cash: dict) -> None:
+        if not self.session_flat_clean():
+            return
+        self.entries_stopped = True
+        self.entry_epoch += 1
+        self.config = self.config.model_copy(
+            update={"allow_live_orders": False, "session_accept_reported_fees": False}
+        )
+        path = self.root / "config.json"
+        if path.exists():
+            temp = path.with_suffix(".json.pending")
+            temp.write_text(self.config.model_dump_json(indent=2) + "\n")
+            temp.chmod(0o600)
+            temp.replace(path)
+        self.db.set_flag("close_requested", "0")
+        record = self.session.read()
+        assert record is not None
+        record["completed_positions"] = [
+            a["client_id"]
+            for a in record["attempts"]
+            if self.db.conn.execute(
+                "SELECT 1 FROM fills WHERE client_id=?", (a["client_id"],)
+            ).fetchone()
+        ]
+        record["final_cash_audit"] = cash
+        self.session.write(record)
+        self.session.close()
+        self.session_end = 0.0
+        self.db.event(
+            "STRATEGY_OPERATIONAL_COMPLETE",
+            {
+                "position_qty": "0",
+                "all_active_orders": 0,
+                "cash_audit": cash,
+                "fee_exact_unknown_count": self.db.pending_fees(),
+                "order_permission": False,
+            },
+        )
+        self.state = EngineState.PAUSED
+        self.reason = "sesi selesai, akun flat/order bersih, izin order mati"
+
     def start_session(self) -> str:
         blockers = self.live_blockers()
         if blockers:
             return "live diblok: " + ", ".join(blockers)
+        record = self.session.activate()
         self.db.set_flag("live_ever", "1")
-        self.session_end = time.monotonic() + self.config.session_seconds
+        self.session_end = time.monotonic() + record["max_seconds"]
         self.session_positions = 0
         self.entries_stopped = False
         self.state = EngineState.LIVE
@@ -1670,7 +2057,7 @@ class Engine:
         )
 
     def probe_read_ready(self) -> bool:
-        if not self.probe_active:
+        if not self.probe_active and not self.session_open():
             return True
         rate = getattr(self.account, "rate", None)
         if rate is None:
@@ -1687,6 +2074,9 @@ class Engine:
 
     def probe_blockers(self) -> list[str]:
         blockers = self.live_blockers(for_probe=True)
+        record = self.session.read()
+        if record and record["status"] != "closed":
+            blockers.append("otorisasi sesi strategi belum selesai; probe dilarang")
         if not self.entry_rate_ready():
             blockers.append("jatah pengiriman entry belum tersedia")
         if self.reconcile_task is not None and not self.reconcile_task.done():
@@ -1704,7 +2094,8 @@ class Engine:
         return blockers
 
     def entry_fee_blockers(self, kind: str, *, frozen: bool = False) -> list[str]:
-        if kind != "PROBE" or not self.config.probe_accept_reported_fees:
+        session_policy = kind == "ENTRY" and self.config.session_accept_reported_fees
+        if not session_policy and (kind != "PROBE" or not self.config.probe_accept_reported_fees):
             return (
                 ["fee trade belum diketahui; audit pembukuan tertunda"]
                 if self.db.pending_fees()
@@ -1722,10 +2113,31 @@ class Engine:
                 report = {}
             if not self.db.fee_report_matches(fill_id, report, self.config.account_index):
                 blockers.append(f"bukti ekspor fee hilang/tidak cocok: trade {fill_id}")
+            elif session_policy:
+                try:
+                    captured = datetime.fromisoformat(report["captured_at_utc"])
+                    if captured.tzinfo is None:
+                        raise ValueError("missing timezone")
+                except (KeyError, ValueError, TypeError):
+                    blockers.append(
+                        f"waktu pengambilan bukti fee hilang/tidak cocok: trade {fill_id}"
+                    )
         if self.db.net_cash_status(str(snap.equity), str(snap.position_qty))["status"] != "matched":
             blockers.append("audit net kas/dana probe belum cocok")
         if self.reconcile_failed or time.monotonic() - self.last_reconcile_ok > 15:
             blockers.append("audit kas/dana probe belum segar")
+        if session_policy:
+            record = self.session.read()
+            if not record or record["status"] not in {"authorized", "active"}:
+                blockers.append("otorisasi sesi strategi tidak tersedia atau sudah selesai")
+            elif (
+                record["account_index"] != self.config.account_index
+                or record["parameter_hash"] != parameter_hash(self.config)
+                or record["audited_fingerprint"] != self.db.accounting_fingerprint()
+                or record["audited_equity"] != str(snap.equity)
+            ):
+                blockers.append("parameter/fill/dana berubah dari audit sesi strategi")
+            return blockers
         raw_binding = self.db.flag("probe_authorization_snapshot")
         try:
             binding = json.loads(raw_binding) if raw_binding else {}
@@ -1749,6 +2161,21 @@ class Engine:
 
     def live_blockers(self, *, for_probe: bool = False) -> list[str]:
         blockers = []
+        if not for_probe:
+            record = self.session.read()
+            if not record or record["status"] != "authorized":
+                blockers.append("tidak ada otorisasi sesi strategi sekali pakai")
+            if not self.entry_rate_ready():
+                blockers.append("cadangan request entry/proteksi belum cukup")
+            if (
+                self.entry_tasks
+                or self.dispatching_entries
+                or self.protection_id is not None
+                or self.exit_id is not None
+            ):
+                blockers.append("siklus posisi sebelumnya belum bersih")
+            if self.reconcile_task and not self.reconcile_task.done():
+                blockers.append("rekonsiliasi akun masih berjalan")
         if not for_probe and self.config.live_entry_scope != "strategy":
             blockers.append("izin entry hanya untuk satu probe; START_LIVE dilarang")
         if self.config.mode != "live_capable" or not self.config.allow_live_orders:
@@ -1796,6 +2223,7 @@ class Engine:
                         int(self.market["price_decimals"]),
                         Decimal(35),
                         Decimal(0),
+                        minimum_only=True,
                     )
                 except ValueError:
                     blockers.append("ukuran minimum legal melampaui kapasitas dan cadangan")
@@ -1884,6 +2312,8 @@ class Engine:
             "allow_live_orders": self.config.allow_live_orders,
             "live_entry_scope": self.config.live_entry_scope,
             "probe_accept_reported_fees": self.config.probe_accept_reported_fees,
+            "session_accept_reported_fees": self.config.session_accept_reported_fees,
+            "strategy_session": self.session.read(),
             "probe_session_id": self.db.flag("probe_session_id"),
             "probe_preview": self.probe_preview(),
             "request_budget": None
@@ -1898,6 +2328,19 @@ class Engine:
             "state": self.state,
             "reason": self.reason,
             "market_id": self.market["market_id"] if self.market else None,
+            "market_rules": {
+                key: self.market[key]
+                for key in (
+                    "min_base_amount",
+                    "min_quote_amount",
+                    "size_decimals",
+                    "price_decimals",
+                    "taker_fee",
+                )
+                if key in self.market
+            }
+            if self.market
+            else None,
             "quotes": quotes,
             "coverage": self.strategy.coverage(),
             "feed_channels": getattr(self.feeds, "channel_status", lambda: {})(),
@@ -1914,6 +2357,9 @@ class Engine:
                 else None,
                 "basis_bps": str(self.last_decision.basis_bps)
                 if self.last_decision.basis_bps is not None
+                else None,
+                "scale_bps": str(self.last_decision.scale_bps)
+                if self.last_decision.scale_bps is not None
                 else None,
                 "reasons": self.last_decision.reasons,
                 "version": self.last_decision.version,

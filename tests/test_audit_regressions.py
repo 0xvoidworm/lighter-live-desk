@@ -208,6 +208,21 @@ async def test_confirmed_stop_covers_latest_position_quantity(engine):
 async def test_cancel_blocks_entry_waiting_for_signer_lock(engine, monkeypatch, command):
     """A local entry waiting for the signer must be invalidated by cancel."""
     adapter = LighterAccount(engine.config)
+    engine.config = engine.config.model_copy(update={"session_accept_reported_fees": True})
+    engine.session.authorize(
+        "offline-lock-test", engine.config, str(engine.account_snapshot.equity)
+    )
+    engine.session.activate()
+    engine.db.event(
+        "NET_CASH_AUDIT",
+        {
+            "equity_after": str(engine.account_snapshot.equity),
+            "cash_change_usdc": "0",
+            "fingerprint": engine.db.accounting_fingerprint(),
+        },
+    )
+    engine.last_reconcile_ok = time.monotonic()
+    engine.reconcile_failed = False
 
     class Signer:
         ORDER_TYPE_LIMIT = 0
@@ -387,6 +402,11 @@ async def test_probe_uses_minimum_legal_size(engine, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_cancel_revokes_an_entry_scheduled_before_task_starts(engine, monkeypatch):
+    engine.config = engine.config.model_copy(update={"session_accept_reported_fees": True})
+    engine.session.authorize(
+        "offline-epoch-test", engine.config, str(engine.account_snapshot.equity)
+    )
+    engine.session.activate()
     exchange = Exchange(snapshot())
     engine.account = exchange
     monkeypatch.setattr(engine, "data_valid", lambda: True)

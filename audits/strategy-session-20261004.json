@@ -1,0 +1,1908 @@
+{
+  "session": {
+    "id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+    "status": "closed",
+    "authorized_at": 1791122772.7842479,
+    "started_at": 1791124223.527826,
+    "deadline_epoch": 1791126023.527826,
+    "ended_at": 1791125598.7906125,
+    "max_seconds": 1800,
+    "max_attempts": 3,
+    "attempts": [],
+    "completed_positions": [],
+    "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+    "account_index": 751745,
+    "equity_before": "49.430756",
+    "initial_fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "audited_fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "audited_equity": "49.430756",
+    "stop_reason": "rekonsiliasi gagal: TimeoutError",
+    "fee_policy": "official_export_reported_precision_one_session",
+    "entry_stopped_at": 1791125592.7914243,
+    "final_cash_audit": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    }
+  },
+  "start_utc": "2026-10-04T14:30:23.527826+00:00",
+  "deadline_utc": "2026-10-04T15:00:23.527826+00:00",
+  "end_utc": "2026-10-04T14:53:18.790612+00:00",
+  "elapsed_s": 1375.2627863883972,
+  "strategy_parameters_frozen": true,
+  "source_hashes": {
+    "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+    "src/lldesk/account.py": "98477d4e737cc7fa8cacbc3e4ad0d7b8824670723607ab7202d2f84d8e7492cf",
+    "src/lldesk/api.py": "0af5a083539e1b76e6f422cc9438ef6f28bab0ad65e688b7a2f2f9fff6040a30",
+    "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+    "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+    "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+    "src/lldesk/engine.py": "93a529dc90526645eb4e942d188cfdc0f7ea7f7ed90581116a103df30a0f7597",
+    "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+    "src/lldesk/market.py": "13930fb5f954ee87cbed7fa99e6a215ca6b8bda25971c495505f369a232b444e",
+    "src/lldesk/models.py": "2483fe1e54ce25f7cf5fbed91960c0c61110e9f149ae209bc455e4ebc1e36fdd",
+    "src/lldesk/network.py": "bf12dda3ba6edfc77be7aa053bd06f14074cdceeef264f318cc9a12afa98c70d",
+    "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+    "src/lldesk/session.py": "ad5b70a1c7971491c775db2b32a68aa283c76c8fe3d244bc08999dcde0d109e2",
+    "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c"
+  },
+  "final_source_hashes": {
+    "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+    "src/lldesk/account.py": "98477d4e737cc7fa8cacbc3e4ad0d7b8824670723607ab7202d2f84d8e7492cf",
+    "src/lldesk/api.py": "0af5a083539e1b76e6f422cc9438ef6f28bab0ad65e688b7a2f2f9fff6040a30",
+    "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+    "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+    "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+    "src/lldesk/engine.py": "6da972b855071b4e25760cda68ee9b651e3aa3e54e0c46985623cda8955cc9c9",
+    "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+    "src/lldesk/market.py": "13930fb5f954ee87cbed7fa99e6a215ca6b8bda25971c495505f369a232b444e",
+    "src/lldesk/models.py": "2483fe1e54ce25f7cf5fbed91960c0c61110e9f149ae209bc455e4ebc1e36fdd",
+    "src/lldesk/network.py": "bf12dda3ba6edfc77be7aa053bd06f14074cdceeef264f318cc9a12afa98c70d",
+    "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+    "src/lldesk/session.py": "ad5b70a1c7971491c775db2b32a68aa283c76c8fe3d244bc08999dcde0d109e2",
+    "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c"
+  },
+  "post_session_source_changes": [
+    "src/lldesk/engine.py"
+  ],
+  "post_session_fix": "closed/disarmed flat monitoring IDLE is separated from feed coverage; entry gates unchanged",
+  "preparation": {
+    "checked_at_utc": "2026-10-04T14:06:12.787024+00:00",
+    "session": {
+      "id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+      "status": "authorized",
+      "authorized_at": 1791122772.7842479,
+      "started_at": null,
+      "deadline_epoch": null,
+      "ended_at": null,
+      "max_seconds": 1800,
+      "max_attempts": 3,
+      "attempts": [],
+      "completed_positions": [],
+      "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+      "account_index": 751745,
+      "equity_before": "49.430756",
+      "initial_fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ],
+          [
+            "33170714739",
+            4,
+            "0.00012",
+            "84794.7",
+            null
+          ],
+          [
+            "33170717917",
+            6,
+            "0.00012",
+            "84796.2",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "audited_fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ],
+          [
+            "33170714739",
+            4,
+            "0.00012",
+            "84794.7",
+            null
+          ],
+          [
+            "33170717917",
+            6,
+            "0.00012",
+            "84796.2",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "audited_equity": "49.430756",
+      "stop_reason": null,
+      "fee_policy": "official_export_reported_precision_one_session"
+    },
+    "account_index": 751745,
+    "key_index": 4,
+    "tier": "Standard",
+    "trading_mode": "Unified",
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "all_active_orders": 0,
+    "funding_flows": [
+      [
+        "deposit:130682965109",
+        "49.430000"
+      ]
+    ],
+    "historical_fee_reports": [
+      {
+        "trade_id": "33170717917",
+        "client_id": 6,
+        "qty": "0.000120",
+        "price": "84796.200000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+        "exchange_ms": 1791055846698,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.749855+00:00",
+        "order_id": "562953476061280"
+      },
+      {
+        "trade_id": "33170714739",
+        "client_id": 4,
+        "qty": "0.000120",
+        "price": "84794.700000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+        "exchange_ms": 1791055841985,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750004+00:00",
+        "order_id": "844421372216756"
+      },
+      {
+        "trade_id": "33141644233",
+        "client_id": 3,
+        "qty": "0.000120",
+        "price": "84543.800000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+        "exchange_ms": 1791020597030,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750084+00:00",
+        "order_id": "562953474977251"
+      },
+      {
+        "trade_id": "33141524453",
+        "client_id": 2,
+        "qty": "0.000120",
+        "price": "84539.000000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+        "exchange_ms": 1791020396773,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750138+00:00",
+        "order_id": "844421373195178"
+      }
+    ],
+    "market_metadata": {
+      "symbol": "BTC",
+      "market_id": 1,
+      "market_type": "perp",
+      "status": "active",
+      "min_base_amount": "0.00007",
+      "min_quote_amount": "10.000000",
+      "size_decimals": 5,
+      "price_decimals": 1,
+      "taker_fee": "0.0000"
+    },
+    "read_claims": 9,
+    "sdk_initialization_not_in_claims": true,
+    "broadcast": false,
+    "parameters": {
+      "schema_version": 1,
+      "mode": "live_capable",
+      "binance_dns_mode": "doh",
+      "account_index": 751745,
+      "expected_account_type_code": 0,
+      "expected_account_trading_mode": 1,
+      "expected_margin_mode": 0,
+      "expected_initial_margin_fraction": "100.00",
+      "account_type": "standard",
+      "market_symbol": "BTC",
+      "max_funding_usd": "50",
+      "max_entry_notional_usd": "25",
+      "max_trade_risk_usd": "0.50",
+      "daily_loss_limit_usd": "5",
+      "max_total_loss_usd": "50",
+      "max_effective_leverage": "1",
+      "exit_reserve_usd": "2",
+      "max_quote_basis_bps": "10",
+      "max_data_age_ms": 1500,
+      "warmup_seconds": 600,
+      "max_hold_seconds": 180,
+      "session_seconds": 1800,
+      "max_session_positions": 3,
+      "allow_live_orders": true,
+      "live_entry_scope": "strategy",
+      "probe_accept_reported_fees": false,
+      "session_accept_reported_fees": true,
+      "source_funding_spent_usd": "50"
+    },
+    "source_hashes": {
+      "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+      "src/lldesk/account.py": "98477d4e737cc7fa8cacbc3e4ad0d7b8824670723607ab7202d2f84d8e7492cf",
+      "src/lldesk/api.py": "0af5a083539e1b76e6f422cc9438ef6f28bab0ad65e688b7a2f2f9fff6040a30",
+      "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+      "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+      "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+      "src/lldesk/engine.py": "93a529dc90526645eb4e942d188cfdc0f7ea7f7ed90581116a103df30a0f7597",
+      "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+      "src/lldesk/market.py": "13930fb5f954ee87cbed7fa99e6a215ca6b8bda25971c495505f369a232b444e",
+      "src/lldesk/models.py": "2483fe1e54ce25f7cf5fbed91960c0c61110e9f149ae209bc455e4ebc1e36fdd",
+      "src/lldesk/network.py": "bf12dda3ba6edfc77be7aa053bd06f14074cdceeef264f318cc9a12afa98c70d",
+      "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+      "src/lldesk/session.py": "ad5b70a1c7971491c775db2b32a68aa283c76c8fe3d244bc08999dcde0d109e2",
+      "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c"
+    },
+    "preparation_revision": {
+      "at_utc": "2026-10-04T14:20:42.900892+00:00",
+      "session_id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+      "reason": "pre-activation quota completion regression fix; original authorization unchanged",
+      "old_sources": {
+        "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+        "src/lldesk/account.py": "98477d4e737cc7fa8cacbc3e4ad0d7b8824670723607ab7202d2f84d8e7492cf",
+        "src/lldesk/api.py": "0af5a083539e1b76e6f422cc9438ef6f28bab0ad65e688b7a2f2f9fff6040a30",
+        "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+        "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+        "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+        "src/lldesk/engine.py": "55b8962323c69559273a6e351da4c204ba6a34e691c1d6932cfb718d4e25ab2b",
+        "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+        "src/lldesk/market.py": "13930fb5f954ee87cbed7fa99e6a215ca6b8bda25971c495505f369a232b444e",
+        "src/lldesk/models.py": "2483fe1e54ce25f7cf5fbed91960c0c61110e9f149ae209bc455e4ebc1e36fdd",
+        "src/lldesk/network.py": "bf12dda3ba6edfc77be7aa053bd06f14074cdceeef264f318cc9a12afa98c70d",
+        "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+        "src/lldesk/session.py": "ad5b70a1c7971491c775db2b32a68aa283c76c8fe3d244bc08999dcde0d109e2",
+        "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c"
+      },
+      "new_sources": {
+        "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+        "src/lldesk/account.py": "98477d4e737cc7fa8cacbc3e4ad0d7b8824670723607ab7202d2f84d8e7492cf",
+        "src/lldesk/api.py": "0af5a083539e1b76e6f422cc9438ef6f28bab0ad65e688b7a2f2f9fff6040a30",
+        "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+        "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+        "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+        "src/lldesk/engine.py": "93a529dc90526645eb4e942d188cfdc0f7ea7f7ed90581116a103df30a0f7597",
+        "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+        "src/lldesk/market.py": "13930fb5f954ee87cbed7fa99e6a215ca6b8bda25971c495505f369a232b444e",
+        "src/lldesk/models.py": "2483fe1e54ce25f7cf5fbed91960c0c61110e9f149ae209bc455e4ebc1e36fdd",
+        "src/lldesk/network.py": "bf12dda3ba6edfc77be7aa053bd06f14074cdceeef264f318cc9a12afa98c70d",
+        "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+        "src/lldesk/session.py": "ad5b70a1c7971491c775db2b32a68aa283c76c8fe3d244bc08999dcde0d109e2",
+        "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c"
+      },
+      "START_LIVE_already_sent": false,
+      "entry_attempts": 0,
+      "new_authorization": false
+    }
+  },
+  "preflight": {
+    "captured_at_utc": "2026-10-04T14:30:23.484596+00:00",
+    "status": {
+      "mode": "live_capable",
+      "allow_live_orders": true,
+      "live_entry_scope": "strategy",
+      "probe_accept_reported_fees": false,
+      "session_accept_reported_fees": true,
+      "strategy_session": {
+        "id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+        "status": "authorized",
+        "authorized_at": 1791122772.7842479,
+        "started_at": null,
+        "deadline_epoch": null,
+        "ended_at": null,
+        "max_seconds": 1800,
+        "max_attempts": 3,
+        "attempts": [],
+        "completed_positions": [],
+        "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+        "account_index": 751745,
+        "equity_before": "49.430756",
+        "initial_fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ],
+            [
+              "33170714739",
+              4,
+              "0.00012",
+              "84794.7",
+              null
+            ],
+            [
+              "33170717917",
+              6,
+              "0.00012",
+              "84796.2",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "audited_fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ],
+            [
+              "33170714739",
+              4,
+              "0.00012",
+              "84794.7",
+              null
+            ],
+            [
+              "33170717917",
+              6,
+              "0.00012",
+              "84796.2",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "audited_equity": "49.430756",
+        "stop_reason": null,
+        "fee_policy": "official_export_reported_precision_one_session"
+      },
+      "probe_session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+      "probe_preview": {
+        "side": "buy",
+        "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+        "quantity": "0.00012",
+        "quote_reference": "85156.5",
+        "entry_limit": "85173.6",
+        "notional_max": "10.220832",
+        "planned_risk": "0.0378170784",
+        "slippage_bps": "2",
+        "stop_trigger_preview": "84875.4",
+        "stop_limit_preview": "84620.7",
+        "stop_reference": "actual position entry price after fill; preview uses entry limit",
+        "max_hold_seconds": 180,
+        "stop_install_seconds": 3,
+        "stop_confirm_seconds": 8,
+        "spread_bps": "0.01174309168594980180597007038",
+        "depth_price": "85156.5"
+      },
+      "request_budget": {
+        "used_last_60s": 32,
+        "normal_cap": 40,
+        "urgent_read_cap": 47,
+        "transaction_cap": 55,
+        "transaction_slots_remaining": 23
+      },
+      "state": "READY",
+      "reason": "siap untuk sesi",
+      "market_id": 1,
+      "market_rules": {
+        "min_base_amount": "0.00007",
+        "min_quote_amount": "10.000000",
+        "size_decimals": 5,
+        "price_decimals": 1,
+        "taker_fee": "0.0000"
+      },
+      "quotes": {
+        "binance": {
+          "valid": true,
+          "bid": "85143.80",
+          "ask": "85143.90",
+          "age_ms": 4,
+          "gaps": 0,
+          "spread_bps": "0.01174482948562932026212110446",
+          "buy_25_vwap": "85143.90000000000000000000001",
+          "sell_25_vwap": "85143.80000000000000000000001"
+        },
+        "lighter": {
+          "valid": true,
+          "bid": "85156.4",
+          "ask": "85156.5",
+          "age_ms": 84,
+          "gaps": 0,
+          "spread_bps": "0.01174309168594980180597007038",
+          "buy_25_vwap": "85156.49999999999999999999999",
+          "sell_25_vwap": "85156.36812520000000000000000"
+        }
+      },
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 630.0,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 606,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 581,
+        "max_sample_gap_s": 1.815,
+        "allowed_gap_s": 5,
+        "long_gap_count": 0,
+        "gap_wait_remaining_s": 0,
+        "last_sample_age_s": 0.6,
+        "warmup_complete": true,
+        "coverage_complete": true,
+        "ready": true,
+        "buffer_started_at": 1791123592.0538862,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      },
+      "feed_channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 12
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 553
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 92
+        }
+      },
+      "fee_lookup": {
+        "unknown_count": 4,
+        "lookup_paused_count": 4,
+        "max_attempts": 3,
+        "retry_interval_s": 60,
+        "individual_fees_known": false
+      },
+      "fee_reports": {
+        "covered_unknown_fills": 4,
+        "all_unknown_fills_covered": true,
+        "reported_fee_total_usdc": "0.0000",
+        "reports": [
+          {
+            "trade_id": "33141524453",
+            "client_id": 2,
+            "qty": "0.000120",
+            "price": "84539.000000",
+            "side": "Open Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+            "exchange_ms": 1791020396773,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "captured_at_utc": "2026-10-04T14:06:12.750138+00:00",
+            "order_id": "844421373195178"
+          },
+          {
+            "trade_id": "33141644233",
+            "client_id": 3,
+            "qty": "0.000120",
+            "price": "84543.800000",
+            "side": "Close Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+            "exchange_ms": 1791020597030,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "captured_at_utc": "2026-10-04T14:06:12.750084+00:00",
+            "order_id": "562953474977251"
+          },
+          {
+            "trade_id": "33170714739",
+            "client_id": 4,
+            "qty": "0.000120",
+            "price": "84794.700000",
+            "side": "Open Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+            "exchange_ms": 1791055841985,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "captured_at_utc": "2026-10-04T14:06:12.750004+00:00",
+            "order_id": "844421372216756"
+          },
+          {
+            "trade_id": "33170717917",
+            "client_id": 6,
+            "qty": "0.000120",
+            "price": "84796.200000",
+            "side": "Close Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+            "exchange_ms": 1791055846698,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "captured_at_utc": "2026-10-04T14:06:12.749855+00:00",
+            "order_id": "562953476061280"
+          }
+        ],
+        "exact_fee_established": false
+      },
+      "net_cash_audit": {
+        "status": "matched",
+        "net_difference_usdc": "0.000000",
+        "cash_change_usdc": "0.000000",
+        "individual_fees_known": false
+      },
+      "fx_usdcusdt": "1.00010500",
+      "decision": {
+        "side": null,
+        "deviation_bps": "2.530003899283389228934330000",
+        "basis_bps": "2.512470687588568555953010000",
+        "scale_bps": "0.3747549199629857233580600940",
+        "reasons": [
+          "DEVIASI_KURANG",
+          "BIAYA_DAN_BUFFER_MELEBIHI_PELUANG"
+        ],
+        "version": "local-deviation-v1-HEURISTIC_UNVALIDATED"
+      },
+      "account": {
+        "equity": "49.430756",
+        "available": "49.430756",
+        "position_qty": "0.00000",
+        "position_price": "0.0",
+        "unrealized_pnl": "0.000000",
+        "realized_pnl": "0.000000",
+        "funding": "0",
+        "account_type_code": 0,
+        "account_trading_mode": 1,
+        "margin_mode": 0,
+        "initial_margin_fraction": "100.00",
+        "age_s": 9.1,
+        "funding_audit_age_s": 8.2,
+        "daily_loss": "0",
+        "total_loss": "0",
+        "source_funding_spent_usd": "50",
+        "source_funding_budget_remaining": "0",
+        "gross_history_inflow": "49.430000",
+        "effective_exposure_usd": "0E-7",
+        "recorded_fees": null,
+        "known_fees": "0",
+        "pending_fee_count": 4,
+        "fee_audit_complete": false,
+        "position_read_age_s": 8.2
+      },
+      "entries_stopped": true,
+      "session_remaining_s": 0,
+      "session_positions": 0,
+      "probe_used": true,
+      "probe_active": false,
+      "probe_blockers": [
+        "fee trade belum diketahui; audit pembukuan tertunda",
+        "otorisasi sesi strategi belum selesai; probe dilarang",
+        "probe sudah pernah digunakan"
+      ],
+      "max_session_positions": 3,
+      "pending_orders": [],
+      "protection_id": null,
+      "protection_confirmed": false,
+      "manual_exposure": false,
+      "exit_id": null,
+      "journal_ok": true,
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0,
+      "last_order_ack_ms": null,
+      "last_cancel_ack_ms": null,
+      "reconnects": {
+        "binance": 0,
+        "lighter": 0
+      },
+      "binance_streams": {
+        "public": true,
+        "market": true
+      },
+      "live_blockers": [],
+      "engine_pid": 116516,
+      "updated_at": 1791124223.342016,
+      "connected": true
+    },
+    "minimum_previews": {
+      "buy": {
+        "quantity": "0.00012",
+        "quote_reference": "85156.5",
+        "entry_limit": "85173.6",
+        "max_notional": "10.220832",
+        "planned_risk": "0.0378170784",
+        "entry_slippage_bps": "2"
+      },
+      "sell": {
+        "quantity": "0.00012",
+        "quote_reference": "85156.4",
+        "entry_limit": "85139.3",
+        "max_notional": "10.216716",
+        "planned_risk": "0.0378018492",
+        "entry_slippage_bps": "2"
+      }
+    },
+    "source_unchanged": true,
+    "entry_orders_before_start": 0
+  },
+  "final_readonly_account": {
+    "checked_at_utc": "2026-10-04T15:01:41.754543+00:00",
+    "broadcast": false,
+    "source": "fresh official SDK account/global active orders/funding reads",
+    "request_coordination": "engine stopped after verified cleanup; prior request window expired",
+    "read_claims": 7,
+    "sdk_initialization_not_in_claims": true,
+    "account_index": 751745,
+    "key_index": 4,
+    "tier": "Standard",
+    "trading_mode": "Unified",
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "all_active_orders": [],
+    "other_positions": [],
+    "other_assets": [],
+    "funding_flows": [
+      [
+        "deposit:130682965109",
+        "49.430000"
+      ]
+    ],
+    "net_cash_audit": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "fee_reports": {
+      "covered_unknown_fills": 4,
+      "all_unknown_fills_covered": true,
+      "reported_fee_total_usdc": "0.0000",
+      "reports": [
+        {
+          "trade_id": "33141524453",
+          "client_id": 2,
+          "qty": "0.000120",
+          "price": "84539.000000",
+          "side": "Open Long",
+          "market": "BTC",
+          "role": "Taker",
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "account_index": 751745,
+          "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+          "exchange_ms": 1791020396773,
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+          "captured_at_utc": "2026-10-04T14:06:12.750138+00:00",
+          "order_id": "844421373195178"
+        },
+        {
+          "trade_id": "33141644233",
+          "client_id": 3,
+          "qty": "0.000120",
+          "price": "84543.800000",
+          "side": "Close Long",
+          "market": "BTC",
+          "role": "Taker",
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "account_index": 751745,
+          "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+          "exchange_ms": 1791020597030,
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+          "captured_at_utc": "2026-10-04T14:06:12.750084+00:00",
+          "order_id": "562953474977251"
+        },
+        {
+          "trade_id": "33170714739",
+          "client_id": 4,
+          "qty": "0.000120",
+          "price": "84794.700000",
+          "side": "Open Long",
+          "market": "BTC",
+          "role": "Taker",
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "account_index": 751745,
+          "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+          "exchange_ms": 1791055841985,
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+          "captured_at_utc": "2026-10-04T14:06:12.750004+00:00",
+          "order_id": "844421372216756"
+        },
+        {
+          "trade_id": "33170717917",
+          "client_id": 6,
+          "qty": "0.000120",
+          "price": "84796.200000",
+          "side": "Close Long",
+          "market": "BTC",
+          "role": "Taker",
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "account_index": 751745,
+          "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+          "exchange_ms": 1791055846698,
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+          "captured_at_utc": "2026-10-04T14:06:12.749855+00:00",
+          "order_id": "562953476061280"
+        }
+      ],
+      "exact_fee_established": false
+    },
+    "fee_lookup": {
+      "unknown_count": 4,
+      "lookup_paused_count": 4,
+      "max_attempts": 3,
+      "retry_interval_s": 60,
+      "individual_fees_known": false
+    },
+    "strategy_session": {
+      "id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+      "status": "closed",
+      "authorized_at": 1791122772.7842479,
+      "started_at": 1791124223.527826,
+      "deadline_epoch": 1791126023.527826,
+      "ended_at": 1791125598.7906125,
+      "max_seconds": 1800,
+      "max_attempts": 3,
+      "attempts": [],
+      "completed_positions": [],
+      "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+      "account_index": 751745,
+      "equity_before": "49.430756",
+      "initial_fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ],
+          [
+            "33170714739",
+            4,
+            "0.00012",
+            "84794.7",
+            null
+          ],
+          [
+            "33170717917",
+            6,
+            "0.00012",
+            "84796.2",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "audited_fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ],
+          [
+            "33170714739",
+            4,
+            "0.00012",
+            "84794.7",
+            null
+          ],
+          [
+            "33170717917",
+            6,
+            "0.00012",
+            "84796.2",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "audited_equity": "49.430756",
+      "stop_reason": "rekonsiliasi gagal: TimeoutError",
+      "fee_policy": "official_export_reported_precision_one_session",
+      "entry_stopped_at": 1791125592.7914243,
+      "final_cash_audit": {
+        "status": "matched",
+        "net_difference_usdc": "0.000000",
+        "cash_change_usdc": "0.000000",
+        "individual_fees_known": false
+      }
+    },
+    "allow_live_orders": false,
+    "session_accept_reported_fees": false,
+    "fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    }
+  },
+  "final_engine": {
+    "state": "IDLE",
+    "reason": "standby; sesi selesai, akun/order bersih, izin order mati",
+    "allow_live_orders": false,
+    "entries_stopped": true,
+    "account": {
+      "equity": "49.430756",
+      "available": "49.430756",
+      "position_qty": "0.00000",
+      "position_price": "0.0",
+      "unrealized_pnl": "0.000000",
+      "realized_pnl": "0.000000",
+      "funding": "0",
+      "account_type_code": 0,
+      "account_trading_mode": 1,
+      "margin_mode": 0,
+      "initial_margin_fraction": "100.00",
+      "age_s": 3.0,
+      "funding_audit_age_s": 2.1,
+      "daily_loss": "0",
+      "total_loss": "0",
+      "source_funding_spent_usd": "50",
+      "source_funding_budget_remaining": "0",
+      "gross_history_inflow": "49.430000",
+      "effective_exposure_usd": "0E-7",
+      "recorded_fees": null,
+      "known_fees": "0",
+      "pending_fee_count": 4,
+      "fee_audit_complete": false,
+      "position_read_age_s": 2.2
+    },
+    "strategy_session": {
+      "id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+      "status": "closed",
+      "authorized_at": 1791122772.7842479,
+      "started_at": 1791124223.527826,
+      "deadline_epoch": 1791126023.527826,
+      "ended_at": 1791125598.7906125,
+      "max_seconds": 1800,
+      "max_attempts": 3,
+      "attempts": [],
+      "completed_positions": [],
+      "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+      "account_index": 751745,
+      "equity_before": "49.430756",
+      "initial_fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ],
+          [
+            "33170714739",
+            4,
+            "0.00012",
+            "84794.7",
+            null
+          ],
+          [
+            "33170717917",
+            6,
+            "0.00012",
+            "84796.2",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "audited_fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ],
+          [
+            "33170714739",
+            4,
+            "0.00012",
+            "84794.7",
+            null
+          ],
+          [
+            "33170717917",
+            6,
+            "0.00012",
+            "84796.2",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "audited_equity": "49.430756",
+      "stop_reason": "rekonsiliasi gagal: TimeoutError",
+      "fee_policy": "official_export_reported_precision_one_session",
+      "entry_stopped_at": 1791125592.7914243,
+      "final_cash_audit": {
+        "status": "matched",
+        "net_difference_usdc": "0.000000",
+        "cash_change_usdc": "0.000000",
+        "individual_fees_known": false
+      }
+    },
+    "net_cash_audit": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "fee_reports": {
+      "covered_unknown_fills": 4,
+      "all_unknown_fills_covered": true,
+      "reported_fee_total_usdc": "0.0000",
+      "reports": [
+        {
+          "trade_id": "33141524453",
+          "client_id": 2,
+          "qty": "0.000120",
+          "price": "84539.000000",
+          "side": "Open Long",
+          "market": "BTC",
+          "role": "Taker",
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "account_index": 751745,
+          "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+          "exchange_ms": 1791020396773,
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+          "captured_at_utc": "2026-10-04T14:06:12.750138+00:00",
+          "order_id": "844421373195178"
+        },
+        {
+          "trade_id": "33141644233",
+          "client_id": 3,
+          "qty": "0.000120",
+          "price": "84543.800000",
+          "side": "Close Long",
+          "market": "BTC",
+          "role": "Taker",
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "account_index": 751745,
+          "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+          "exchange_ms": 1791020597030,
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+          "captured_at_utc": "2026-10-04T14:06:12.750084+00:00",
+          "order_id": "562953474977251"
+        },
+        {
+          "trade_id": "33170714739",
+          "client_id": 4,
+          "qty": "0.000120",
+          "price": "84794.700000",
+          "side": "Open Long",
+          "market": "BTC",
+          "role": "Taker",
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "account_index": 751745,
+          "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+          "exchange_ms": 1791055841985,
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+          "captured_at_utc": "2026-10-04T14:06:12.750004+00:00",
+          "order_id": "844421372216756"
+        },
+        {
+          "trade_id": "33170717917",
+          "client_id": 6,
+          "qty": "0.000120",
+          "price": "84796.200000",
+          "side": "Close Long",
+          "market": "BTC",
+          "role": "Taker",
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "account_index": 751745,
+          "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+          "exchange_ms": 1791055846698,
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+          "captured_at_utc": "2026-10-04T14:06:12.749855+00:00",
+          "order_id": "562953476061280"
+        }
+      ],
+      "exact_fee_established": false
+    },
+    "pending_orders": [],
+    "coverage": {
+      "duration_required_s": 600,
+      "duration_observed_s": 712.6,
+      "duration_remaining_s": 0,
+      "total_samples_required": 480,
+      "total_samples": 703,
+      "window_s": 600,
+      "recent_samples_required": 480,
+      "recent_samples": 592,
+      "max_sample_gap_s": 1.071,
+      "allowed_gap_s": 5,
+      "long_gap_count": 0,
+      "gap_wait_remaining_s": 0,
+      "last_sample_age_s": 0.3,
+      "warmup_complete": true,
+      "coverage_complete": true,
+      "ready": true,
+      "buffer_started_at": 1791126279.7390618,
+      "buffer_reset_reason": "engine_start",
+      "last_interruption": null
+    },
+    "request_budget": {
+      "used_last_60s": 40,
+      "normal_cap": 40,
+      "urgent_read_cap": 47,
+      "transaction_cap": 55,
+      "transaction_slots_remaining": 15
+    },
+    "feed_channels": {
+      "binance_public": {
+        "connected": true,
+        "reconnects": 0,
+        "consecutive_failures": 0,
+        "retry_delay_s": 0,
+        "last_error": null,
+        "last_disconnect_at": null,
+        "last_frame_age_ms": 33
+      },
+      "binance_market": {
+        "connected": true,
+        "reconnects": 0,
+        "consecutive_failures": 0,
+        "retry_delay_s": 0,
+        "last_error": null,
+        "last_disconnect_at": null,
+        "last_frame_age_ms": 204
+      },
+      "lighter": {
+        "connected": true,
+        "reconnects": 0,
+        "consecutive_failures": 0,
+        "retry_delay_s": 0,
+        "last_error": null,
+        "last_disconnect_at": null,
+        "last_frame_age_ms": 6
+      }
+    }
+  },
+  "broadcast_attempts": 0,
+  "entry_intents": 0,
+  "entry_fill_rows": 0,
+  "completed_positions": 0,
+  "signal_evaluations": 1351,
+  "valid_signal_evaluations": 0,
+  "distinct_valid_signal_episodes": 0,
+  "rejection_reason_counts": {
+    "DEVIASI_KURANG": 728,
+    "BIAYA_DAN_BUFFER_MELEBIHI_PELUANG": 728,
+    "DATA_TIDAK_VALID": 55,
+    "COVERAGE_DATA_KURANG": 568
+  },
+  "signal_count_definition": "persisted evaluations at approximately 1 Hz; simultaneous reasons overlap; episodes change side or resume after invalid evaluation",
+  "max_abs_residual_bps_with_valid_basis": "2.945795822497679607037130000",
+  "coverage_transitions": [
+    {
+      "at_utc": "2026-10-04T14:30:23.530899+00:00",
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 630.0,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 606,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 581,
+        "max_sample_gap_s": 1.815,
+        "allowed_gap_s": 5,
+        "long_gap_count": 0,
+        "gap_wait_remaining_s": 0,
+        "last_sample_age_s": 0.6,
+        "warmup_complete": true,
+        "coverage_complete": true,
+        "ready": true,
+        "buffer_started_at": 1791123592.0538862,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:35:17.246930+00:00",
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 923.8,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 885,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 578,
+        "max_sample_gap_s": 10.532,
+        "allowed_gap_s": 5,
+        "long_gap_count": 1,
+        "gap_wait_remaining_s": 589.2,
+        "last_sample_age_s": 0.3,
+        "warmup_complete": true,
+        "coverage_complete": false,
+        "ready": false,
+        "buffer_started_at": 1791123592.0538862,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:45:06.489695+00:00",
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 1513.1,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 1457,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 573,
+        "max_sample_gap_s": 3.619,
+        "allowed_gap_s": 5,
+        "long_gap_count": 0,
+        "gap_wait_remaining_s": 0,
+        "last_sample_age_s": 0.0,
+        "warmup_complete": true,
+        "coverage_complete": true,
+        "ready": true,
+        "buffer_started_at": 1791123592.0538862,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      }
+    }
+  ],
+  "coverage_blocked_observed_s": 589.2427651882172,
+  "feed_transitions": [
+    {
+      "at_utc": "2026-10-04T14:30:23.530899+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 12
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 553
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 92
+        }
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:48:18.614873+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": false,
+          "reconnects": 1,
+          "consecutive_failures": 1,
+          "retry_delay_s": 2,
+          "last_error": "ConnectionError",
+          "last_disconnect_at": 1791125298.2087653,
+          "last_frame_age_ms": 364
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 26
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 4
+        }
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:48:20.648544+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 1,
+          "consecutive_failures": 1,
+          "retry_delay_s": 0,
+          "last_error": "ConnectionError",
+          "last_disconnect_at": 1791125298.2087653,
+          "last_frame_age_ms": 2370
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 31
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 3
+        }
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:52:16.473012+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": false,
+          "reconnects": 2,
+          "consecutive_failures": 1,
+          "retry_delay_s": 2,
+          "last_error": "ConnectionError",
+          "last_disconnect_at": 1791125536.1253786,
+          "last_frame_age_ms": 255
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 57
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 80
+        }
+      }
+    },
+    {
+      "at_utc": "2026-10-04T14:52:19.007839+00:00",
+      "channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 2,
+          "consecutive_failures": 1,
+          "retry_delay_s": 0,
+          "last_error": "ConnectionError",
+          "last_disconnect_at": 1791125536.1253786,
+          "last_frame_age_ms": 8
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 94
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 45
+        }
+      }
+    }
+  ],
+  "normal_request_used_max": 40,
+  "transaction_slots_min": 15,
+  "feed_reconnect_max": {
+    "binance_public": 2,
+    "binance_market": 0,
+    "lighter": 0
+  },
+  "intents": [],
+  "fills": [],
+  "non_observation_events": [
+    {
+      "id": 105,
+      "at": 1791124223.5279214,
+      "kind": "STRATEGY_SESSION_STARTED",
+      "body": {
+        "id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+        "status": "active",
+        "authorized_at": 1791122772.7842479,
+        "started_at": 1791124223.527826,
+        "deadline_epoch": 1791126023.527826,
+        "ended_at": null,
+        "max_seconds": 1800,
+        "max_attempts": 3,
+        "attempts": [],
+        "completed_positions": [],
+        "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+        "account_index": 751745,
+        "equity_before": "49.430756",
+        "initial_fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ],
+            [
+              "33170714739",
+              4,
+              "0.00012",
+              "84794.7",
+              null
+            ],
+            [
+              "33170717917",
+              6,
+              "0.00012",
+              "84796.2",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "audited_fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ],
+            [
+              "33170714739",
+              4,
+              "0.00012",
+              "84794.7",
+              null
+            ],
+            [
+              "33170717917",
+              6,
+              "0.00012",
+              "84796.2",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "audited_equity": "49.430756",
+        "stop_reason": null,
+        "fee_policy": "official_export_reported_precision_one_session"
+      },
+      "at_utc": "2026-10-04T14:30:23.527921+00:00"
+    },
+    {
+      "id": 106,
+      "at": 1791124223.5317638,
+      "kind": "COMMAND",
+      "body": {
+        "kind": "START_LIVE",
+        "result": "sesi live dimulai"
+      },
+      "at_utc": "2026-10-04T14:30:23.531764+00:00"
+    },
+    {
+      "id": 1452,
+      "at": 1791125592.8013408,
+      "kind": "STRATEGY_SESSION_END_REQUESTED",
+      "body": {
+        "session_id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+        "reason": "rekonsiliasi gagal: TimeoutError"
+      },
+      "at_utc": "2026-10-04T14:53:12.801341+00:00"
+    },
+    {
+      "id": 1459,
+      "at": 1791125598.7918916,
+      "kind": "STRATEGY_SESSION_CLOSED",
+      "body": {
+        "id": "f4645c06-b55d-45f4-b642-66b5e8c23864",
+        "status": "closed",
+        "authorized_at": 1791122772.7842479,
+        "started_at": 1791124223.527826,
+        "deadline_epoch": 1791126023.527826,
+        "ended_at": 1791125598.7906125,
+        "max_seconds": 1800,
+        "max_attempts": 3,
+        "attempts": [],
+        "completed_positions": [],
+        "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+        "account_index": 751745,
+        "equity_before": "49.430756",
+        "initial_fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ],
+            [
+              "33170714739",
+              4,
+              "0.00012",
+              "84794.7",
+              null
+            ],
+            [
+              "33170717917",
+              6,
+              "0.00012",
+              "84796.2",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "audited_fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ],
+            [
+              "33170714739",
+              4,
+              "0.00012",
+              "84794.7",
+              null
+            ],
+            [
+              "33170717917",
+              6,
+              "0.00012",
+              "84796.2",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "audited_equity": "49.430756",
+        "stop_reason": "rekonsiliasi gagal: TimeoutError",
+        "fee_policy": "official_export_reported_precision_one_session",
+        "entry_stopped_at": 1791125592.7914243,
+        "final_cash_audit": {
+          "status": "matched",
+          "net_difference_usdc": "0.000000",
+          "cash_change_usdc": "0.000000",
+          "individual_fees_known": false
+        }
+      },
+      "at_utc": "2026-10-04T14:53:18.791892+00:00"
+    },
+    {
+      "id": 1460,
+      "at": 1791125598.7932239,
+      "kind": "STRATEGY_OPERATIONAL_COMPLETE",
+      "body": {
+        "position_qty": "0",
+        "all_active_orders": 0,
+        "cash_audit": {
+          "status": "matched",
+          "net_difference_usdc": "0.000000",
+          "cash_change_usdc": "0.000000",
+          "individual_fees_known": false
+        },
+        "fee_exact_unknown_count": 4,
+        "order_permission": false
+      },
+      "at_utc": "2026-10-04T14:53:18.793224+00:00"
+    }
+  ],
+  "cash_change_usdc": "0.000000",
+  "gross_realized_from_session_fills_usdc": "0",
+  "net_cash_pnl_usdc": "0.000000",
+  "funding_changed": false,
+  "session_fee_exact_usdc": "0",
+  "session_fee_reported_usdc": "0",
+  "session_fee_reports": [],
+  "historical_exact_unknown_count": 4,
+  "net_cash_residual_usdc": "0.000000",
+  "official_exports": [
+    {
+      "path": "audits/strategy-session-20261004/official-export-f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663.csv",
+      "sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663"
+    }
+  ],
+  "observation_source_sha256": "1827fcd2a40309ba1b495fcb920202d7e7d4ea12fcdc4ebbb4b672340f34b977",
+  "no_new_execution_proof_when_no_attempts": true,
+  "test_results": {
+    "before_activation_passed": 281,
+    "after_session_passed": 282,
+    "ruff_format_mypy_ui_build": "passed"
+  },
+  "secret_scan": {
+    "checked_files": 23,
+    "private_key_matches": 0,
+    "signed_url_or_jwt_matches": 0,
+    "config_secrets_state_excluded": true,
+    "private_output_permissions": "0700 directories / 0600 files"
+  },
+  "autostart_enabled": false,
+  "collector_post_cleanup_notice": "observer stopped on empty STARTING payload during post-cleanup engine restart; active interval complete; independent SDK and startup-aware status capture verified final state",
+  "limitations": [
+    "exchange stop trigger/execution is not tested intentionally",
+    "reported fees at available precision do not prove exact per-fill fees",
+    "at most three attempts cannot establish strategy profitability"
+  ]
+}

@@ -544,8 +544,10 @@ async def test_timeout_after_durable_send_freezes_entries(tmp_path, monkeypatch)
 
     class LostAck:
         calls = 0
+        rate = RateBudget()
 
         async def send_ioc(self, *args, **kwargs):
+            assert kwargs["dispatch_check"]()
             self.calls += 1
             raise TimeoutError("network lost after possible accept")
 
@@ -553,12 +555,14 @@ async def test_timeout_after_durable_send_freezes_entries(tmp_path, monkeypatch)
     engine.account = lost  # type: ignore[assignment]
     monkeypatch.setattr(engine, "data_valid", lambda: True)
     engine.last_decision = Decision("buy", Decimal(30), Decimal(0), Decimal(1), ())
+    authorize_test_session(engine)
     await engine.enter("buy")
     assert engine.state == EngineState.PAUSED and engine.entries_stopped
     assert engine.db.unresolved()[0]["state"] == "UNKNOWN"
     engine.state = EngineState.LIVE  # even an incorrect retry request cannot duplicate it
     await engine.enter("buy")
     assert lost.calls == 1
+    assert len(engine.session.read()["attempts"]) == 1
     engine.db.close()
     engine.recorder.close()
 
@@ -625,6 +629,7 @@ async def test_journal_failure_prevents_send(tmp_path, monkeypatch) -> None:
     engine.account = account  # type: ignore[assignment]
     monkeypatch.setattr(engine, "data_valid", lambda: True)
     engine.last_decision = Decision("buy", Decimal(30), Decimal(0), Decimal(1), ())
+    authorize_test_session(engine)
     monkeypatch.setattr(
         engine.db,
         "intent",
@@ -634,6 +639,24 @@ async def test_journal_failure_prevents_send(tmp_path, monkeypatch) -> None:
     assert engine.state == EngineState.PAUSED and not account.called
     engine.db.close()
     engine.recorder.close()
+
+
+def authorize_test_session(engine):
+    engine.config = engine.config.model_copy(update={"session_accept_reported_fees": True})
+    engine.session.authorize(
+        "offline-failure-test", engine.config, str(engine.account_snapshot.equity)
+    )
+    engine.session.activate()
+    engine.db.event(
+        "NET_CASH_AUDIT",
+        {
+            "equity_after": str(engine.account_snapshot.equity),
+            "cash_change_usdc": "0",
+            "fingerprint": engine.db.accounting_fingerprint(),
+        },
+    )
+    engine.last_reconcile_ok = time.monotonic()
+    engine.reconcile_failed = False
 
 
 @pytest.mark.asyncio

@@ -12,6 +12,8 @@ type Status = {
   entries_stopped?: boolean; session_remaining_s?: number; session_positions?: number; max_session_positions?: number;
   probe_used?: boolean; probe_active?: boolean; probe_blockers?: string[];
   probe_accept_reported_fees?: boolean;
+  session_accept_reported_fees?: boolean;
+  strategy_session?: { id: string; status: string; max_attempts: number; attempts: { client_id: number }[]; completed_positions: number[]; stop_reason?: string | null } | null;
   pending_orders?: { client_id: number; kind: string; state: string; qty: string; side: string }[];
   protection_id?: number | null; protection_confirmed?: boolean; exit_id?: number | null; journal_ok?: boolean; queue_backlog?: number;
   event_loop_lag_ms?: number; last_order_ack_ms?: number | null; last_cancel_ack_ms?: number | null; reconnects?: Record<string, number>; binance_streams?: { public?: boolean; market?: boolean }; live_blockers?: string[];
@@ -114,6 +116,7 @@ function App() {
           <div className="kv"><span>Fee exact dari API</span><strong>{account?.pending_fee_count ? `Belum diketahui (${account.pending_fee_count} fill)` : account ? money(account.recorded_fees) : '—'}</strong></div>
           {feeReports?.covered_unknown_fills ? <div className="kv"><span>Fee dilaporkan ekspor resmi</span><strong>{feeReports.reported_fee_total_usdc} USDC · {feeReports.reports[0]?.precision_decimals} desimal</strong></div> : null}
           {connected && data.probe_accept_reported_fees && <p className="hint">Khusus preflight satu probe, bukti fee ekspor resmi dapat diterima pada presisi laporannya jika audit kas/dana cocok. Fee exact tetap unknown; izin strategi otomatis tetap mati.</p>}
+          {connected && data.session_accept_reported_fees && <p className="hint">Bukti fee ekspor resmi berlaku hanya untuk sesi terbatas yang diotorisasi. Sebelum entry berikutnya, posisi/order harus bersih dan audit kas serta bukti setiap fill harus cocok. Fee exact tetap unknown.</p>}
           {data.fee_lookup?.lookup_paused_count ? <p className="hint">Pencarian ulang otomatis dihentikan untuk {data.fee_lookup.lookup_paused_count} fill tanpa fee exact. Fee tidak dianggap nol.</p> : null}
           <div className="kv"><span>Audit net kas</span><strong>{cashAudit?.status === 'matched' ? `Cocok · selisih ${cashAudit.net_difference_usdc} USDC` : cashAudit?.status === 'unexplained_difference' ? `Selisih belum dijelaskan: ${cashAudit.net_difference_usdc} USDC` : 'Perlu audit / bukti terbaru'}</strong></div>
           <div className="kv"><span>Eksposur efektif + entry pending</span><strong>{account ? '$' + money(account.effective_exposure_usd) : '—'}</strong></div>
@@ -135,7 +138,8 @@ function App() {
           <ul className="reasons">{(data.live_blockers || []).length ? data.live_blockers?.map((v, i) => <li key={i}>{v}</li>) : <li>Tidak ada penghalang teknis yang terdeteksi</li>}</ul>
         </section>
 
-        <section className="card"><div className="sectionHead"><h2>Kontrol sesi</h2><span className="subtle">{data.session_remaining_s || 0} dtk tersisa · {data.session_positions || 0}/{data.max_session_positions || 3} posisi</span></div>
+        <section className="card"><div className="sectionHead"><h2>Kontrol sesi</h2><span className="subtle">{data.session_remaining_s || 0} dtk tersisa · {data.strategy_session?.attempts.length || 0}/{data.strategy_session?.max_attempts || 3} percobaan entry · {data.strategy_session?.completed_positions.length || 0} posisi selesai</span></div>
+          {data.strategy_session && <p className="hint">Sesi {data.strategy_session.status}{data.strategy_session.stop_reason ? ` · ${data.strategy_session.stop_reason}` : ''}. Kuota mencakup pengiriman yang ditolak atau gagal; restart tidak melanjutkan entry dan tidak mengulang deadline.</p>}
           <p className="hint">Probe 1× menguji satu transaksi dari status READY; entry strategi tetap berhenti. Perintah dicatat di antrean dan hasil order, cancel, serta close harus dikonfirmasi oleh Lighter.</p>
           <div className="actions"><button disabled={!connected || data.state !== 'READY' || !!data.live_blockers?.length} onClick={() => command('START_LIVE')}>Mulai sesi live</button><button disabled={!connected} onClick={() => command('STOP_ENTRIES')}>Hentikan entry</button><button disabled={!connected} onClick={() => command('CANCEL_ENTRIES')}>Batalkan entry</button><button className="danger" disabled={!connected} onClick={() => command('CLOSE_POSITION')}>Minta tutup posisi</button><button disabled={!connected || data.state !== 'READY' || !data.entries_stopped || !data.probe_blockers || !!data.probe_blockers.length || data.probe_used} onClick={() => command('PROBE_ONCE')}>Probe 1×</button></div>
           {notice && <div className="notice">{notice}</div>}

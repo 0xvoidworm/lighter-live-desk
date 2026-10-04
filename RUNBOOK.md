@@ -1,5 +1,23 @@
 # Runbook Lighter Live Desk
 
+Otorisasi sesi `f4645c06-b55d-45f4-b642-66b5e8c23864` sudah ditutup
+4 Oktober 2026 pukul 21:53:18 WIB setelah timeout rekonsiliasi; nol entry.
+Izin order dan policy reported fee sesi mati. Sisa kuota tidak dapat dipakai.
+Lihat AUDIT_STRATEGY_SESSION_2026-10-04.md. Sesi baru memerlukan izin baru.
+
+Pengguna memberi izin terpisah pada 4 Oktober untuk SATU sesi strategi setelah
+preflight, maksimum 1800 detik/tiga percobaan entry. Lihat
+SESSION_POLICY_2026-10-04.md. Ini menggantikan larangan START_LIVE hanya untuk
+UUID sesi tersebut; tidak mengizinkan rearm probe atau sesi lanjut otomatis.
+Policy reported fee sesi mempunyai flag terpisah, default false, dan memerlukan
+record otorisasi persisten yang belum dipakai. Kuota disimpan atomic sebelum
+signer, termasuk penolakan/failure. Restart menghentikan entry untuk sisa sesi,
+mempertahankan deadline/kuota, dan tetap memulihkan posisi. Setelah ending,
+flat/global order bersih diverifikasi sebelum IDLE dan izin order false.
+Fee exact NULL tetap terpisah dari reported; sebelum setiap entry berikutnya,
+ekspor per fill dan kas/dana segar harus cocok. Metadata pending tidak menahan
+proteksi/exit dan tidak boleh memperpanjang izin entry sesudah kuota/deadline.
+
 Hasil terbaru ada di AUDIT_PROTECTION_PROBE_2026-10-04.md: satu entry baru sudah
 dipakai, stop terkonfirmasi aktif di exchange, close reduce-only terisi,
 posisi/order nol, dan audit net kas cocok. Mesin IDLE dan izin order false.

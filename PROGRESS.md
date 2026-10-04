@@ -1,5 +1,33 @@
 # Progress
 
+## Terbaru — 4 Oktober 2026, satu sesi strategi terbatas selesai
+
+Sesi f4645c06-b55d-45f4-b642-66b5e8c23864 berjalan 21:30:23–21:53:18 WIB
+(22m55s), dihentikan permanen karena timeout rekonsiliasi delapan detik.
+1.351 evaluasi, nol sinyal valid, nol percobaan entry/fill/posisi baru.
+Residual maksimum evaluasi 2,945796 bps vs threshold minimum 8; coverage
+sempat gagal 589,243 detik akibat gap 10,532 detik. Selama otorisasi, Binance
+public reconnect dua kali; penyebab transport spesifik belum terbukti.
+
+Kebijakan ekspor resmi diperluas hanya untuk sesi ini, NULL exact tetap NULL.
+Kuota tiga percobaan dicatat sebelum signer, deadline 30 menit persisten,
+restart menghentikan entry, dan proteksi/exit tidak menunggu metadata fee.
+Semua parameter strategi/risk tetap sepanjang sesi. Sesudah cleanup, regresi
+memisahkan status IDLE sesi closed/disarmed/flat dari coverage feed; guard
+entry dan bukti snapshot global segar tetap wajib.
+
+SDK 22:01:41 WIB: akun 751745 Standard/Unified, saldo 49,430756, seluruh
+posisi/order nol, dana tidak berubah, delta kas/PnL sesi/net residual 0,000000.
+Empat fee exact historis NULL, ekspor reported 0,0000/fill pada empat desimal.
+Engine IDLE, entry berhenti, izin order/report-policy false, sesi closed;
+service tetap disabled autostart. Tidak ada sesi pengganti/deposit baru.
+
+281 tes sebelum aktivasi, 282 sesudah perbaikan status; Ruff/format, mypy dan
+UI build lulus. Bukti AUDIT_STRATEGY_SESSION_2026-10-04.md dan
+audits/strategy-session-20261004.json. Tidak ada bukti stop/fill baru atau
+kesimpulan profitabilitas. Tindak lanjut: diagnosis timeout/read dan reconnect
+terarah; sesi lain memerlukan izin dan preflight baru.
+
 ## Terbaru — 4 Oktober 2026, probe proteksi mainnet selesai
 
 Dari 343f17b, kebijakan reported fee disetujui pengguna khusus satu probe dan
