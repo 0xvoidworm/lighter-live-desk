@@ -1,5 +1,22 @@
 # Runbook Lighter Live Desk
 
+Diagnosis terbaru ada di AUDIT_READY_DIAGNOSIS_2026-10-04.md. Fee API dua fill
+lama tetap NULL; ekspor resmi akun memberi reported fee 0.0000 pada empat
+desimal per Trade ID yang cocok. Simpan laporan/presisi/sumber terpisah,
+jangan mengubah fee exact menjadi nol. Audit net kas dapat cocok walaupun
+rincian fee exact belum diketahui. Guard fee entry masih ketat; usulan
+FEE_POLICY_PROPOSAL_2026-10-04.md belum diterapkan. Backfill otomatis maksimal
+tiga history check berhasil berjarak minimal 60 detik, lalu berhenti persisten.
+Jangan mengulang polling tanpa batas atau mereset counter demi READY.
+
+Untuk coverage, baca status.coverage dan feed_channels: koneksi tersambung
+berbeda dari quote segar dan sampel cukup. Minimal 600 detik, 480 sampel valid
+dalam 600 detik terakhir, tanpa gap >5 detik tetap berlaku untuk probe maupun
+strategi. Restart memulai buffer baru; reconnect mempertahankan sampel tetapi
+gap lama tetap menahan coverage. Observasi pasca-fix dibatasi 660 detik;
+jika gagal, simpan nilai/count/gap/channel/alasan lalu laporkan penghambat.
+Jangan memutus jaringan untuk menguji kegagalan saat posisi mainnet terbuka.
+
 Sebelum probe setelah perubahan parameter signing, jalankan
 `uv run --frozen pytest -q tests/test_sdk_signing.py`. Regresi ini memeriksa
 pin distribusi resmi, melewati adapter entry/stop/cancel/close dan signer native

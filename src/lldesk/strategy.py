@@ -28,6 +28,47 @@ class DeviationStrategy:
         self.local_sell_flow: deque[tuple[float, Decimal]] = deque()
         self.last_binance_mid: Decimal | None = None
         self.comparator_moves: deque[tuple[float, Decimal]] = deque()
+        self.started_epoch = time.time()
+        self.last_interruption: dict | None = None
+
+    def interrupted(self, venue: str, channel: str, reason: str) -> None:
+        # Reconnects interrupt valid sampling; they do not reset historical samples.
+        self.last_interruption = {
+            "venue": venue,
+            "channel": channel,
+            "reason": reason,
+            "at": time.time(),
+            "samples_preserved": len(self.samples),
+        }
+
+    def coverage(self, now: float | None = None) -> dict:
+        now = time.monotonic() if now is None else now
+        elapsed = now - self.samples[0][0] if self.samples else 0.0
+        recent = [x[0] for x in self.samples if now - x[0] <= 600]
+        gaps = [(a, b) for a, b in pairwise(recent) if b - a > 5]
+        warm = len(self.samples) >= self.warmup_seconds * 8 // 10 and elapsed >= self.warmup_seconds
+        covered = len(recent) >= 480 and not gaps
+        return {
+            "duration_required_s": self.warmup_seconds,
+            "duration_observed_s": round(elapsed, 1),
+            "duration_remaining_s": round(max(0, self.warmup_seconds - elapsed), 1),
+            "total_samples_required": self.warmup_seconds * 8 // 10,
+            "total_samples": len(self.samples),
+            "window_s": 600,
+            "recent_samples_required": 480,
+            "recent_samples": len(recent),
+            "max_sample_gap_s": round(max((b - a for a, b in pairwise(recent)), default=0), 3),
+            "allowed_gap_s": 5,
+            "long_gap_count": len(gaps),
+            "gap_wait_remaining_s": round(max((a + 600 - now for a, _ in gaps), default=0), 1),
+            "last_sample_age_s": round(now - self.samples[-1][0], 1) if self.samples else None,
+            "warmup_complete": warm,
+            "coverage_complete": covered,
+            "ready": warm and covered,
+            "buffer_started_at": self.started_epoch,
+            "buffer_reset_reason": "engine_start",
+            "last_interruption": self.last_interruption,
+        }
 
     def trade(self, price: Decimal, size: Decimal, taker_buy: bool) -> None:
         now = time.monotonic()
@@ -59,12 +100,10 @@ class DeviationStrategy:
         if now - self.last_sample_at >= 1:
             self.samples.append((now, raw, lighter.bid_size, lighter.ask_size))
             self.last_sample_at = now
-        if len(self.samples) < self.warmup_seconds * 8 // 10 or (
-            not self.samples or now - self.samples[0][0] < self.warmup_seconds
-        ):
+        coverage = self.coverage(now)
+        if not coverage["warmup_complete"]:
             return Decision(None, raw, None, None, ("WARMUP_BELUM_LENGKAP",))
-        recent_times = [item[0] for item in self.samples if now - item[0] <= 600]
-        if len(recent_times) < 480 or any(b - a > 5 for a, b in pairwise(recent_times)):
+        if not coverage["coverage_complete"]:
             return Decision(None, raw, None, None, ("COVERAGE_DATA_KURANG",))
         history = [x[1] for x in self.samples if x[0] < now - 1]
         basis = Decimal(str(statistics.median(history)))

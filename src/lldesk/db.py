@@ -87,6 +87,135 @@ class Database:
     def pending_fees(self) -> int:
         return int(self.conn.execute("SELECT COUNT(*) FROM fills WHERE fee IS NULL").fetchone()[0])
 
+    def fee_lookup_candidates(self) -> list[str]:
+        now = time.time()
+        return [
+            str(fill_id)
+            for (fill_id,) in self.conn.execute("SELECT fill_id FROM fills WHERE fee IS NULL")
+            if int(self.flag(f"fee_lookup_attempts:{fill_id}") or "0") < 3
+            and now - float(self.flag(f"fee_lookup_at:{fill_id}") or "0") >= 60
+        ]
+
+    def fee_lookup_completed(self, fill_ids: list[str]) -> None:
+        # An absent fee stays NULL. Three spaced successful queries end automatic backfill.
+        for fill_id in fill_ids:
+            row = self.conn.execute("SELECT fee FROM fills WHERE fill_id=?", (fill_id,)).fetchone()
+            if row is None or row[0] is not None:
+                continue
+            attempts = int(self.flag(f"fee_lookup_attempts:{fill_id}") or "0") + 1
+            self.set_flag(f"fee_lookup_attempts:{fill_id}", str(attempts))
+            self.set_flag(f"fee_lookup_at:{fill_id}", str(time.time()))
+            if attempts == 3:
+                self.event(
+                    "FEE_LOOKUP_PAUSED", {"trade_id": fill_id, "fee": None, "attempts": attempts}
+                )
+
+    def fee_lookup_status(self) -> dict:
+        ids = [
+            str(row[0]) for row in self.conn.execute("SELECT fill_id FROM fills WHERE fee IS NULL")
+        ]
+        paused = sum(
+            int(self.flag(f"fee_lookup_attempts:{fill_id}") or "0") >= 3 for fill_id in ids
+        )
+        return {
+            "unknown_count": len(ids),
+            "lookup_paused_count": paused,
+            "max_attempts": 3,
+            "retry_interval_s": 60,
+            "individual_fees_known": not ids,
+        }
+
+    def accounting_fingerprint(self) -> dict:
+        return {
+            "fills": [
+                list(row)
+                for row in self.conn.execute(
+                    "SELECT fill_id,client_id,qty,price,fee FROM fills ORDER BY fill_id"
+                )
+            ],
+            "flows": [
+                list(row)
+                for row in self.conn.execute(
+                    "SELECT flow_id,amount FROM funding_flows ORDER BY flow_id"
+                )
+            ],
+        }
+
+    def record_fee_report(self, fill_id: str, report: dict) -> None:
+        from decimal import Decimal
+
+        row = self.conn.execute(
+            "SELECT f.client_id,f.qty,f.price,i.side FROM fills f JOIN intents i USING(client_id) "
+            "WHERE fill_id=?",
+            (fill_id,),
+        ).fetchone()
+        sides = {
+            "Open Long": "buy",
+            "Close Short": "buy",
+            "Close Long": "sell",
+            "Open Short": "sell",
+        }
+        if (
+            row is None
+            or report["trade_id"] != fill_id
+            or report["client_id"] != row[0]
+            or Decimal(report["qty"]) != Decimal(row[1])
+            or Decimal(report["price"]) != Decimal(row[2])
+            or sides.get(report["side"]) != row[3]
+            or not Decimal(report["reported_fee_usdc"]).is_finite()
+        ):
+            raise ValueError("official fee report does not match audited fill")
+        # Reported export precision is distinct from the exact micro-unit API fee.
+        self.set_flag(f"fee_report:{fill_id}", json.dumps(report))
+        self.event("OFFICIAL_FEE_REPORT", report)
+
+    def fee_report_status(self) -> dict:
+        from decimal import Decimal
+
+        reports = []
+        for fill_id, client_id, qty, price in self.conn.execute(
+            "SELECT fill_id,client_id,qty,price FROM fills WHERE fee IS NULL"
+        ):
+            stored = self.flag(f"fee_report:{fill_id}")
+            if stored:
+                r = json.loads(stored)
+                if (
+                    r["client_id"] == client_id
+                    and Decimal(r["qty"]) == Decimal(qty)
+                    and Decimal(r["price"]) == Decimal(price)
+                ):
+                    reports.append(r)
+        return {
+            "covered_unknown_fills": len(reports),
+            "all_unknown_fills_covered": len(reports) == self.pending_fees(),
+            "reported_fee_total_usdc": str(
+                sum((Decimal(r["reported_fee_usdc"]) for r in reports), Decimal(0))
+            )
+            if reports
+            else None,
+            "reports": reports,
+            "exact_fee_established": False,
+        }
+
+    def net_cash_status(self, equity: str, position_qty: str) -> dict:
+        from decimal import Decimal
+
+        row = self.conn.execute(
+            "SELECT body FROM events WHERE kind='NET_CASH_AUDIT' ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        if not row:
+            return {"status": "not_audited", "net_difference_usdc": None}
+        reference = json.loads(row[0])
+        if Decimal(position_qty) or reference["fingerprint"] != self.accounting_fingerprint():
+            return {"status": "needs_new_audit", "net_difference_usdc": None}
+        delta = Decimal(equity) - Decimal(reference["equity_after"])
+        return {
+            "status": "matched" if not delta else "unexplained_difference",
+            "net_difference_usdc": str(delta),
+            "cash_change_usdc": reference["cash_change_usdc"],
+            "individual_fees_known": not self.pending_fees(),
+        }
+
     def close(self) -> None:
         self.conn.close()
 

@@ -1,5 +1,37 @@
 # Progress
 
+## Terbaru — 4 Oktober 2026, diagnosis fee dan coverage selesai
+
+Dari 7786369, tanpa entry/broadcast/order/deposit baru. Fee raw HTTP untuk dua
+fill tidak disediakan endpoint trades; SDK Optional tidak menghapus nilai.
+Ekspor resmi akun memberi 0.0000 USDC per Trade ID yang cocok, presisi empat
+desimal, disimpan terpisah. Fee exact tetap unknown/NULL; audit kas enam
+desimal cocok (+0,000576, selisih net 0,000000). Backfill berhenti setelah
+tiga pemeriksaan berhasil berjarak; guard fee entry tetap ketat. Usulan
+presisi ekspor khusus probe belum disetujui/diterapkan.
+
+Backoff reconnect lifetime/shared membuat jeda 8/16/30 detik, menahan coverage.
+Kini backoff per channel mengikuti kegagalan berurutan dan reset setelah sesi
+sehat; putus channel transaksi tidak menghapus public book. Buffer reconnect
+dipertahankan, seluruh syarat validitas kedua feed tetap aktif. Dashboard
+menampilkan progres warm-up/count/gap/channel dan penghalang entry terpisah.
+
+Observasi terbatas 600,4 detik selesai: durasi buffer 629,8 detik, 592 sampel
+valid dalam window 600, gap maksimum 1,061 detik, nol gap >5, nol reconnect.
+Coverage lolos tanpa mengubah 600/480/5. Pemakaian request normal engine
+teramati maksimal 40/60 detik, tersisa minimal 15 slot transaksi dari 55.
+Pemeriksaan SDK akun/seluruh order 07:17:28 WIB: Standard/Unified akun 751745,
+key 4, saldo 49,430576, posisi/order nol, nol intent belum final. Engine IDLE,
+entry berhenti, izin order false, scope probe_only, probe_used 1/probe_pending 0.
+
+225 tes, Ruff/format, mypy dan build UI lulus; 14 regresi diagnosis lulus,
+termasuk backfill berhenti melewati reopen DB. Browser membuktikan tampilan
+dan tombol probe/START_LIVE nonaktif. Coverage selesai; penghambat fee exact
+entry tetap ada. Probe berikutnya belum dapat dijalankan tanpa penyelesaian
+data/kebijakan fee, izin entry baru, rearm dan preflight segar. Penerimaan stop
+mainnet tetap belum terbukti. Bukti: AUDIT_READY_DIAGNOSIS_2026-10-04.md dan
+audits/ready-diagnosis-20261004.json.
+
 ## Terbaru — 4 Oktober 2026, proteksi terpisah dari fee pending
 
 Tidak ada entry/START_LIVE/deposit baru. Posisi dan seluruh order tetap nol,

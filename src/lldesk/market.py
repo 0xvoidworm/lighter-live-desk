@@ -193,6 +193,65 @@ class Feeds:
         self.reconnects = {"binance": 0, "lighter": 0}
         self.binance_public_ok = False
         self.binance_trades_ok = False
+        self.channels: dict[str, dict[str, Any]] = {
+            name: {
+                "connected": False,
+                "reconnects": 0,
+                "consecutive_failures": 0,
+                "retry_delay_s": 0,
+                "last_error": None,
+                "last_disconnect_at": None,
+                "_started": None,
+                "_last_frame": None,
+            }
+            for name in ("binance_public", "binance_market", "lighter")
+        }
+
+    def channel_started(self, name: str) -> None:
+        self.channels[name].update(connected=True, retry_delay_s=0, _started=time.monotonic())
+
+    def channel_data(self, name: str) -> None:
+        now = time.monotonic()
+        state = self.channels[name]
+        state["_last_frame"] = now
+        if state["_started"] is not None and now - state["_started"] >= 30:
+            # Retry delay follows consecutive failures, not lifetime reconnect totals.
+            state["consecutive_failures"] = 0
+
+    async def reconnect(self, venue: str, channel: str, exc: Exception) -> None:
+        name = f"binance_{channel}" if venue == "binance" else "lighter"
+        state = self.channels[name]
+        state["connected"] = False
+        state["reconnects"] += 1
+        state["consecutive_failures"] += 1
+        delay = min(2 ** min(state["consecutive_failures"], 5), 30)
+        state.update(
+            retry_delay_s=delay, last_error=type(exc).__name__, last_disconnect_at=time.time()
+        )
+        self.reconnects[venue] += 1
+        await self.emit(
+            venue,
+            "disconnect",
+            {
+                "reason": type(exc).__name__,
+                "channel": channel,
+                "retry_delay_s": delay,
+                "consecutive_failures": state["consecutive_failures"],
+            },
+        )
+        await asyncio.sleep(delay)
+
+    def channel_status(self) -> dict:
+        now = time.monotonic()
+        return {
+            name: {
+                **{k: v for k, v in s.items() if not k.startswith("_")},
+                "last_frame_age_ms": round((now - s["_last_frame"]) * 1000)
+                if s["_last_frame"] is not None
+                else None,
+            }
+            for name, s in self.channels.items()
+        }
 
     async def emit(
         self, venue: str, kind: str, payload: dict[str, Any], exchange_ms: int | None = None
@@ -223,6 +282,7 @@ class Feeds:
                     binance_session(self.dns_mode) as client,
                     client.ws_connect(BINANCE_PUBLIC_WS, heartbeat=20) as ws,
                 ):
+                    self.channel_started("binance_public")
                     buffered: list[dict[str, Any]] = []
                     snap_task = asyncio.create_task(self._binance_snapshot(client))
                     try:
@@ -242,22 +302,23 @@ class Feeds:
                             snap_task.cancel()
                         await asyncio.gather(snap_task, return_exceptions=True)
                     for data in buffered:
-                        await self._binance_message(data)
+                        if await self._binance_message(data):
+                            self.channel_data("binance_public")
                     self.binance_public_ok = True
                     async for frame in ws:
                         if frame.type != aiohttp.WSMsgType.TEXT:
                             raise ConnectionError("Binance public stream closed")
                         message = json.loads(frame.data)
-                        await self._binance_message(message.get("data", message))
+                        if await self._binance_message(message.get("data", message)):
+                            self.channel_data("binance_public")
                     raise ConnectionError("Binance public stream ended")
             except asyncio.CancelledError:
                 self.binance_public_ok = False
+                self.channels["binance_public"]["connected"] = False
                 raise
             except Exception as exc:
                 self.binance_public_ok = False
-                self.reconnects["binance"] += 1
-                await self.emit("binance", "disconnect", {"reason": type(exc).__name__})
-                await asyncio.sleep(min(2 ** min(self.reconnects["binance"], 5), 30))
+                await self.reconnect("binance", "public", exc)
 
     async def _binance_trades(self) -> None:
         while True:
@@ -266,33 +327,36 @@ class Feeds:
                     binance_session(self.dns_mode) as client,
                     client.ws_connect(BINANCE_MARKET_WS, heartbeat=20) as ws,
                 ):
+                    self.channel_started("binance_market")
                     self.binance_trades_ok = True
                     async for frame in ws:
                         if frame.type != aiohttp.WSMsgType.TEXT:
                             raise ConnectionError("Binance market stream closed")
                         message = json.loads(frame.data)
-                        await self._binance_message(message.get("data", message))
+                        if await self._binance_message(message.get("data", message)):
+                            self.channel_data("binance_market")
                     raise ConnectionError("Binance market stream ended")
             except asyncio.CancelledError:
                 self.binance_trades_ok = False
+                self.channels["binance_market"]["connected"] = False
                 raise
             except Exception as exc:
                 self.binance_trades_ok = False
-                self.reconnects["binance"] += 1
-                await self.emit("binance", "disconnect", {"reason": type(exc).__name__})
-                await asyncio.sleep(min(2 ** min(self.reconnects["binance"], 5), 30))
+                await self.reconnect("binance", "market", exc)
 
     async def _binance_snapshot(self, client: aiohttp.ClientSession) -> dict[str, Any]:
         async with client.get(BINANCE_DEPTH) as response:
             response.raise_for_status()
             return await response.json()
 
-    async def _binance_message(self, data: dict[str, Any]) -> None:
+    async def _binance_message(self, data: dict[str, Any]) -> bool:
         if data.get("s") != "BTCUSDT" or data.get("st", 1) != 1:
-            return
+            return False
         kind = data.get("e")
         if kind in {"depthUpdate", "bookTicker", "aggTrade"}:
             await self.emit("binance", kind, data, data.get("T") or data.get("E"))
+            return True
+        return False
 
     async def lighter(self) -> None:
         while True:
@@ -300,6 +364,7 @@ class Feeds:
                 async with websockets.connect(
                     LIGHTER_WS, ping_interval=30, max_queue=256, open_timeout=10
                 ) as ws:
+                    self.channel_started("lighter")
                     for channel in (
                         f"order_book/{self.market_id}",
                         f"trade/{self.market_id}",
@@ -310,12 +375,13 @@ class Feeds:
                         data = json.loads(raw)
                         channel = str(data.get("channel", ""))
                         if channel.startswith(("order_book:", "trade:", "ticker:")):
+                            self.channel_data("lighter")
                             await self.emit(
                                 "lighter", channel.split(":")[0], data, data.get("timestamp")
                             )
+                    raise ConnectionError("Lighter stream ended")
             except asyncio.CancelledError:
+                self.channels["lighter"]["connected"] = False
                 raise
             except Exception as exc:
-                self.reconnects["lighter"] += 1
-                await self.emit("lighter", "disconnect", {"reason": type(exc).__name__})
-                await asyncio.sleep(min(2 ** min(self.reconnects["lighter"], 5), 30))
+                await self.reconnect("lighter", "ws", exc)

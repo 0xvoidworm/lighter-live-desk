@@ -328,7 +328,12 @@ class Engine:
         if not book:
             return
         if event.kind == "disconnect":
-            book.invalidate()
+            channel = str(event.payload.get("channel", "unknown"))
+            self.strategy.interrupted(event.venue, channel, str(event.payload.get("reason", "")))
+            # Loss of the trade channel does not invalidate an independent public book.
+            # data_valid still requires BOTH Binance channels to recover before sampling.
+            if not (event.venue == "binance" and channel == "market"):
+                book.invalidate()
             self.entries_stopped = True
             self.state = EngineState.RECOVERING
             self.reason = f"{event.venue} terputus; menunggu snapshot baru"
@@ -808,9 +813,8 @@ class Engine:
                 self.reason = "order manual/tidak dikenal; perlu rekonsiliasi"
         client_ids = [x["client_id"] for x in unresolved]
         after_id = int(self.db.flag("last_trade_id") or "0")
-        pending_fee_id = self.db.conn.execute(
-            "SELECT MIN(CAST(fill_id AS INTEGER)) FROM fills WHERE fee IS NULL"
-        ).fetchone()[0]
+        fee_lookup_ids = self.db.fee_lookup_candidates()
+        pending_fee_id = min(map(int, fee_lookup_ids)) if fee_lookup_ids else None
         if pending_fee_id is not None:
             after_id = min(after_id, int(pending_fee_id) - 1)
         if self.probe_active:
@@ -821,6 +825,7 @@ class Engine:
             trades = await self.account.recent_trades(market_id, after_id)
         for trade in reversed(trades):
             self._record_trade(trade, self.account.account_index)
+        self.db.fee_lookup_completed(fee_lookup_ids)
         if trades:
             self.db.set_flag("last_trade_id", str(max(int(t["trade_id"]) for t in trades)))
         for intent in unresolved:
@@ -1739,6 +1744,13 @@ class Engine:
             "reason": self.reason,
             "market_id": self.market["market_id"] if self.market else None,
             "quotes": quotes,
+            "coverage": self.strategy.coverage(),
+            "feed_channels": getattr(self.feeds, "channel_status", lambda: {})(),
+            "fee_lookup": self.db.fee_lookup_status(),
+            "fee_reports": self.db.fee_report_status(),
+            "net_cash_audit": self.db.net_cash_status(str(snap.equity), str(snap.position_qty))
+            if snap
+            else None,
             "fx_usdcusdt": str(self.fx) if self.fx else None,
             "decision": {
                 "side": self.last_decision.side,

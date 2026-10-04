@@ -1,0 +1,7 @@
+225 tests passed (pytest -q); 151 relevant targeted tests passed.
+14 diagnostic regressions passed again after adding persistence-through-reopen assertion.
+Ruff check and format check passed; mypy passed 12 source files.
+Frontend tsc/vite build passed. Browser readiness/fee/net-cash/disabled controls checks passed.
+Full suite includes real pinned native SDK signing without broadcast/network.
+Known upstream deprecation warnings: websockets and Starlette TestClient; no failures.
+No PROBE_ONCE/START_LIVE/entry/rearm/deposit/order broadcast in this task.

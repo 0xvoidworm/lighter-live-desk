@@ -13,7 +13,7 @@ from lldesk.account import AccountSnapshot, DispatchBlocked, LocalOrderRejected,
 from lldesk.config import Config
 from lldesk.engine import JAKARTA, Engine
 from lldesk.models import EngineState, OrderState, Stamp
-from lldesk.strategy import Decision
+from lldesk.strategy import Decision, DeviationStrategy
 
 
 class Exchange:
@@ -111,7 +111,8 @@ def engine(tmp_path):
     value.state = EngineState.READY
     value.data_valid = lambda: True
     value.last_decision = Decision("buy", Decimal(30), Decimal(0), Decimal(1), ())
-    value.strategy = SimpleNamespace(evaluate=lambda *args: value.last_decision)
+    value.strategy = DeviationStrategy(config.warmup_seconds)
+    value.strategy.evaluate = lambda *args: value.last_decision
 
     async def no_reconcile():
         pass
