@@ -1,11 +1,23 @@
 # Runbook Lighter Live Desk
 
-Diagnosis terbaru ada di AUDIT_READY_DIAGNOSIS_2026-10-04.md. Fee API dua fill
-lama tetap NULL; ekspor resmi akun memberi reported fee 0.0000 pada empat
+Hasil terbaru ada di AUDIT_PROTECTION_PROBE_2026-10-04.md: satu entry baru sudah
+dipakai, stop terkonfirmasi aktif di exchange, close reduce-only terisi,
+posisi/order nol, dan audit net kas cocok. Mesin IDLE dan izin order false.
+Penerimaan stop terbukti; pemicuan stop tidak diuji. Jangan rearm tanpa izin baru.
+
+Fee API empat fill tetap NULL; ekspor resmi akun memberi reported fee 0.0000 pada empat
 desimal per Trade ID yang cocok. Simpan laporan/presisi/sumber terpisah,
 jangan mengubah fee exact menjadi nol. Audit net kas dapat cocok walaupun
-rincian fee exact belum diketahui. Guard fee entry masih ketat; usulan
-FEE_POLICY_PROPOSAL_2026-10-04.md belum diterapkan. Backfill otomatis maksimal
+rincian fee exact belum diketahui. Guard strategi tetap ketat. Kebijakan pada
+FEE_POLICY_PROPOSAL_2026-10-04.md sudah disetujui khusus preflight satu probe:
+`probe_accept_reported_fees=true` hanya sah pada scope `probe_only`.
+Setiap fee unknown wajib memiliki bukti ekspor resmi yang cocok; audit kas
+segar, fingerprint fill/dana dan equity harus cocok dengan sesi izin.
+Preflight membekukan fingerprint/equity, dan dispatch memeriksanya lagi.
+Perubahan tak terduga membatalkan entry. Persetujuan kebijakan bukan rearm.
+Setelah fill, fee/audit pending tidak menahan proteksi/close/cancel/timer.
+Flat + seluruh order bersih + audit kas segar cocok menyelesaikan operasi,
+sementara fee exact tetap NULL. Backfill otomatis maksimal
 tiga history check berhasil berjarak minimal 60 detik, lalu berhenti persisten.
 Jangan mengulang polling tanpa batas atau mereset counter demi READY.
 
@@ -32,8 +44,9 @@ AUDIT_PROTECTION_FIX_2026-10-04.md. Fee yang hilang sekarang disimpan sebagai
 unknown/NULL dan tidak menahan worker proteksi, cancel, posisi, atau close;
 audit fee tetap pending dan memblokir entry berikutnya. Jangan mengisi fee null
 dengan nol tanpa bukti. Fill yang sudah diaudit hanya dapat didedup jika ID,
-ukuran dan harga cocok. Lifecycle dengan stop diterima exchange masih belum
-dibuktikan; START_LIVE tetap tidak diizinkan.
+ukuran dan harga cocok. Percobaan kedua tidak membuktikan stop; sesi baru pada
+audit terbaru membuktikan penerimaan stop, bukan pemicuannya. START_LIVE tetap
+tidak diizinkan.
 
 Izin baru untuk satu percobaan hanya boleh mengaktifkan ulang flag sekali-pakai
 setelah intent lama terminal dan ketidakpastian broadcast terselesaikan serta
@@ -54,6 +67,13 @@ PROBE tetap sekali-pakai melalui flag persisten. Jangan mengubah scope ke
 `strategy` untuk tugas uji tunggal. Catat `source_funding_spent_usd` dari jumlah
 sumber yang telah dikeluarkan, termasuk biaya. Pada akun ini nilainya 50 dan
 sisa budget sumber nol; inflow collateral 49,43 tidak memberi izin deposit 0,57.
+
+Sesudah flat/order bersih terverifikasi, tulis `allow_live_orders=false` pada
+config lokal lalu kirim STOP_ENTRIES melalui mekanisme resmi. Perintah itu
+hanya menyerap pencabutan izin dari config, tidak bisa mengaktifkan izin, dan
+tidak mereset buffer feed. Penyelesaian probe juga membersihkan close_requested;
+seluruh history tetap disimpan. Jika dilakukan restart setelah perbaikan,
+observasi warm-up tetap mengikuti syarat 600/480/5 dengan izin order false.
 
 Pagu normal tetap 40 dan transaksi proteksi/cancel/close tetap 55 per 60 detik.
 Pembacaan urgent probe dibatasi 47 agar menyisakan delapan slot transaksi;

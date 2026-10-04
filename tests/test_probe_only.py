@@ -616,6 +616,7 @@ async def test_restart_reconciles_exchange_stop_and_closes_actual_partial_fill(e
             "filled_base_amount": "0",
             "trigger_price": "82709.5",
             "order_index": 199,
+            "client_order_index": 99,
         }
     }
     resumed = Engine(engine.config, engine.root)
@@ -722,6 +723,7 @@ async def test_foreground_polls_stop_before_confirmation_deadline_and_then_close
             "filled_base_amount": "0",
             "trigger_price": "82709.5",
             "order_index": 199,
+            "client_order_index": 99,
         }
     }
     closed = asyncio.Event()

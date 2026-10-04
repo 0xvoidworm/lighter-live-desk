@@ -141,11 +141,12 @@ class Database:
             ],
         }
 
-    def record_fee_report(self, fill_id: str, report: dict) -> None:
+    def fee_report_matches(self, fill_id: str, report: dict, account_index: int | None) -> bool:
         from decimal import Decimal
 
         row = self.conn.execute(
-            "SELECT f.client_id,f.qty,f.price,i.side FROM fills f JOIN intents i USING(client_id) "
+            "SELECT f.client_id,f.qty,f.price,i.side,i.tx_hash,f.exchange_ms "
+            "FROM fills f JOIN intents i USING(client_id) "
             "WHERE fill_id=?",
             (fill_id,),
         ).fetchone()
@@ -155,15 +156,39 @@ class Database:
             "Close Long": "sell",
             "Open Short": "sell",
         }
-        if (
-            row is None
-            or report["trade_id"] != fill_id
-            or report["client_id"] != row[0]
-            or Decimal(report["qty"]) != Decimal(row[1])
-            or Decimal(report["price"]) != Decimal(row[2])
-            or sides.get(report["side"]) != row[3]
-            or not Decimal(report["reported_fee_usdc"]).is_finite()
-        ):
+        try:
+            fee = Decimal(report["reported_fee_usdc"])
+            precision = report["precision_decimals"]
+            digest = report["evidence_sha256"]
+            return bool(
+                row
+                and type(account_index) is int
+                and account_index > 0
+                and report["trade_id"] == fill_id
+                and report["client_id"] == row[0]
+                and Decimal(report["qty"]) == Decimal(row[1])
+                and Decimal(report["price"]) == Decimal(row[2])
+                and sides.get(report["side"]) == row[3]
+                and row[4]
+                and report["transaction_hash"] == row[4]
+                and row[5] is not None
+                and report["exchange_ms"] == row[5]
+                and report["source"] == "official_account_export"
+                and report["account_index"] == account_index
+                and report["market"] == "BTC"
+                and report["role"] in {"Maker", "Taker"}
+                and type(precision) is int
+                and 0 <= precision <= 18
+                and fee.is_finite()
+                and fee.as_tuple().exponent == -precision
+                and len(digest) == 64
+                and all(c in "0123456789abcdef" for c in digest)
+            )
+        except (KeyError, ValueError, TypeError, ArithmeticError):
+            return False
+
+    def record_fee_report(self, fill_id: str, report: dict) -> None:
+        if not self.fee_report_matches(fill_id, report, report.get("account_index")):
             raise ValueError("official fee report does not match audited fill")
         # Reported export precision is distinct from the exact micro-unit API fee.
         self.set_flag(f"fee_report:{fill_id}", json.dumps(report))
@@ -173,16 +198,15 @@ class Database:
         from decimal import Decimal
 
         reports = []
-        for fill_id, client_id, qty, price in self.conn.execute(
-            "SELECT fill_id,client_id,qty,price FROM fills WHERE fee IS NULL"
-        ):
+        for (fill_id,) in self.conn.execute("SELECT fill_id FROM fills WHERE fee IS NULL"):
             stored = self.flag(f"fee_report:{fill_id}")
             if stored:
-                r = json.loads(stored)
-                if (
-                    r["client_id"] == client_id
-                    and Decimal(r["qty"]) == Decimal(qty)
-                    and Decimal(r["price"]) == Decimal(price)
+                try:
+                    r = json.loads(stored)
+                except ValueError:
+                    continue
+                if isinstance(r, dict) and self.fee_report_matches(
+                    fill_id, r, r.get("account_index")
                 ):
                     reports.append(r)
         return {

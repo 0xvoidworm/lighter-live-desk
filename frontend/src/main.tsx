@@ -11,6 +11,7 @@ type Status = {
   account?: { equity: string; available: string; position_qty: string; position_price: string; unrealized_pnl: string; realized_pnl: string; funding: string; age_s: number; daily_loss?: string; total_loss?: string; source_funding_budget_remaining?: string | null; effective_exposure_usd?: string; recorded_fees?: string | null; pending_fee_count?: number; account_trading_mode?: number | null; margin_mode?: number | null; initial_margin_fraction?: string | null } | null;
   entries_stopped?: boolean; session_remaining_s?: number; session_positions?: number; max_session_positions?: number;
   probe_used?: boolean; probe_active?: boolean; probe_blockers?: string[];
+  probe_accept_reported_fees?: boolean;
   pending_orders?: { client_id: number; kind: string; state: string; qty: string; side: string }[];
   protection_id?: number | null; protection_confirmed?: boolean; exit_id?: number | null; journal_ok?: boolean; queue_backlog?: number;
   event_loop_lag_ms?: number; last_order_ack_ms?: number | null; last_cancel_ack_ms?: number | null; reconnects?: Record<string, number>; binance_streams?: { public?: boolean; market?: boolean }; live_blockers?: string[];
@@ -112,6 +113,7 @@ function App() {
           <div className="kv"><span>Funding</span><strong>{account ? money(account.funding) : '—'}</strong></div>
           <div className="kv"><span>Fee exact dari API</span><strong>{account?.pending_fee_count ? `Belum diketahui (${account.pending_fee_count} fill)` : account ? money(account.recorded_fees) : '—'}</strong></div>
           {feeReports?.covered_unknown_fills ? <div className="kv"><span>Fee dilaporkan ekspor resmi</span><strong>{feeReports.reported_fee_total_usdc} USDC · {feeReports.reports[0]?.precision_decimals} desimal</strong></div> : null}
+          {connected && data.probe_accept_reported_fees && <p className="hint">Khusus preflight satu probe, bukti fee ekspor resmi dapat diterima pada presisi laporannya jika audit kas/dana cocok. Fee exact tetap unknown; izin strategi otomatis tetap mati.</p>}
           {data.fee_lookup?.lookup_paused_count ? <p className="hint">Pencarian ulang otomatis dihentikan untuk {data.fee_lookup.lookup_paused_count} fill tanpa fee exact. Fee tidak dianggap nol.</p> : null}
           <div className="kv"><span>Audit net kas</span><strong>{cashAudit?.status === 'matched' ? `Cocok · selisih ${cashAudit.net_difference_usdc} USDC` : cashAudit?.status === 'unexplained_difference' ? `Selisih belum dijelaskan: ${cashAudit.net_difference_usdc} USDC` : 'Perlu audit / bukti terbaru'}</strong></div>
           <div className="kv"><span>Eksposur efektif + entry pending</span><strong>{account ? '$' + money(account.effective_exposure_usd) : '—'}</strong></div>

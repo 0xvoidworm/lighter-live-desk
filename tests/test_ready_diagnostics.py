@@ -134,6 +134,7 @@ def test_fee_lookup_stops_after_three_spaced_checks_and_preserves_unknown(tmp_pa
 
 def report_for(engine):
     engine.db.intent(1, "PROBE", "buy", "0.00012", "84556.1")
+    engine.db.order_state(1, "FILLED", "historical-test-transaction")
     engine.db.add_fill("123", 1, "0.00012", "84539.0", None, 1000)
     return {
         "trade_id": "123",
@@ -145,6 +146,11 @@ def report_for(engine):
         "precision_decimals": 4,
         "source": "official_account_export",
         "account_index": 77,
+        "market": "BTC",
+        "role": "Taker",
+        "transaction_hash": "historical-test-transaction",
+        "exchange_ms": 1000,
+        "evidence_sha256": "a" * 64,
     }
 
 

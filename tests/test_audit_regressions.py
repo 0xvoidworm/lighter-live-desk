@@ -165,6 +165,8 @@ async def test_confirmed_stop_covers_latest_position_quantity(engine):
     await engine.manage_position()
     stop_id = engine.protection_id
     exchange.statuses[stop_id] = {
+        "client_order_index": stop_id,
+        "order_index": 199,
         "status": "pending",
         "reduce_only": True,
         "type": "stop-loss",
@@ -180,6 +182,8 @@ async def test_confirmed_stop_covers_latest_position_quantity(engine):
     exchange.statuses = {
         1: {"status": "filled", "filled_base_amount": "0.0002"},
         stop_id: {
+            "client_order_index": stop_id,
+            "order_index": 199,
             "status": "pending",
             "reduce_only": True,
             "type": "stop-loss",
@@ -402,11 +406,16 @@ async def test_cancel_revokes_an_entry_scheduled_before_task_starts(engine, monk
         {"reduce_only": False},
         {"type": "limit"},
         {"status": "canceled-too-much-slippage"},
+        {"client_order_index": 999},
+        {"order_index": 0},
     ],
 )
 def test_protection_requires_market_side_quantity_trigger_and_reduce_only(engine, change):
+    engine.protection_id = 2
     position = snapshot("0.0002")
     order = {
+        "client_order_index": 2,
+        "order_index": 199,
         "market_index": 1,
         "is_ask": True,
         "remaining_base_amount": "0.0002",

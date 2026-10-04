@@ -1,5 +1,33 @@
 # Progress
 
+## Terbaru — 4 Oktober 2026, probe proteksi mainnet selesai
+
+Dari 343f17b, kebijakan reported fee disetujui pengguna khusus satu probe dan
+diterapkan dengan pencocokan bukti per fill serta binding fingerprint/equity
+ke sesi izin. Riwayat lama tetap utuh. Tidak ada START_LIVE atau deposit baru.
+Satu entry BUY 0,00012 BTC terisi 84.794,7; stop SELL reduce-only terverifikasi
+dari order exchange dengan identitas, ukuran, trigger 84.497,9 dan limit
+84.244,4 cocok. Close reduce-only terisi 84.796,2. Stop dibatalkan exchange
+sesudah close; posisi dan seluruh order terverifikasi nol.
+
+Jendela exposure lokal sampai proteksi terkonfirmasi 3,731308 detik; durasi
+posisi berdasarkan kedua timestamp fill exchange 4,713 detik. Kas naik
+0,000180 menjadi 49,430756 USDC; audit net selisih 0,000000. Fee ekspor 0.0000
+per fill pada empat desimal, sementara empat fee exact tetap SQL NULL.
+Penyelesaian operasi dipisahkan dari metadata fee; lookup terbatas sudah paused.
+
+251 tes, signer native offline, Ruff/format, mypy dan build UI lulus. Regresi
+meliputi bukti hilang/tidak cocok, cash/fingerprint berubah, race sebelum
+signing, partial fill dengan fee unknown, stop ambigu/close, dan cleanup kas.
+Flag close_requested yang tertinggal setelah cleanup diperbaiki dan dites.
+Observasi restart selesai dengan 591 sampel terbaru, gap maksimum 1,057 detik,
+tanpa gap panjang atau reconnect. Pemeriksaan SDK 08:38:34 WIB membuktikan
+akun flat, seluruh order nol, saldo 49,430756, mesin IDLE, izin order false,
+probe_used=1/probe_pending=0, tanpa intent ambigu. Kedua tombol entry mati.
+Bukti: AUDIT_PROTECTION_PROBE_2026-10-04.md dan
+audits/protection-probe-20261004.json. Stop diterima mainnet terbukti; stop
+terpicu dan profitabilitas strategi tidak diuji. Izin satu entry sudah habis.
+
 ## Terbaru — 4 Oktober 2026, diagnosis fee dan coverage selesai
 
 Dari 7786369, tanpa entry/broadcast/order/deposit baru. Fee raw HTTP untuk dua

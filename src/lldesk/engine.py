@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import fcntl
 import io
+import json
 import logging
 import os
 import time
@@ -93,6 +94,8 @@ class Engine:
         self.entry_epoch = 0
         self.entry_tasks: set[asyncio.Task] = set()
         self.dispatching_entries: set[int] = set()
+        self.probe_preflight_fingerprint: dict | None = None
+        self.probe_preflight_equity: Decimal | None = None
         self._restore_order_ids()
 
     def _restore_order_ids(self) -> None:
@@ -624,12 +627,7 @@ class Engine:
                 if self.protection_confirmed and not old_confirmed:
                     self.db.event(
                         "PROTECTION_CONFIRMED",
-                        {
-                            "client_id": self.protection_id,
-                            "position_qty": str(snap.position_qty),
-                            "snapshot_received_at": snap.received_at,
-                            "order_index": stop.get("order_index") if stop else None,
-                        },
+                        self.protection_evidence(stop, snap),
                     )
                 if old_confirmed and not self.protection_confirmed and snap.position_qty:
                     self.db.set_flag("close_requested", "1")
@@ -893,12 +891,7 @@ class Engine:
             if self.protection_confirmed and not previously_confirmed:
                 self.db.event(
                     "PROTECTION_CONFIRMED",
-                    {
-                        "client_id": self.protection_id,
-                        "position_qty": str(snapshot.position_qty),
-                        "snapshot_received_at": snapshot.received_at,
-                        "order_index": protected.get("order_index") if protected else None,
-                    },
+                    self.protection_evidence(protected, snapshot),
                 )
             if previously_confirmed and not self.protection_confirmed and not self.manual_exposure:
                 self.entries_stopped = True
@@ -980,12 +973,29 @@ class Engine:
             and self.exit_id is None
             and not self.entry_tasks
             and not self.dispatching_entries
-            and not self.db.pending_fees()
+            and (
+                not self.db.pending_fees()
+                or (
+                    self.config.probe_accept_reported_fees
+                    and self.db.net_cash_status(str(snapshot.equity), "0")["status"] == "matched"
+                )
+            )
         ):
             self.probe_active = False
             self.db.set_flag("probe_pending", "0")
+            self.db.set_flag("close_requested", "0")
             self.session_end = 0.0
             self.entries_stopped = True
+            self.db.event(
+                "PROBE_OPERATIONAL_COMPLETE",
+                {
+                    "session_id": self.db.flag("probe_session_id"),
+                    "position_qty": "0",
+                    "all_active_orders": 0,
+                    "fee_exact_unknown_count": self.db.pending_fees(),
+                    "cash_audit": self.db.net_cash_status(str(snapshot.equity), "0"),
+                },
+            )
             if self.state != EngineState.HALTED:
                 self.state = EngineState.PAUSED
                 self.reason = "probe selesai menurut rekonsiliasi; entry strategi tetap berhenti"
@@ -1024,7 +1034,10 @@ class Engine:
                 expected, side, Decimal(1).scaleb(-int(self.market["price_decimals"])), Decimal(0)
             )
             return (
-                order.get("status") in {"pending", "open"}
+                self.protection_id is not None
+                and int(order["client_order_index"]) == self.protection_id
+                and int(order["order_index"]) > 0
+                and order.get("status") in {"pending", "open"}
                 and order.get("reduce_only") is True
                 and order.get("is_ask") is (not short)
                 and int(order["market_index"]) == int(self.market["market_id"])
@@ -1035,6 +1048,36 @@ class Engine:
             )
         except (KeyError, ValueError, TypeError, ArithmeticError):
             return False
+
+    def protection_evidence(self, order: dict | None, snap: AccountSnapshot) -> dict:
+        return {
+            "client_id": self.protection_id,
+            "position_qty": str(snap.position_qty),
+            "position_price": str(snap.position_price),
+            "snapshot_received_at": snap.received_at,
+            "order_index": order.get("order_index") if order else None,
+            "unprotected_observed_s": round(time.monotonic() - self.unprotected_since, 6)
+            if self.unprotected_since
+            else None,
+            "order": {
+                key: order.get(key)
+                for key in (
+                    "client_order_index",
+                    "order_index",
+                    "market_index",
+                    "status",
+                    "type",
+                    "is_ask",
+                    "reduce_only",
+                    "remaining_base_amount",
+                    "filled_base_amount",
+                    "trigger_price",
+                    "price",
+                )
+            }
+            if order
+            else None,
+        }
 
     def _update_baseline(self, snap: AccountSnapshot) -> None:
         day = datetime.now(JAKARTA).date().isoformat()
@@ -1165,7 +1208,7 @@ class Engine:
             or snap.account_type_code != self.config.expected_account_type_code
             or not self.margin_settings_valid(snap)
             or snap.active_orders
-            or self.db.pending_fees()
+            or self.entry_fee_blockers(kind, frozen=kind == "PROBE")
             or self.db.flag("total_loss_stop") == "1"
             or self.db.flag("daily_stop_day") == datetime.now(JAKARTA).date().isoformat()
         ):
@@ -1220,7 +1263,7 @@ class Engine:
                     or (kind == "PROBE" and not self.probe_active)
                     or (kind == "PROBE" and not self.entry_rate_ready())
                     or self.config.mode != "live_capable"
-                    or self.db.pending_fees()
+                    or self.entry_fee_blockers(kind, frozen=kind == "PROBE")
                     or not self.config.allow_live_orders
                     or (kind != "PROBE" and self.config.live_entry_scope != "strategy")
                     or time.monotonic() >= self.session_end
@@ -1466,6 +1509,10 @@ class Engine:
                 self.entry_epoch += 1
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
+                config_path = self.root / "config.json"
+                if config_path.exists() and not load_config(config_path).allow_live_orders:
+                    # Revocation only: never enables orders or resets warmed feeds.
+                    self.config = self.config.model_copy(update={"allow_live_orders": False})
                 result = "entry dihentikan"
             elif kind == "CANCEL_ENTRIES":
                 self.entry_epoch += 1
@@ -1536,6 +1583,22 @@ class Engine:
         blockers = self.probe_blockers()
         if blockers:
             return "probe diblok: " + ", ".join(blockers)
+        if self.account_snapshot is None:
+            return "probe diblok: snapshot akun belum tersedia"
+        self.probe_preflight_fingerprint = self.db.accounting_fingerprint()
+        self.probe_preflight_equity = self.account_snapshot.equity
+        self.db.event(
+            "PROBE_PREFLIGHT",
+            {
+                "session_id": self.db.flag("probe_session_id"),
+                "fingerprint": self.probe_preflight_fingerprint,
+                "equity_before": str(self.probe_preflight_equity),
+                "fee_policy": "reported_export_probe_only"
+                if self.config.probe_accept_reported_fees
+                else "exact",
+                "preview": self.probe_preview(),
+            },
+        )
         self.db.set_flag("probe_used", "1")
         self.db.set_flag("probe_pending", "1")
         self.db.set_flag("live_ever", "1")
@@ -1551,6 +1614,52 @@ class Engine:
         self.entry_tasks.add(task)
         task.add_done_callback(self.entry_tasks.discard)
         return "satu probe diminta; hasilnya menunggu rekonsiliasi"
+
+    def probe_preview(self) -> dict | None:
+        snap, market = self.account_snapshot, self.market
+        quote = self.books["lighter"].quote()
+        if not snap or not market or not quote:
+            return None
+        try:
+            sizing = size_entry(
+                self.config,
+                min(snap.equity, snap.available),
+                Decimal(0),
+                Decimal(0),
+                quote.ask,
+                "buy",
+                dec(market["min_base_amount"]),
+                dec(market["min_quote_amount"]),
+                int(market["size_decimals"]),
+                int(market["price_decimals"]),
+                Decimal(35),
+                Decimal(0),
+                minimum_only=True,
+            )
+        except ValueError as exc:
+            return {"blocked": str(exc)}
+        tick = Decimal(1).scaleb(-int(market["price_decimals"]))
+        trigger = limit_price(sizing.price * Decimal("0.9965"), "sell", tick, Decimal(0))
+        return {
+            "side": "buy",
+            "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+            "quantity": str(sizing.quantity),
+            "quote_reference": str(quote.ask),
+            "entry_limit": str(sizing.price),
+            "notional_max": str(sizing.quantity * sizing.price),
+            "planned_risk": str(sizing.planned_risk),
+            "slippage_bps": "2",
+            "stop_trigger_preview": str(trigger),
+            "stop_limit_preview": str(
+                limit_price(trigger * Decimal("0.997"), "sell", tick, Decimal(0))
+            ),
+            "stop_reference": "actual position entry price after fill; preview uses entry limit",
+            "max_hold_seconds": self.config.max_hold_seconds,
+            "stop_install_seconds": STOP_INSTALL_SECONDS,
+            "stop_confirm_seconds": STOP_CONFIRM_SECONDS,
+            "spread_bps": str((quote.ask - quote.bid) / quote.mid * 10000),
+            "depth_price": str(self.books["lighter"].price_for("buy", sizing.quantity)),
+        }
 
     def entry_rate_ready(self) -> bool:
         rate = getattr(self.account, "rate", None)
@@ -1592,6 +1701,50 @@ class Engine:
             blockers.append("posisi, proteksi, atau exit belum bersih")
         if self.db.flag("close_requested") == "1":
             blockers.append("permintaan close belum selesai")
+        return blockers
+
+    def entry_fee_blockers(self, kind: str, *, frozen: bool = False) -> list[str]:
+        if kind != "PROBE" or not self.config.probe_accept_reported_fees:
+            return (
+                ["fee trade belum diketahui; audit pembukuan tertunda"]
+                if self.db.pending_fees()
+                else []
+            )
+        snap = self.account_snapshot
+        if not snap:
+            return ["bukti fee probe membutuhkan snapshot akun"]
+        blockers = []
+        for (fill_id,) in self.db.conn.execute("SELECT fill_id FROM fills WHERE fee IS NULL"):
+            raw = self.db.flag(f"fee_report:{fill_id}")
+            try:
+                report = json.loads(raw) if raw else {}
+            except (ValueError, TypeError):
+                report = {}
+            if not self.db.fee_report_matches(fill_id, report, self.config.account_index):
+                blockers.append(f"bukti ekspor fee hilang/tidak cocok: trade {fill_id}")
+        if self.db.net_cash_status(str(snap.equity), str(snap.position_qty))["status"] != "matched":
+            blockers.append("audit net kas/dana probe belum cocok")
+        if self.reconcile_failed or time.monotonic() - self.last_reconcile_ok > 15:
+            blockers.append("audit kas/dana probe belum segar")
+        raw_binding = self.db.flag("probe_authorization_snapshot")
+        try:
+            binding = json.loads(raw_binding) if raw_binding else {}
+        except (ValueError, TypeError):
+            binding = {}
+        fingerprint = self.db.accounting_fingerprint()
+        if (
+            not self.db.flag("probe_session_id")
+            or binding.get("session_id") != self.db.flag("probe_session_id")
+            or binding.get("account_index") != self.config.account_index
+            or binding.get("fingerprint") != fingerprint
+            or binding.get("equity") != str(snap.equity)
+        ):
+            blockers.append("fill/dana berubah atau sesi izin probe belum terikat")
+        if frozen and (
+            fingerprint != self.probe_preflight_fingerprint
+            or snap.equity != self.probe_preflight_equity
+        ):
+            blockers.append("fill/dana berubah setelah preflight probe")
         return blockers
 
     def live_blockers(self, *, for_probe: bool = False) -> list[str]:
@@ -1675,8 +1828,7 @@ class Engine:
             blockers.append("akun memiliki aset/posisi lain")
         if not self.journal_ok:
             blockers.append("jurnal tidak sehat")
-        if self.db.pending_fees():
-            blockers.append("fee trade belum diketahui; audit pembukuan tertunda")
+        blockers.extend(self.entry_fee_blockers("PROBE" if for_probe else "ENTRY"))
         if (
             self.baseline
             and self.account_snapshot
@@ -1731,6 +1883,9 @@ class Engine:
             "mode": self.config.mode,
             "allow_live_orders": self.config.allow_live_orders,
             "live_entry_scope": self.config.live_entry_scope,
+            "probe_accept_reported_fees": self.config.probe_accept_reported_fees,
+            "probe_session_id": self.db.flag("probe_session_id"),
+            "probe_preview": self.probe_preview(),
             "request_budget": None
             if rate is None
             else {

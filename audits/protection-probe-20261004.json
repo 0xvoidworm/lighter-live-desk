@@ -1,0 +1,1818 @@
+{
+  "audit_version": 1,
+  "assembled_at_utc": "2026-10-04T01:43:50.681732+00:00",
+  "repo_baseline_commit": "343f17b",
+  "session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+  "authorization": {
+    "at": 1791075317.2419004,
+    "kind": "PROBE_REARM_AUTHORIZATION",
+    "body": {
+      "session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+      "previous_session_id": null,
+      "previous_probe_used": "1",
+      "previous_probe_pending": "0",
+      "source": "explicit user authorization in current task: one new entry attempt; reported export precision accepted for probe only",
+      "history_preserved": true,
+      "fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "equity_before": "49.430576",
+      "max_entry_attempts": 1,
+      "START_LIVE_allowed": false,
+      "additional_deposit_allowed": false
+    }
+  },
+  "outcome": {
+    "broadcast_entry": true,
+    "entry_attempts": 1,
+    "entry_filled": true,
+    "stop_exchange_confirmed": true,
+    "stop_trigger_tested": false,
+    "close_reduce_only_filled": true,
+    "cleanup_verified": true,
+    "operational_complete": true,
+    "cash_audit_matched": true,
+    "fee_exact_complete": false,
+    "START_LIVE_used": false,
+    "additional_deposit": false,
+    "further_entry_authorized": false
+  },
+  "account": {
+    "account_index": 751745,
+    "key_index": 4,
+    "tier": 0,
+    "trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "equity_before": "49.430576",
+    "available_before": "49.430576"
+  },
+  "limits": {
+    "max_notional_usdc": "25",
+    "max_exposure_equity_multiple": "1",
+    "planned_risk_cap_usdc": "0.50",
+    "daily_loss_pause_usdc": "5",
+    "source_funding_spent_usd": "50",
+    "additional_deposit_allowed": false,
+    "normal_requests_per_60s": 40,
+    "urgent_read_per_60s": 47,
+    "transaction_requests_per_60s": 55
+  },
+  "preflight": {
+    "captured_at_utc": "2026-10-04T01:14:48.996709+00:00",
+    "fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "all_order_clean_source": "fresh full engine accountActiveOrders and empty probe_blockers",
+    "status": {
+      "state": "READY",
+      "account": {
+        "equity": "49.430576",
+        "available": "49.430576",
+        "position_qty": "0.00000",
+        "position_price": "0.0",
+        "unrealized_pnl": "0.000000",
+        "realized_pnl": "0.000000",
+        "funding": "0",
+        "account_type_code": 0,
+        "account_trading_mode": 1,
+        "margin_mode": 0,
+        "initial_margin_fraction": "100.00",
+        "age_s": 9.6,
+        "funding_audit_age_s": 8.8,
+        "daily_loss": "0",
+        "total_loss": "0",
+        "source_funding_spent_usd": "50",
+        "source_funding_budget_remaining": "0",
+        "gross_history_inflow": "49.430000",
+        "effective_exposure_usd": "0.000000",
+        "recorded_fees": null,
+        "known_fees": "0",
+        "pending_fee_count": 2,
+        "fee_audit_complete": false,
+        "position_read_age_s": 8.8
+      },
+      "probe_blockers": [],
+      "probe_preview": {
+        "side": "buy",
+        "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+        "quantity": "0.00012",
+        "quote_reference": "84794.7",
+        "entry_limit": "84811.7",
+        "notional_max": "10.177404",
+        "planned_risk": "0.0376563948",
+        "slippage_bps": "2",
+        "stop_trigger_preview": "84514.8",
+        "stop_limit_preview": "84261.2",
+        "stop_reference": "actual position entry price after fill; preview uses entry limit",
+        "max_hold_seconds": 180,
+        "stop_install_seconds": 3,
+        "stop_confirm_seconds": 8,
+        "spread_bps": "0.2122796713910686866256731035",
+        "depth_price": "84794.7"
+      },
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 790.3,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 780,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 592,
+        "max_sample_gap_s": 1.065,
+        "allowed_gap_s": 5,
+        "long_gap_count": 0,
+        "gap_wait_remaining_s": 0,
+        "last_sample_age_s": 0.7,
+        "warmup_complete": true,
+        "coverage_complete": true,
+        "ready": true,
+        "buffer_started_at": 1791075697.5232875,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      },
+      "feed_channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 7
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 336
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 42
+        }
+      },
+      "quotes": {
+        "binance": {
+          "valid": true,
+          "bid": "84784.90",
+          "ask": "84785.00",
+          "age_ms": 12,
+          "gaps": 0,
+          "spread_bps": "0.01179454608394532284326404627",
+          "buy_25_vwap": "84785.00000000000000000000000",
+          "sell_25_vwap": "84784.89999999999999999999999"
+        },
+        "lighter": {
+          "valid": true,
+          "bid": "84792.9",
+          "ask": "84794.7",
+          "age_ms": 37,
+          "gaps": 0,
+          "spread_bps": "0.2122796713910686866256731035",
+          "buy_25_vwap": "84794.70000000000000000000001",
+          "sell_25_vwap": "84792.90000000000000000000000"
+        }
+      },
+      "request_budget": {
+        "used_last_60s": 32,
+        "normal_cap": 40,
+        "urgent_read_cap": 47,
+        "transaction_cap": 55,
+        "transaction_slots_remaining": 23
+      },
+      "net_cash_audit": {
+        "status": "matched",
+        "net_difference_usdc": "0.000000",
+        "cash_change_usdc": "0.000576",
+        "individual_fees_known": false
+      },
+      "fee_reports": {
+        "covered_unknown_fills": 2,
+        "all_unknown_fills_covered": true,
+        "reported_fee_total_usdc": "0.0000",
+        "reports": [
+          {
+            "trade_id": "33141524453",
+            "client_id": 2,
+            "qty": "0.000120",
+            "price": "84539.000000",
+            "side": "Open Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+            "order_id": "844421373195178",
+            "exchange_ms": 1791020396773,
+            "evidence_sha256": "ab7e18fd88574f6743f0679e37b0fa42394799ca918bae1cc01676a45baaeacc",
+            "captured_at_utc": "2026-10-04T00:55:17.236083+00:00"
+          },
+          {
+            "trade_id": "33141644233",
+            "client_id": 3,
+            "qty": "0.000120",
+            "price": "84543.800000",
+            "side": "Close Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+            "order_id": "562953474977251",
+            "exchange_ms": 1791020597030,
+            "evidence_sha256": "ab7e18fd88574f6743f0679e37b0fa42394799ca918bae1cc01676a45baaeacc",
+            "captured_at_utc": "2026-10-04T00:55:17.206667+00:00"
+          }
+        ],
+        "exact_fee_established": false
+      }
+    }
+  },
+  "preview_and_dispatch": {
+    "preview": {
+      "at": 1791076489.0205002,
+      "kind": "PROBE_PREFLIGHT",
+      "body": {
+        "session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+        "fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "equity_before": "49.430576",
+        "fee_policy": "reported_export_probe_only",
+        "preview": {
+          "side": "buy",
+          "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+          "quantity": "0.00012",
+          "quote_reference": "84794.7",
+          "entry_limit": "84811.7",
+          "notional_max": "10.177404",
+          "planned_risk": "0.0376563948",
+          "slippage_bps": "2",
+          "stop_trigger_preview": "84514.8",
+          "stop_limit_preview": "84261.2",
+          "stop_reference": "actual position entry price after fill; preview uses entry limit",
+          "max_hold_seconds": 180,
+          "stop_install_seconds": 3,
+          "stop_confirm_seconds": 8,
+          "spread_bps": "0.2122796713910686866256731035",
+          "depth_price": "84794.7"
+        }
+      }
+    },
+    "entry": {
+      "at": 1791076489.0301783,
+      "kind": "ENTRY_DISPATCH",
+      "body": {
+        "client_id": 4,
+        "kind": "PROBE",
+        "side": "buy",
+        "quantity": "0.00012",
+        "quote_reference": "84794.7",
+        "limit_price": "84811.7",
+        "planned_risk": "0.0376563948",
+        "equity_before": "49.430576",
+        "available_before": "49.430576",
+        "slippage_bps": "2",
+        "stop_distance_bps": "35",
+        "stop_limit_slippage_bps": "30",
+        "max_hold_seconds": 180,
+        "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+        "spread_bps": "0.2122796713910686866256731035",
+        "depth_price": "84794.7",
+        "min_base_amount": "0.00007",
+        "min_quote_amount": "10.000000",
+        "size_decimals": 5,
+        "price_decimals": 1
+      }
+    },
+    "stop": {
+      "at": 1791076491.2068439,
+      "kind": "STOP_DISPATCH",
+      "body": {
+        "client_id": 5,
+        "quantity": "0.00012",
+        "side": "sell",
+        "trigger_price": "84497.9",
+        "limit_price": "84244.4",
+        "reduce_only": true
+      }
+    },
+    "close": {
+      "at": 1791076493.3409107,
+      "kind": "EXIT_DISPATCH",
+      "body": {
+        "client_id": 6,
+        "side": "sell",
+        "quantity": "0.00012",
+        "reference_price": "84796.3",
+        "limit_price": "84541.9",
+        "slippage_limit_bps": "30",
+        "reduce_only": true,
+        "attempt": 1
+      }
+    }
+  },
+  "protection_exchange_evidence": {
+    "at": 1791076493.281517,
+    "kind": "PROTECTION_CONFIRMED",
+    "body": {
+      "client_id": 5,
+      "position_qty": "0.00012",
+      "position_price": "84794.7",
+      "snapshot_received_at": 1791076493.171467,
+      "order_index": 562953476061212,
+      "unprotected_observed_s": 3.731308,
+      "order": {
+        "client_order_index": 5,
+        "order_index": 562953476061212,
+        "market_index": 1,
+        "status": "pending",
+        "type": "stop-loss",
+        "is_ask": true,
+        "reduce_only": true,
+        "remaining_base_amount": "0.00012",
+        "filled_base_amount": "0.00000",
+        "trigger_price": "84497.9",
+        "price": "84244.4"
+      }
+    }
+  },
+  "official_trade_responses": {
+    "33170714739": {
+      "trade_id": 33170714739,
+      "trade_id_str": "33170714739",
+      "tx_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+      "type": "trade",
+      "market_id": 1,
+      "size": "0.00012",
+      "price": "84794.7",
+      "usd_amount": "10.175364",
+      "ask_id": 562953476061032,
+      "ask_id_str": "562953476061032",
+      "bid_id": 844421372216756,
+      "bid_id_str": "844421372216756",
+      "ask_client_id": 39446959,
+      "ask_client_id_str": "39446959",
+      "bid_client_id": 4,
+      "bid_client_id_str": "4",
+      "ask_account_id": 748631,
+      "bid_account_id": 751745,
+      "is_maker_ask": true,
+      "block_height": 348001943,
+      "timestamp": 1791055841985,
+      "taker_position_size_before": "0.00000",
+      "taker_entry_quote_before": "0.000000",
+      "taker_initial_margin_fraction_before": 10000,
+      "taker_position_sign_changed": true,
+      "maker_position_size_before": "0.00000",
+      "maker_entry_quote_before": "0.000000",
+      "maker_position_sign_changed": true,
+      "transaction_time": 1791055842355599,
+      "ask_order_version": 0,
+      "bid_order_version": 0
+    },
+    "33170717917": {
+      "trade_id": 33170717917,
+      "trade_id_str": "33170717917",
+      "tx_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+      "type": "trade",
+      "market_id": 1,
+      "size": "0.00012",
+      "price": "84796.2",
+      "usd_amount": "10.175544",
+      "ask_id": 562953476061280,
+      "ask_id_str": "562953476061280",
+      "bid_id": 844421372216535,
+      "bid_id_str": "844421372216535",
+      "ask_client_id": 6,
+      "ask_client_id_str": "6",
+      "bid_client_id": 97878368827595,
+      "bid_client_id_str": "97878368827595",
+      "ask_account_id": 751745,
+      "bid_account_id": 27927,
+      "is_maker_ask": false,
+      "block_height": 348001961,
+      "timestamp": 1791055846698,
+      "taker_position_size_before": "0.00012",
+      "taker_entry_quote_before": "10.175364",
+      "taker_initial_margin_fraction_before": 10000,
+      "taker_position_sign_changed": true,
+      "maker_position_size_before": "0.00000",
+      "maker_entry_quote_before": "0.000000",
+      "maker_position_sign_changed": true,
+      "transaction_time": 1791055847023055,
+      "ask_account_pnl": "0.000180",
+      "ask_order_version": 0,
+      "bid_order_version": 0
+    }
+  },
+  "terminal_exchange_orders": {
+    "6": {
+      "order_index": 562953476061280,
+      "client_order_index": 6,
+      "order_id": "562953476061280",
+      "client_order_id": "6",
+      "market_index": 1,
+      "owner_account_index": 751745,
+      "initial_base_amount": "0.00012",
+      "price": "84541.9",
+      "nonce": 3522639968,
+      "remaining_base_amount": "0.00000",
+      "is_ask": true,
+      "base_size": 0,
+      "base_price": 845419,
+      "filled_base_amount": "0.00012",
+      "filled_quote_amount": "10.175544",
+      "side": "",
+      "type": "limit",
+      "time_in_force": "immediate-or-cancel",
+      "reduce_only": true,
+      "trigger_price": "0.0",
+      "order_expiry": 0,
+      "status": "filled",
+      "trigger_status": "na",
+      "trigger_time": 0,
+      "parent_order_index": 0,
+      "parent_order_id": "0",
+      "to_trigger_order_id_0": "0",
+      "to_trigger_order_id_1": "0",
+      "to_cancel_order_id_0": "0",
+      "block_height": 348001961,
+      "timestamp": 1791055846,
+      "created_at": 1791055846,
+      "updated_at": 1791055846,
+      "transaction_time": 1791055847023055,
+      "integrator_fee_collector_index": "0",
+      "integrator_maker_fee": "0",
+      "integrator_taker_fee": "0",
+      "order_flags": 0,
+      "order_version": 0,
+      "market_kind": "perps"
+    },
+    "5": {
+      "order_index": 562953476061212,
+      "client_order_index": 5,
+      "order_id": "562953476061212",
+      "client_order_id": "5",
+      "market_index": 1,
+      "owner_account_index": 751745,
+      "initial_base_amount": "0.00012",
+      "price": "84244.4",
+      "nonce": 0,
+      "remaining_base_amount": "0.00000",
+      "is_ask": true,
+      "base_size": 0,
+      "base_price": 842444,
+      "filled_base_amount": "0.00000",
+      "filled_quote_amount": "0.000000",
+      "side": "",
+      "type": "stop-loss",
+      "time_in_force": "immediate-or-cancel",
+      "reduce_only": true,
+      "trigger_price": "84497.9",
+      "order_expiry": 1793495691308,
+      "status": "canceled-reduce-only",
+      "trigger_status": "mark-price",
+      "trigger_time": 0,
+      "parent_order_index": 0,
+      "parent_order_id": "0",
+      "to_trigger_order_id_0": "0",
+      "to_trigger_order_id_1": "0",
+      "to_cancel_order_id_0": "0",
+      "block_height": 348001961,
+      "timestamp": 1791055846,
+      "created_at": 1791055844,
+      "updated_at": 1791055846,
+      "transaction_time": 1791055847023120,
+      "integrator_fee_collector_index": "0",
+      "integrator_maker_fee": "0",
+      "integrator_taker_fee": "0",
+      "order_flags": 0,
+      "order_version": 0,
+      "market_kind": "perps"
+    },
+    "4": {
+      "order_index": 844421372216756,
+      "client_order_index": 4,
+      "order_id": "844421372216756",
+      "client_order_id": "4",
+      "market_index": 1,
+      "owner_account_index": 751745,
+      "initial_base_amount": "0.00012",
+      "price": "84811.7",
+      "nonce": 281471418795444,
+      "remaining_base_amount": "0.00000",
+      "is_ask": false,
+      "base_size": 0,
+      "base_price": 848117,
+      "filled_base_amount": "0.00012",
+      "filled_quote_amount": "10.175364",
+      "side": "",
+      "type": "limit",
+      "time_in_force": "immediate-or-cancel",
+      "reduce_only": false,
+      "trigger_price": "0.0",
+      "order_expiry": 0,
+      "status": "filled",
+      "trigger_status": "na",
+      "trigger_time": 0,
+      "parent_order_index": 0,
+      "parent_order_id": "0",
+      "to_trigger_order_id_0": "0",
+      "to_trigger_order_id_1": "0",
+      "to_cancel_order_id_0": "0",
+      "block_height": 348001943,
+      "timestamp": 1791055841,
+      "created_at": 1791055841,
+      "updated_at": 1791055841,
+      "transaction_time": 1791055842355599,
+      "integrator_fee_collector_index": "0",
+      "integrator_maker_fee": "0",
+      "integrator_taker_fee": "0",
+      "order_flags": 0,
+      "order_version": 0,
+      "market_kind": "perps"
+    }
+  },
+  "timing": {
+    "local_exposure_known_to_stop_confirmed_monotonic_s": 3.731308,
+    "local_first_fill_observed_to_stop_dispatch_wall_s": 1.6597464084625244,
+    "local_first_fill_observed_to_stop_confirmed_wall_s": 3.734419584274292,
+    "exchange_entry_fill_ms": 1791055841985,
+    "exchange_close_fill_ms": 1791055846698,
+    "exchange_fill_to_fill_duration_s": "4.713",
+    "local_observed_fill_to_fill_wall_s": 4.289895296096802,
+    "actual_exchange_unprotected_interval_exact_s": null,
+    "clock_limitations": "local and exchange clocks differ; confirmation window is local observed exposure without confirmed protection, not exact venue placement latency; never subtract across clocks",
+    "stop_transaction_lookup": {
+      "attempts": 1,
+      "result": "HTTP 400; bounded optional lookup; no retry or broadcast"
+    }
+  },
+  "slippage": {
+    "entry_reference": "84794.7",
+    "entry_fill": "84794.7",
+    "entry_bps": "0",
+    "close_reference": "84796.3",
+    "close_fill": "84796.2",
+    "close_adverse_bps": "0.01179296738183151859220272583",
+    "close_limit_bps": "30"
+  },
+  "cash_ledger": {
+    "equity_before": "49.430576",
+    "equity_after": "49.430756",
+    "cash_change_usdc": "0.000180",
+    "gross_fill_pnl_usdc": "0.000180",
+    "net_residual_usdc": "0.000000",
+    "entry_qty": "0.00012",
+    "close_qty": "0.00012",
+    "fee_exact": [
+      {
+        "trade_id": "33170714739",
+        "fee": null
+      },
+      {
+        "trade_id": "33170717917",
+        "fee": null
+      }
+    ],
+    "reported_fees": [
+      {
+        "trade_id": "33170714739",
+        "client_id": 4,
+        "qty": "0.000120",
+        "price": "84794.700000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+        "exchange_ms": 1791055841985,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "844421372216756",
+        "captured_at_utc": "2026-10-04T01:16:35.761295+00:00"
+      },
+      {
+        "trade_id": "33170717917",
+        "client_id": 6,
+        "qty": "0.000120",
+        "price": "84796.200000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+        "exchange_ms": 1791055846698,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "562953476061280",
+        "captured_at_utc": "2026-10-04T01:16:35.758330+00:00"
+      }
+    ],
+    "funding_flows_unchanged": true,
+    "funding_audit_source": "fresh complete engine funding reconcile, distinct from position-only GET",
+    "position_zero": true,
+    "all_active_orders_zero": true,
+    "order_statuses_terminal": true,
+    "read_claims": 5,
+    "read_batch_completed_at_utc": "2026-10-04T01:16:35.768982+00:00",
+    "reported_fee_sum_at_export_precision_usdc": "0.0000"
+  },
+  "fee_evidence": {
+    "official_csv": "protection-probe-20261004-trades.csv",
+    "sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+    "precision_decimals": 4,
+    "reported_fee_each_usdc": "0.0000",
+    "reports": [
+      {
+        "trade_id": "33141524453",
+        "client_id": 2,
+        "qty": "0.000120",
+        "price": "84539.000000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+        "exchange_ms": 1791020396773,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "844421373195178",
+        "captured_at_utc": "2026-10-04T01:16:35.766456+00:00"
+      },
+      {
+        "trade_id": "33141644233",
+        "client_id": 3,
+        "qty": "0.000120",
+        "price": "84543.800000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+        "exchange_ms": 1791020597030,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "562953474977251",
+        "captured_at_utc": "2026-10-04T01:16:35.764066+00:00"
+      },
+      {
+        "trade_id": "33170714739",
+        "client_id": 4,
+        "qty": "0.000120",
+        "price": "84794.700000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+        "exchange_ms": 1791055841985,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "844421372216756",
+        "captured_at_utc": "2026-10-04T01:16:35.761295+00:00"
+      },
+      {
+        "trade_id": "33170717917",
+        "client_id": 6,
+        "qty": "0.000120",
+        "price": "84796.200000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+        "exchange_ms": 1791055846698,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "562953476061280",
+        "captured_at_utc": "2026-10-04T01:16:35.758330+00:00"
+      }
+    ],
+    "fee_exact_unknown_count": 4,
+    "all_sql_exact_fees_null": true,
+    "fill_ledger_rows_columns": [
+      "fill_id",
+      "client_id",
+      "qty",
+      "price",
+      "fee_exact",
+      "exchange_ms"
+    ],
+    "fill_ledger_rows": [
+      [
+        "33141524453",
+        2,
+        "0.00012",
+        "84539.0",
+        null,
+        1791020396773
+      ],
+      [
+        "33141644233",
+        3,
+        "0.00012",
+        "84543.8",
+        null,
+        1791020597030
+      ],
+      [
+        "33170714739",
+        4,
+        "0.00012",
+        "84794.7",
+        null,
+        1791055841985
+      ],
+      [
+        "33170717917",
+        6,
+        "0.00012",
+        "84796.2",
+        null,
+        1791055846698
+      ]
+    ],
+    "limitation": "reported precision and net cash reconciliation do not establish individual exact fees or zero micro-fees"
+  },
+  "events": [
+    {
+      "at": 1791075317.2419004,
+      "kind": "PROBE_REARM_AUTHORIZATION",
+      "body": {
+        "session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+        "previous_session_id": null,
+        "previous_probe_used": "1",
+        "previous_probe_pending": "0",
+        "source": "explicit user authorization in current task: one new entry attempt; reported export precision accepted for probe only",
+        "history_preserved": true,
+        "fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "equity_before": "49.430576",
+        "max_entry_attempts": 1,
+        "START_LIVE_allowed": false,
+        "additional_deposit_allowed": false
+      }
+    },
+    {
+      "at": 1791076489.0205002,
+      "kind": "PROBE_PREFLIGHT",
+      "body": {
+        "session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+        "fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "equity_before": "49.430576",
+        "fee_policy": "reported_export_probe_only",
+        "preview": {
+          "side": "buy",
+          "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+          "quantity": "0.00012",
+          "quote_reference": "84794.7",
+          "entry_limit": "84811.7",
+          "notional_max": "10.177404",
+          "planned_risk": "0.0376563948",
+          "slippage_bps": "2",
+          "stop_trigger_preview": "84514.8",
+          "stop_limit_preview": "84261.2",
+          "stop_reference": "actual position entry price after fill; preview uses entry limit",
+          "max_hold_seconds": 180,
+          "stop_install_seconds": 3,
+          "stop_confirm_seconds": 8,
+          "spread_bps": "0.2122796713910686866256731035",
+          "depth_price": "84794.7"
+        }
+      }
+    },
+    {
+      "at": 1791076489.0251284,
+      "kind": "COMMAND",
+      "body": {
+        "kind": "PROBE_ONCE",
+        "result": "satu probe diminta; hasilnya menunggu rekonsiliasi"
+      }
+    },
+    {
+      "at": 1791076489.0301783,
+      "kind": "ENTRY_DISPATCH",
+      "body": {
+        "client_id": 4,
+        "kind": "PROBE",
+        "side": "buy",
+        "quantity": "0.00012",
+        "quote_reference": "84794.7",
+        "limit_price": "84811.7",
+        "planned_risk": "0.0376563948",
+        "equity_before": "49.430576",
+        "available_before": "49.430576",
+        "slippage_bps": "2",
+        "stop_distance_bps": "35",
+        "stop_limit_slippage_bps": "30",
+        "max_hold_seconds": 180,
+        "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+        "spread_bps": "0.2122796713910686866256731035",
+        "depth_price": "84794.7",
+        "min_base_amount": "0.00007",
+        "min_quote_amount": "10.000000",
+        "size_decimals": 5,
+        "price_decimals": 1
+      }
+    },
+    {
+      "at": 1791076489.5470974,
+      "kind": "FILL",
+      "body": {
+        "trade_id": 33170714739,
+        "client_id": 4,
+        "size": "0.00012",
+        "price": "84794.7",
+        "fee_pending": true
+      }
+    },
+    {
+      "at": 1791076491.2068439,
+      "kind": "STOP_DISPATCH",
+      "body": {
+        "client_id": 5,
+        "quantity": "0.00012",
+        "side": "sell",
+        "trigger_price": "84497.9",
+        "limit_price": "84244.4",
+        "reduce_only": true
+      }
+    },
+    {
+      "at": 1791076493.281517,
+      "kind": "PROTECTION_CONFIRMED",
+      "body": {
+        "client_id": 5,
+        "position_qty": "0.00012",
+        "position_price": "84794.7",
+        "snapshot_received_at": 1791076493.171467,
+        "order_index": 562953476061212,
+        "unprotected_observed_s": 3.731308,
+        "order": {
+          "client_order_index": 5,
+          "order_index": 562953476061212,
+          "market_index": 1,
+          "status": "pending",
+          "type": "stop-loss",
+          "is_ask": true,
+          "reduce_only": true,
+          "remaining_base_amount": "0.00012",
+          "filled_base_amount": "0.00000",
+          "trigger_price": "84497.9",
+          "price": "84244.4"
+        }
+      }
+    },
+    {
+      "at": 1791076493.3409107,
+      "kind": "EXIT_DISPATCH",
+      "body": {
+        "client_id": 6,
+        "side": "sell",
+        "quantity": "0.00012",
+        "reference_price": "84796.3",
+        "limit_price": "84541.9",
+        "slippage_limit_bps": "30",
+        "reduce_only": true,
+        "attempt": 1
+      }
+    },
+    {
+      "at": 1791076493.8369927,
+      "kind": "FILL",
+      "body": {
+        "trade_id": 33170717917,
+        "client_id": 6,
+        "size": "0.00012",
+        "price": "84796.2",
+        "fee_pending": true
+      }
+    },
+    {
+      "at": 1791076595.0066688,
+      "kind": "COMMAND",
+      "body": {
+        "kind": "STOP_ENTRIES",
+        "result": "entry dihentikan"
+      }
+    },
+    {
+      "at": 1791076595.759786,
+      "kind": "OFFICIAL_FEE_REPORT",
+      "body": {
+        "trade_id": "33170717917",
+        "client_id": 6,
+        "qty": "0.000120",
+        "price": "84796.200000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+        "exchange_ms": 1791055846698,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "562953476061280",
+        "captured_at_utc": "2026-10-04T01:16:35.758330+00:00"
+      }
+    },
+    {
+      "at": 1791076595.7625606,
+      "kind": "OFFICIAL_FEE_REPORT",
+      "body": {
+        "trade_id": "33170714739",
+        "client_id": 4,
+        "qty": "0.000120",
+        "price": "84794.700000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+        "exchange_ms": 1791055841985,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "844421372216756",
+        "captured_at_utc": "2026-10-04T01:16:35.761295+00:00"
+      }
+    },
+    {
+      "at": 1791076595.7652123,
+      "kind": "OFFICIAL_FEE_REPORT",
+      "body": {
+        "trade_id": "33141644233",
+        "client_id": 3,
+        "qty": "0.000120",
+        "price": "84543.800000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+        "exchange_ms": 1791020597030,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "562953474977251",
+        "captured_at_utc": "2026-10-04T01:16:35.764066+00:00"
+      }
+    },
+    {
+      "at": 1791076595.767685,
+      "kind": "OFFICIAL_FEE_REPORT",
+      "body": {
+        "trade_id": "33141524453",
+        "client_id": 2,
+        "qty": "0.000120",
+        "price": "84539.000000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+        "exchange_ms": 1791020396773,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "order_id": "844421373195178",
+        "captured_at_utc": "2026-10-04T01:16:35.766456+00:00"
+      }
+    },
+    {
+      "at": 1791076595.7690966,
+      "kind": "NET_CASH_AUDIT",
+      "body": {
+        "account_index": 751745,
+        "session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+        "equity_before": "49.430576",
+        "equity_after": "49.430756",
+        "cash_change_usdc": "0.000180",
+        "gross_fill_pnl_usdc": "0.000180",
+        "reported_fee_total_usdc": "0.0000",
+        "reported_precision_decimals": 4,
+        "net_residual_usdc": "0.000000",
+        "fingerprint": {
+          "fills": [
+            [
+              "33141524453",
+              2,
+              "0.00012",
+              "84539.0",
+              null
+            ],
+            [
+              "33141644233",
+              3,
+              "0.00012",
+              "84543.8",
+              null
+            ],
+            [
+              "33170714739",
+              4,
+              "0.00012",
+              "84794.7",
+              null
+            ],
+            [
+              "33170717917",
+              6,
+              "0.00012",
+              "84796.2",
+              null
+            ]
+          ],
+          "flows": [
+            [
+              "deposit:130682965109",
+              "49.430000"
+            ]
+          ]
+        },
+        "fee_individual_exact": null,
+        "source": "fresh official global order/account, matched official trade CSV and unchanged full funding audit; reported precision accepted, exact NULL preserved"
+      }
+    },
+    {
+      "at": 1791076595.770324,
+      "kind": "PROBE_COMPLETION_AUDIT",
+      "body": {
+        "session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+        "position_zero": true,
+        "all_orders_zero": true,
+        "cash_ledger_matches": true,
+        "exact_fee_unknown_count": 4,
+        "protection_confirmed_event_exists": true,
+        "order_permission_revoked": true,
+        "stop_trigger_tested": false
+      }
+    },
+    {
+      "at": 1791076604.472306,
+      "kind": "PROBE_OPERATIONAL_COMPLETE",
+      "body": {
+        "session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+        "position_qty": "0",
+        "all_active_orders": 0,
+        "fee_exact_unknown_count": 4,
+        "cash_audit": {
+          "status": "matched",
+          "net_difference_usdc": "0.000000",
+          "cash_change_usdc": "0.000180",
+          "individual_fees_known": false
+        }
+      }
+    },
+    {
+      "at": 1791076655.6873777,
+      "kind": "FEE_LOOKUP_PAUSED",
+      "body": {
+        "trade_id": "33170714739",
+        "fee": null,
+        "attempts": 3
+      }
+    },
+    {
+      "at": 1791076655.691418,
+      "kind": "FEE_LOOKUP_PAUSED",
+      "body": {
+        "trade_id": "33170717917",
+        "fee": null,
+        "attempts": 3
+      }
+    },
+    {
+      "at": 1791076745.5368972,
+      "kind": "COMMAND",
+      "body": {
+        "kind": "CLOSE_POSITION",
+        "result": "tidak ada posisi menurut snapshot terakhir"
+      }
+    }
+  ],
+  "commands_by_kind_all_history": [
+    [
+      "CLOSE_POSITION",
+      1
+    ],
+    [
+      "PROBE_ONCE",
+      3
+    ],
+    [
+      "STOP_ENTRIES",
+      1
+    ]
+  ],
+  "telemetry": {
+    "lifecycle_snapshots": 78,
+    "engine_budget_peak_per_60s": 48,
+    "lifecycle_file_sha256": "5ba5758baa13e36b6f44e470736a35ace12f2075a4bd2152259319bc3c8178af",
+    "manual_read_claims_prepare": 9,
+    "manual_read_claims_cleanup": 5,
+    "manual_read_claims_final": 2,
+    "counter_limitation": "engine and SDK manual counters are separate; SDK initialization not included in claimed read counts",
+    "post_completion_observation": {
+      "observed_at_utc": "2026-10-04T01:35:22.707097+00:00",
+      "observation_elapsed_s": 600.5,
+      "connected": true,
+      "updated_at": 1791077722.468208,
+      "state": "IDLE",
+      "reason": "standby; akun flat, data segar, entry dinonaktifkan",
+      "allow_live_orders": false,
+      "entries_stopped": true,
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 647.8,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 639,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 591,
+        "max_sample_gap_s": 1.057,
+        "allowed_gap_s": 5,
+        "long_gap_count": 0,
+        "gap_wait_remaining_s": 0,
+        "last_sample_age_s": 0.7,
+        "warmup_complete": true,
+        "coverage_complete": true,
+        "ready": true,
+        "buffer_started_at": 1791077073.7359457,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      },
+      "feed_channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 86
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 1333
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 15
+        }
+      },
+      "account": {
+        "equity": "49.430756",
+        "available": "49.430756",
+        "position_qty": "0.00000",
+        "position_price": "0.0",
+        "unrealized_pnl": "0.000000",
+        "realized_pnl": "0.000000",
+        "funding": "0",
+        "account_type_code": 0,
+        "account_trading_mode": 1,
+        "margin_mode": 0,
+        "initial_margin_fraction": "100.00",
+        "age_s": 8.0,
+        "funding_audit_age_s": 7.2,
+        "daily_loss": "0",
+        "total_loss": "0",
+        "source_funding_spent_usd": "50",
+        "source_funding_budget_remaining": "0",
+        "gross_history_inflow": "49.430000",
+        "effective_exposure_usd": "0E-7",
+        "recorded_fees": null,
+        "known_fees": "0",
+        "pending_fee_count": 4,
+        "fee_audit_complete": false,
+        "position_read_age_s": 7.2
+      },
+      "fee_lookup": {
+        "unknown_count": 4,
+        "lookup_paused_count": 4,
+        "max_attempts": 3,
+        "retry_interval_s": 60,
+        "individual_fees_known": false
+      },
+      "fee_reports": {
+        "covered_unknown_fills": 4,
+        "all_unknown_fills_covered": true,
+        "reported_fee_total_usdc": "0.0000",
+        "reports": [
+          {
+            "trade_id": "33141524453",
+            "client_id": 2,
+            "qty": "0.000120",
+            "price": "84539.000000",
+            "side": "Open Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+            "exchange_ms": 1791020396773,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "order_id": "844421373195178",
+            "captured_at_utc": "2026-10-04T01:16:35.766456+00:00"
+          },
+          {
+            "trade_id": "33141644233",
+            "client_id": 3,
+            "qty": "0.000120",
+            "price": "84543.800000",
+            "side": "Close Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+            "exchange_ms": 1791020597030,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "order_id": "562953474977251",
+            "captured_at_utc": "2026-10-04T01:16:35.764066+00:00"
+          },
+          {
+            "trade_id": "33170714739",
+            "client_id": 4,
+            "qty": "0.000120",
+            "price": "84794.700000",
+            "side": "Open Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+            "exchange_ms": 1791055841985,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "order_id": "844421372216756",
+            "captured_at_utc": "2026-10-04T01:16:35.761295+00:00"
+          },
+          {
+            "trade_id": "33170717917",
+            "client_id": 6,
+            "qty": "0.000120",
+            "price": "84796.200000",
+            "side": "Close Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+            "exchange_ms": 1791055846698,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "order_id": "562953476061280",
+            "captured_at_utc": "2026-10-04T01:16:35.758330+00:00"
+          }
+        ],
+        "exact_fee_established": false
+      },
+      "net_cash_audit": {
+        "status": "matched",
+        "net_difference_usdc": "0.000000",
+        "cash_change_usdc": "0.000180",
+        "individual_fees_known": false
+      },
+      "request_budget": {
+        "used_last_60s": 40,
+        "normal_cap": 40,
+        "urgent_read_cap": 47,
+        "transaction_cap": 55,
+        "transaction_slots_remaining": 15
+      },
+      "reconnects": {
+        "binance": 0,
+        "lighter": 0
+      },
+      "live_blockers": [
+        "izin entry hanya untuk satu probe; START_LIVE dilarang",
+        "konfigurasi observe/allow_live_orders=false",
+        "mode idle; entry dinonaktifkan",
+        "fee trade belum diketahui; audit pembukuan tertunda"
+      ],
+      "probe_preview": {
+        "side": "buy",
+        "side_reason": "fixed BUY probe; lifecycle test, no strategy signal",
+        "quantity": "0.00012",
+        "quote_reference": "84768.0",
+        "entry_limit": "84785.0",
+        "notional_max": "10.174200",
+        "planned_risk": "0.037644540",
+        "slippage_bps": "2",
+        "stop_trigger_preview": "84488.2",
+        "stop_limit_preview": "84234.7",
+        "stop_reference": "actual position entry price after fill; preview uses entry limit",
+        "max_hold_seconds": 180,
+        "stop_install_seconds": 3,
+        "stop_confirm_seconds": 8,
+        "spread_bps": "0.01179691145061311498036699012",
+        "depth_price": "84768.0"
+      },
+      "pending_orders": [],
+      "quotes": {
+        "binance": {
+          "valid": true,
+          "bid": "84755.00",
+          "ask": "84755.10",
+          "age_ms": 76,
+          "gaps": 0,
+          "spread_bps": "0.01179870697970209444746950182",
+          "buy_25_vwap": "84755.10000000000000000000001",
+          "sell_25_vwap": "84755.00000000000000000000001"
+        },
+        "lighter": {
+          "valid": true,
+          "bid": "84767.9",
+          "ask": "84768.0",
+          "age_ms": 4,
+          "gaps": 0,
+          "spread_bps": "0.01179691145061311498036699012",
+          "buy_25_vwap": "84768.00000000000000000000000",
+          "sell_25_vwap": "84767.85764224000000000000001"
+        }
+      },
+      "decision": {
+        "side": null,
+        "deviation_bps": "2.872238674863621695698370000",
+        "basis_bps": "2.311848133469979933718140000",
+        "reasons": [
+          "DEVIASI_KURANG",
+          "BIAYA_DAN_BUFFER_MELEBIHI_PELUANG"
+        ],
+        "version": "local-deviation-v1-HEURISTIC_UNVALIDATED"
+      }
+    }
+  },
+  "final_readonly_exchange_and_engine": {
+    "checked_at_utc": "2026-10-04T01:38:34.610494+00:00",
+    "account_index": 751745,
+    "key_index": 4,
+    "position_qty": "0.00000",
+    "all_active_orders": 0,
+    "other_positions": 0,
+    "other_assets": 0,
+    "equity": "49.430756",
+    "available": "49.430756",
+    "tier_code": 0,
+    "trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "read_claims": 2,
+    "sdk_initialization_requests_not_in_read_counter": "recorded separately; no order signing/broadcast",
+    "state": "IDLE",
+    "allow_live_orders": false,
+    "probe_used": "1",
+    "probe_pending": "0",
+    "close_requested": "0",
+    "unresolved_intents": 0,
+    "fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "status": {
+      "state": "IDLE",
+      "reason": "standby; akun flat, data segar, entry dinonaktifkan",
+      "allow_live_orders": false,
+      "live_entry_scope": "probe_only",
+      "probe_accept_reported_fees": true,
+      "probe_session_id": "d980862d-fda4-4876-97c0-b5d6f82b950c",
+      "account": {
+        "equity": "49.430756",
+        "available": "49.430756",
+        "position_qty": "0.00000",
+        "position_price": "0.0",
+        "unrealized_pnl": "0.000000",
+        "realized_pnl": "0.000000",
+        "funding": "0",
+        "account_type_code": 0,
+        "account_trading_mode": 1,
+        "margin_mode": 0,
+        "initial_margin_fraction": "100.00",
+        "age_s": 8.0,
+        "funding_audit_age_s": 7.2,
+        "daily_loss": "0",
+        "total_loss": "0",
+        "source_funding_spent_usd": "50",
+        "source_funding_budget_remaining": "0",
+        "gross_history_inflow": "49.430000",
+        "effective_exposure_usd": "0.000000",
+        "recorded_fees": null,
+        "known_fees": "0",
+        "pending_fee_count": 4,
+        "fee_audit_complete": false,
+        "position_read_age_s": 7.2
+      },
+      "coverage": {
+        "duration_required_s": 600,
+        "duration_observed_s": 839.7,
+        "duration_remaining_s": 0,
+        "total_samples_required": 480,
+        "total_samples": 829,
+        "window_s": 600,
+        "recent_samples_required": 480,
+        "recent_samples": 592,
+        "max_sample_gap_s": 1.06,
+        "allowed_gap_s": 5,
+        "long_gap_count": 0,
+        "gap_wait_remaining_s": 0,
+        "last_sample_age_s": 0.6,
+        "warmup_complete": true,
+        "coverage_complete": true,
+        "ready": true,
+        "buffer_started_at": 1791077073.7359457,
+        "buffer_reset_reason": "engine_start",
+        "last_interruption": null
+      },
+      "feed_channels": {
+        "binance_public": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 15
+        },
+        "binance_market": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 377
+        },
+        "lighter": {
+          "connected": true,
+          "reconnects": 0,
+          "consecutive_failures": 0,
+          "retry_delay_s": 0,
+          "last_error": null,
+          "last_disconnect_at": null,
+          "last_frame_age_ms": 38
+        }
+      },
+      "quotes": {
+        "binance": {
+          "valid": true,
+          "bid": "84794.80",
+          "ask": "84794.90",
+          "age_ms": 88,
+          "gaps": 0,
+          "spread_bps": "0.01179316904269539954372228974",
+          "buy_25_vwap": "84794.90000000000000000000000",
+          "sell_25_vwap": "84794.80000000000000000000000"
+        },
+        "lighter": {
+          "valid": true,
+          "bid": "84800.6",
+          "ask": "84801.0",
+          "age_ms": 27,
+          "gaps": 0,
+          "spread_bps": "0.04716936632673276667201252818",
+          "buy_25_vwap": "84800.99999999999999999999999",
+          "sell_25_vwap": "84799.37795040000000000000000"
+        }
+      },
+      "fee_reports": {
+        "covered_unknown_fills": 4,
+        "all_unknown_fills_covered": true,
+        "reported_fee_total_usdc": "0.0000",
+        "reports": [
+          {
+            "trade_id": "33141524453",
+            "client_id": 2,
+            "qty": "0.000120",
+            "price": "84539.000000",
+            "side": "Open Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+            "exchange_ms": 1791020396773,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "order_id": "844421373195178",
+            "captured_at_utc": "2026-10-04T01:16:35.766456+00:00"
+          },
+          {
+            "trade_id": "33141644233",
+            "client_id": 3,
+            "qty": "0.000120",
+            "price": "84543.800000",
+            "side": "Close Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+            "exchange_ms": 1791020597030,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "order_id": "562953474977251",
+            "captured_at_utc": "2026-10-04T01:16:35.764066+00:00"
+          },
+          {
+            "trade_id": "33170714739",
+            "client_id": 4,
+            "qty": "0.000120",
+            "price": "84794.700000",
+            "side": "Open Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+            "exchange_ms": 1791055841985,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "order_id": "844421372216756",
+            "captured_at_utc": "2026-10-04T01:16:35.761295+00:00"
+          },
+          {
+            "trade_id": "33170717917",
+            "client_id": 6,
+            "qty": "0.000120",
+            "price": "84796.200000",
+            "side": "Close Long",
+            "market": "BTC",
+            "role": "Taker",
+            "reported_fee_usdc": "0.0000",
+            "precision_decimals": 4,
+            "source": "official_account_export",
+            "account_index": 751745,
+            "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+            "exchange_ms": 1791055846698,
+            "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+            "order_id": "562953476061280",
+            "captured_at_utc": "2026-10-04T01:16:35.758330+00:00"
+          }
+        ],
+        "exact_fee_established": false
+      },
+      "fee_lookup": {
+        "unknown_count": 4,
+        "lookup_paused_count": 4,
+        "max_attempts": 3,
+        "retry_interval_s": 60,
+        "individual_fees_known": false
+      },
+      "net_cash_audit": {
+        "status": "matched",
+        "net_difference_usdc": "0.000000",
+        "cash_change_usdc": "0.000180",
+        "individual_fees_known": false
+      },
+      "request_budget": {
+        "used_last_60s": 40,
+        "normal_cap": 40,
+        "urgent_read_cap": 47,
+        "transaction_cap": 55,
+        "transaction_slots_remaining": 15
+      },
+      "entries_stopped": true,
+      "probe_used": true,
+      "probe_active": false,
+      "pending_orders": [],
+      "protection_id": null,
+      "exit_id": null,
+      "journal_ok": true,
+      "queue_backlog": 0,
+      "updated_at": 1791077914.43904
+    },
+    "broadcast": false
+  },
+  "cleanup_flag_fix": {
+    "mainnet_runtime": {
+      "engine_sha256": "4b65d3cdab7a64d80f7496a9a72546e7904329796a42072e37e3425d575c94d1",
+      "note": "source executed for probe, before local completion-flag cleanup regression fix"
+    },
+    "final_engine_sha256": "22b95021d2bc47444a922c2cb10d1ea31fc319783fcc59329b484c40a885fab7",
+    "verified_locally_only": true,
+    "note": "operational-completion now clears stale close_requested after flat/order-clean/cash-match; old flag cleared via existing CLOSE_POSITION on flat, no broadcast"
+  },
+  "verification": {
+    "pytest_passed": 251,
+    "sdk_distribution_version": "1.1.5",
+    "native_sdk_signing_offline": true,
+    "secret_scan": {
+      "files_checked": 50,
+      "actual_private_key_or_token_matches": 0,
+      "presigned_url_or_bearer_matches": 0,
+      "local_config_secrets_state_excluded_from_commit": true
+    },
+    "ruff_and_format": "passed",
+    "mypy": "passed",
+    "ui_build": "passed",
+    "browser": {
+      "state": "IDLE",
+      "entry_buttons_disabled": true,
+      "exact_unknown_shown": 4,
+      "reported_precision_shown": 4,
+      "cash_residual_shown": "0.000000"
+    }
+  },
+  "limitations": [
+    "stop accepted/active status proved, triggering not tested",
+    "exact fee metadata pending",
+    "strategy profitability untested",
+    "no further probe or strategy entry authorization"
+  ]
+}

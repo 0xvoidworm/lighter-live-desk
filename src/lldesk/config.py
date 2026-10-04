@@ -37,10 +37,13 @@ class Config(BaseModel):
     max_session_positions: int = Field(default=3, ge=1, le=3)
     allow_live_orders: bool = False
     live_entry_scope: Literal["probe_only", "strategy"] = "probe_only"
+    probe_accept_reported_fees: bool = False
     source_funding_spent_usd: Decimal | None = None
 
     @model_validator(mode="after")
     def limits(self) -> Config:
+        if self.probe_accept_reported_fees and self.live_entry_scope != "probe_only":
+            raise ValueError("reported fee evidence is restricted to one probe")
         if self.source_funding_spent_usd is not None and not (
             0 <= self.source_funding_spent_usd <= self.max_funding_usd
         ):
