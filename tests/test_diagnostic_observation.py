@@ -9,6 +9,8 @@ import pytest
 from test_probe_only import engine as engine_fixture
 
 from lldesk.diagnostics import observe
+from lldesk.engine import Engine
+from lldesk.market import Feeds
 from lldesk.models import EngineState, Stamp
 from lldesk.risk import EquityBaseline
 
@@ -16,6 +18,12 @@ engine = engine_fixture
 
 
 def prepare(engine):
+    # Remove the shared fixture's stub: the regression must exercise the real
+    # transport/receipt guard and leave the actual entry data_valid() in place.
+    if "data_valid" in engine.__dict__:
+        del engine.data_valid
+    engine.feeds = Feeds(1, engine.queue)
+    engine.feeds.binance_public_ok = engine.feeds.binance_trades_ok = True
     engine.config = engine.config.model_copy(update={"allow_live_orders": False})
     engine.state = EngineState.IDLE
     engine.fx, engine.fx_at = Decimal(1), time.monotonic()
@@ -24,6 +32,7 @@ def prepare(engine):
     engine.books["binance"].binance_snapshot(
         {"lastUpdateId": 1, "bids": [["83000", "2"]], "asks": [["83000.1", "2"]]}, Stamp()
     )
+    engine.books["binance"].bridged = True
     engine.baseline = EquityBaseline(
         Decimal("49.43"), Decimal("49.43"), Decimal("49.43"), Decimal("49.43"), "fixture"
     )
@@ -40,6 +49,7 @@ def prepare(engine):
 
 def test_source_guard_and_report_use_one_assessment_at_boundary(engine):
     prepare(engine)
+    assert engine.data_valid.__func__ is Engine.data_valid
     engine.source_freshness = Mock(
         side_effect=[
             {"passed": True, "reason": "SOURCE_FRESH_WITH_CLOCK_BOUND"},
@@ -49,7 +59,12 @@ def test_source_guard_and_report_use_one_assessment_at_boundary(engine):
     result = observe(engine)
     assert result["technical_ready"] and result["source_freshness"]["passed"]
     assert result["checks"]["source_freshness"] == result["source_freshness"]["passed"]
+    assert result["checks"]["market_data"]
     engine.source_freshness.assert_called_once()
+    # A later real entry check must reject the newly expired quote, rather than
+    # reusing the diagnostic's earlier passed result.
+    assert not engine.data_valid()
+    assert engine.source_freshness.call_count == 2
 
 
 async def test_passive_technical_readiness_never_opens_entry(engine):

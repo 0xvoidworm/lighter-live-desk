@@ -114,11 +114,14 @@ def capture(output: Path, expected_pid: int, base_commit: str):
                     not status["allow_live_orders"]
                     and status["strategy_session"]["status"] == "closed"
                 )
+                assert status["engine_pid"] == expected_pid, "engine changed during recording"
                 assert not status["strategy_session"]["attempts"]
                 if status.get("account"):
                     assert not Decimal(status["account"]["position_qty"])
                     assert not status["account"]["exchange_active_order_count"]
                     assert not status["account"]["other_exchange_position_count"]
+                    assert not status["account"]["exchange_order_count"]
+                    assert not status["account"]["exchange_pending_count"]
                 assert not status["pending_orders"]
                 record["status"] = {k: v for k, v in status.items() if k != "events"}
                 record["local_capture_delay_ms"] = (time.monotonic() - tick) * 1000

@@ -21,7 +21,9 @@ def observe(engine: Engine) -> dict:
     quotes = {name: book.quote() for name, book in engine.books.items()}
     source_freshness = engine.source_freshness()
     checks = {
-        "market_data": engine.data_valid(),
+        # One transient source assessment describes this diagnostic snapshot.
+        # Actual entry/sampling calls data_valid() and assesses source time afresh.
+        "market_data": engine.market_data_valid() and source_freshness["passed"],
         "source_freshness": source_freshness["passed"],
         "fx_normalization": bool(engine.fx is not None and abs((engine.fx - 1) * 10000) <= 10),
         "coverage": getattr(engine.strategy, "coverage", lambda: {"ready": False})()["ready"],

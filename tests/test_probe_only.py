@@ -12,6 +12,7 @@ import pytest
 from lldesk.account import AccountSnapshot, DispatchBlocked, LocalOrderRejected, RateBudget
 from lldesk.config import Config
 from lldesk.engine import JAKARTA, Engine
+from lldesk.market import Feeds
 from lldesk.models import EngineState, OrderState, Stamp
 from lldesk.strategy import Decision, DeviationStrategy
 
@@ -138,6 +139,9 @@ def engine(tmp_path):
     value.books["binance"].binance_snapshot(
         {"lastUpdateId": 1, "bids": [["83000", "2"]], "asks": [["83000.1", "2"]]}, Stamp()
     )
+    value.books["binance"].bridged = True
+    value.feeds = Feeds(1, value.queue)  # State only; never launches a transport.
+    value.feeds.binance_public_ok = value.feeds.binance_trades_ok = True
     value._update_baseline(value.account_snapshot)
     value.db.event(
         "NET_CASH_AUDIT",

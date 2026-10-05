@@ -1,5 +1,13 @@
 # Runbook Lighter Live Desk
 
+Koneksi public Binance produksi berlangganan hanya `btcusdt@depth@100ms` pada
+`/public/stream`, dengan bootstrap snapshot REST dan bridge sequence U/u/pu.
+Quote, monitoring dan dashboard tidak memerlukan futures bookTicker. aggTrade
+tetap pada `/market/stream`; REST Spot bookTicker USDCUSDT untuk kurs terpisah.
+Diagnostic observation memakai satu assessment sumber per snapshot; jalur entry
+selalu menilai ulang sumber melalui data_valid dan tidak memakai hasil cache
+diagnostik sebagai izin. Lihat AUDIT_DEPTH_ONLY_PRODUCTION_2026-10-06.md.
+
 ## Kesegaran sumber Binance untuk entry dan sampel
 
 Receipt monotonic tetap memakai guard lama 1500ms. Entry/sampel juga wajib

@@ -17,6 +17,7 @@ import pytest
 from lldesk.account import AccountSnapshot, LighterAccount, RateBudget
 from lldesk.config import Config
 from lldesk.engine import Engine
+from lldesk.market import Feeds
 from lldesk.models import EngineState, MarketEvent, Stamp
 from lldesk.risk import size_entry
 from lldesk.strategy import Decision
@@ -277,6 +278,9 @@ async def test_cancel_blocks_entry_waiting_for_signer_lock(engine, monkeypatch, 
 
     adapter.order_statuses = statuses
     engine.account = adapter
+    engine.books["binance"].bridged = True
+    engine.feeds = Feeds(1, engine.queue)
+    engine.feeds.binance_public_ok = engine.feeds.binance_trades_ok = True
     monkeypatch.setattr(engine, "data_valid", lambda: True)
     monkeypatch.setattr(engine, "safe_reconcile", reconcile_noop)
     await adapter.lock.acquire()
@@ -408,6 +412,9 @@ async def test_probe_uses_minimum_legal_size(engine, monkeypatch):
     """Runbook promises a minimum-size execution probe."""
     exchange = Exchange(snapshot())
     engine.account = exchange
+    engine.books["binance"].bridged = True
+    engine.feeds = Feeds(1, engine.queue)
+    engine.feeds.binance_public_ok = engine.feeds.binance_trades_ok = True
     monkeypatch.setattr(engine, "data_valid", lambda: True)
 
     async def reconcile_noop(*, reserved=False):
@@ -444,6 +451,9 @@ async def test_cancel_revokes_an_entry_scheduled_before_task_starts(engine, monk
     engine.loaded_session_permission_id = "offline-epoch-test"  # Previously admitted fixture.
     exchange = Exchange(snapshot())
     engine.account = exchange
+    engine.books["binance"].bridged = True
+    engine.feeds = Feeds(1, engine.queue)
+    engine.feeds.binance_public_ok = engine.feeds.binance_trades_ok = True
     monkeypatch.setattr(engine, "data_valid", lambda: True)
     task = asyncio.create_task(engine.enter("buy", scheduled_epoch=engine.entry_epoch))
     await engine.cancel_entries()

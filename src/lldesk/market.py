@@ -20,9 +20,7 @@ from .models import MarketEvent, Quote, Stamp
 from .network import DnsMode, binance_session
 from .transport_trace import TransportTrace
 
-BINANCE_PUBLIC_WS = (
-    "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
-)
+BINANCE_PUBLIC_WS = "wss://fstream.binance.com/public/stream?streams=btcusdt@depth@100ms"
 BINANCE_MARKET_WS = "wss://fstream.binance.com/market/stream?streams=btcusdt@aggTrade"
 BINANCE_DEPTH = "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=1000"
 LIGHTER_WS = "wss://mainnet.zklighter.elliot.ai/stream"

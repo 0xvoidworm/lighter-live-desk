@@ -127,16 +127,29 @@ def restore_real_guards(engine):
     engine.strategy = DeviationStrategy()
 
 
-def test_late_delta_still_updates_sequence_but_not_coverage_or_basis(engine):
+@pytest.mark.parametrize("condition", ["late", "missing", "future", "uncertain"])
+def test_rejected_source_delta_updates_sequence_but_not_coverage_or_basis(engine, condition):
     restore_real_guards(engine)
     b = engine.books["binance"]
     b.stamp = live_stamp(4500)
+    if condition == "missing":
+        b.stamp = replace(b.stamp, exchange_ms=None)
+    if condition == "future":
+        b.stamp = live_stamp(-300)
+    if condition == "uncertain":
+        b.stamp = live_stamp(200)
+        engine.source_clock.evidence = replace(
+            engine.source_clock.evidence, offset_low_ms=-300, offset_high_ms=300
+        )
     b.binance_delta({"U": 2, "u": 2, "pu": 1, "b": [["83000", "3"]], "a": []}, b.stamp)
     engine.decide()
     assert b.sequence == 2 and b.bids[Decimal(83000)] == 3
     assert engine.market_data_valid() and not engine.data_valid()
     assert len(engine.strategy.samples) == 0 and engine.strategy.last_binance_mid is None
     assert not engine.preflight_valid("recorded-replay")
+    engine.source_clock.evidence = replace(
+        engine.source_clock.evidence, offset_low_ms=-30, offset_high_ms=30
+    )
     b.stamp = live_stamp(200)
     engine.decide()
     assert len(engine.strategy.samples) == 1

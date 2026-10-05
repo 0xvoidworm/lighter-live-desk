@@ -79,7 +79,8 @@ def test_binance_futures_uses_pu_after_bridge_with_nonconsecutive_U() -> None:
 
 def test_binance_streams_use_official_routes_and_equal_snapshot_bridge() -> None:
     assert "/public/stream" in BINANCE_PUBLIC_WS
-    assert "bookTicker" in BINANCE_PUBLIC_WS and "depth@100ms" in BINANCE_PUBLIC_WS
+    assert BINANCE_PUBLIC_WS.endswith("?streams=btcusdt@depth@100ms")
+    assert "bookTicker" not in BINANCE_PUBLIC_WS
     assert "aggTrade" not in BINANCE_PUBLIC_WS
     assert "/market/stream" in BINANCE_MARKET_WS and "aggTrade" in BINANCE_MARKET_WS
     book = Book("binance")
@@ -666,6 +667,9 @@ def authorize_test_session(engine):
     engine.books["binance"].binance_snapshot(
         {"lastUpdateId": 1, "bids": [["83000", "2"]], "asks": [["83000.1", "2"]]}, Stamp()
     )
+    engine.books["binance"].bridged = True
+    engine.feeds = Feeds(1, engine.queue)  # Fake connectivity; no socket is started.
+    engine.feeds.binance_public_ok = engine.feeds.binance_trades_ok = True
 
     async def snapshot(*args, **kwargs):
         engine.account.rate.claim("reconcile", 7)
