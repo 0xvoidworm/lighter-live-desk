@@ -1,5 +1,32 @@
 # Runbook Lighter Live Desk
 
+## Pemuatan izin sesi tanpa restart
+
+`LOAD_SESSION_PERMISSION` melalui command API/CSRF lokal memuat izin yang
+sudah diberikan pengguna dan staged pada config + record BoundedSession
+authorized baru. Tanpa record baru yang sah, config `allow_live_orders=true`
+saja tidak cukup. Jangan memanggil authorize/START_LIVE pada tugas tanpa izin.
+Izin pra-aktivasi expires20menit sejak authorize; record lama tanpa expiry,
+closed/revoked/used ditolak. Reload tidak mengganti UUID, kuota, expiry atau
+deadline. Identity/risk/config hash, flat, fresh account, full history, kas
+dan bukti fee diperiksa sebelum engine memuat flag. Coverage dan timestamp
+observasi tetap dipertahankan. LOAD tidak mengaktifkan sesi atau mengirim order.
+Config flags yang dimuat mempersiapkan izin; entry tetap stopped sampai
+START_LIVE yang terpisah dan seluruh preflight lolos.
+
+Supervisor sesi yang diluncurkan dengan otorisasi eksplisit memakai LOAD,
+preflight diagnostik, lalu maksimal satu START_LIVE. Audit-before-every-entry
+dan TTL5s tetap wajib; peluang dievaluasi ulang setelah audit. Restart fisik
+tetap RECONCILING dan tidak memulihkan loaded permission atau entry otomatis.
+STOP_ENTRIES atau LOAD dengan configOFF mencabut izin melalui engine,
+menutup unused authorization atau memulai ending/cleanup bila sedang aktif.
+Supervisor tidak boleh menulis ulang state/config/kuota untuk revocation.
+
+Untuk diagnosis feed, gunakan `market_processing` dan Recorder enqueue stamp:
+receipt aplikasi sebelum parse, sumber exchange asli, enqueue, processing,
+quote stamp yang diterapkan. Pesan baru tidak selalu berarti depth baru;
+old/duplicate sequence dan heartbeat/ticker tidak menyegarkan book.
+
 Kurs pembanding memakai snapshot resmi Binance Spot USDCUSDT (USDT perUSDC),
 bukan last trade atau kurs1:1. Bootstrap exchangeInfo sekali, lalu ticker
 bid/ask tiap deadline2s dengan total request2s, freshness15s tetap.

@@ -1,0 +1,65 @@
+{
+  "incident_engine_pid": 244409,
+  "incident": "valid strategy sample gap 5.551 seconds during bounded-session preparation",
+  "analysis_window_utc": ["2026-10-05T11:06:40+00:00", "2026-10-05T11:07:00+00:00"],
+  "fx_request": {
+    "id": 187,
+    "source": "Binance Spot REST Memory",
+    "symbol": "USDCUSDT",
+    "path": "/api/v3/ticker/bookTicker",
+    "started_at_utc": "2026-10-05T11:06:45.093977+00:00",
+    "finished_at_utc": "2026-10-05T11:06:47.095457+00:00",
+    "failure_phase": "http11.receive_response_headers",
+    "error": "TimeoutError",
+    "elapsed_ms": 2001.47473,
+    "header_wait_ms": 2000.0073640112532,
+    "dns_or_new_tcp_or_tls_phase_in_this_request": false,
+    "last_verified_before_utc": "2026-10-05T11:06:43.159376+00:00",
+    "next_verified_utc": "2026-10-05T11:06:49.537436+00:00",
+    "verified_observation_gap_s": 6.378059607
+  },
+  "book_receipts": {
+    "binance_depthUpdate": {
+      "last_before_utc": "2026-10-05T11:06:43.898901+00:00",
+      "next_utc": "2026-10-05T11:06:48.580271+00:00",
+      "gap_s": 4.681370377,
+      "next_processing_delay_ms": 2.588382,
+      "exchange_timestamp_before_ms": 1791198403701,
+      "exchange_timestamp_next_ms": 1791198403802,
+      "messages_during_fx_header_wait": 0
+    },
+    "lighter_order_book": {
+      "last_before_utc": "2026-10-05T11:06:43.753801+00:00",
+      "next_utc": "2026-10-05T11:06:50.317190+00:00",
+      "gap_s": 6.5633889,
+      "next_processing_delay_ms": 0.234376,
+      "exchange_timestamp_before_ms": 1791198403681,
+      "exchange_timestamp_next_ms": 1791198403782,
+      "messages_during_fx_header_wait": 0
+    }
+  },
+  "all_recorded_receipt_to_processing_max_ms_in_20s": 7.471714,
+  "source_message_counts_in_20s": {
+    "binance_depthUpdate": 197,
+    "binance_bookTicker": 4139,
+    "binance_aggTrade": 169,
+    "lighter_order_book": 340,
+    "lighter_ticker": 469,
+    "lighter_trade": 59,
+    "binance_fx": 8
+  },
+  "evaluation_window_utc": ["2026-10-05T11:06:43+00:00", "2026-10-05T11:06:51+00:00"],
+  "observed_distinct_evaluations": 27,
+  "max_status_heartbeat_age_s": 0.2890005111694336,
+  "max_local_status_sampling_gap_s": 0.289501428604126,
+  "mismatched_evaluator_book_snapshot_samples": 0,
+  "queue_backlog_at_fx_invalid_transition": 0,
+  "aiohttp_installed": "3.14.3",
+  "httpx_installed": "0.28.1",
+  "websockets_installed": "16.1.1",
+  "binance_aiohttp_timeouts": {"total_s": 10, "connect_s": 5, "ceil_threshold_s": 5,
+    "ws_receive_s": null, "ws_close_s": 10},
+  "fx_httpx_and_asyncio_total_timeout_s": 2,
+  "interpretation": "Application receipt hiatus; messages seen by the application were processed promptly and evaluator remained responsive. Subsequent exchange timestamps precede FX request, consistent with delayed delivery before application observation. No proven FX lock/event-loop dependency. No evidence identifies network provider, router, exchange, or internal socket buffering as root cause. aiohttp rounding can add less than one second at selected deadlines, but this FX path is HTTPX plus asyncio 2s and had no simultaneous bootstrap connect/reconnect; numeric similarity to 5.551 is not causal evidence.",
+  "limitations": "Old receipt stamp was created after JSON parsing/emit, not kernel packet arrival. No packet capture or library internal-reader timestamps existed. Wall-clock source-to-receipt differences are not direct wire latency measurements."
+}

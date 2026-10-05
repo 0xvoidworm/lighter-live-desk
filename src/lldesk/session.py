@@ -10,6 +10,8 @@ from pathlib import Path
 from .config import Config
 from .db import Database
 
+AUTHORIZATION_SECONDS = 1200
+
 
 def parameter_hash(config: Config) -> str:
     sources = {
@@ -42,10 +44,13 @@ class BoundedSession:
             raise ValueError("explicit bounded-session fee policy required")
         if not session_id or self.db.flag(f"session_used:{session_id}"):
             raise ValueError("session authorization already used")
+        now = time.time()
         record = {
             "id": session_id,
             "status": "authorized",
-            "authorized_at": time.time(),
+            "authorized_at": now,
+            "authorization_expires_epoch": now + AUTHORIZATION_SECONDS,
+            "revoked_at": None,
             "started_at": None,
             "deadline_epoch": None,
             "ended_at": None,
@@ -66,14 +71,67 @@ class BoundedSession:
         self.db.event("STRATEGY_SESSION_AUTHORIZATION", record)
         return record
 
-    def activate(self) -> dict:
+    def authorization_valid(self, record: dict | None = None) -> bool:
+        record = self.read() if record is None else record
+        if not record or record.get("status") != "authorized":
+            return False
+        try:
+            expiry = float(record["authorization_expires_epoch"])
+            return bool(
+                float(record["authorized_at"])
+                < expiry
+                <= float(record["authorized_at"]) + AUTHORIZATION_SECONDS
+                and time.time() < expiry
+                and record.get("revoked_at") is None
+                and record.get("started_at") is None
+                and record.get("deadline_epoch") is None
+                and record.get("ended_at") is None
+                and not record.get("attempts")
+                and not record.get("completed_positions")
+                and 0 < record["max_seconds"] <= 1800
+                and 0 < record["max_attempts"] <= 3
+                and not self.db.flag(f"session_used:{record['id']}")
+            )
+        except (KeyError, TypeError, ValueError):
+            return False
+
+    def revoke(self, reason: str) -> None:
         record = self.read()
-        if not record or record["status"] != "authorized":
-            raise ValueError("no unused strategy session authorization")
-        now = time.time()
-        record.update(status="active", started_at=now, deadline_epoch=now + record["max_seconds"])
+        if not record or record["status"] == "closed":
+            return
+        if record["status"] in {"active", "ending"}:
+            self.stop(reason)
+            return
+        if record["status"] != "authorized":
+            raise ValueError("unknown authorization state")
+        record.update(
+            status="closed", revoked_at=time.time(), ended_at=time.time(), stop_reason=reason
+        )
         self.db.conn.execute("BEGIN IMMEDIATE")
         try:
+            self.write(record)
+            self.db.set_flag(f"session_used:{record['id']}", "1")
+            self.db.event("STRATEGY_SESSION_UNUSED_AUTHORIZATION_CLOSED", record)
+            self.db.conn.commit()
+        except Exception:
+            self.db.conn.rollback()
+            raise
+
+    def activate(self, *, expected_id: str | None = None, expected_hash: str | None = None) -> dict:
+        self.db.conn.execute("BEGIN IMMEDIATE")
+        try:
+            record = self.read()
+            if not self.authorization_valid(record):
+                raise ValueError("no unused strategy session authorization")
+            assert record is not None
+            if (expected_id is not None and record["id"] != expected_id) or (
+                expected_hash is not None and record["parameter_hash"] != expected_hash
+            ):
+                raise ValueError("authorization changed before activation")
+            now = time.time()
+            record.update(
+                status="active", started_at=now, deadline_epoch=now + record["max_seconds"]
+            )
             self.write(record)
             self.db.set_flag(f"session_used:{record['id']}", "1")
             self.db.event("STRATEGY_SESSION_STARTED", record)

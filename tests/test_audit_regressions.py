@@ -237,6 +237,7 @@ async def test_cancel_blocks_entry_waiting_for_signer_lock(engine, monkeypatch, 
         "offline-lock-test", engine.config, str(engine.account_snapshot.equity)
     )
     engine.session.activate()
+    engine.loaded_session_permission_id = "offline-lock-test"  # Previously admitted fixture.
     engine.db.event(
         "NET_CASH_AUDIT",
         {
@@ -439,6 +440,7 @@ async def test_cancel_revokes_an_entry_scheduled_before_task_starts(engine, monk
         "offline-epoch-test", engine.config, str(engine.account_snapshot.equity)
     )
     engine.session.activate()
+    engine.loaded_session_permission_id = "offline-epoch-test"  # Previously admitted fixture.
     exchange = Exchange(snapshot())
     engine.account = exchange
     monkeypatch.setattr(engine, "data_valid", lambda: True)

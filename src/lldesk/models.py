@@ -73,6 +73,7 @@ class MarketEvent:
     kind: str
     payload: dict
     stamp: Stamp
+    queued_monotonic_ns: int | None = None
 
 
 @dataclass(frozen=True)

@@ -6,7 +6,7 @@ import json
 import os
 import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -197,6 +197,7 @@ class Recorder:
                     "receipt_ns": event.stamp.receipt_ns,
                     "exchange_ms": event.stamp.exchange_ms,
                     "monotonic_ns": event.stamp.monotonic_ns,
+                    "queued_monotonic_ns": event.queued_monotonic_ns,
                     "recorded_ns": time.time_ns(),
                     "recorded_monotonic_ns": time.monotonic_ns(),
                     "run_id": self.run_id,
@@ -304,7 +305,10 @@ class Feeds:
         *,
         stamp: Stamp | None = None,
     ) -> None:
-        event = MarketEvent(venue, kind, payload, stamp or Stamp(exchange_ms=exchange_ms))
+        stamp = stamp or Stamp(exchange_ms=exchange_ms)
+        if stamp.exchange_ms is None and exchange_ms is not None:
+            stamp = replace(stamp, exchange_ms=exchange_ms)
+        event = MarketEvent(venue, kind, payload, stamp, time.monotonic_ns())
         try:
             self.queue.put_nowait(event)
         except asyncio.QueueFull as exc:
@@ -347,10 +351,14 @@ class Feeds:
                                 raw = await ws.receive_str(timeout=1)
                             except TimeoutError:
                                 continue
+                            received = Stamp()
                             msg = json.loads(raw)
                             data = msg.get("data", msg)
                             buffered.append(
-                                (data, Stamp(exchange_ms=data.get("T") or data.get("E")))
+                                (
+                                    data,
+                                    replace(received, exchange_ms=data.get("T") or data.get("E")),
+                                )
                             )
                             if len(buffered) > 2048:
                                 raise GapError("Binance bootstrap buffer overflow")
@@ -367,10 +375,13 @@ class Feeds:
                             self.channel_data("binance_public")
                     self.binance_public_ok = True
                     async for frame in ws:
+                        received = Stamp()
                         if frame.type != aiohttp.WSMsgType.TEXT:
                             raise websocket_closed(ws, "public", frame.type.name)
                         message = json.loads(frame.data)
-                        if await self._binance_message(message.get("data", message)):
+                        if await self._binance_message(
+                            message.get("data", message), stamp=received
+                        ):
                             self.channel_data("binance_public")
                     raise websocket_closed(ws, "public")
             except asyncio.CancelledError:
@@ -393,10 +404,13 @@ class Feeds:
                     self.channel_started("binance_market")
                     self.binance_trades_ok = True
                     async for frame in ws:
+                        received = Stamp()
                         if frame.type != aiohttp.WSMsgType.TEXT:
                             raise websocket_closed(ws, "market", frame.type.name)
                         message = json.loads(frame.data)
-                        if await self._binance_message(message.get("data", message)):
+                        if await self._binance_message(
+                            message.get("data", message), stamp=received
+                        ):
                             self.channel_data("binance_market")
                     raise websocket_closed(ws, "market")
             except asyncio.CancelledError:
@@ -435,12 +449,17 @@ class Feeds:
                     ):
                         await ws.send(json.dumps({"type": "subscribe", "channel": channel}))
                     async for raw in ws:
+                        received = Stamp()
                         data = json.loads(raw)
                         channel = str(data.get("channel", ""))
                         if channel.startswith(("order_book:", "trade:", "ticker:")):
                             self.channel_data("lighter")
                             await self.emit(
-                                "lighter", channel.split(":")[0], data, data.get("timestamp")
+                                "lighter",
+                                channel.split(":")[0],
+                                data,
+                                data.get("timestamp"),
+                                stamp=received,
                             )
                     raise ConnectionError("Lighter stream ended")
             except asyncio.CancelledError:

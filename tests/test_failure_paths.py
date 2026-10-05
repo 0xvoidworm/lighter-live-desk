@@ -693,6 +693,7 @@ def authorize_test_session(engine):
         "offline-failure-test", engine.config, str(engine.account_snapshot.equity)
     )
     engine.session.activate()
+    engine.loaded_session_permission_id = "offline-failure-test"  # Previously admitted fixture.
     engine.db.event(
         "NET_CASH_AUDIT",
         {

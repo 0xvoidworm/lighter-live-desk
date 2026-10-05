@@ -10,6 +10,7 @@ import pytest
 
 from lldesk.config import Config, load_config
 from lldesk.db import Database
+from lldesk.engine import Engine
 from lldesk.session import BoundedSession
 
 spec = importlib.util.spec_from_file_location(
@@ -41,9 +42,16 @@ def test_unused_authorization_is_irrevocably_closed_without_touching_fee(tmp_pat
     )
     original = BoundedSession(db).authorize("unused", config, "49.430756")
     calls = []
-    monkeypatch.setattr(supervisor, "repo_root", lambda: tmp_path)
-    monkeypatch.setattr(supervisor, "load_config", lambda: load_config(path))
-    monkeypatch.setattr(supervisor, "command", calls.append)
+    owner = Engine(config, tmp_path)
+    monkeypatch.setattr(
+        supervisor, "get_status", lambda: {"strategy_session": owner.session.read()}
+    )
+
+    def process(kind):
+        calls.append(kind)
+        owner.revoke_session_permission("entry dihentikan melalui perintah")
+
+    monkeypatch.setattr(supervisor, "command", process)
     supervisor.revoke_unused("unused", "coverage cannot recover before preparation deadline")
     current = json.loads(db.flag("strategy_session"))
     assert current["status"] == "closed" and current["started_at"] is None
@@ -57,6 +65,7 @@ def test_unused_authorization_is_irrevocably_closed_without_touching_fee(tmp_pat
     with pytest.raises(ValueError, match="already used"):
         BoundedSession(db).authorize("unused", config, "49.430756")
     db.close()
+    owner.db.close()
 
 
 @pytest.mark.parametrize("kind", ["PROBE_ONCE", "CLOSE_POSITION", "CANCEL_ENTRIES"])

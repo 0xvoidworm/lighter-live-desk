@@ -85,6 +85,7 @@ class Engine:
         self.reconcile_failed = True
         self.last_reconcile_diagnostic: dict = {}
         self.last_decision_inputs: dict = {}
+        self.market_processing: dict[str, dict] = {}
         self.session_end = 0.0
         self.session_positions = 0
         self.entries_stopped = True
@@ -132,6 +133,8 @@ class Engine:
         self.probe_preflight_fingerprint: dict | None = None
         self.probe_preflight_equity: Decimal | None = None
         self.session = BoundedSession(self.db)
+        # Volatile admission: restart never implicitly loads entry permission.
+        self.loaded_session_permission_id: str | None = None
         self.session_cleanup_task: asyncio.Task | None = None
         self.fee_audit_task: asyncio.Task | None = None
         self.last_session_sample = 0.0
@@ -421,6 +424,62 @@ class Engine:
         ]
 
     def on_market(self, event: MarketEvent) -> None:
+        started = time.monotonic_ns()
+        book = self.books.get(event.venue)
+        previous_stamp = book.stamp.monotonic_ns if book else None
+        outcome = "error"
+        try:
+            self._apply_market(event)
+            outcome = (
+                "applied"
+                if book
+                and book.stamp.monotonic_ns == event.stamp.monotonic_ns
+                and book.stamp.monotonic_ns != previous_stamp
+                else "duplicate_or_old_sequence"
+                if event.kind in {"depthUpdate", "order_book"}
+                else "disconnect"
+                if event.kind == "disconnect"
+                else "diagnostic_or_trade"
+            )
+        finally:
+            finished = time.monotonic_ns()
+            key = event.venue + ":" + event.kind
+            record = self.market_processing.setdefault(key, {"processed": 0})
+            previous_receipt = record.get("receipt_monotonic_ns")
+            gap = (
+                (event.stamp.monotonic_ns - previous_receipt) / 1e9
+                if previous_receipt is not None
+                else 0
+            )
+            record["processed"] += 1
+            record[outcome] = record.get(outcome, 0) + 1
+            record["max_receipt_gap_s"] = max(record.get("max_receipt_gap_s", 0), gap)
+            receipt_delay = (started - event.stamp.monotonic_ns) / 1e6
+            record["max_receipt_to_processing_ms"] = max(
+                record.get("max_receipt_to_processing_ms", 0), receipt_delay
+            )
+            processing = (finished - started) / 1e6
+            record["max_processing_ms"] = max(record.get("max_processing_ms", 0), processing)
+            record["processing_ms"] = processing
+            if event.queued_monotonic_ns is not None:
+                parsing = (event.queued_monotonic_ns - event.stamp.monotonic_ns) / 1e6
+                waiting = (started - event.queued_monotonic_ns) / 1e6
+                record["max_receive_to_enqueue_ms"] = max(
+                    record.get("max_receive_to_enqueue_ms", 0), parsing
+                )
+                record["max_queue_wait_ms"] = max(record.get("max_queue_wait_ms", 0), waiting)
+                record["queued_monotonic_ns"] = event.queued_monotonic_ns
+            record.update(
+                receipt_ns=event.stamp.receipt_ns,
+                receipt_monotonic_ns=event.stamp.monotonic_ns,
+                source_exchange_ms=event.stamp.exchange_ms,
+                processing_started_monotonic_ns=started,
+                processing_finished_monotonic_ns=finished,
+                quote_monotonic_ns=book.stamp.monotonic_ns if book else None,
+                outcome=outcome,
+            )
+
+    def _apply_market(self, event: MarketEvent) -> None:
         self.recorder.write(event)
         book = self.books.get(event.venue)
         if not book:
@@ -2045,15 +2104,13 @@ class Engine:
         for command_id, kind in self.db.pending_commands():
             result = ""
             if kind == "STOP_ENTRIES":
-                self.end_session("entry dihentikan melalui perintah")
+                self.revoke_session_permission("entry dihentikan melalui perintah")
                 self.entry_epoch += 1
                 self.entries_stopped = True
                 self.state = EngineState.PAUSED
-                config_path = self.root / "config.json"
-                if config_path.exists() and not load_config(config_path).allow_live_orders:
-                    # Revocation only: never enables orders or resets warmed feeds.
-                    self.config = self.config.model_copy(update={"allow_live_orders": False})
                 result = "entry dihentikan"
+            elif kind == "LOAD_SESSION_PERMISSION":
+                result = self.load_session_permission()
             elif kind == "CANCEL_ENTRIES":
                 self.entry_epoch += 1
                 self.entries_stopped = True
@@ -2133,6 +2190,7 @@ class Engine:
         return bool(
             record
             and record["status"] == "active"
+            and self.loaded_session_permission_id == record["id"]
             and len(record["attempts"]) < record["max_attempts"]
             and self.session_end
             and time.monotonic() < self.session_end
@@ -2181,6 +2239,13 @@ class Engine:
 
     def session_tick(self, *, risk_only: bool = False) -> None:
         record = self.session.read()
+        if (
+            record
+            and record["status"] == "authorized"
+            and not self.session.authorization_valid(record)
+        ):
+            self.revoke_session_permission("activation authorization expired/invalid")
+            return
         if not record or record["status"] not in {"active", "ending"}:
             return
         if record["status"] == "active":
@@ -2383,6 +2448,7 @@ class Engine:
         if not self.session_flat_clean():
             return
         self.entries_stopped = True
+        self.loaded_session_permission_id = None
         self.entry_epoch += 1
         self.config = self.config.model_copy(
             update={"allow_live_orders": False, "session_accept_reported_fees": False}
@@ -2420,11 +2486,107 @@ class Engine:
         self.state = EngineState.PAUSED
         self.reason = "sesi selesai, akun flat/order bersih, izin order mati"
 
+    def revoke_session_permission(self, reason: str) -> None:
+        """Engine owns runtime permission; cleanup workers retain their authority."""
+        self.end_session(reason)
+        self.session.revoke(reason)
+        self.entries_stopped = True
+        self.loaded_session_permission_id = None
+        self.entry_epoch += 1
+        self.invalidate_preflight("session permission revoked", history=False)
+        self.config = self.config.model_copy(
+            update={
+                "allow_live_orders": False,
+                "session_accept_reported_fees": False,
+                "probe_accept_reported_fees": False,
+            }
+        )
+        path = self.root / "config.json"
+        if path.exists():
+            temp = path.with_suffix(".json.pending")
+            temp.write_text(self.config.model_dump_json(indent=2) + "\n")
+            temp.chmod(0o600)
+            temp.replace(path)
+
+    def load_session_permission(self) -> str:
+        """Explicit prepare only: no activation, network calls, or buffer reset."""
+        try:
+            candidate = load_config(self.root / "config.json")
+        except Exception as exc:
+            return f"permission diblok: config invalid ({type(exc).__name__})"
+        if not candidate.allow_live_orders:
+            self.revoke_session_permission("explicit permission reload: orders OFF")
+            return "permission dicabut; order OFF, data collection tetap berjalan"
+        record = self.session.read()
+        if not self.session.authorization_valid(record):
+            return "permission diblok: authorization expired/revoked/used/closed"
+        assert record is not None
+        permission_fields = {
+            "allow_live_orders",
+            "session_accept_reported_fees",
+            "probe_accept_reported_fees",
+            "live_entry_scope",
+        }
+        if (
+            candidate.model_dump(exclude=permission_fields)
+            != self.config.model_dump(exclude=permission_fields)
+            or candidate.live_entry_scope != "strategy"
+            or not candidate.session_accept_reported_fees
+            or candidate.probe_accept_reported_fees
+            or record["account_index"] != candidate.account_index
+            or record["parameter_hash"] != parameter_hash(candidate)
+        ):
+            return "permission diblok: identity/risk/config binding mismatch"
+        if (
+            not self.session_flat_clean()
+            or not self.account_state_valid()
+            or not self.history_valid()
+            or self.preflight_in_progress
+            or (self.state_refresh_task and not self.state_refresh_task.done())
+        ):
+            return "permission diblok: account/lifecycle/history belum bersih dan segar"
+        previous = self.config
+        self.config = candidate
+        blockers = self.entry_fee_blockers("ENTRY")
+        if blockers:
+            self.config = previous
+            return "permission diblok: " + ", ".join(blockers)
+        if self.loaded_session_permission_id == record["id"]:
+            return "permission sudah dimuat; deadline/kuota/buffer tidak berubah"
+        self.loaded_session_permission_id = record["id"]
+        self.entries_stopped = True
+        self.invalidate_preflight("explicit session permission loaded", history=False)
+        self.state = (
+            EngineState.READY
+            if self.data_valid()
+            and self.last_decision.basis_bps is not None
+            and self.strategy.coverage()["ready"]
+            else EngineState.WARMING_UP
+        )
+        self.db.event(
+            "SESSION_PERMISSION_LOADED",
+            {
+                "session_id": record["id"],
+                "parameter_hash": record["parameter_hash"],
+                "authorization_expires_epoch": record["authorization_expires_epoch"],
+                "activated": False,
+                "entries_stopped": True,
+                "coverage_samples_preserved": len(self.strategy.samples),
+            },
+        )
+        return "permission dimuat; belum aktif, START_LIVE dan preflight tetap wajib"
+
     def start_session(self) -> str:
         blockers = self.live_blockers()
         if blockers:
             return "live diblok: " + ", ".join(blockers)
-        record = self.session.activate()
+        try:
+            record = self.session.activate(
+                expected_id=self.loaded_session_permission_id,
+                expected_hash=parameter_hash(self.config),
+            )
+        except ValueError:
+            return "live diblok: authorization changed/expired before activation"
         self.db.set_flag("live_ever", "1")
         self.session_end = time.monotonic() + record["max_seconds"]
         self.session_positions = 0
@@ -2642,6 +2804,10 @@ class Engine:
             record = self.session.read()
             if not record or record["status"] != "authorized":
                 blockers.append("tidak ada otorisasi sesi strategi sekali pakai")
+            elif not self.session.authorization_valid(record):
+                blockers.append("otorisasi sesi expired/revoked/used")
+            elif self.loaded_session_permission_id != record["id"]:
+                blockers.append("izin sesi belum dimuat eksplisit oleh engine")
             if not self.entry_rate_ready():
                 blockers.append("cadangan request entry/proteksi belum cukup")
             if (
@@ -2795,6 +2961,7 @@ class Engine:
             "probe_accept_reported_fees": self.config.probe_accept_reported_fees,
             "session_accept_reported_fees": self.config.session_accept_reported_fees,
             "strategy_session": self.session.read(),
+            "loaded_session_permission_id": self.loaded_session_permission_id,
             "probe_session_id": self.db.flag("probe_session_id"),
             "probe_preview": self.probe_preview(),
             "request_budget": None
@@ -2865,6 +3032,9 @@ class Engine:
             else None,
             "quotes": quotes,
             "decision_inputs": self.last_decision_inputs,
+            "market_processing": {
+                key: dict(value) for key, value in self.market_processing.items()
+            },
             "diagnostic_observation": diagnostic_observation(self),
             "reconcile_diagnostic": self.last_reconcile_diagnostic,
             "transport_trace": self.account.transport_trace.status()

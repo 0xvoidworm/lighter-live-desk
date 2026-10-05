@@ -22,6 +22,7 @@ ALLOWED_ORIGINS = {
     "http://lighter.localhost:5173",
 }
 COMMANDS = {
+    "LOAD_SESSION_PERMISSION",
     "START_LIVE",
     "STOP_ENTRIES",
     "CANCEL_ENTRIES",

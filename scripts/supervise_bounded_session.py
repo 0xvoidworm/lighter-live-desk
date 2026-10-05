@@ -29,7 +29,7 @@ def get_status() -> dict:
 
 
 def command(kind: str) -> int:
-    assert kind in {"DIAGNOSE_PREFLIGHT", "START_LIVE", "STOP_ENTRIES"}
+    assert kind in {"LOAD_SESSION_PERMISSION", "DIAGNOSE_PREFLIGHT", "START_LIVE", "STOP_ENTRIES"}
     with urllib.request.urlopen(BASE + "/api/csrf", timeout=2) as response:
         token = json.load(response)["token"]
     request = urllib.request.Request(
@@ -70,25 +70,10 @@ def clean(status: dict) -> bool:
 
 
 def revoke_unused(session_id: str, reason: str) -> None:
-    root = repo_root()
-    config = load_config().model_copy(
-        update={"allow_live_orders": False, "session_accept_reported_fees": False}
-    )
-    temp = root / "config.json.pending"
-    temp.write_text(config.model_dump_json(indent=2) + "\n")
-    temp.chmod(0o600)
-    temp.replace(root / "config.json")
-    db = Database(root / "state/desk.db")
-    try:
-        raw = db.flag("strategy_session")
-        record = json.loads(raw) if raw else {}
-        if record.get("id") == session_id and record.get("status") == "authorized":
-            record.update(status="closed", stop_reason=reason, ended_at=time.time())
-            db.set_flag("strategy_session", json.dumps(record))
-            db.set_flag(f"session_used:{session_id}", "1")
-            db.event("STRATEGY_SESSION_UNUSED_AUTHORIZATION_CLOSED", record)
-    finally:
-        db.close()
+    record = get_status()["strategy_session"]
+    assert record["id"] == session_id and record["status"] == "authorized"
+    print("Unused authorization revocation requested: " + reason, flush=True)
+    # The engine owns permission/config/session transitions; the supervisor only queues.
     command("STOP_ENTRIES")
 
 
@@ -118,10 +103,16 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
             "source_hashes": hashes,
             "config": frozen_config,
             "authorization": record,
-            "only_commands": ["DIAGNOSE_PREFLIGHT", "START_LIVE", "STOP_ENTRIES"],
+            "only_commands": [
+                "LOAD_SESSION_PERMISSION",
+                "DIAGNOSE_PREFLIGHT",
+                "START_LIVE",
+                "STOP_ENTRIES",
+            ],
         },
     )
     diag_requested = False
+    load_requested = False
     start_requested = False
     stop_requested = False
     active_seen = False
@@ -183,8 +174,26 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
                         abort_reason = "20-minute preparation deadline reached"
                     elif status["engine_pid"] != pid:
                         abort_reason = "engine restarted during preparation"
-                    if abort_reason:
+                    if abort_reason and not stop_requested:
+                        stop_requested = True
                         revoke_unused(session_id, abort_reason)
+                    elif not load_requested and all(
+                        status["diagnostic_observation"]["checks"][k]
+                        for k in (
+                            "account_fresh",
+                            "flat_clean",
+                            "lifecycle_idle",
+                            "reconciliation_idle",
+                            "reconciliation_fresh",
+                            "journal",
+                        )
+                    ):
+                        load_requested = True
+                        print(
+                            "LOAD_SESSION_PERMISSION command="
+                            + str(command("LOAD_SESSION_PERMISSION")),
+                            flush=True,
+                        )
                     elif not diag_requested and not status["live_blockers"]:
                         diag_requested = True
                         print(

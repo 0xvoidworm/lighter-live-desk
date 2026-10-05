@@ -34,6 +34,8 @@ def authorize(engine, *, active=True):
     engine.last_complete_snapshot = engine.account_snapshot
     engine.strategy.coverage = lambda *args: {"ready": True}
     engine.session.authorize("one-off-test", engine.config, str(engine.account_snapshot.equity))
+    (engine.root / "config.json").write_text(engine.config.model_dump_json())
+    assert "permission dimuat" in engine.load_session_permission()
     if active:
         assert engine.start_session() == "sesi live dimulai"
 
