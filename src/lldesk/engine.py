@@ -45,6 +45,7 @@ from .preflight import (
 )
 from .risk import EquityBaseline, limit_price, size_entry
 from .session import BoundedSession, parameter_hash
+from .source_time import BinanceSourceClock
 from .strategy import Decision, DeviationStrategy
 
 LOG = logging.getLogger("lldesk.engine")
@@ -72,6 +73,8 @@ class Engine:
         self.feeds: Feeds | None = None
         self.recorder = Recorder(self.root / "state" / "market")
         self.strategy = DeviationStrategy(config.warmup_seconds)
+        self.source_clock = BinanceSourceClock(config.max_data_age_ms)
+        self.exit_basis_bps: Decimal | None = None
         self.account: LighterAccount | None = None
         self.account_snapshot: AccountSnapshot | None = None
         self.baseline: EquityBaseline | None = None
@@ -209,6 +212,9 @@ class Engine:
                 asyncio.create_task(self.feeds.binance()),
                 asyncio.create_task(self.feeds.lighter()),
                 asyncio.create_task(self.fx_loop()),
+                asyncio.create_task(
+                    self.source_clock.run(self.config.binance_dns_mode, self.record_source_clock)
+                ),
             ]
             if self.account:
                 self.tasks.append(
@@ -575,7 +581,8 @@ class Engine:
             if self.probe_active:
                 self._start_position_deadline()
 
-    def data_valid(self) -> bool:
+    def market_data_valid(self) -> bool:
+        """Existing receipt/transport guards, also used for reducing exposure."""
         now = time.monotonic_ns()
         max_age = self.config.max_data_age_ms * 1_000_000
         return (
@@ -588,6 +595,22 @@ class Engine:
             and time.monotonic() - self.fx_at < FRESH_SECONDS
             and self.queue.qsize() < 1500
         )
+
+    def source_freshness(self) -> dict:
+        return self.source_clock.assess(self.books["binance"].stamp)
+
+    def data_valid(self) -> bool:
+        """Entry and strategy sampling: source age is an additional guard."""
+        return self.market_data_valid() and self.source_freshness()["passed"]
+
+    def record_source_clock(self, proof: dict) -> None:
+        try:
+            self.recorder.write(MarketEvent("binance", "source_clock", proof, Stamp()))
+        except Exception:
+            self.journal_ok = False
+            self.source_clock.evidence = None
+            self.invalidate_preflight("bukti clock tidak dapat disimpan")
+            raise
 
     def idle_valid(self) -> bool:
         """Flat monitoring; closed/disarmed sessions display feed readiness separately."""
@@ -646,6 +669,7 @@ class Engine:
             "evaluated_at": time.time(),
             "monotonic_ns": time.monotonic_ns(),
             "data_valid": valid,
+            "source_freshness": self.source_freshness(),
             "fx": str(self.fx) if self.fx is not None else None,
             "fx_age_s": time.monotonic() - self.fx_at if self.fx is not None else None,
             "fx_observation": self.fx_monitor.status()["observation"],
@@ -657,6 +681,7 @@ class Engine:
                     "receipt_ns": q.stamp.receipt_ns,
                     "monotonic_ns": q.stamp.monotonic_ns,
                     "exchange_ms": q.stamp.exchange_ms,
+                    "exchange_event_ms": q.stamp.exchange_event_ms,
                 }
                 if q
                 else None
@@ -664,6 +689,8 @@ class Engine:
             },
         }
         self.last_decision = self.strategy.evaluate(lighter, binance, valid, self.fx)
+        if valid and self.last_decision.basis_bps is not None:
+            self.exit_basis_bps = self.last_decision.basis_bps
         if self.state == EngineState.RECOVERING and self.data_valid():
             self.state = EngineState.WARMING_UP
             self.reason = "feed tersambung kembali; evaluasi coverage"
@@ -1995,10 +2022,18 @@ class Engine:
             )
         )
         recovered = False
-        if not probing and self.data_valid() and self.last_decision.basis_bps is not None:
+        if not probing and self.market_data_valid():
             deviation = self.last_decision.deviation_bps
-            if deviation is not None:
-                recovered = abs(deviation - self.last_decision.basis_bps) <= 2
+            basis = self.last_decision.basis_bps
+            if basis is None and self.exit_basis_bps is not None:
+                # Exit uses the last trusted basis without adding an entry/basis sample.
+                # The new source guard must never hold protection or exposure reduction.
+                local, remote = self.books["lighter"].quote(), self.books["binance"].quote()
+                if local and remote and self.fx:
+                    deviation = (local.mid / (remote.mid / self.fx) - 1) * 10000
+                    basis = self.exit_basis_bps
+            if deviation is not None and basis is not None:
+                recovered = abs(deviation - basis) <= 2
                 if self.session_open() and not self.protection_confirmed:
                     recovered = False  # Normal reversion exit follows verified protection.
         close_requested = self.db.flag("close_requested") == "1"
@@ -2843,6 +2878,9 @@ class Engine:
             blockers.append("rekonsiliasi akun terakhir gagal")
         if self.last_decision.basis_bps is None or not self.data_valid():
             blockers.append("data atau warm-up belum valid")
+        source = self.source_freshness()
+        if not source["passed"]:
+            blockers.append(f"kesegaran sumber Binance: {source['reason']}")
         if self.db.unresolved():
             blockers.append("order sebelumnya belum pasti")
         if self.account_snapshot and self.account_snapshot.position_qty:
@@ -3032,6 +3070,8 @@ class Engine:
             else None,
             "quotes": quotes,
             "decision_inputs": self.last_decision_inputs,
+            "source_clock": self.source_clock.status(),
+            "source_freshness": self.source_freshness(),
             "market_processing": {
                 key: dict(value) for key, value in self.market_processing.items()
             },

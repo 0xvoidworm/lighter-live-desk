@@ -555,6 +555,7 @@ async def test_timeout_after_durable_send_freezes_entries(tmp_path, monkeypatch)
     lost = LostAck()
     engine.account = lost  # type: ignore[assignment]
     monkeypatch.setattr(engine, "data_valid", lambda: True)
+    monkeypatch.setattr(engine, "source_freshness", lambda: {"passed": True})
     engine.last_decision = Decision("buy", Decimal(30), Decimal(0), Decimal(1), ())
     authorize_test_session(engine)
     await engine.enter("buy")
@@ -629,6 +630,7 @@ async def test_journal_failure_prevents_send(tmp_path, monkeypatch) -> None:
     account = NeverSend()
     engine.account = account  # type: ignore[assignment]
     monkeypatch.setattr(engine, "data_valid", lambda: True)
+    monkeypatch.setattr(engine, "source_freshness", lambda: {"passed": True})
     engine.last_decision = Decision("buy", Decimal(30), Decimal(0), Decimal(1), ())
     authorize_test_session(engine)
     monkeypatch.setattr(

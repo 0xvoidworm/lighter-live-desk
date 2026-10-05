@@ -1,5 +1,34 @@
 # Runbook Lighter Live Desk
 
+## Kesegaran sumber Binance untuk entry dan sampel
+
+Receipt monotonic tetap memakai guard lama 1500ms. Entry/sampel juga wajib
+mempunyai `T` Unix millisecond valid (transaction time); `E` event time dicatat
+terpisah, tidak dipakai sebagai pengganti `T` yang hilang. Semua delta tetap
+diterapkan menurut U/u/pu meskipun source guard gagal; tidak menambah sampel
+coverage/basis. Heartbeat/ticker tidak menyegarkan depth. Stop, timer dan close
+tidak mensyaratkan source guard entry; exit reversion dapat memakai basis terakhir
+yang lolos, tanpa menambah sampel baru.
+
+`source_freshness` memisahkan receipt age, source indicator antarjam, offset interval,
+dan source age lower/upper bound. Upper bound wajib <1500ms, lower bound >=-1ms.
+Unknown/missing/future/uncertain timestamp memblokir entry dengan alasan eksplisit.
+Ini indikator umur data menurut model clock, bukan pengukuran latensi fill/network.
+
+Worker clock independen membaca chronyc tracking (read-only) dan Binance USD-M
+GET /fapi/v1/time tiap60s, weight1/request, timeout2s, tanpa catch-up/retry burst.
+Clock interval: serverTime-minus-local-receipt sampai serverTime-minus-local-send,
+ditambah host NTP error bound dan pembulatan1ms. RTT harus <=400ms; half-width
+akhir <=250ms. Host bound <=50ms, ref chrony <=3600s/Normal, bukti clock TTL120s,
+allowance drift100ppm (12ms/TTL), wall/monotonic discrepancy <=25ms.
+Bounds ini kontrol konservatif, bukan SLA exchange; memakai domain timestamp
+UTC USD-M REST/WS yang sama. Chrony saja tidak membuktikan offset Binance.
+Kegagalan kalibrasi tidak menyegarkan bukti lama; bukti expires, unsync/restart
+membatalkannya. Ketidakpastian future juga fail closed; tidak diasumsikan offset0.
+HTTP429/418 mematuhi Retry-After. Request clock terpisah dari bucket Lighter40/55;
+actual Binance X-MBX-USED-WEIGHT-1M dicatat termasuk traffic futures lain.
+Guard gap5s, coverage600s/480, FX, threshold8bps, buffer5bps dan risiko tidak berubah.
+
 ## Pemuatan izin sesi tanpa restart
 
 `LOAD_SESSION_PERMISSION` melalui command API/CSRF lokal memuat izin yang

@@ -94,6 +94,7 @@ def engine(tmp_path):
     value.history_required = False
     value.fx, value.fx_at = Decimal(1), time.monotonic()
     value.strategy.coverage = lambda: {"ready": True}
+    value.source_freshness = lambda: {"passed": True, "reason": "isolated_fixture"}
     value.books["binance"].binance_snapshot(
         {"lastUpdateId": 1, "bids": [["83000", "2"]], "asks": [["83000.1", "2"]]}, Stamp()
     )

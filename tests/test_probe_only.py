@@ -128,6 +128,8 @@ def engine(tmp_path):
     value.state_refresh_failed = False
     value.state = EngineState.READY
     value.data_valid = lambda: True
+    # Other lifecycle tests isolate market admission; source guard has dedicated replay tests.
+    value.source_freshness = lambda: {"passed": True, "reason": "isolated_fixture"}
     value.last_decision = Decision("buy", Decimal(30), Decimal(0), Decimal(1), ())
     value.strategy = DeviationStrategy(config.warmup_seconds)
     value.strategy.evaluate = lambda *args: value.last_decision

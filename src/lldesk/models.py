@@ -52,6 +52,7 @@ class Stamp:
     exchange_ms: int | None = None
     receipt_ns: int = field(default_factory=time_ns)
     monotonic_ns: int = field(default_factory=monotonic_ns)
+    exchange_event_ms: int | None = None
 
 
 @dataclass(frozen=True)

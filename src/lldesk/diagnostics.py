@@ -21,6 +21,7 @@ def observe(engine: Engine) -> dict:
     quotes = {name: book.quote() for name, book in engine.books.items()}
     checks = {
         "market_data": engine.data_valid(),
+        "source_freshness": engine.source_freshness()["passed"],
         "fx_normalization": bool(engine.fx is not None and abs((engine.fx - 1) * 10000) <= 10),
         "coverage": getattr(engine.strategy, "coverage", lambda: {"ready": False})()["ready"],
         "basis_scale": engine.last_decision.basis_bps is not None
@@ -184,6 +185,7 @@ def observe(engine: Engine) -> dict:
             "reported evidence validated, no fee-policy enable"
         ),
         "observed_at": wall,
+        "source_freshness": engine.source_freshness(),
         "monotonic_ns": time.monotonic_ns(),
         "quotes": observed_quotes,
         "minimum_orders": minimum,

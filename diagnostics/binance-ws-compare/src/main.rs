@@ -18,6 +18,7 @@ use tokio_tungstenite::{client_async_tls, tungstenite::Message};
 
 const URL: &str =
     "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms";
+const DEPTH_URL: &str = "wss://fstream.binance.com/public/stream?streams=btcusdt@depth@100ms";
 const PROVIDERS: [&str; 2] = [
     "https://cloudflare-dns.com/dns-query",
     "https://dns.google/resolve",
@@ -27,9 +28,21 @@ const PROVIDERS: [&str; 2] = [
 struct Log {
     file: Arc<Mutex<BufWriter<File>>>,
     start: Instant,
+    work: Arc<Mutex<Work>>,
+}
+#[derive(Default)]
+struct Work {
+    lines: u64,
+    write_ns: u128,
+    max_write_ns: u128,
+    messages: u64,
+    payload_bytes: u64,
+    parse_ns: u128,
+    max_parse_ns: u128,
 }
 impl Log {
     fn write(&self, kind: &str, body: Value) -> Result<()> {
+        let started = Instant::now();
         let mut out = self
             .file
             .lock()
@@ -40,7 +53,28 @@ impl Log {
         )?;
         out.write_all(b"\n")?;
         out.flush()?;
+        let ns = started.elapsed().as_nanos();
+        let mut work = self
+            .work
+            .lock()
+            .map_err(|_| anyhow::anyhow!("work lock poisoned"))?;
+        work.lines += 1;
+        work.write_ns += ns;
+        work.max_write_ns = work.max_write_ns.max(ns);
         Ok(())
+    }
+    fn open(path: PathBuf, start: Instant) -> Result<Self> {
+        Ok(Self {
+            file: Arc::new(Mutex::new(BufWriter::new(
+                OpenOptions::new().write(true).create_new(true).open(path)?,
+            ))),
+            start,
+            work: Arc::new(Mutex::new(Work::default())),
+        })
+    }
+    fn workload(&self) -> Value {
+        let w = self.work.lock().expect("work mutex");
+        json!({"lines":w.lines,"write_ns":w.write_ns,"max_write_ns":w.max_write_ns,"messages":w.messages,"payload_bytes":w.payload_bytes,"parse_ns":w.parse_ns,"max_parse_ns":w.max_parse_ns})
     }
 }
 fn epoch() -> f64 {
@@ -109,8 +143,13 @@ async fn connection(
     log: &Log,
     id: u64,
     deadline: Instant,
+    url: &str,
+    pinned: Option<Ipv4Addr>,
 ) -> Result<bool> {
-    let ips = resolve(client, log, id).await?;
+    let ips = match pinned {
+        Some(ip) => vec![ip],
+        None => resolve(client, log, id).await?,
+    };
     let mut tcp = None;
     for ip in ips {
         let started = Instant::now();
@@ -124,11 +163,11 @@ async fn connection(
     }
     let tcp = tcp.context("no TCP connection")?;
     let started = Instant::now();
-    let handshake = timeout(Duration::from_secs(10), client_async_tls(URL, tcp))
+    let handshake = timeout(Duration::from_secs(10), client_async_tls(url, tcp))
         .await
         .context("TLS/WS timeout")?;
     let (mut ws, response) = handshake.context("TLS/WS handshake")?;
-    log.write("connected", json!({"connection": id, "status": response.status().as_u16(), "url": URL, "tls_ws_ms": started.elapsed().as_secs_f64()*1000.0}))?;
+    log.write("connected", json!({"connection": id, "status": response.status().as_u16(), "url": url, "tls_ws_ms": started.elapsed().as_secs_f64()*1000.0}))?;
     let connected = Instant::now();
     let mut last = connected;
     let mut pong_deadline: Option<Instant> = None;
@@ -160,11 +199,19 @@ async fn connection(
                 last = Instant::now(); pong_deadline = None;
                 match frame {
                     Message::Text(text) => {
+                        let received_at = epoch();
+                        let parse_start = Instant::now();
                         let v: Value = serde_json::from_str(&text).context("invalid stream JSON")?;
                         let d = &v["data"];
                         let pu = d["pu"].as_u64(); let u = d["u"].as_u64();
                         let mismatch = d["e"] == "depthUpdate" && previous_u.is_some() && pu != previous_u;
-                        log.write("message", json!({"connection": id, "stream": v["stream"], "event": d["e"], "symbol": d["s"], "st": d["st"], "E": d["E"], "T": d["T"], "U": d["U"], "u": d["u"], "pu": d["pu"], "bid": d["b"], "ask": d["a"], "bid_qty": d["B"], "ask_qty": d["A"], "sequence_gap": mismatch, "bytes": text.len(), "first_text_ms": first.then(||connected.elapsed().as_secs_f64()*1000.0)}))?;
+                        let parse_ns = parse_start.elapsed().as_nanos();
+                        {
+                            let mut work = log.work.lock().expect("work mutex");
+                            work.messages += 1; work.payload_bytes += text.len() as u64;
+                            work.parse_ns += parse_ns; work.max_parse_ns = work.max_parse_ns.max(parse_ns);
+                        }
+                        log.write("message", json!({"connection": id, "received_at":received_at,"parse_ns":parse_ns,"stream": v["stream"], "event": d["e"], "symbol": d["s"], "st": d["st"], "E": d["E"], "T": d["T"], "U": d["U"], "u": d["u"], "pu": d["pu"], "bid": d["b"], "ask": d["a"], "bid_qty": d["B"], "ask_qty": d["A"], "sequence_gap": mismatch, "bytes": text.len(), "first_text_ms": first.then(||connected.elapsed().as_secs_f64()*1000.0)}))?;
                         if d["e"] == "depthUpdate" { previous_u = u; }
                         first = false;
                     }
@@ -275,6 +322,8 @@ async fn observe(client: reqwest::Client, log: Log, pid: u64, deadline: Instant)
             "queue_backlog",
             "event_loop_lag_ms",
             "request_budget",
+            "source_clock",
+            "source_freshness",
         ];
         let selected: serde_json::Map<String, Value> = keys
             .iter()
@@ -294,6 +343,12 @@ async fn observe(client: reqwest::Client, log: Log, pid: u64, deadline: Instant)
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
+    if args.get(1).is_some_and(|v| v == "--ab") {
+        return ab_parent(&args).await;
+    }
+    if args.get(1).is_some_and(|v| v == "--ab-child") {
+        return ab_child(&args).await;
+    }
     if args.len() != 4 {
         bail!("usage: binance-ws-compare OUTPUT ENGINE_PID SECONDS(1..900)");
     }
@@ -336,6 +391,7 @@ async fn main() -> Result<()> {
                 .open(output.join("trace.jsonl"))?,
         ))),
         start: started,
+        work: Arc::new(Mutex::new(Work::default())),
     };
     let observation = observe(client.clone(), log.clone(), pid, deadline);
     let minimal = async {
@@ -344,7 +400,8 @@ async fn main() -> Result<()> {
         while Instant::now() < deadline {
             id += 1;
             log.write("connecting", json!({"connection": id, "url": URL}))?;
-            let result = timeout_at(deadline, connection(&client, &log, id, deadline)).await;
+            let result =
+                timeout_at(deadline, connection(&client, &log, id, deadline, URL, None)).await;
             if Instant::now() >= deadline {
                 log.write(
                     "measurement_deadline",
@@ -394,6 +451,175 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
+fn readonly_client() -> Result<reqwest::Client> {
+    Ok(reqwest::Client::builder()
+        .no_proxy()
+        .local_address(IpAddr::V4(Ipv4Addr::UNSPECIFIED))
+        .timeout(Duration::from_secs(3))
+        .build()?)
+}
+
+fn arm_url(arm: &str) -> Result<&'static str> {
+    match arm {
+        "depth" => Ok(DEPTH_URL),
+        "combined" => Ok(URL),
+        _ => bail!("unknown A/B arm"),
+    }
+}
+
+async fn ab_child(args: &[String]) -> Result<()> {
+    if args.len() != 6 {
+        bail!("internal child: OUTPUT ARM PINNED_IPV4 DEADLINE_EPOCH");
+    }
+    let output = PathBuf::from(&args[2]);
+    let arm = &args[3];
+    let url = arm_url(arm)?;
+    let ip: Ipv4Addr = args[4].parse()?;
+    // Validate the DNS-derived pin again, without doing a second lookup or failover.
+    addresses(&json!({"Status":0,"Answer":[{"type":1,"data":ip.to_string()}]}))?;
+    let end: f64 = args[5].parse()?;
+    let remaining = end - epoch();
+    if !remaining.is_finite() || !(0.0..=900.0).contains(&remaining) {
+        bail!("invalid shared deadline");
+    }
+    let started = Instant::now();
+    let deadline = started + Duration::from_secs_f64(remaining);
+    let trace_path = output.join(format!("{arm}.jsonl"));
+    let log = Log::open(trace_path.clone(), started)?;
+    log.write("arm_started", json!({"arm":arm,"url":url,"ip":ip.to_string(),"deadline_epoch":end,"pid":std::process::id(),"tls":"native roots; SNI/hostname fstream.binance.com; verification enabled","proxy":"none","ipv6":false}))?;
+    let client = readonly_client()?;
+    let mut id = 0;
+    let mut failures = 0;
+    while Instant::now() < deadline {
+        id += 1;
+        log.write(
+            "connecting",
+            json!({"connection":id,"url":url,"pinned_ip":ip.to_string()}),
+        )?;
+        let result = timeout_at(
+            deadline,
+            connection(&client, &log, id, deadline, url, Some(ip)),
+        )
+        .await;
+        if Instant::now() >= deadline {
+            log.write(
+                "measurement_deadline",
+                json!({"connection":id,"local_cancel":true}),
+            )?;
+            break;
+        }
+        match result {
+            Ok(Ok(stable)) => {
+                if stable {
+                    failures = 0;
+                }
+            }
+            Ok(Err(error)) => log.write(
+                "connection_failure",
+                json!({"connection":id,"error":format!("{error:#}")}),
+            )?,
+            Err(error) => log.write(
+                "connection_failure",
+                json!({"connection":id,"error":error.to_string()}),
+            )?,
+        }
+        failures += 1;
+        let delay = backoff(failures);
+        log.write(
+            "backoff",
+            json!({"connection":id,"seconds":delay,"workload":log.workload()}),
+        )?;
+        sleep(Duration::from_secs(delay).min(deadline.saturating_duration_since(Instant::now())))
+            .await;
+    }
+    let work = log.workload();
+    log.write(
+        "arm_finished",
+        json!({"connections":id,"workload":work,"elapsed":started.elapsed().as_secs_f64()}),
+    )?;
+    serde_json::to_writer_pretty(
+        File::create(output.join(format!("{arm}-finished.json")))?,
+        &json!({"at":epoch(),"arm":arm,"connections":id,"workload":work,"trace_bytes":fs::metadata(trace_path)?.len()}),
+    )?;
+    Ok(())
+}
+
+async fn ab_parent(args: &[String]) -> Result<()> {
+    if args.len() != 5 {
+        bail!("usage: --ab OUTPUT ENGINE_PID SECONDS(1..900)");
+    }
+    let output = PathBuf::from(&args[2]);
+    let pid: u64 = args[3].parse()?;
+    let seconds: u64 = args[4].parse()?;
+    if !(1..=900).contains(&seconds) {
+        bail!("duration must be 1..900 seconds");
+    }
+    fs::create_dir_all(&output)?;
+    let client = readonly_client()?;
+    let initial: Value = client
+        .get("http://127.0.0.1:8765/api/status")
+        .send()
+        .await?
+        .error_for_status()?
+        .json()
+        .await?;
+    safe_status(&initial, pid)?;
+    let started = Instant::now();
+    let start_epoch = epoch();
+    let end = start_epoch + seconds as f64;
+    let deadline = started + Duration::from_secs(seconds);
+    let marker = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(output.join("started.json"))
+        .context("one-run marker exists; never repeat")?;
+    serde_json::to_writer_pretty(
+        marker,
+        &json!({"at":start_epoch,"seconds":seconds,"deadline_epoch":end,"engine_pid":pid,"depth_url":DEPTH_URL,"combined_url":URL,"library":"tokio-tungstenite 0.30.0/native-root rustls, same binary","independent_child_processes":true,"heartbeat":"20s idle / 10s pong; one matching auto pong","tcp_timeout_s":5,"tls_ws_timeout_s":10,"backoff_s":[2,4,8,16,30],"proxy":"disabled","family":"IPv4","measurement_includes":"DNS, child start, connect, handshake, backoff","snapshot_bootstrap":"none; transport comparison only"}),
+    )?;
+    let log = Log::open(output.join("app.jsonl"), started)?;
+    let ips = timeout_at(deadline, resolve(&client, &log, 0)).await??;
+    let ip = *ips.first().context("no official DNS A answer")?;
+    log.write("shared_ip_pin", json!({"ip":ip.to_string(),"all_resolved_ips":ips,"pin_scope":"one diagnostic, both arms, reconnects; no failover","sni_hostname":"fstream.binance.com"}))?;
+    let binary = std::env::current_exe()?;
+    let mut children = Vec::new();
+    for arm in ["depth", "combined"] {
+        let child = tokio::process::Command::new(&binary)
+            .arg("--ab-child")
+            .arg(&output)
+            .arg(arm)
+            .arg(ip.to_string())
+            .arg(end.to_string())
+            .kill_on_drop(true)
+            .spawn()?;
+        children.push((arm, child));
+    }
+    let observation = observe(client, log.clone(), pid, deadline).await;
+    if observation.is_err() {
+        for (_, child) in &mut children {
+            let _ = child.kill().await;
+        }
+    }
+    let mut exits = Vec::new();
+    for (arm, child) in &mut children {
+        let status = timeout(Duration::from_secs(2), child.wait()).await;
+        let description = match status {
+            Ok(Ok(s)) => s.to_string(),
+            other => {
+                let _ = child.kill().await;
+                format!("{other:?}")
+            }
+        };
+        exits.push(json!({"arm":arm,"exit":description}));
+    }
+    serde_json::to_writer_pretty(
+        File::create(output.join("finished.json"))?,
+        &json!({"at":epoch(),"elapsed":started.elapsed().as_secs_f64(),"children":exits,"observation_error":observation.as_ref().err().map(|e|format!("{e:#}")),"new_orders":"no trading dependencies or transaction transport"}),
+    )?;
+    observation?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -420,6 +646,13 @@ mod tests {
             (1..8).map(backoff).collect::<Vec<_>>(),
             vec![2, 4, 8, 16, 30, 30, 30]
         );
+    }
+    #[test]
+    fn ab_arms_change_only_subscription_with_same_verified_hostname() {
+        assert_eq!(arm_url("combined").unwrap(), URL);
+        assert_eq!(arm_url("depth").unwrap(), DEPTH_URL);
+        assert!(arm_url("manual_order").is_err());
+        assert_eq!(URL.split('?').next(), DEPTH_URL.split('?').next());
     }
 
     #[tokio::test]

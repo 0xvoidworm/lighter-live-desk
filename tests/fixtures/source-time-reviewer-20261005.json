@@ -1,0 +1,11 @@
+{
+  "origin": "trace.jsonl diagnostic_observation; historical clock calibration unavailable",
+  "observed_at": 1791213413.4622974,
+  "old_technical_ready": true,
+  "receipt_age_ms": 732.022716,
+  "stamp": {
+    "exchange_ms": 1791213408998,
+    "receipt_ns": 1791213412743176181,
+    "monotonic_ns": 99094982111527
+  }
+}

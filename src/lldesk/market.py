@@ -200,6 +200,7 @@ class Recorder:
                     "payload": event.payload,
                     "receipt_ns": event.stamp.receipt_ns,
                     "exchange_ms": event.stamp.exchange_ms,
+                    "exchange_event_ms": event.stamp.exchange_event_ms,
                     "monotonic_ns": event.stamp.monotonic_ns,
                     "queued_monotonic_ns": event.queued_monotonic_ns,
                     "recorded_ns": time.time_ns(),
@@ -364,14 +365,22 @@ class Feeds:
                             buffered.append(
                                 (
                                     data,
-                                    replace(received, exchange_ms=data.get("T") or data.get("E")),
+                                    replace(
+                                        received,
+                                        exchange_ms=data.get("T"),
+                                        exchange_event_ms=data.get("E"),
+                                    ),
                                 )
                             )
                             if len(buffered) > 2048:
                                 raise GapError("Binance bootstrap buffer overflow")
                         snapshot = await snap_task
                         await self.emit(
-                            "binance", "snapshot", snapshot, snapshot.get("T") or snapshot.get("E")
+                            "binance",
+                            "snapshot",
+                            snapshot,
+                            snapshot.get("T"),
+                            stamp=replace(Stamp(), exchange_event_ms=snapshot.get("E")),
                         )
                     finally:
                         if not snap_task.done():
@@ -438,7 +447,10 @@ class Feeds:
             return False
         kind = data.get("e")
         if kind in {"depthUpdate", "bookTicker", "aggTrade"}:
-            await self.emit("binance", kind, data, data.get("T") or data.get("E"), stamp=stamp)
+            stamp = stamp or Stamp()
+            if stamp.exchange_ms != data.get("T") or stamp.exchange_event_ms != data.get("E"):
+                stamp = replace(stamp, exchange_ms=data.get("T"), exchange_event_ms=data.get("E"))
+            await self.emit("binance", kind, data, data.get("T"), stamp=stamp)
             return True
         return False
 
