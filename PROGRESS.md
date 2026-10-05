@@ -1,5 +1,32 @@
 # Progress
 
+## Terbaru — 5 Oktober 2026, persiapan sesi baru berhenti tanpa aktivasi
+
+Pengguna mengizinkan satu sesi1800s/3attempt dari283ab14/5dfd09b setelah
+preflight, dengan persiapan maksimum1200s. UUID5c2672c7-bdec-4561-922b-8f344f0938b0
+diotorisasi, tetapi tidak pernah START_LIVE: config di memori tidak mempunyai
+jalur enable/reload, sehingga satu restart saat flat diperlukan untuk policy
+sesi. PID244409 wajib warm-up600s lagi. Tidak ada tuning/guard yang berubah.
+
+Satu gap valid5.551s melebihi5s: FX REST request187 timeout2.001s pada
+receive_response_headers11:06:45–11:06:47UTC, bersamaan book kedua venue basi.
+Tanpa reconnect; queue0 dan lag kecil tidak membuktikan penyebab eksternal.
+Coverage paling dini pulih11:16:45, di luar deadline persiapan11:14:50UTC.
+Otorisasi ditutup11:13:12/18:13:12WIB (persiapan18m22s), UUID ditombstone.
+Aktif0s/attempt0/fill0, tidak ada preflight kandidat atau transaksi baru.
+
+2064status/558.626s/error0,1899evaluasi teramati:1345warm-up,531coverage,
+23data invalid; technical ready0s dan residual eligible0sampel, sehingga
+tidak dapat menilai pasar/threshold. Quota blocker0; account ages<15s,
+peak Lighter consumed+lease18/capacity55 minimum37. Seluruh19hash source tetap.
+365tes/mypy/Ruff lulus; supervisor hanya local API dan analyzer offline.
+
+Pemeriksaan18:22:19WIB:49.430756USDC, seluruhpos/order/pending/intent0,
+kas matched/change0/difference0, empat fee exactNULL/report0.0000DP4 tetap,
+IDLE/orderOFF/sesiclosed/UUIDretired/autostartdisabled. Coverage kemudian
+pulih, tetapi tidak ada otorisasi tersisa dan tidak ada rearm/sesi baru.
+Lihat AUDIT_STRATEGY_SESSION_2026-10-05.md dan audits/strategy-preparation-*.json.
+
 ## Terbaru — 5 Oktober 2026, gap observasi kurs diperbaiki tanpa order
 
 Dari9028794/0f380e4, implementasi283ab14. Sumber FX ternyata REST Memory

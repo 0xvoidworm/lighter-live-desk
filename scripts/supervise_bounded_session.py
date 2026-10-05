@@ -85,6 +85,7 @@ def revoke_unused(session_id: str, reason: str) -> None:
         if record.get("id") == session_id and record.get("status") == "authorized":
             record.update(status="closed", stop_reason=reason, ended_at=time.time())
             db.set_flag("strategy_session", json.dumps(record))
+            db.set_flag(f"session_used:{session_id}", "1")
             db.event("STRATEGY_SESSION_UNUSED_AUTHORIZATION_CLOSED", record)
     finally:
         db.close()
@@ -172,7 +173,7 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
                                     "technical_ready"
                                 ],
                                 "position": status.get("account", {}).get("position_qty"),
-                                "residual": status["decision"].get("deviation_bps"),
+                                "raw_deviation_bps": status["decision"].get("deviation_bps"),
                             }
                         ),
                         flush=True,
