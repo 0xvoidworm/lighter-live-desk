@@ -1,0 +1,1592 @@
+{
+  "code_commit": "0615782361ee15362c171aaa9566b5a4a28a2934",
+  "started_at_utc": "2026-10-05T12:12:16.216954+00:00",
+  "capture_finished_at_utc": "2026-10-05T12:32:16.217423+00:00",
+  "duration_seconds": 1200,
+  "snapshot_count": 4798,
+  "capture_unknown_seconds": 0.03218628100876231,
+  "warmup_seconds_within_capture": 593.7548247020022,
+  "first_warmup_complete_elapsed_s": 593.787010983011,
+  "post_warmup_seconds": 606.212989016989,
+  "technical_ready_seconds": 553.9414093270025,
+  "technical_ready_longest_interval_s": 52.52136649900058,
+  "blocker_seconds_overlapping": {
+    "basis_scale": 621.5160826549982,
+    "coverage": 593.7548247020022,
+    "market_data": 44.267893421972985,
+    "reconciliation_idle": 12.254790938997758,
+    "reconciliation_fresh": 3.251225352010806,
+    "entry_request_reserve": 27.261717450004653,
+    "minimum_sizing_depth": 3.5016805329942144
+  },
+  "post_warmup_blocker_seconds_overlapping": {
+    "basis_scale": 27.761257952995948,
+    "market_data": 27.761257952995948,
+    "reconciliation_fresh": 2.5009543370106257,
+    "reconciliation_idle": 6.252415905997623,
+    "entry_request_reserve": 27.261717450004653,
+    "minimum_sizing_depth": 3.5016805329942144
+  },
+  "post_warmup_blocker_overlap_seconds": [
+    {
+      "blockers": [],
+      "seconds": 553.9414093270025
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ],
+      "seconds": 20.508160965982825
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 0.7502397050120635
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "minimum_sizing_depth",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 0.7503908329963451
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "minimum_sizing_depth"
+      ],
+      "seconds": 2.7512896999978693
+    },
+    {
+      "blockers": [
+        "entry_request_reserve"
+      ],
+      "seconds": 20.758860168003594
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data"
+      ],
+      "seconds": 2.000852950004628
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 1.0003237990022171
+    },
+    {
+      "blockers": [
+        "reconciliation_idle"
+      ],
+      "seconds": 3.751461568986997
+    }
+  ],
+  "blocker_overlap_seconds": [
+    {
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ],
+      "seconds": 571.9960852150252
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ],
+      "seconds": 15.756364453976857
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ],
+      "seconds": 5.2521040179999545
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 0.7502710150001803
+    },
+    {
+      "blockers": [],
+      "seconds": 553.9414093270025
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ],
+      "seconds": 20.508160965982825
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 0.7502397050120635
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "minimum_sizing_depth",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 0.7503908329963451
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "minimum_sizing_depth"
+      ],
+      "seconds": 2.7512896999978693
+    },
+    {
+      "blockers": [
+        "entry_request_reserve"
+      ],
+      "seconds": 20.758860168003594
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data"
+      ],
+      "seconds": 2.000852950004628
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 1.0003237990022171
+    },
+    {
+      "blockers": [
+        "reconciliation_idle"
+      ],
+      "seconds": 3.751461568986997
+    }
+  ],
+  "readiness_transitions": [
+    {
+      "elapsed_s": 0.03218628100876231,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 41.30184793900116,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 41.80200827200315,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 50.805480244001956,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 51.305771587998606,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 114.33511008000642,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 115.58566709600564,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 122.08851362600399,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 122.58872048200283,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 137.09478283600765,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 137.3449389340094,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 167.10940291700535,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 167.60958444300923,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 172.1113204100111,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 172.36139844699937,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 180.61486582100042,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 182.6156048010016,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 185.8669537990063,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 186.86747999800718,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 194.12050812100642,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 194.6206859100057,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 201.12313761899713,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 202.62363299100252,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 222.38204700000642,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 222.63211814399983,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 222.8821989720018,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 223.63246998700197,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 225.6332221949997,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 241.13997090799967,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 241.64017559900822,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 257.3967647100071,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 258.14706661200034,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 261.8985389080044,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 263.3991326999967,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 301.1632034040085,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 301.4132741000067,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 343.6819307900005,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 344.932425402003,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 345.682718615004,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 346.18289608000487,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 388.7009041590063,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 389.45123004600464,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 390.9517297780112,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 391.4520055900066,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 402.20617669400235,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 402.4562423150055,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 449.9756765830098,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 450.72600596600387,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 464.73218722100137,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 466.23273247700126,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 481.238867328997,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 481.48905064800056,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 586.0333388020081,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 587.2838459360064,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 593.787010983011,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 614.0458311300026,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 614.2959184130013,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 621.2987414060044,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 621.7989330020064,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 623.2993376869999,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 625.3001470279996,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 628.8013282840111,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 630.5520409599994,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 632.052539035998,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 633.0528701840085,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 640.0552801809972,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 640.8055198860093,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 642.5561099540064,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 666.8184812630061,
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "minimum_sizing_depth",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 667.5688720960025,
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "minimum_sizing_depth"
+      ]
+    },
+    {
+      "elapsed_s": 670.3201617960003,
+      "blockers": [
+        "entry_request_reserve"
+      ]
+    },
+    {
+      "elapsed_s": 672.0709778800083,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 676.3226364550064,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 677.0729762109986,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 679.5738121800096,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 679.8238984130003,
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 680.0740573780058,
+      "blockers": [
+        "entry_request_reserve"
+      ]
+    },
+    {
+      "elapsed_s": 684.8261661900033,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 686.3268260030018,
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 687.327149802004,
+      "blockers": [
+        "basis_scale",
+        "entry_request_reserve",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 689.0778437870031,
+      "blockers": [
+        "entry_request_reserve"
+      ]
+    },
+    {
+      "elapsed_s": 700.8327694570035,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 712.0883755700052,
+      "blockers": [
+        "entry_request_reserve"
+      ]
+    },
+    {
+      "elapsed_s": 713.3388958970027,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 724.843473579007,
+      "blockers": [
+        "entry_request_reserve"
+      ]
+    },
+    {
+      "elapsed_s": 726.0939628540073,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 735.8487820459995,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 736.5991021360096,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 746.1029596419976,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 746.3530274600053,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 772.6138557890081,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 772.863947056001,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 781.3676086630003,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 781.6176956249983,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 807.128104397998,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 808.3784725110017,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 817.8825927870057,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 818.1327939550101,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 865.1534423940029,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 865.4035407080082,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 902.9178977560077,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 903.1679749019968,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 909.6704649020103,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 911.6711938390072,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 928.4300569570041,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 929.4304974749975,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 971.9492034639989,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 972.9495200689998,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1011.2178388050088,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 1011.4679380640009,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1015.469528215006,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 1016.2199117230048,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1041.485467082006,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 1042.4860826020013,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1049.4899314860086,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 1050.2402975529985,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1102.761664051999,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 1103.7620618140063,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1118.2694926920085,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 1119.2698797300109,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1170.5439607880107,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 1171.2942476590106,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1194.0531474090094,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 1196.8041997350083,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1198.0545977730071,
+      "blockers": [
+        "basis_scale",
+        "market_data"
+      ]
+    },
+    {
+      "elapsed_s": 1198.3046869180107,
+      "blockers": []
+    }
+  ],
+  "age_and_local_processing_status": {
+    "binance_book_ms": {
+      "n": 4798,
+      "median": 79.0,
+      "p95": 1137,
+      "max": 3999
+    },
+    "lighter_book_ms": {
+      "n": 4798,
+      "median": 32.0,
+      "p95": 131,
+      "max": 3538
+    },
+    "fx_conservative_s": {
+      "n": 4798,
+      "median": 1.111912263004342,
+      "p95": 2.000737588998163,
+      "max": 2.347181474993704
+    },
+    "account_account_s": {
+      "n": 4798,
+      "median": 6.0853643890004605,
+      "p95": 11.999567307997495,
+      "max": 12.80141146000824
+    },
+    "account_active_orders_s": {
+      "n": 4798,
+      "median": 6.216548716496618,
+      "p95": 12.11335982500168,
+      "max": 12.909247157003847
+    },
+    "event_loop_reported_lag_ms": {
+      "n": 4798,
+      "median": 0.0,
+      "p95": 4.2,
+      "max": 12.9
+    },
+    "queue_backlog": {
+      "n": 4798,
+      "median": 0.0,
+      "p95": 0,
+      "max": 51
+    }
+  },
+  "decision_input_mismatch_samples": 44,
+  "decision_match_false_while_technically_eligible": 0,
+  "actual_evaluator_quote_timestamp_difference_samples": 0,
+  "decision_match_flag_limit": "flag requires both books to exist; two absent snapshots also return false. Compare recorded monotonic timestamps separately before inferring stale evaluation.",
+  "recorded_market_files": [
+    "market-20261005-12-a8ae86d586e643c3bfa03694a24f06c7-0001.jsonl.gz"
+  ],
+  "persisted_end_of_window_proven": true,
+  "market_event_counts": {
+    "lighter:order_book": 20137,
+    "binance:bookTicker": 299997,
+    "binance:depthUpdate": 11350,
+    "binance:aggTrade": 9291,
+    "lighter:ticker": 29356,
+    "lighter:trade": 3747,
+    "binance:fx": 600,
+    "binance:disconnect": 3,
+    "binance:snapshot": 3,
+    "lighter:disconnect": 1
+  },
+  "application_receipt_gap_s": {
+    "lighter:order_book": {
+      "n": 20136,
+      "median": 0.0510047695,
+      "p95": 0.118248634,
+      "max": 3.763028416
+    },
+    "binance:bookTicker": {
+      "n": 299996,
+      "median": 1.4793e-05,
+      "p95": 0.015498271,
+      "max": 2.793782032
+    },
+    "lighter:ticker": {
+      "n": 29355,
+      "median": 0.010829101,
+      "p95": 0.183911808,
+      "max": 3.672920622
+    },
+    "binance:depthUpdate": {
+      "n": 11349,
+      "median": 0.092265117,
+      "p95": 0.266896489,
+      "max": 4.14916548
+    },
+    "lighter:trade": {
+      "n": 3746,
+      "median": 0.164995375,
+      "p95": 1.181834345,
+      "max": 3.659751906
+    },
+    "binance:aggTrade": {
+      "n": 9290,
+      "median": 0.0026791895,
+      "p95": 0.559454923,
+      "max": 2.326959374
+    },
+    "binance:fx": {
+      "n": 599,
+      "median": 1.999963941,
+      "p95": 2.03671275,
+      "max": 2.378435254
+    },
+    "binance:disconnect": {
+      "n": 2,
+      "median": 231.6971590655,
+      "p95": 417.110459721,
+      "max": 417.110459721
+    },
+    "binance:snapshot": {
+      "n": 2,
+      "median": 231.67570627749998,
+      "p95": 417.294106555,
+      "max": 417.294106555
+    }
+  },
+  "long_book_or_fx_receipt_gaps": [],
+  "receipt_parse_queue_to_recorder_ms": {
+    "lighter:order_book:receipt_to_recorder_ms": {
+      "n": 20137,
+      "median": 0.131535,
+      "p95": 0.50322,
+      "max": 35.178298
+    },
+    "lighter:order_book:receive_to_enqueue_ms": {
+      "n": 20137,
+      "median": 0.047836,
+      "p95": 0.106822,
+      "max": 2.947116
+    },
+    "lighter:order_book:queue_to_recorder_ms": {
+      "n": 20137,
+      "median": 0.073426,
+      "p95": 0.453289,
+      "max": 35.111153
+    },
+    "binance:bookTicker:receipt_to_recorder_ms": {
+      "n": 299997,
+      "median": 0.682209,
+      "p95": 5.702589,
+      "max": 195.047258
+    },
+    "binance:bookTicker:receive_to_enqueue_ms": {
+      "n": 299997,
+      "median": 0.008716,
+      "p95": 0.032744,
+      "max": 178.427451
+    },
+    "binance:bookTicker:queue_to_recorder_ms": {
+      "n": 299997,
+      "median": 0.670435,
+      "p95": 5.688452,
+      "max": 47.382517
+    },
+    "binance:depthUpdate:receipt_to_recorder_ms": {
+      "n": 11350,
+      "median": 0.2957335,
+      "p95": 4.726933,
+      "max": 114.68608
+    },
+    "binance:depthUpdate:receive_to_enqueue_ms": {
+      "n": 11350,
+      "median": 0.050724,
+      "p95": 0.148337,
+      "max": 95.429427
+    },
+    "binance:depthUpdate:queue_to_recorder_ms": {
+      "n": 11350,
+      "median": 0.22465649999999998,
+      "p95": 4.675276,
+      "max": 33.108672
+    },
+    "binance:aggTrade:receipt_to_recorder_ms": {
+      "n": 9291,
+      "median": 0.198938,
+      "p95": 2.785231,
+      "max": 32.802077
+    },
+    "binance:aggTrade:receive_to_enqueue_ms": {
+      "n": 9291,
+      "median": 0.016227,
+      "p95": 0.074523,
+      "max": 1.374083
+    },
+    "binance:aggTrade:queue_to_recorder_ms": {
+      "n": 9291,
+      "median": 0.173607,
+      "p95": 2.777173,
+      "max": 32.721504
+    },
+    "lighter:ticker:receipt_to_recorder_ms": {
+      "n": 29356,
+      "median": 0.1170905,
+      "p95": 0.683186,
+      "max": 32.660381
+    },
+    "lighter:ticker:receive_to_enqueue_ms": {
+      "n": 29356,
+      "median": 0.03181,
+      "p95": 0.078988,
+      "max": 1.596169
+    },
+    "lighter:ticker:queue_to_recorder_ms": {
+      "n": 29356,
+      "median": 0.0747975,
+      "p95": 0.648715,
+      "max": 32.591105
+    },
+    "lighter:trade:receipt_to_recorder_ms": {
+      "n": 3747,
+      "median": 0.155236,
+      "p95": 1.240602,
+      "max": 32.606074
+    },
+    "lighter:trade:receive_to_enqueue_ms": {
+      "n": 3747,
+      "median": 0.035123,
+      "p95": 0.108323,
+      "max": 1.584254
+    },
+    "lighter:trade:queue_to_recorder_ms": {
+      "n": 3747,
+      "median": 0.108846,
+      "p95": 1.14911,
+      "max": 32.559367
+    },
+    "binance:fx:receipt_to_recorder_ms": {
+      "n": 600,
+      "median": 0.089437,
+      "p95": 0.176629,
+      "max": 1.861894
+    },
+    "binance:disconnect:receipt_to_recorder_ms": {
+      "n": 3,
+      "median": 0.03254,
+      "p95": 0.043986,
+      "max": 0.043986
+    },
+    "binance:disconnect:receive_to_enqueue_ms": {
+      "n": 3,
+      "median": 0.000736,
+      "p95": 0.001194,
+      "max": 0.001194
+    },
+    "binance:disconnect:queue_to_recorder_ms": {
+      "n": 3,
+      "median": 0.031804,
+      "p95": 0.042792,
+      "max": 0.042792
+    },
+    "binance:snapshot:receipt_to_recorder_ms": {
+      "n": 3,
+      "median": 0.289948,
+      "p95": 0.463366,
+      "max": 0.463366
+    },
+    "binance:snapshot:receive_to_enqueue_ms": {
+      "n": 3,
+      "median": 0.001401,
+      "p95": 0.001858,
+      "max": 0.001858
+    },
+    "binance:snapshot:queue_to_recorder_ms": {
+      "n": 3,
+      "median": 0.288547,
+      "p95": 0.461508,
+      "max": 0.461508
+    },
+    "lighter:disconnect:receipt_to_recorder_ms": {
+      "n": 1,
+      "median": 0.043292,
+      "p95": 0.043292,
+      "max": 0.043292
+    },
+    "lighter:disconnect:receive_to_enqueue_ms": {
+      "n": 1,
+      "median": 0.00115,
+      "p95": 0.00115,
+      "max": 0.00115
+    },
+    "lighter:disconnect:queue_to_recorder_ms": {
+      "n": 1,
+      "median": 0.042142,
+      "p95": 0.042142,
+      "max": 0.042142
+    }
+  },
+  "processing_measurement_limit": "receipt follows application read before parsing; recorder precedes book application; exact apply timings also in engine market_processing; pre-read network/socket buffering remains unobserved",
+  "final_market_processing": {
+    "binance:aggTrade": {
+      "processed": 9322,
+      "diagnostic_or_trade": 9322,
+      "max_receipt_gap_s": 2.326959374,
+      "max_receipt_to_processing_ms": 32.790743,
+      "max_processing_ms": 9.623695,
+      "processing_ms": 0.061717,
+      "max_receive_to_enqueue_ms": 1.374083,
+      "max_queue_wait_ms": 32.71017,
+      "queued_monotonic_ns": 89218017150674,
+      "receipt_ns": 1791203535778178660,
+      "receipt_monotonic_ns": 89218017113828,
+      "source_exchange_ms": 1791203535564,
+      "processing_started_monotonic_ns": 89218017192483,
+      "processing_finished_monotonic_ns": 89218017254200,
+      "quote_monotonic_ns": 89217952999195,
+      "outcome": "diagnostic_or_trade"
+    },
+    "lighter:trade": {
+      "processed": 3765,
+      "diagnostic_or_trade": 3765,
+      "max_receipt_gap_s": 3.659751906,
+      "max_receipt_to_processing_ms": 32.603667,
+      "max_processing_ms": 16.593127,
+      "processing_ms": 0.038509,
+      "max_receive_to_enqueue_ms": 1.892505,
+      "max_queue_wait_ms": 32.55696,
+      "queued_monotonic_ns": 89216751252587,
+      "receipt_ns": 1791203534512301115,
+      "receipt_monotonic_ns": 89216751235514,
+      "source_exchange_ms": null,
+      "processing_started_monotonic_ns": 89216751327955,
+      "processing_finished_monotonic_ns": 89216751366464,
+      "quote_monotonic_ns": 89216709790293,
+      "outcome": "diagnostic_or_trade"
+    },
+    "lighter:ticker": {
+      "processed": 29405,
+      "diagnostic_or_trade": 29405,
+      "max_receipt_gap_s": 3.672920622,
+      "max_receipt_to_processing_ms": 32.647802,
+      "max_processing_ms": 8.966925,
+      "processing_ms": 0.032157,
+      "max_receive_to_enqueue_ms": 1.596169,
+      "max_queue_wait_ms": 32.578526,
+      "queued_monotonic_ns": 89217819236870,
+      "receipt_ns": 1791203535580280764,
+      "receipt_monotonic_ns": 89217819215400,
+      "source_exchange_ms": 1791203535514,
+      "processing_started_monotonic_ns": 89217819256597,
+      "processing_finished_monotonic_ns": 89217819288754,
+      "quote_monotonic_ns": 89217808603558,
+      "outcome": "diagnostic_or_trade"
+    },
+    "lighter:order_book": {
+      "processed": 20240,
+      "applied": 20240,
+      "max_receipt_gap_s": 3.763028416,
+      "max_receipt_to_processing_ms": 35.175905,
+      "max_processing_ms": 18.500205,
+      "processing_ms": 0.039639,
+      "max_receive_to_enqueue_ms": 2.947116,
+      "max_queue_wait_ms": 35.10876,
+      "queued_monotonic_ns": 89217957486319,
+      "receipt_ns": 1791203535718532543,
+      "receipt_monotonic_ns": 89217957467174,
+      "source_exchange_ms": 1791203535651,
+      "processing_started_monotonic_ns": 89217957503622,
+      "processing_finished_monotonic_ns": 89217957543261,
+      "quote_monotonic_ns": 89217957467174,
+      "outcome": "applied"
+    },
+    "binance:snapshot": {
+      "processed": 4,
+      "applied": 4,
+      "max_receipt_gap_s": 417.294106555,
+      "max_receipt_to_processing_ms": 0.437059,
+      "max_processing_ms": 18.641885,
+      "processing_ms": 16.202107,
+      "max_receive_to_enqueue_ms": 0.001858,
+      "max_queue_wait_ms": 0.435201,
+      "queued_monotonic_ns": 88706996901874,
+      "receipt_ns": 1791203024757965489,
+      "receipt_monotonic_ns": 88706996900016,
+      "source_exchange_ms": 1791203024646,
+      "processing_started_monotonic_ns": 88706997337075,
+      "processing_finished_monotonic_ns": 88707013539182,
+      "quote_monotonic_ns": 88706996900016,
+      "outcome": "applied"
+    },
+    "binance:bookTicker": {
+      "processed": 301648,
+      "diagnostic_or_trade": 301648,
+      "max_receipt_gap_s": 2.793782032,
+      "max_receipt_to_processing_ms": 195.046028,
+      "max_processing_ms": 9.387122,
+      "processing_ms": 0.006574,
+      "max_receive_to_enqueue_ms": 178.427451,
+      "max_queue_wait_ms": 47.376393,
+      "queued_monotonic_ns": 89217953409516,
+      "receipt_ns": 1791203535714467785,
+      "receipt_monotonic_ns": 89217953402144,
+      "source_exchange_ms": 1791203530423,
+      "processing_started_monotonic_ns": 89217954597640,
+      "processing_finished_monotonic_ns": 89217954604214,
+      "quote_monotonic_ns": 89217952999195,
+      "outcome": "diagnostic_or_trade"
+    },
+    "binance:depthUpdate": {
+      "processed": 11409,
+      "duplicate_or_old_sequence": 4,
+      "max_receipt_gap_s": 4.14916548,
+      "max_receipt_to_processing_ms": 114.683177,
+      "max_processing_ms": 17.850633,
+      "processing_ms": 0.224069,
+      "max_receive_to_enqueue_ms": 101.05913,
+      "max_queue_wait_ms": 33.093972,
+      "queued_monotonic_ns": 89217953038586,
+      "receipt_ns": 1791203535714064794,
+      "receipt_monotonic_ns": 89217952999195,
+      "source_exchange_ms": 1791203530353,
+      "processing_started_monotonic_ns": 89217954104358,
+      "processing_finished_monotonic_ns": 89217954328427,
+      "quote_monotonic_ns": 89217952999195,
+      "outcome": "applied",
+      "applied": 11405
+    },
+    "binance:disconnect": {
+      "processed": 3,
+      "disconnect": 3,
+      "max_receipt_gap_s": 417.110459721,
+      "max_receipt_to_processing_ms": 0.035904,
+      "max_processing_ms": 0.412981,
+      "processing_ms": 0.126023,
+      "max_receive_to_enqueue_ms": 0.001194,
+      "max_queue_wait_ms": 0.03471,
+      "queued_monotonic_ns": 88704478579348,
+      "receipt_ns": 1791203022239644337,
+      "receipt_monotonic_ns": 88704478578756,
+      "source_exchange_ms": null,
+      "processing_started_monotonic_ns": 88704478593803,
+      "processing_finished_monotonic_ns": 88704478719826,
+      "quote_monotonic_ns": 88704469962631,
+      "outcome": "disconnect"
+    },
+    "lighter:disconnect": {
+      "processed": 1,
+      "disconnect": 1,
+      "max_receipt_gap_s": 0,
+      "max_receipt_to_processing_ms": 0.031335,
+      "max_processing_ms": 0.149138,
+      "processing_ms": 0.149138,
+      "max_receive_to_enqueue_ms": 0.00115,
+      "max_queue_wait_ms": 0.030185,
+      "queued_monotonic_ns": 88684836622160,
+      "receipt_ns": 1791203002597686218,
+      "receipt_monotonic_ns": 88684836621010,
+      "source_exchange_ms": null,
+      "processing_started_monotonic_ns": 88684836652345,
+      "processing_finished_monotonic_ns": 88684836801483,
+      "quote_monotonic_ns": 88684817024974,
+      "outcome": "disconnect"
+    }
+  },
+  "feed_channels_final": {
+    "binance_public": {
+      "connected": true,
+      "reconnects": 3,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": "ConnectionError",
+      "last_disconnect_at": 1791203022.2396402,
+      "last_transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "last_frame_age_ms": 141
+    },
+    "binance_market": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "last_frame_age_ms": 78
+    },
+    "lighter": {
+      "connected": true,
+      "reconnects": 1,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": "ConnectionClosedError",
+      "last_disconnect_at": 1791203002.5976777,
+      "last_transport_detail": {
+        "close_code": null,
+        "frame_type": null,
+        "cause": null
+      },
+      "last_frame_age_ms": 137
+    }
+  },
+  "fx_request_count": 600,
+  "fx_request_outcomes": {
+    "verified": 600
+  },
+  "fx_request_duration_ms": {
+    "n": 600,
+    "median": 95.57530700000001,
+    "p95": 129.739934,
+    "max": 422.158074
+  },
+  "fx_failed_requests": [],
+  "off_reload_runtime": {
+    "command": "LOAD_SESSION_PERMISSION",
+    "command_id": 9,
+    "result": "permission dicabut; order OFF, data collection tetap berjalan",
+    "same_pid": true,
+    "session_record_unchanged": true,
+    "buffer_epoch_unchanged": true,
+    "samples_before": 89,
+    "samples_after": 89,
+    "config_hash_unchanged": true,
+    "positive_authorization_or_activation": false
+  },
+  "final_snapshot_account": {
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "exchange_active_order_count": 0,
+    "other_exchange_position_count": 0,
+    "position_price": "0.0",
+    "unrealized_pnl": "0.000000",
+    "realized_pnl": "0.000000",
+    "funding": "0",
+    "account_type_code": 0,
+    "account_trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "age_s": 3.3,
+    "component_ages_s": {
+      "account": 3.3211182249942794,
+      "active_orders": 3.430149722000351
+    },
+    "components_complete": true,
+    "exchange_order_count": 0,
+    "exchange_pending_count": 0,
+    "collateral": "49.430756",
+    "funding_audit_age_s": 28.4,
+    "daily_loss": "0",
+    "total_loss": "0",
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "effective_exposure_usd": "0E-7",
+    "recorded_fees": null,
+    "known_fees": "0",
+    "pending_fee_count": 4,
+    "fee_audit_complete": false,
+    "position_read_age_s": 3.3
+  },
+  "final_snapshot_state": "IDLE",
+  "final_snapshot_order_permission": false,
+  "final_snapshot_session_status": "closed",
+  "final_snapshot_history_audit": {
+    "complete": true,
+    "required": false,
+    "reason": "complete audit verified; idle periodic deadline 120s",
+    "idle_interval_seconds": 120.0,
+    "age_seconds": 28.428587743997923
+  },
+  "no_order_verification": "closed session, order OFF and no attempts/pending orders asserted in every usable local-status sample; final fresh exchange account read is documented separately"
+}

@@ -1,5 +1,32 @@
 # Progress
 
+## Terbaru — 5 Oktober 2026, izin sesi tanpa restart dan diagnosis gap
+
+Implementasi0615782 menambah LOAD_SESSION_PERMISSION dengan engine sebagai
+pemilik state, validasi identity/risk/expiry/closed/revocation dan CAS saat
+aktivasi. Load tidak mengaktifkan entry atau mereset coverage. Authorization
+belum aktif kedaluwarsa20menit; sesi aktif tetap1800s/3attempt, kuota/deadline
+persisten. Positive load/START hanya diuji terisolasi dengan fake transport.
+
+Gap lama5.551s tidak terbukti disebabkan blocking lokal FX: kedua book tidak
+tercatat diterima saat HTTPX menunggu header2s; setelah menerima, pemrosesan
+cepat dan evaluator tetap berjalan. Task FX/feed/account/risk sudah terpisah.
+Tambahan instrumentasi mencatat sebelum parsing→queue→process/apply tanpa
+mengubah freshness/coverage. Aiohttp3.14.3 ceiling bukan jalur timeout FX.
+
+384tes lulus; Ruff/mypy lulus. Satu observasi20menit tanpa order selesai
+19:12:16–19:32:16WIB: warm-up593.755s, guard teknis lolos553.941s,
+kontinu terpanjang52.521s. 600FX request verified/timeout0; book reconnect
+Binance3/Lighter1, gap sampelmax4.439s/guard5s, riwayat tetap valid.
+274SDKGET/13.7permin/peak32; cadangan transaksi minimum23slot. Pemuatan OFF
+nyata mempertahankan PID/session/buffer. Audit lengkap ada di
+AUDIT_CONTROL_FEED_ISOLATION_2026-10-05.md dan audits/control-feed-*20261005.json.
+
+Akhir19:33:22WIB saldo49.430756USDC, posisi/order/intent0, IDLE, izinOFF,
+sesi closed. Kas change/difference0;4fee exactNULL, reported4desimal terpisah.
+Tidak ada transaksi atau otorisasi baru. Langkah berikut: gunakan hot-load
+untuk persiapan sesi berikut hanya jika diotorisasi, mempertahankan coverage.
+
 ## Terbaru — 5 Oktober 2026, persiapan sesi baru berhenti tanpa aktivasi
 
 Pengguna mengizinkan satu sesi1800s/3attempt dari283ab14/5dfd09b setelah
