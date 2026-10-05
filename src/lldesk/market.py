@@ -221,6 +221,8 @@ class Feeds:
     ):
         self.market_id = market_id
         self.queue = queue
+        self._emitted_since_yield = 0
+        self._emit_yield_every = min(64, max(1, queue.maxsize // 4)) if queue.maxsize else 64
         self.dns_mode = dns_mode
         self.reconnects = {"binance": 0, "lighter": 0}
         self.binance_public_ok = False
@@ -316,6 +318,12 @@ class Feeds:
                     MarketEvent(affected, "disconnect", {"reason": "queue overflow"}, Stamp())
                 )
             raise GapError(f"{venue} queue overflow; resync required") from exc
+        self._emitted_since_yield += 1
+        if self._emitted_since_yield >= self._emit_yield_every:
+            # Buffered socket reads and put_nowait need not suspend. Give the
+            # consumer (and protection/exit tasks) a turn without restamping data.
+            self._emitted_since_yield = 0
+            await asyncio.sleep(0)
 
     async def binance(self) -> None:
         async with asyncio.TaskGroup() as group:
