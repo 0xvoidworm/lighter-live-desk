@@ -1,5 +1,29 @@
 # Progress
 
+## Terbaru — 5 Oktober 2026, izin sesi baru hot-load ditutup tanpa aktivasi
+
+Repo basisdfc3af0/0615782, PID255514 dipertahankan tanpa restart/perubahan
+kode. Izin satu sesi1800s/3attempt UUID9ce8b029-1f0b-4b1e-afb7-f6c1732e7b3a
+dimulai persiapan20:32:13WIB dan dimuat via LOAD_SESSION_PERMISSION command10.
+Load menjaga buffer/record/kuota/deadline; entry tetap stopped, START_LIVE0.
+
+Persiapan ditutup20:44:09WIB (11m56s), sebelum batas20:52:13: gap baru
+membuat earliest coverage20:53:27WIB, tidak bisa lolos dalam waktu tersisa.
+STOP_ENTRIES command11 menutup/retire UUID; supervisor selesai IDLE/OFF/flat.
+Tidak ada rearm atau sesi lanjutan. Source/risk/threshold/buffer/guard tetap.
+
+Rekaman kontinu7m5s/1542status/error0: siap teknis0s,1452evaluasi teramati,
+sinyal valid0/entry0/broadcast0/fill0. Coverage selalu terblokir;9reconnect
+Binance public dan gap valid33.645s, sedangkan FX tidak timeout pada capture.
+Tidak ada residual eligible atau estimasi peluang setelah biaya yang sah.
+Awal4m52 persiapan hanya mempunyai pemeriksaan sesaat, bukan rekaman kontinu.
+
+Akhir20:48:24WIB saldo49.430756USDC, posisi/order/intent0, IDLE, izinOFF,
+sesi closed/retired. Kas change/difference0;4fee exactNULL/reported4desimal
+tetap terpisah. Bukti: AUDIT_STRATEGY_HOTLOAD_SESSION_2026-10-05.md dan
+audits/strategy-hotload-*20261005.json. Berikutnya diagnosis read-only
+reconnect Binance public; tidak ada otorisasi trading yang dapat dipakai.
+
 ## Terbaru — 5 Oktober 2026, izin sesi tanpa restart dan diagnosis gap
 
 Implementasi0615782 menambah LOAD_SESSION_PERMISSION dengan engine sebagai

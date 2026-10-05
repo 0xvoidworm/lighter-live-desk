@@ -1,0 +1,1626 @@
+{
+  "result": "preparation_blocked_no_activation_no_order",
+  "session_id": "9ce8b029-1f0b-4b1e-afb7-f6c1732e7b3a",
+  "session_record": {
+    "id": "9ce8b029-1f0b-4b1e-afb7-f6c1732e7b3a",
+    "status": "closed",
+    "authorized_at": 1791207392.6000223,
+    "authorization_expires_epoch": 1791208592.6000223,
+    "revoked_at": 1791207849.3770242,
+    "started_at": null,
+    "deadline_epoch": null,
+    "ended_at": 1791207849.3770242,
+    "max_seconds": 1800,
+    "max_attempts": 3,
+    "attempts": [],
+    "completed_positions": [],
+    "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+    "account_index": 751745,
+    "equity_before": "49.430756",
+    "initial_fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "audited_fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "audited_equity": "49.430756",
+    "stop_reason": "entry dihentikan melalui perintah",
+    "fee_policy": "official_export_reported_precision_one_session"
+  },
+  "basis_commits": [
+    "0615782",
+    "dfc3af0"
+  ],
+  "engine_pid": 255514,
+  "source_hashes": {
+    "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+    "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+    "src/lldesk/models.py": "9b4a470317252b9d2346f4a46029640c1c351bc7759d75283c449559f9f94cfb",
+    "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+    "src/lldesk/market.py": "925940ad0b6256026b1c54b28d428f88093c3bee8977bcb62068b24827540226",
+    "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+    "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c",
+    "src/lldesk/account.py": "93e0ab9790e51eb1fd19dabfe90385b40b1f530823f843fcdfdc042f22c39e32",
+    "src/lldesk/engine.py": "4f3a971f54a21fa4f8b6527a0b4342dcdd80166f02ac3de721f1652a0f2a819c",
+    "src/lldesk/api.py": "0b889f54fd750ece866738181a2b5dfbe924ab7895d8390632f948d67bf4148b",
+    "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+    "src/lldesk/network.py": "e347100f00f69bf9f4b0516a0a960a1d4b49c8deb276564dda9a160cc3f72c29",
+    "src/lldesk/session.py": "d8a2f232e4c17f6c19d96c7d63d9e7861dea49346f632b51c5bf59d3efc5bbf2",
+    "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+    "src/lldesk/transport_trace.py": "642b82548b32556096ce1b4aedbe23b1375ab3aef539f9ab84172df1ba645978",
+    "src/lldesk/diagnostics.py": "1518c7a4543447a925d341e3b8247527b1b8aec53e4b729f290623ad262c5214",
+    "src/lldesk/audit_scheduler.py": "95e073a99eac38fb028d496bbb9efffba5121aeb3b36ee7eed3795b02c8638f4",
+    "src/lldesk/preflight.py": "4bbf6c05655fb0e8bebf45475c3847bd13863f0faf22eaec5d066e60b8f6a2e3",
+    "src/lldesk/fx.py": "e477e46b38f097284b6b4091862ff6e5b7f8b4b1ba9ecc1d5fdeadb04ae6822e"
+  },
+  "source_hashes_unchanged": true,
+  "frozen_config": {
+    "schema_version": 1,
+    "mode": "live_capable",
+    "binance_dns_mode": "doh",
+    "account_index": 751745,
+    "expected_account_type_code": 0,
+    "expected_account_trading_mode": 1,
+    "expected_margin_mode": 0,
+    "expected_initial_margin_fraction": "100.00",
+    "account_type": "standard",
+    "market_symbol": "BTC",
+    "max_funding_usd": "50",
+    "max_entry_notional_usd": "25",
+    "max_trade_risk_usd": "0.50",
+    "daily_loss_limit_usd": "5",
+    "max_total_loss_usd": "50",
+    "max_effective_leverage": "1",
+    "exit_reserve_usd": "2",
+    "max_quote_basis_bps": "10",
+    "max_data_age_ms": 1500,
+    "warmup_seconds": 600,
+    "max_hold_seconds": 180,
+    "session_seconds": 1800,
+    "max_session_positions": 3,
+    "allow_live_orders": true,
+    "live_entry_scope": "strategy",
+    "probe_accept_reported_fees": false,
+    "session_accept_reported_fees": true,
+    "source_funding_spent_usd": "50"
+  },
+  "preparation_started_utc": "2026-10-05T13:32:13+00:00",
+  "preparation_closed_utc": "2026-10-05T13:44:09.377024+00:00",
+  "preparation_seconds": 716.3770241737366,
+  "preparation_deadline_utc": "2026-10-05T13:52:13+00:00",
+  "active_seconds": 0,
+  "entry_attempts": 0,
+  "new_intents": 0,
+  "new_fills": 0,
+  "positions_completed": 0,
+  "signal_valid_observed": 0,
+  "observed_evaluations": 1452,
+  "sampled_filter_counts": {
+    "DATA_TIDAK_VALID": 821,
+    "COVERAGE_DATA_KURANG": 631
+  },
+  "active_eligible_residual_distribution": null,
+  "preparation_eligible_residual_count": 0,
+  "lost_opportunities_during_preflight": null,
+  "activation_preflight_runs": 0,
+  "per_entry_preflight_runs": 0,
+  "interpretation": "No eligible data: coverage/basis blocked. Cannot assess market or threshold. Observed evaluations are deduplicated captured inputs, not a total engine-call counter. No opportunity lost during preflight can be assessed because preflight never ran.",
+  "capture_start_utc": "2026-10-05T13:37:04.945188+00:00",
+  "capture_finish_utc": "2026-10-05T13:44:09.610530+00:00",
+  "status_samples": 1542,
+  "local_status_errors": 0,
+  "technical_ready_s": 0,
+  "longest_technical_ready_s": 0.0,
+  "blocker_s": {
+    "market_data": 240.87863683700562,
+    "coverage": 424.64108180999756,
+    "basis_scale": 424.64108180999756,
+    "reconciliation_fresh": 9.939455270767212,
+    "reconciliation_idle": 9.939455270767212,
+    "entry_request_reserve": 6.851933717727661
+  },
+  "overlap_s": [
+    {
+      "blockers": [
+        "market_data",
+        "coverage",
+        "basis_scale"
+      ],
+      "seconds": 228.7154302597046
+    },
+    {
+      "blockers": [
+        "coverage",
+        "basis_scale"
+      ],
+      "seconds": 180.49236345291138
+    },
+    {
+      "blockers": [
+        "market_data",
+        "coverage",
+        "basis_scale",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 8.58135437965393
+    },
+    {
+      "blockers": [
+        "market_data",
+        "coverage",
+        "basis_scale",
+        "reconciliation_fresh",
+        "reconciliation_idle",
+        "entry_request_reserve"
+      ],
+      "seconds": 1.3581008911132812
+    },
+    {
+      "blockers": [
+        "market_data",
+        "coverage",
+        "basis_scale",
+        "entry_request_reserve"
+      ],
+      "seconds": 2.2237513065338135
+    },
+    {
+      "blockers": [
+        "coverage",
+        "basis_scale",
+        "entry_request_reserve"
+      ],
+      "seconds": 3.2700815200805664
+    }
+  ],
+  "max_valid_sample_gap_s": 33.645,
+  "market_validity_transitions": [
+    {
+      "at_utc": "2026-10-05T13:37:04.945598+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": null,
+        "lighter": 6.871527
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:06.860020+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 39.156186,
+        "lighter": 4.680285
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:09.074021+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1632.573842,
+        "lighter": 40.578581
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:10.174305+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 15.653593,
+        "lighter": 32.713219
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:11.782090+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1703.758215,
+        "lighter": 26.321988
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:16.302606+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 60.066387,
+        "lighter": 74.214472
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 7.4
+    },
+    {
+      "at_utc": "2026-10-05T13:37:19.044949+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1667.10704,
+        "lighter": 43.287629
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:19.590549+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 240.994905,
+        "lighter": 30.924278
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:20.975797+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1673.253241,
+        "lighter": 52.717638
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:23.249370+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 159.034457,
+        "lighter": 28.284234
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:37:26.360542+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1775.205631,
+        "lighter": 71.129486
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 1.6
+    },
+    {
+      "at_utc": "2026-10-05T13:37:59.956928+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 21.181258,
+        "lighter": 41.470181
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:02.467703+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1749.873319,
+        "lighter": 32.619222
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:06.612389+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 162.8025,
+        "lighter": 15.952566
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:08.233344+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1650.76583,
+        "lighter": 7.05971
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:09.900790+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 220.915922,
+        "lighter": 65.860076
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 2.4
+    },
+    {
+      "at_utc": "2026-10-05T13:38:14.245744+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1722.001793,
+        "lighter": 20.572705
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:20.581360+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 127.272315,
+        "lighter": 77.847909
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 3.3
+    },
+    {
+      "at_utc": "2026-10-05T13:38:21.421876+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": null,
+        "lighter": 67.657725
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 2.3
+    },
+    {
+      "at_utc": "2026-10-05T13:38:53.745692+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 102.735279,
+        "lighter": 45.76412
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:55.629107+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1747.908313,
+        "lighter": 54.092197
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:55.899651+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 169.14741,
+        "lighter": 27.425471
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:57.533810+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1627.94286,
+        "lighter": 43.496946
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:38:57.799210+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 254.737696,
+        "lighter": 6.641041
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:04.614195+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1531.710945,
+        "lighter": 47.64253
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:05.734287+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 250.855414,
+        "lighter": 34.646332
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:08.432869+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1656.48332,
+        "lighter": 8.076738
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:10.066233+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 268.23883,
+        "lighter": 13.035629
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:12.036340+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": null,
+        "lighter": 44.504732
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:42.648314+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 54.103644,
+        "lighter": 40.271897
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:44.602650+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1674.676,
+        "lighter": 7.777356
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.8
+    },
+    {
+      "at_utc": "2026-10-05T13:39:45.152380+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 8.821175,
+        "lighter": 31.661725
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:47.895096+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1520.956131,
+        "lighter": 28.909682
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:48.987618+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 164.582024,
+        "lighter": 19.227513
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:52.006264+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1669.417616,
+        "lighter": 8.050533
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:39:53.645956+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 135.538186,
+        "lighter": 11.107114
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.8
+    },
+    {
+      "at_utc": "2026-10-05T13:39:55.537937+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": null,
+        "lighter": 20.354759
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:40:25.947463+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 40.024267,
+        "lighter": 19.980606
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:40:34.976371+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1513.754267,
+        "lighter": 48.134832
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:40:35.244036+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 250.490807,
+        "lighter": 14.755253
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:40:42.618394+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1585.960751,
+        "lighter": 17.072743
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:40:42.933600+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 118.605472,
+        "lighter": 48.638116
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:40:52.453361+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1641.778813,
+        "lighter": 15.73865
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:40:52.987913+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 107.156455,
+        "lighter": 43.833073
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:01.031183+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1542.616629,
+        "lighter": 30.595877
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:01.303650+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 95.075505,
+        "lighter": 47.68254
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:11.726085+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1557.164541,
+        "lighter": 43.368681
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:12.540662+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 125.724468,
+        "lighter": 25.522523
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:15.296976+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": null,
+        "lighter": 4.977961
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:19.971979+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 140.823569,
+        "lighter": 11.33259
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:26.824038+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1731.382798,
+        "lighter": 5.506391
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:27.088927+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 271.239941,
+        "lighter": 6.03117
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:31.257595+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1578.573378,
+        "lighter": 7.537768
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:31.803430+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 161.349119,
+        "lighter": 32.43873
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:35.867788+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1524.695,
+        "lighter": 64.533399
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:38.355913+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 301.756388,
+        "lighter": 16.064162
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 2.9
+    },
+    {
+      "at_utc": "2026-10-05T13:41:43.007952+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1696.34555,
+        "lighter": 6.953056
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:41:48.220423+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 160.25032,
+        "lighter": 41.785952
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:08.731662+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1793.643577,
+        "lighter": 61.011701
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 2.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:09.834501+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 214.238407,
+        "lighter": 60.117288
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:11.196717+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1710.563049,
+        "lighter": 10.20252
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:11.753636+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 134.879619,
+        "lighter": 28.432822
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:17.733584+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": null,
+        "lighter": 33.878026
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:26.708914+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 19.33047,
+        "lighter": 29.195072
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:35.680560+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1718.857307,
+        "lighter": 105.333186
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:37.060838+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 51.460953,
+        "lighter": 25.221944
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:40.076005+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1617.941612,
+        "lighter": 35.887246
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:40.896812+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 152.667144,
+        "lighter": 61.984958
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:47.689349+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1693.714669,
+        "lighter": 34.439445
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:42:49.388471+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 177.285356,
+        "lighter": 59.704576
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 1.6
+    },
+    {
+      "at_utc": "2026-10-05T13:42:50.471259+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": null,
+        "lighter": 52.595636
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:43:09.351149+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 114.895182,
+        "lighter": 92.204214
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 2.4
+    },
+    {
+      "at_utc": "2026-10-05T13:43:17.063633+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1520.482828,
+        "lighter": 9.412785
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:43:18.731421+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 55.883685,
+        "lighter": 40.387209
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:43:27.502031+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1748.533849,
+        "lighter": 9.0242
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:43:28.075587+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 247.231097,
+        "lighter": 57.546538
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:43:28.662615+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": null,
+        "lighter": 50.189989
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:43:59.284077+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 105.676575,
+        "lighter": 10.175831
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:44:03.826100+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1541.034628,
+        "lighter": 11.726445
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:44:05.928319+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 198.344855,
+        "lighter": 9.065494
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:44:07.346776+00:00",
+      "blockers": [
+        "market_data"
+      ],
+      "quote_ages_ms": {
+        "binance": 1650.4808,
+        "lighter": 45.167853
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    },
+    {
+      "at_utc": "2026-10-05T13:44:08.439223+00:00",
+      "blockers": [],
+      "quote_ages_ms": {
+        "binance": 86.634697,
+        "lighter": 53.142937
+      },
+      "queue_backlog": 0,
+      "event_loop_lag_ms": 0.0
+    }
+  ],
+  "failed_fx_requests": [],
+  "max_fx_conservative_age_s": 2.6214505130046746,
+  "max_quote_age_ms": {
+    "lighter": 688.907584,
+    "binance": 7596.373448
+  },
+  "max_component_age_s": {
+    "account": 13.39567918999819,
+    "active_orders": 13.507509953007684
+  },
+  "peak_lighter_used_including_leases": 26,
+  "minimum_capacity_to_55": 29,
+  "commands": [
+    [
+      10,
+      "LOAD_SESSION_PERMISSION",
+      "DONE",
+      1791207424.971288,
+      "permission dimuat; belum aktif, START_LIVE dan preflight tetap wajib"
+    ],
+    [
+      11,
+      "STOP_ENTRIES",
+      "DONE",
+      1791207849.350597,
+      "entry dihentikan"
+    ]
+  ],
+  "final_state": "IDLE",
+  "order_permission": false,
+  "entries_stopped": true,
+  "final_account": {
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "exchange_active_order_count": 0,
+    "other_exchange_position_count": 0,
+    "position_price": "0.0",
+    "unrealized_pnl": "0.000000",
+    "realized_pnl": "0.000000",
+    "funding": "0",
+    "account_type_code": 0,
+    "account_trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "age_s": 2.4,
+    "component_ages_s": {
+      "account": 2.38939082500292,
+      "active_orders": 2.495495129012852
+    },
+    "components_complete": true,
+    "exchange_order_count": 0,
+    "exchange_pending_count": 0,
+    "collateral": "49.430756",
+    "funding_audit_age_s": 40.1,
+    "daily_loss": "0",
+    "total_loss": "0",
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "effective_exposure_usd": "0.000000",
+    "recorded_fees": null,
+    "known_fees": "0",
+    "pending_fee_count": 4,
+    "fee_audit_complete": false,
+    "position_read_age_s": 2.4
+  },
+  "cash_audit": {
+    "status": "matched",
+    "net_difference_usdc": "0.000000",
+    "cash_change_usdc": "0.000000",
+    "individual_fees_known": false
+  },
+  "fee_reports": {
+    "covered_unknown_fills": 4,
+    "all_unknown_fills_covered": true,
+    "reported_fee_total_usdc": "0.0000",
+    "reports": [
+      {
+        "trade_id": "33141524453",
+        "client_id": 2,
+        "qty": "0.000120",
+        "price": "84539.000000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+        "exchange_ms": 1791020396773,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750138+00:00",
+        "order_id": "844421373195178"
+      },
+      {
+        "trade_id": "33141644233",
+        "client_id": 3,
+        "qty": "0.000120",
+        "price": "84543.800000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+        "exchange_ms": 1791020597030,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750084+00:00",
+        "order_id": "562953474977251"
+      },
+      {
+        "trade_id": "33170714739",
+        "client_id": 4,
+        "qty": "0.000120",
+        "price": "84794.700000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+        "exchange_ms": 1791055841985,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750004+00:00",
+        "order_id": "844421372216756"
+      },
+      {
+        "trade_id": "33170717917",
+        "client_id": 6,
+        "qty": "0.000120",
+        "price": "84796.200000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+        "exchange_ms": 1791055846698,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.749855+00:00",
+        "order_id": "562953476061280"
+      }
+    ],
+    "exact_fee_established": false
+  },
+  "history_complete": true,
+  "reconnects": {
+    "binance": 64,
+    "lighter": 1
+  },
+  "raw_snapshot_sha256": "a89ad9fa0b90870e69a4bb13f27c797879275c7798b4612cb1a9dd9ef3fa1b95",
+  "initial_capture_unobserved_preparation_s": 291.9451880455017,
+  "actual_repository_commit_before_attempt": "dfc3af067df96b1eec74d3b2955d1bcc66092d60",
+  "actual_source_hashes": {
+    "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+    "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+    "src/lldesk/models.py": "9b4a470317252b9d2346f4a46029640c1c351bc7759d75283c449559f9f94cfb",
+    "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+    "src/lldesk/market.py": "925940ad0b6256026b1c54b28d428f88093c3bee8977bcb62068b24827540226",
+    "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+    "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c",
+    "src/lldesk/account.py": "93e0ab9790e51eb1fd19dabfe90385b40b1f530823f843fcdfdc042f22c39e32",
+    "src/lldesk/engine.py": "4f3a971f54a21fa4f8b6527a0b4342dcdd80166f02ac3de721f1652a0f2a819c",
+    "src/lldesk/api.py": "0b889f54fd750ece866738181a2b5dfbe924ab7895d8390632f948d67bf4148b",
+    "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+    "src/lldesk/network.py": "e347100f00f69bf9f4b0516a0a960a1d4b49c8deb276564dda9a160cc3f72c29",
+    "src/lldesk/session.py": "d8a2f232e4c17f6c19d96c7d63d9e7861dea49346f632b51c5bf59d3efc5bbf2",
+    "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+    "src/lldesk/transport_trace.py": "642b82548b32556096ce1b4aedbe23b1375ab3aef539f9ab84172df1ba645978",
+    "src/lldesk/diagnostics.py": "1518c7a4543447a925d341e3b8247527b1b8aec53e4b729f290623ad262c5214",
+    "src/lldesk/audit_scheduler.py": "95e073a99eac38fb028d496bbb9efffba5121aeb3b36ee7eed3795b02c8638f4",
+    "src/lldesk/preflight.py": "4bbf6c05655fb0e8bebf45475c3847bd13863f0faf22eaec5d066e60b8f6a2e3",
+    "src/lldesk/fx.py": "e477e46b38f097284b6b4091862ff6e5b7f8b4b1ba9ecc1d5fdeadb04ae6822e"
+  },
+  "permission_load_proof": {
+    "scope": "authorized load only; not activated",
+    "command_id": 10,
+    "command_result": "permission dimuat; belum aktif, START_LIVE dan preflight tetap wajib",
+    "verified_epoch": 1791207491.6726139,
+    "same_engine_pid": 255514,
+    "buffer_started_at_before": 1791202326.33411,
+    "buffer_started_at_after": 1791202326.33411,
+    "authorization_record_unchanged": true,
+    "session_id": "9ce8b029-1f0b-4b1e-afb7-f6c1732e7b3a",
+    "status": "authorized",
+    "active_started_at": null,
+    "active_deadline_epoch": null,
+    "authorization_expiry": 1791208592.6000223,
+    "attempts": [],
+    "entries_stopped": true,
+    "old_session_closed": true,
+    "old_session_tombstone": "1",
+    "actual_coverage": {
+      "duration_required_s": 600,
+      "duration_observed_s": 1799.1,
+      "duration_remaining_s": 0,
+      "total_samples_required": 480,
+      "total_samples": 1356,
+      "window_s": 600,
+      "recent_samples_required": 480,
+      "recent_samples": 266,
+      "max_sample_gap_s": 33.645,
+      "allowed_gap_s": 5,
+      "long_gap_count": 12,
+      "gap_wait_remaining_s": 554.4,
+      "last_sample_age_s": 1.0,
+      "warmup_complete": true,
+      "coverage_complete": false,
+      "ready": false,
+      "buffer_started_at": 1791202326.33411,
+      "buffer_reset_reason": "engine_start",
+      "last_interruption": {
+        "venue": "binance",
+        "channel": "public",
+        "reason": "ConnectionError",
+        "at": 1791207446.3702288,
+        "samples_preserved": 1394
+      }
+    }
+  },
+  "termination_proof": {
+    "requested_stop_at_utc": "2026-10-05T13:44:09.344587+00:00",
+    "reason": "coverage cannot recover before immutable preparation deadline: earliest 2026-10-05T13:53:27.844534+00:00 > 2026-10-05T13:52:13+00:00",
+    "preparation_deadline_epoch": 1791208333.0,
+    "earliest_possible_coverage_epoch": 1791208407.8445337,
+    "coverage": {
+      "duration_required_s": 600,
+      "duration_observed_s": 1799.3,
+      "duration_remaining_s": 0,
+      "total_samples_required": 480,
+      "total_samples": 1193,
+      "window_s": 600,
+      "recent_samples_required": 480,
+      "recent_samples": 251,
+      "max_sample_gap_s": 33.645,
+      "allowed_gap_s": 5,
+      "long_gap_count": 14,
+      "gap_wait_remaining_s": 558.5,
+      "last_sample_age_s": 0.0,
+      "warmup_complete": true,
+      "coverage_complete": false,
+      "ready": false,
+      "buffer_started_at": 1791202326.33411,
+      "buffer_reset_reason": "engine_start",
+      "last_interruption": {
+        "venue": "binance",
+        "channel": "public",
+        "reason": "ConnectionError",
+        "at": 1791207808.3812013,
+        "samples_preserved": 1224
+      }
+    },
+    "blockers": [
+      "coverage",
+      "basis_scale"
+    ],
+    "session_before_stop": {
+      "id": "9ce8b029-1f0b-4b1e-afb7-f6c1732e7b3a",
+      "status": "authorized",
+      "authorized_at": 1791207392.6000223,
+      "authorization_expires_epoch": 1791208592.6000223,
+      "revoked_at": null,
+      "started_at": null,
+      "deadline_epoch": null,
+      "ended_at": null,
+      "max_seconds": 1800,
+      "max_attempts": 3,
+      "attempts": [],
+      "completed_positions": [],
+      "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+      "account_index": 751745,
+      "equity_before": "49.430756",
+      "initial_fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ],
+          [
+            "33170714739",
+            4,
+            "0.00012",
+            "84794.7",
+            null
+          ],
+          [
+            "33170717917",
+            6,
+            "0.00012",
+            "84796.2",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "audited_fingerprint": {
+        "fills": [
+          [
+            "33141524453",
+            2,
+            "0.00012",
+            "84539.0",
+            null
+          ],
+          [
+            "33141644233",
+            3,
+            "0.00012",
+            "84543.8",
+            null
+          ],
+          [
+            "33170714739",
+            4,
+            "0.00012",
+            "84794.7",
+            null
+          ],
+          [
+            "33170717917",
+            6,
+            "0.00012",
+            "84796.2",
+            null
+          ]
+        ],
+        "flows": [
+          [
+            "deposit:130682965109",
+            "49.430000"
+          ]
+        ]
+      },
+      "audited_equity": "49.430756",
+      "stop_reason": null,
+      "fee_policy": "official_export_reported_precision_one_session"
+    },
+    "account_before_stop": {
+      "equity": "49.430756",
+      "available": "49.430756",
+      "position_qty": "0.00000",
+      "exchange_active_order_count": 0,
+      "other_exchange_position_count": 0,
+      "position_price": "0.0",
+      "unrealized_pnl": "0.000000",
+      "realized_pnl": "0.000000",
+      "funding": "0",
+      "account_type_code": 0,
+      "account_trading_mode": 1,
+      "margin_mode": 0,
+      "initial_margin_fraction": "100.00",
+      "age_s": 2.1,
+      "component_ages_s": {
+        "account": 2.1220622979890322,
+        "active_orders": 2.2281666019989643
+      },
+      "components_complete": true,
+      "exchange_order_count": 0,
+      "exchange_pending_count": 0,
+      "collateral": "49.430756",
+      "funding_audit_age_s": 39.9,
+      "daily_loss": "0",
+      "total_loss": "0",
+      "source_funding_spent_usd": "50",
+      "source_funding_budget_remaining": "0",
+      "gross_history_inflow": "49.430000",
+      "effective_exposure_usd": "0E-7",
+      "recorded_fees": null,
+      "known_fees": "0",
+      "pending_fee_count": 4,
+      "fee_audit_complete": false,
+      "position_read_age_s": 2.1
+    },
+    "active_session_seconds": 0,
+    "operator_action": "STOP_ENTRIES through engine owner; no START_LIVE/rearm"
+  },
+  "entry_signing_attempts": 0,
+  "order_broadcasts": 0,
+  "new_or_updated_intents_during_preparation": 0,
+  "preflight_abandoned_candidates": 0,
+  "preflight_abandoned_candidates_note": "No candidate or activation preflight ran; no measured opportunity expired during preflight. This does not imply no market opportunity.",
+  "after_cost_eligible_estimates": {
+    "sample_count": 0,
+    "distribution": null,
+    "reason": "No interval passed technical guards; no executable strategy estimate supported."
+  },
+  "reconnects_during_capture": {
+    "binance_public": 9,
+    "binance_market": 0,
+    "lighter": 0
+  },
+  "reconnect_counters_capture_start": {
+    "binance_public": 54,
+    "binance_market": 1,
+    "lighter": 1
+  },
+  "reconnect_counters_capture_end": {
+    "binance_public": 63,
+    "binance_market": 1,
+    "lighter": 1
+  },
+  "final_channel_details": {
+    "binance_public": {
+      "connected": true,
+      "reconnects": 63,
+      "consecutive_failures": 5,
+      "retry_delay_s": 0,
+      "last_error": "ConnectionError",
+      "last_disconnect_at": 1791207808.380844,
+      "last_transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "last_frame_age_ms": 76
+    },
+    "binance_market": {
+      "connected": true,
+      "reconnects": 1,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": "ConnectionError",
+      "last_disconnect_at": 1791204098.7635562,
+      "last_transport_detail": {
+        "close_code": 1006,
+        "frame_type": "ERROR",
+        "cause": "ServerTimeoutError"
+      },
+      "last_frame_age_ms": 202
+    },
+    "lighter": {
+      "connected": true,
+      "reconnects": 1,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": "ConnectionClosedError",
+      "last_disconnect_at": 1791203002.5976777,
+      "last_transport_detail": {
+        "close_code": null,
+        "frame_type": null,
+        "cause": null
+      },
+      "last_frame_age_ms": 8
+    }
+  },
+  "measurement_limits": [
+    "First 291.945 seconds of preparation preceded continuous capture; only point-in-time checks are available.",
+    "Deduplicated observed evaluations are not a total engine-call counter.",
+    "Source receipt gap/reconnect does not identify network provider or exchange as the cause."
+  ],
+  "frozen_risk_and_signal_parameters_unchanged": true
+}
