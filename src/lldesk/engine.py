@@ -16,6 +16,7 @@ from zoneinfo import ZoneInfo
 import httpx
 
 from .account import AccountSnapshot, DispatchBlocked, LighterAccount, LocalOrderRejected
+from .audit_scheduler import AuditScheduler
 from .config import Config, load_config, repo_root
 from .db import Database
 from .diagnostics import observe as diagnostic_observation
@@ -37,7 +38,7 @@ from .strategy import Decision, DeviationStrategy
 
 LOG = logging.getLogger("lldesk.engine")
 JAKARTA = ZoneInfo("Asia/Jakarta")
-# Eight reads per flat-account reconcile fit the 40/min local read budget.
+# Legacy retry/forced-refresh marker; routine audits use freshness deadlines.
 ACCOUNT_RECONCILE_INTERVAL_SECONDS = 12
 POSITION_READ_TIMEOUT_SECONDS = 2
 STOP_INSTALL_SECONDS = 3
@@ -97,6 +98,8 @@ class Engine:
         self.tasks: list[asyncio.Task] = []
         self.reconcile_task: asyncio.Task | None = None
         self.reconcile_lock = asyncio.Lock()
+        self.audit_scheduler = AuditScheduler()
+        self._reconcile_owner: asyncio.Task | None = None
         self.entry_epoch = 0
         self.entry_tasks: set[asyncio.Task] = set()
         self.dispatching_entries: set[int] = set()
@@ -311,7 +314,9 @@ class Engine:
                 and not (self.probe_active and self.entry_tasks)
                 and not self.entry_tasks
                 and (self.fee_audit_task is None or self.fee_audit_task.done())
-                and time.monotonic() - self.last_account_poll >= ACCOUNT_RECONCILE_INTERVAL_SECONDS
+                and time.monotonic() >= self.audit_scheduler.next_due
+                and not self.risk_needs_read()
+                and self.account.rate.can_claim("reconcile", self.audit_scheduler.request_cost)
                 and self.probe_read_ready()
                 and (self.reconcile_task is None or self.reconcile_task.done())
             ):
@@ -580,22 +585,42 @@ class Engine:
                 self.entries_stopped = True  # prevent duplicate signal while send is in flight
 
     async def safe_reconcile(self) -> None:
+        task = asyncio.current_task()
+        if (
+            self._reconcile_owner
+            and self._reconcile_owner is not task
+            and not self._reconcile_owner.done()
+        ):
+            await asyncio.shield(self._reconcile_owner)
+            return  # Shared result, never a second queued full audit.
+        self._reconcile_owner = task
+        self.audit_scheduler.refresh_requested = False
         started = time.monotonic()
         acquired: float | None = None
         trace = getattr(self.account, "transport_trace", None)
         trace_start = trace.sequence if trace else 0
         task_id = id(asyncio.current_task())
         outcome, error = "cancelled", None
+        rate = getattr(self.account, "rate", None)
+        deadline = self.audit_scheduler.timeout(self.audit_account_age())
         try:
             async with self.reconcile_lock:
                 acquired = time.monotonic()
                 self.last_account_poll = time.monotonic()
-                async with asyncio.timeout(8):
-                    with (
+                deadline = self.audit_scheduler.timeout(self.audit_account_age())
+                with (
+                    (
+                        rate.reserve("reconcile", self.audit_scheduler.request_cost)
+                        if rate and hasattr(rate, "reserve")
+                        else nullcontext()
+                    ),
+                    (
                         trace.operation("account_reconciliation", "reconcile", 1)
                         if trace
                         else nullcontext()
-                    ):
+                    ),
+                ):
+                    async with asyncio.timeout(deadline):
                         await self.reconcile()
                 self.reconcile_failed = False
                 outcome = "ok"
@@ -618,13 +643,49 @@ class Engine:
                 "finished_at": time.time(),
                 "elapsed_ms": (time.monotonic() - started) * 1000,
                 "lock_wait_ms": ((acquired or time.monotonic()) - started) * 1000,
-                "request_deadline_s": 8,
+                "request_deadline_s": deadline,
                 "outcome": outcome,
                 "error": error,
                 "requests": requests,
                 "request_used_60s": len(rate.calls) if rate else None,
             }
+            if outcome == "ok":
+                if not self.audit_scheduler.refresh_requested:
+                    self.audit_scheduler.completed(
+                        time.monotonic(),
+                        self.audit_account_age() or 0.0,
+                        (time.monotonic() - started),
+                        len(requests),
+                    )
+                else:
+                    self.audit_scheduler.request_now("newer exposure read requires fresh audit")
+            else:
+                self.audit_scheduler.next_due = (
+                    time.monotonic() + ACCOUNT_RECONCILE_INTERVAL_SECONDS
+                )
+                self.audit_scheduler.reason = (
+                    "failed/cancelled audit; bounded retry, old data stays old"
+                )
+            self._reconcile_owner = None
             self.db.event("ACCOUNT_RECONCILE_DIAGNOSTIC", self.last_reconcile_diagnostic)
+
+    def audit_account_age(self) -> float | None:
+        snap = self.account_snapshot
+        if snap is None:
+            return None
+        if snap.received_monotonic:
+            return max(0.0, time.monotonic() - snap.received_monotonic)
+        return max(0.0, time.time() - snap.received_at)  # Legacy/isolated fixtures only.
+
+    def risk_needs_read(self) -> bool:
+        return bool(
+            self.db.unresolved()
+            or self.entry_tasks
+            or self.protection_id is not None
+            or self.exit_id is not None
+            or self.exchange_owned_qty
+            or (self.account_snapshot and self.account_snapshot.position_qty)
+        )
 
     def _start_position_deadline(self) -> None:
         if not self.position_opened_at:
@@ -974,6 +1035,7 @@ class Engine:
         # The foreground loop keeps managing the last fully reconciled snapshot.
         if self.account_snapshot and self.account_snapshot.received_at > snapshot.received_at:
             self.last_account_poll = time.monotonic() - ACCOUNT_RECONCILE_INTERVAL_SECONDS
+            self.audit_scheduler.request_now("bookkeeping response older than risk exposure")
             return  # Slow bookkeeping must not overwrite newer risk exposure.
         self.account_snapshot = snapshot
         self.last_position_read_ok = time.monotonic()
@@ -982,6 +1044,9 @@ class Engine:
             # A fill can arrive after the account GET. Do not declare flat or
             # retry a filled close using that older snapshot; fetch again promptly.
             self.last_account_poll = time.monotonic() - ACCOUNT_RECONCILE_INTERVAL_SECONDS
+            self.audit_scheduler.request_now(
+                "position and ledger differ; priority recovery continues"
+            )
         if self.manual_exposure:
             self.entries_stopped = True
             self.state = EngineState.PAUSED
@@ -2391,11 +2456,15 @@ class Engine:
             if rate is None
             else {
                 "used_last_60s": len(rate.calls),
+                "reserved_unconsumed": rate._held() if hasattr(rate, "_held") else 0,
                 "normal_cap": 40,
                 "urgent_read_cap": 47,
                 "transaction_cap": 55,
-                "transaction_slots_remaining": max(0, 55 - len(rate.calls)),
+                "transaction_slots_remaining": max(
+                    0, 55 - len(rate.calls) - (rate._held() if hasattr(rate, "_held") else 0)
+                ),
             },
+            "audit_scheduler": self.audit_scheduler.status(time.monotonic()),
             "state": self.state,
             "reason": self.reason,
             "market_id": self.market["market_id"] if self.market else None,

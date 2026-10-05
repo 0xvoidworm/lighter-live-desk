@@ -21,7 +21,7 @@ from lldesk.config import load_config
 DURATION_SECONDS = 1200
 
 
-def capture(output: Path, expected_pid: int):
+def capture(output: Path, expected_pid: int, base_commit: str):
     root = Path(__file__).resolve().parents[1]
     config = load_config()
     assert not config.allow_live_orders
@@ -71,7 +71,7 @@ def capture(output: Path, expected_pid: int):
     assert not initial["allow_live_orders"] and initial["strategy_session"]["status"] == "closed"
     start_mono, start_wall = time.monotonic(), time.time()
     manifest = {
-        "base_commit": "ca8c2b6",
+        "base_commit": base_commit,
         "code_commit": subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=root, text=True
         ).strip(),
@@ -153,5 +153,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--engine-pid", required=True, type=int)
+    parser.add_argument("--base-commit", default="ca8c2b6")
     args = parser.parse_args()
-    capture(args.output, args.engine_pid)
+    capture(args.output, args.engine_pid, args.base_commit)

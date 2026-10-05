@@ -4,7 +4,9 @@ import asyncio
 import json
 import time
 from collections import deque
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
@@ -32,6 +34,17 @@ class RateBudget:
 
     def __init__(self) -> None:
         self.calls: deque[float] = deque()
+        self.reservations: dict[int, tuple[str, int]] = {}
+        self._reservation_sequence = 0
+        self._reservation: ContextVar[int | None] = ContextVar("rate_reservation", default=None)
+
+    def _held(self, priority: str | None = None, cost: int = 0) -> int:
+        held = sum(n for _, n in self.reservations.values())
+        key = self._reservation.get()
+        owner = self.reservations.get(key) if key is not None else None
+        if owner and owner[0] == priority:
+            held -= min(owner[1], cost)
+        return held
 
     def can_claim(self, priority: str, cost: int = 1) -> bool:
         now = time.monotonic()
@@ -39,12 +52,33 @@ class RateBudget:
             self.calls.popleft()
         # Urgent account reads must leave eight slots for stop/close/cancel.
         cap = {"exit": 55, "probe_read": 47}.get(priority, 40)
-        return len(self.calls) + cost <= cap
+        return len(self.calls) + self._held(priority, cost) + cost <= cap
+
+    @contextmanager
+    def reserve(self, priority: str, cost: int) -> Iterator[None]:
+        """Atomic on the single event loop; consumed claims are never refunded."""
+        cap = {"exit": 55, "probe_read": 47}.get(priority, 40)
+        self.can_claim(priority, 0)  # prune; reserving cannot consume another lease
+        if cost <= 0 or len(self.calls) + self._held() + cost > cap:
+            raise RuntimeError("local Standard API rate reserve exhausted")
+        self._reservation_sequence += 1
+        key = self._reservation_sequence
+        self.reservations[key] = (priority, cost)
+        token = self._reservation.set(key)
+        try:
+            yield
+        finally:
+            self._reservation.reset(token)
+            self.reservations.pop(key, None)
 
     def claim(self, priority: str, cost: int = 1) -> None:
         if not self.can_claim(priority, cost):
             raise RuntimeError("local Standard API rate reserve exhausted")
         now = time.monotonic()
+        key = self._reservation.get()
+        owner = self.reservations.get(key) if key is not None else None
+        if key is not None and owner and owner[0] == priority:
+            self.reservations[key] = (priority, max(0, owner[1] - cost))
         self.calls.extend([now] * cost)
 
 
@@ -66,6 +100,7 @@ class AccountSnapshot:
     account_trading_mode: int | None = None
     margin_mode: int | None = None
     initial_margin_fraction: Decimal | None = None
+    received_monotonic: float = 0.0
 
 
 class LighterAccount:
@@ -84,6 +119,7 @@ class LighterAccount:
         self.lock = asyncio.Lock()
         self.rate = RateBudget()
         self.transport_trace = TransportTrace()
+        self._funding_l1_address: str | None = None
 
     async def open(self) -> None:
         secrets = load_secrets()
@@ -139,16 +175,17 @@ class LighterAccount:
         priority: str = "probe_read",
     ) -> AccountSnapshot:
         """One priority GET. Cached orders/flows are NOT a fresh cleanup/funding audit."""
-        acct, received_at = await self._read_account(priority)
+        acct, received_at, received_mono = await self._read_account(priority)
         return self._parse_account(
             acct,
             market_id,
             received_at,
             previous.active_orders if previous else (),
             previous.funding_flows if previous else (),
+            received_mono,
         )
 
-    async def _read_account(self, priority: str) -> tuple[Any, float]:
+    async def _read_account(self, priority: str) -> tuple[Any, float, float]:
         self.rate.claim(priority)
         response = await self.account_api.account(
             by="index", value=str(self.account_index), active_only=False
@@ -158,7 +195,7 @@ class LighterAccount:
         acct = response.accounts[0]
         if acct.index != self.account_index:
             raise RuntimeError("Lighter returned a different account")
-        return acct, time.time()
+        return acct, time.time(), time.monotonic()
 
     async def _snapshot(
         self,
@@ -166,23 +203,46 @@ class LighterAccount:
         priority: str,
         verified_flows: tuple[tuple[str, str], ...] | None = None,
     ) -> AccountSnapshot:
-        acct, received_at = await self._read_account(priority)
+        # Only cache the account's public L1 identity, never a funding response.
+        # After bootstrap, complete histories first so the account response is
+        # close to publication instead of aging behind five history requests.
+        address = self._funding_l1_address
+        acct = None
+        received_at = 0.0
+        received_mono = 0.0
+        flows = verified_flows
+        if address is None:
+            acct, received_at, received_mono = await self._read_account(priority)
+            address = acct.l1_address
+        elif flows is None:
+            flows = await self.funding_history(address, priority=priority)
         self.rate.claim(priority)
         orders = await self.order_api.account_active_orders(
             authorization=self.auth(), account_index=self.account_index
         )
         if orders.code != 200:
             raise RuntimeError("Lighter active orders request failed")
-        flows = verified_flows
+        if acct is None:
+            acct, received_at, received_mono = await self._read_account(priority)
+            if acct.l1_address != address:
+                self._funding_l1_address = None
+                raise RuntimeError("Lighter L1 identity changed during funding audit")
         if flows is None:
             flows = (
                 await self.funding_history(acct.l1_address)
                 if priority == "reconcile"
                 else await self.funding_history(acct.l1_address, priority=priority)
             )
-        return self._parse_account(
-            acct, market_id, received_at, tuple(o.to_dict() for o in orders.orders), flows
+        snapshot = self._parse_account(
+            acct,
+            market_id,
+            received_at,
+            tuple(o.to_dict() for o in orders.orders),
+            flows,
+            received_mono,
         )
+        self._funding_l1_address = address
+        return snapshot
 
     def _parse_account(
         self,
@@ -191,6 +251,7 @@ class LighterAccount:
         received_at: float,
         active_orders: tuple[dict[str, Any], ...],
         flows: tuple[tuple[str, str], ...],
+        received_monotonic: float = 0.0,
     ) -> AccountSnapshot:
         position = next((p for p in acct.positions if p.market_id == market_id), None)
         qty = (
@@ -217,6 +278,7 @@ class LighterAccount:
                 a.to_dict() for a in acct.assets if a.symbol != "USDC" and Decimal(a.balance) != 0
             ),
             received_at=received_at,
+            received_monotonic=received_monotonic,
             funding_flows=flows,
             account_trading_mode=acct.account_trading_mode,
             margin_mode=position.margin_mode if position else None,

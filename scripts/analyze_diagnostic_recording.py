@@ -177,6 +177,7 @@ def main(source, prefix):
         )
     start = manifest["start_epoch"]
     end = manifest["deadline_epoch"]
+    all_observed_starts = sorted(c["started_at"] for c in calls.values() if c["started_at"] < end)
     carry_in = [c for c in calls.values() if c["started_at"] < start <= c["finished_at"] < end]
     unfinished = [
         c for key, c in active_calls.items() if key not in calls and start <= c["started_at"] < end
@@ -382,6 +383,34 @@ def main(source, prefix):
             {"blockers": list(k), "seconds": n} for k, n in pair_overlap.most_common()
         ],
         "request_endpoints": endpoints,
+        "request_rolling_window": {
+            "started_in_window": len(calls) + len(unfinished),
+            "mean_per_minute_over_20m": (len(calls) + len(unfinished)) / 20,
+            "maximum_observed_starts_per_rolling_60s": max(
+                (
+                    sum(t - 60 < x <= t for x in all_observed_starts)
+                    for t in all_observed_starts
+                    if start <= t < end
+                ),
+                default=0,
+            ),
+            "maximum_local_accounted_used_per_rolling_60s": max(
+                b["used_last_60s"] for b in budgets
+            ),
+            "unconsumed_reservations_peak": max(b.get("reserved_unconsumed", 0) for b in budgets),
+            "scope": (
+                "SDK GET starts observed by trace, including carry-in starts retained; "
+                "other processes/SDK startup outside the recording are not measured"
+            ),
+        },
+        "account_age_seconds": stats(
+            [r["status"]["account"]["age_s"] for r in rows if r.get("status", {}).get("account")]
+        ),
+        "cash_audit_matched_seconds": sum(
+            v["seconds"]
+            for v in intervals
+            if v["row"].get("status", {}).get("net_cash_audit", {}).get("status") == "matched"
+        ),
         "request_window_boundary": {
             "completed_carry_in_requests": carry_in,
             "observed_started_not_completed_before_last_sample": unfinished,

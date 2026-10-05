@@ -1,0 +1,30 @@
+{
+  "source": "tests/fixtures/audit-eight-get-trace-20261005.json",
+  "simulation_only": true,
+  "model": "Serial full eight-GET audits; true account-response timestamps; all request starts count before awaiting; 20Hz quota sampling; no network/signing/orders",
+  "deadline_bound_s": 2,
+  "freshness_margin_s": 0.5,
+  "results": {
+    "old": {
+      "cycles": 93,
+      "requests_started": 744,
+      "mean_gets_per_minute": 37.2,
+      "rolling_peak_at_20Hz": 40,
+      "quota_blocked_s_at_20Hz": 806.2,
+      "maximum_account_age_before_publication_s": 14.617546329996246,
+      "freshness_violations": 0,
+      "minimum_exit_slots_before_new_position": 15
+    },
+    "deadline": {
+      "cycles": 90,
+      "requests_started": 720,
+      "mean_gets_per_minute": 36.0,
+      "rolling_peak_at_20Hz": 40,
+      "quota_blocked_s_at_20Hz": 607.95,
+      "maximum_account_age_before_publication_s": 14.304770329996245,
+      "freshness_violations": 0,
+      "minimum_exit_slots_before_new_position": 15
+    }
+  },
+  "limitations": "Replays 93 observed successes, not a latency guarantee; longer pagination/retries or faults must fail closed. Unconsumed reservations affect live in-flight checks and are separately measured at runtime; these quota durations count claims only."
+}
