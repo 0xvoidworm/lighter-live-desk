@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 from collections import deque
+from contextlib import contextmanager
 from contextvars import ContextVar
 from types import SimpleNamespace
 from typing import Any
@@ -31,7 +32,31 @@ class TransportTrace:
         self.completed: deque[dict] = deque(maxlen=256)
         self.active: dict[int, dict] = {}
         self.current: ContextVar[dict | None] = ContextVar("account_http_trace", default=None)
+        self.read_context: ContextVar[dict | None] = ContextVar("read_context", default=None)
         self.sequence = 0
+
+    @contextmanager
+    def operation(self, reason: str, priority: str, quota_weight: int = 1):
+        token = self.read_context.set(
+            {"reason": reason, "quota_priority": priority, "local_quota_weight": quota_weight}
+        )
+        try:
+            yield
+        finally:
+            self.read_context.reset(token)
+
+    def pagination(self, path: str, *, count: int, cursor: str | None, next_cursor: str | None):
+        # Only counts/booleans, never cursor values or response contents.
+        task = id(asyncio.current_task())
+        for record in reversed(self.completed):
+            if record["task"] == task and record["path"] == path:
+                record["pagination"] = {
+                    "items": count,
+                    "requested_cursor": bool(cursor),
+                    "returned_cursor": bool(next_cursor),
+                    "cursor_echo": bool(cursor and cursor == next_cursor),
+                }
+                break
 
     @staticmethod
     def phase(record: dict, name: str) -> None:
@@ -49,6 +74,8 @@ class TransportTrace:
         self.phase(record, "finished")
         result = {k: record[k] for k in ("id", "task", "host", "path", "started_at", "phase_ms")}
         result.update(
+            **record["read_context"],
+            http_attempts=record["http_attempts"],
             outcome=outcome,
             last_phase=failed_phase,
             elapsed_ms=round((time.monotonic() - record["started_mono"]) * 1000, 3),
@@ -73,6 +100,8 @@ class TransportTrace:
             path = urlsplit(str(params.url)).path
             if ctx.record is None and params.method == "GET" and path in READ_PATHS:
                 ctx.record = self.begin(str(params.url))
+            if ctx.record is not None:
+                ctx.record["http_attempts"] += 1
 
         async def body(session: Any, ctx: Any, params: Any) -> None:
             if ctx.record is not None and not ctx.managed:
@@ -121,6 +150,8 @@ class TransportTrace:
             "started_at": time.time(),
             "started_mono": time.monotonic(),
             "phase_ms": {},
+            "read_context": (self.read_context.get() or {}).copy(),
+            "http_attempts": 0,
         }
         self.phase(record, "acquire_connection")
         self.active[record["id"]] = record

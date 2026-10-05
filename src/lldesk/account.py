@@ -259,6 +259,12 @@ class LighterAccount:
                     signed = amount if kind == "deposit" else -amount
                     result.append((f"{kind}:{item.id}", str(signed)))
                 next_cursor = page.cursor or None
+                self.transport_trace.pagination(
+                    f"/api/v1/{kind}/history",
+                    count=len(items),
+                    cursor=cursor,
+                    next_cursor=next_cursor,
+                )
                 if not next_cursor:
                     break
                 # Mainnet can echo the requested cursor on an empty terminal page.
@@ -300,6 +306,12 @@ class LighterAccount:
                     raise RuntimeError("unknown transfer type or account requires review")
                 result.append((f"transfer:{item.id}:{item.type}", str(signed)))
             next_cursor = page.cursor or None
+            self.transport_trace.pagination(
+                "/api/v1/transfer/history",
+                count=len(page.transfers),
+                cursor=cursor,
+                next_cursor=next_cursor,
+            )
             if not next_cursor:
                 break
             if not page.transfers and next_cursor == cursor:

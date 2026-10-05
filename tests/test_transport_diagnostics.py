@@ -103,7 +103,7 @@ async def test_installed_sdk_transport_cancellation_phase_and_redaction(stall):
     trace.install(client.rest_client)
     try:
         assert client.rest_client.retry_client is None
-        with pytest.raises(TimeoutError):
+        with trace.operation("account_reconciliation", "reconcile", 1), pytest.raises(TimeoutError):
             async with asyncio.timeout(0.05):
                 response = await client.rest_client.request(
                     "GET",
@@ -113,6 +113,8 @@ async def test_installed_sdk_transport_cancellation_phase_and_redaction(stall):
                 await response.read()
         result = trace.completed[-1]
         assert result["path"] == "/api/v1/account"
+        assert result["reason"] == "account_reconciliation"
+        assert result["local_quota_weight"] == 1 and result["http_attempts"] == 1
         assert result["last_phase"] == ("waiting_headers" if stall == "headers" else "reading_body")
         assert not trace.active
         assert "placeholder" not in json.dumps(trace.status())

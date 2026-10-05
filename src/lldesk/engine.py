@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import time
+from contextlib import nullcontext
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
@@ -17,6 +18,7 @@ import httpx
 from .account import AccountSnapshot, DispatchBlocked, LighterAccount, LocalOrderRejected
 from .config import Config, load_config, repo_root
 from .db import Database
+from .diagnostics import observe as diagnostic_observation
 from .fee_audit import collect_export
 from .market import FX_BOOK, Book, Feeds, GapError, Recorder, dec, market_metadata
 from .models import (
@@ -589,7 +591,12 @@ class Engine:
                 acquired = time.monotonic()
                 self.last_account_poll = time.monotonic()
                 async with asyncio.timeout(8):
-                    await self.reconcile()
+                    with (
+                        trace.operation("account_reconciliation", "reconcile", 1)
+                        if trace
+                        else nullcontext()
+                    ):
+                        await self.reconcile()
                 self.reconcile_failed = False
                 outcome = "ok"
         except Exception as exc:
@@ -2407,6 +2414,7 @@ class Engine:
             else None,
             "quotes": quotes,
             "decision_inputs": self.last_decision_inputs,
+            "diagnostic_observation": diagnostic_observation(self),
             "reconcile_diagnostic": self.last_reconcile_diagnostic,
             "transport_trace": self.account.transport_trace.status()
             if self.account and hasattr(self.account, "transport_trace")
