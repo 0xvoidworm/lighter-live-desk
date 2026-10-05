@@ -1,5 +1,41 @@
 # Progress
 
+## Terbaru — 5 Oktober 2026, satu rekaman diagnostik 20 menit selesai
+
+Dari ca8c2b6, instrumentasi pasif ea46fbf dipakai PID146477 pada
+07:49:48–08:09:48 WIB; tepat1200s termasuk warm-up/gangguan,4797snapshot,
+tanpa polling statistik tambahan, order, rearm, atau sesi trading baru.
+Izin false dan otorisasi sebelumnya closed sepanjang rekaman.
+
+Guard teknis lolos136,324s (2m16s), run terpanjang4,253s. Reserve entry
+terblokir795,341s; coverage738,606s termasuk600,540s warm-up dan138,066s
+gap sesudahnya. Reserve/coverage overlap475,477s; jangan jumlahkan blocker.
+93 audit8GET berhasil;743 mulai di window+1carry-in, retry/timeout/429=0.
+Used lokal median/maks40, sedangkan entry membutuhkan≤33; kapasitas exit
+minimal15. Pagination kosong bercursor belum aman dihapus, dan cadence
+12s/freshness15s harus dipertimbangkan sebelum optimasi scheduler.
+
+Binance reconnect pertama reset socket1006, penyebab eksternal belum pasti;
+kedua terbukti overflow antrean pasar lokal via Recorder. Emit put_nowait
+dapat menahan giliran konsumen ketika socket memiliki burst buffered.
+b493ac0 memberi giliran tiap≤64 event;4096-event regresi gagal sebelum
+fix dan lolos sesudah, FIFO/Stamp asli tetap. Kapasitas/guard/threshold/
+cadence/fee/risk/proteksi tidak diubah.307tes, mypy16source, Ruff/format lulus.
+
+Residual dengan basis461,195s; guard lolos545sampel/max1,963771bps<8.
+Sinyal valid teramati0. Model dua VWAP Lighter tanpa spread ganda: edge
+terbaik1,501280bps, setelah fee metadata0 dan buffer5bps=−3,498720bps.
+Fee exact tetapNULL, model reversion/latensi belum bukti fill/PnL.
+
+Verifikasi45s terpisah PID160336 memakai b493ac0:32 GET SDK berhasil,
+1reset socket1006, tanpa GapError teramati; jangan klaim koneksi sempurna.
+Saldo49,430756, kas matched/selisih0, posisi/semuaorder/intent0;
+4exactfeeNULL dan reported0,0000DP4 tetap terpisah, entry stopped/orderfalse,
+sesi closed/autostartdisabled. Bukti AUDIT_DIAGNOSTIC_RECORDING_2026-10-05.md
+dan audits/diagnostic-20m-20261005.*; runtime/finalcheck disimpan terpisah.
+Langkah paling berguna: desain/uji scheduler audit berdasarkan biaya8GET,
+freshness15s dan reserve exit, tanpa menghapus pagination atau guard.
+
 ## Terbaru — 5 Oktober 2026, diagnosis sesi tanpa order
 
 Dari 8814332, otorisasi sesi tetap closed; tanpa entry/signing order/broadcast.

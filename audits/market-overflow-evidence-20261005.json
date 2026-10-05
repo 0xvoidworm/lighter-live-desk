@@ -1,0 +1,11 @@
+{
+  "source": "Existing Recorder; market-20261005-01-68fce48d6680428a81c489478a238eaf-0002.jsonl.gz; no added exchange requests",
+  "events": [
+    {"venue": "binance", "kind": "disconnect", "receipt_epoch": 1791162091.5403647, "reason": "queue overflow"},
+    {"venue": "lighter", "kind": "disconnect", "receipt_epoch": 1791162091.5403736, "reason": "queue overflow"},
+    {"venue": "binance", "kind": "disconnect", "receipt_epoch": 1791162091.7129023, "reason": "GapError"},
+    {"venue": "binance", "kind": "snapshot", "receipt_epoch": 1791162094.2167842}
+  ],
+  "interpretation": "Second Binance reconnect followed shared market queue overflow; it is distinct from the first websocket reset. Producer coroutine can enqueue an already buffered burst without yielding. Offline regression reproduces overflow with a ready consumer; cooperative yield fixes that reproduction without increasing capacity or restamping events.",
+  "limits": "Recording lacks continuous market queue occupancy and OS scheduling traces. It proves overflow and the reproducible starvation path, not that every contributor to the observed burst or every external disconnect is known."
+}

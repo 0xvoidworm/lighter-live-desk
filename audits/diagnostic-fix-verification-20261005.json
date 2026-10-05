@@ -1,0 +1,367 @@
+{
+  "purpose": "45s bounded post-fix observation, separate from the one completed 20m recording; existing engine reads only",
+  "started_at_utc": "2026-10-05T01:39:54.971014+00:00",
+  "ended_at_utc": "2026-10-05T01:40:40.012916+00:00",
+  "duration_seconds": 45,
+  "elapsed_monotonic_s": 45.041937278998375,
+  "source_commit": "b493ac0160577b0e127277054b5e7dcea80bc402",
+  "engine_pid": 160336,
+  "samples": 44,
+  "states": [
+    "IDLE",
+    "PAUSED",
+    "RECONCILING",
+    "RECOVERING"
+  ],
+  "feed_reconnects_observed_max": {
+    "binance_public": 1,
+    "binance_market": 0,
+    "lighter": 0
+  },
+  "sdk_completed_requests_observed": 32,
+  "sdk_failures_observed": [],
+  "account": {
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "exchange_active_order_count": 0,
+    "other_exchange_position_count": 0,
+    "position_price": "0.0",
+    "unrealized_pnl": "0.000000",
+    "realized_pnl": "0.000000",
+    "funding": "0",
+    "account_type_code": 0,
+    "account_trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "age_s": 3.1,
+    "funding_audit_age_s": 2.2,
+    "daily_loss": "0",
+    "total_loss": "0",
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "effective_exposure_usd": "0E-7",
+    "recorded_fees": null,
+    "known_fees": "0",
+    "pending_fee_count": 4,
+    "fee_audit_complete": false,
+    "position_read_age_s": 2.2
+  },
+  "net_cash_audit": {
+    "status": "matched",
+    "net_difference_usdc": "0.000000",
+    "cash_change_usdc": "0.000000",
+    "individual_fees_known": false
+  },
+  "allow_live_orders": false,
+  "entries_stopped": true,
+  "session_status": "closed",
+  "attempt_count": 0,
+  "pending_intents": 0,
+  "coverage": {
+    "duration_required_s": 600,
+    "duration_observed_s": 44.9,
+    "duration_remaining_s": 555.1,
+    "total_samples_required": 480,
+    "total_samples": 42,
+    "window_s": 600,
+    "recent_samples_required": 480,
+    "recent_samples": 42,
+    "max_sample_gap_s": 3.337,
+    "allowed_gap_s": 5,
+    "long_gap_count": 0,
+    "gap_wait_remaining_s": 0,
+    "last_sample_age_s": 1.0,
+    "warmup_complete": false,
+    "coverage_complete": false,
+    "ready": false,
+    "buffer_started_at": 1791164392.51772,
+    "buffer_reset_reason": "engine_start",
+    "last_interruption": {
+      "venue": "binance",
+      "channel": "public",
+      "reason": "ConnectionError",
+      "at": 1791164410.7555947,
+      "samples_preserved": 16
+    }
+  },
+  "event_loop_lag_ms": 0.0,
+  "feed_channels": {
+    "binance_public": {
+      "connected": true,
+      "reconnects": 1,
+      "consecutive_failures": 1,
+      "retry_delay_s": 0,
+      "last_error": "ConnectionError",
+      "last_disconnect_at": 1791164410.7554624,
+      "last_transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "last_frame_age_ms": 29
+    },
+    "binance_market": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "last_frame_age_ms": 263
+    },
+    "lighter": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "last_frame_age_ms": 19
+    }
+  },
+  "request_budget": {
+    "used_last_60s": 32,
+    "normal_cap": 40,
+    "urgent_read_cap": 47,
+    "transaction_cap": 55,
+    "transaction_slots_remaining": 23
+  },
+  "reconcile_diagnostic": {
+    "finished_at": 1791164437.7195914,
+    "elapsed_ms": 1017.4193389975699,
+    "lock_wait_ms": 0.008156996045727283,
+    "request_deadline_s": 8,
+    "outcome": "ok",
+    "error": null,
+    "requests": [
+      {
+        "id": 25,
+        "task": 140135553920320,
+        "host": "mainnet.zklighter.elliot.ai",
+        "path": "/api/v1/account",
+        "started_at": 1791164436.7024424,
+        "phase_ms": {
+          "acquire_connection": 6.912762997671962,
+          "connection_ready": 0.06343100540107116,
+          "waiting_headers": 108.81988699838985,
+          "body_ready": 0.05971599603071809,
+          "reading_body": 0.06863600719952956
+        },
+        "reason": "account_reconciliation",
+        "quota_priority": "reconcile",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "reading_body",
+        "elapsed_ms": 115.942,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791164436.8183973
+      },
+      {
+        "id": 26,
+        "task": 140135553920320,
+        "host": "mainnet.zklighter.elliot.ai",
+        "path": "/api/v1/accountActiveOrders",
+        "started_at": 1791164436.825365,
+        "phase_ms": {
+          "acquire_connection": 32.64220300479792,
+          "connection_ready": 0.06056599522707984,
+          "waiting_headers": 103.9837440039264,
+          "body_ready": 0.06337699596770108,
+          "reading_body": 0.04875800368608907
+        },
+        "reason": "account_reconciliation",
+        "quota_priority": "reconcile",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "reading_body",
+        "elapsed_ms": 136.817,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791164436.9621906
+      },
+      {
+        "id": 27,
+        "task": 140135553920320,
+        "host": "mainnet.zklighter.elliot.ai",
+        "path": "/api/v1/deposit/history",
+        "started_at": 1791164436.9669676,
+        "phase_ms": {
+          "acquire_connection": 3.909569000825286,
+          "connection_ready": 0.10079899948323146,
+          "waiting_headers": 122.91976599954069,
+          "body_ready": 0.03524799831211567,
+          "reading_body": 0.04323299799580127
+        },
+        "reason": "account_reconciliation",
+        "quota_priority": "reconcile",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "reading_body",
+        "elapsed_ms": 127.022,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791164437.0939956,
+        "pagination": {
+          "items": 1,
+          "requested_cursor": false,
+          "returned_cursor": true,
+          "cursor_echo": false
+        }
+      },
+      {
+        "id": 28,
+        "task": 140135553920320,
+        "host": "mainnet.zklighter.elliot.ai",
+        "path": "/api/v1/deposit/history",
+        "started_at": 1791164437.0988634,
+        "phase_ms": {
+          "acquire_connection": 8.670856004755478,
+          "connection_ready": 0.04758499562740326,
+          "waiting_headers": 108.61124600342009,
+          "body_ready": 0.03810600173892453,
+          "reading_body": 0.04635499499272555
+        },
+        "reason": "account_reconciliation",
+        "quota_priority": "reconcile",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "reading_body",
+        "elapsed_ms": 117.428,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791164437.2162971,
+        "pagination": {
+          "items": 0,
+          "requested_cursor": true,
+          "returned_cursor": false,
+          "cursor_echo": false
+        }
+      },
+      {
+        "id": 29,
+        "task": 140135553920320,
+        "host": "mainnet.zklighter.elliot.ai",
+        "path": "/api/v1/withdraw/history",
+        "started_at": 1791164437.2216809,
+        "phase_ms": {
+          "acquire_connection": 1.1375660033081658,
+          "connection_ready": 0.06005499744787812,
+          "waiting_headers": 112.692488997709,
+          "body_ready": 0.03861900040647015,
+          "reading_body": 0.04672299837693572
+        },
+        "reason": "account_reconciliation",
+        "quota_priority": "reconcile",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "reading_body",
+        "elapsed_ms": 113.99,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791164437.3356788,
+        "pagination": {
+          "items": 0,
+          "requested_cursor": false,
+          "returned_cursor": true,
+          "cursor_echo": false
+        }
+      },
+      {
+        "id": 30,
+        "task": 140135553920320,
+        "host": "mainnet.zklighter.elliot.ai",
+        "path": "/api/v1/withdraw/history",
+        "started_at": 1791164437.3384924,
+        "phase_ms": {
+          "acquire_connection": 3.3532879970152862,
+          "connection_ready": 0.0387840045732446,
+          "waiting_headers": 108.45554599654861,
+          "body_ready": 0.03479100269032642,
+          "reading_body": 0.04233900108374655
+        },
+        "reason": "account_reconciliation",
+        "quota_priority": "reconcile",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "reading_body",
+        "elapsed_ms": 111.938,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791164437.4504359,
+        "pagination": {
+          "items": 0,
+          "requested_cursor": true,
+          "returned_cursor": true,
+          "cursor_echo": true
+        }
+      },
+      {
+        "id": 31,
+        "task": 140135553920320,
+        "host": "mainnet.zklighter.elliot.ai",
+        "path": "/api/v1/transfer/history",
+        "started_at": 1791164437.4549294,
+        "phase_ms": {
+          "acquire_connection": 1.5035230026114732,
+          "connection_ready": 0.0635839969618246,
+          "waiting_headers": 112.27016000339063,
+          "body_ready": 0.04137799987802282,
+          "reading_body": 0.0448079954367131
+        },
+        "reason": "account_reconciliation",
+        "quota_priority": "reconcile",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "reading_body",
+        "elapsed_ms": 113.938,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791164437.5688772,
+        "pagination": {
+          "items": 0,
+          "requested_cursor": false,
+          "returned_cursor": false,
+          "cursor_echo": false
+        }
+      },
+      {
+        "id": 32,
+        "task": 140135553920320,
+        "host": "mainnet.zklighter.elliot.ai",
+        "path": "/api/v1/trades",
+        "started_at": 1791164437.5749013,
+        "phase_ms": {
+          "acquire_connection": 18.828654996468686,
+          "connection_ready": 0.08574000094085932,
+          "waiting_headers": 119.05749599827686,
+          "body_ready": 0.04227399767842144,
+          "reading_body": 0.05209200026001781
+        },
+        "reason": "account_reconciliation",
+        "quota_priority": "reconcile",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "reading_body",
+        "elapsed_ms": 138.086,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791164437.7129993
+      }
+    ],
+    "request_used_60s": 32
+  },
+  "limitations": "Short live feed observation does not prove future disconnects impossible; synthetic buffered-burst regression is separate evidence."
+}
