@@ -4,6 +4,7 @@ import gzip
 import importlib.util
 import json
 import sqlite3
+import sys
 from decimal import Decimal as D
 from pathlib import Path
 
@@ -14,6 +15,68 @@ spec = importlib.util.spec_from_file_location(
 )
 analysis = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(analysis)
+
+
+def test_production_metrics_keep_source_unknown_and_deduplicate_requests():
+    scripts = str(Path(__file__).parents[1] / "scripts")
+    sys.path.insert(0, scripts)
+    try:
+        from analyze_control_feed_observation import production_metrics
+    finally:
+        sys.path.remove(scripts)
+    request = {
+        "id": 1,
+        "started_at": 100.2,
+        "path": "/api/v1/account",
+        "local_quota_weight": 1,
+        "http_attempts": 1,
+        "reason": "account_state_refresh",
+    }
+    rows = []
+    for tick in range(3):
+        known = tick != 0
+        rows.append(
+            {
+                "elapsed_s": tick,
+                "status": {
+                    "connected": True,
+                    "diagnostic_observation": {
+                        "source_freshness": {
+                            "passed": known,
+                            "reason": "fresh" if known else "unknown",
+                            "source_age_high_ms": 200 if known else None,
+                        },
+                        "checks": {
+                            "source_freshness": known,
+                            "market_data": known,
+                            "basis_scale": known,
+                        },
+                    },
+                    "history_audit": {"complete": True},
+                    "request_budget": {
+                        "used_last_60s": 12,
+                        "reserved_unconsumed": 2,
+                        "transaction_slots_remaining": 41,
+                    },
+                    "transport_trace": {
+                        "active": [request] if not known else [],
+                        "recent": [request | {"outcome": "ok"}] if known else [],
+                    },
+                },
+            }
+        )
+    report = production_metrics(
+        rows, {"duration_seconds": 3, "start_epoch": 100, "deadline_epoch": 103}
+    )
+    assert report["source_reason_seconds"] == {"unknown": 1, "fresh": 2}
+    assert report["source_assessment_statistics"]["source_age_high_ms"]["n"] == 2
+    assert report["source_assessment_statistics"]["clock_uncertainty_ms"] is None
+    assert report["source_consistency_violations"] == 0
+    assert report["exit_capacity_at_least_15_seconds"] == 3
+    assert report["request_budget_statistics"]["used_plus_reserved"]["max"] == 14
+    endpoint = report["lighter_read_endpoint_summary"]["/api/v1/account"]
+    assert endpoint["request_count"] == endpoint["quota_weight"] == endpoint["http_attempts"] == 1
+    assert endpoint["outcomes"] == {"ok": 1}
 
 
 def test_depth_ab_analysis_keeps_disconnect_and_missing_clock_without_zero_latency(tmp_path):

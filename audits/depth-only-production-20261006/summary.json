@@ -1,0 +1,4456 @@
+{
+  "code_commit": "818b508137f8647502353658f1875670a21caf8c",
+  "started_at_utc": "2026-10-05T18:19:34.358374+00:00",
+  "capture_finished_at_utc": "2026-10-05T18:39:34.358736+00:00",
+  "duration_seconds": 1200,
+  "snapshot_count": 4798,
+  "capture_unknown_seconds": 0.03309215299668722,
+  "warmup_seconds_within_capture": 590.2717792120093,
+  "first_warmup_complete_elapsed_s": 590.304871365006,
+  "post_warmup_seconds": 609.695128634994,
+  "technical_ready_seconds": 513.4045379470335,
+  "technical_ready_longest_interval_s": 14.255634528002702,
+  "blocker_seconds_overlapping": {
+    "basis_scale": 680.3097848889738,
+    "coverage": 590.2717792120093,
+    "market_data": 74.53262501100835,
+    "source_freshness": 74.53262501100835,
+    "reconciliation_idle": 11.754900410989649
+  },
+  "post_warmup_blocker_seconds_overlapping": {
+    "basis_scale": 90.03800567696453,
+    "market_data": 42.51910754798155,
+    "source_freshness": 42.51910754798155,
+    "reconciliation_idle": 7.00292176399671
+  },
+  "post_warmup_blocker_overlap_seconds": [
+    {
+      "blockers": [],
+      "seconds": 513.4045379470335
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ],
+      "seconds": 41.76877079498081
+    },
+    {
+      "blockers": [
+        "reconciliation_idle"
+      ],
+      "seconds": 6.252585010995972
+    },
+    {
+      "blockers": [
+        "basis_scale"
+      ],
+      "seconds": 47.51889812898298
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "reconciliation_idle",
+        "source_freshness"
+      ],
+      "seconds": 0.7503367530007381
+    }
+  ],
+  "blocker_overlap_seconds": [
+    {
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ],
+      "seconds": 32.0135174630268
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ],
+      "seconds": 553.5062831019895
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ],
+      "seconds": 4.751978646992939
+    },
+    {
+      "blockers": [],
+      "seconds": 513.4045379470335
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ],
+      "seconds": 41.76877079498081
+    },
+    {
+      "blockers": [
+        "reconciliation_idle"
+      ],
+      "seconds": 6.252585010995972
+    },
+    {
+      "blockers": [
+        "basis_scale"
+      ],
+      "seconds": 47.51889812898298
+    },
+    {
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "reconciliation_idle",
+        "source_freshness"
+      ],
+      "seconds": 0.7503367530007381
+    }
+  ],
+  "readiness_transitions": [
+    {
+      "elapsed_s": 0.03309215299668722,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 0.5332867620018078,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 2.5340499540034216,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 2.784132247004891,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 7.035966844006907,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 7.536161327996524,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 11.037873759007198,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 11.288051373994676,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 11.538166049998836,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 12.03836372900696,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 13.539128207004978,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 13.789221907005413,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 15.790101211998262,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 16.79072121399804,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 22.293104605007102,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 23.04339513499872,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 24.793930073006777,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 25.044020132001606,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 25.54417982599989,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 25.79424846499751,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 28.295261235994985,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 28.545393164997222,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 30.2961879420036,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 30.796502401004545,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 32.04704373500135,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 32.29713113600155,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 33.0475081189943,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 33.297612857000786,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 41.30171612200502,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 41.55178501599585,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 44.05282029400405,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 44.3028893879964,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 48.30427578599483,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 48.55435050900269,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 50.058799617996556,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 50.30886828400253,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 53.05971275200136,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 53.30978123500245,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 54.31015538399515,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 54.81041661799827,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 55.06064195999352,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 55.310706117001246,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 59.06382316800591,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 60.064283471001545,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 61.31471132099978,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 62.06496660399716,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 62.31505055699381,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 62.56512059600209,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 64.3158823880076,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 64.56606497800385,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 66.06661877900478,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 66.81687415900524,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 67.31702500900428,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 67.56710127400584,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 68.31758822100528,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 68.56765567199909,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 71.8191614899988,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 72.06934046800598,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 75.07067024099524,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 75.57109379800386,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 76.82179925299715,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 77.07187969199731,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 77.82219080599316,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 78.32255787099712,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 82.57454874299583,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 83.32484375500644,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 83.57491119200131,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 83.82498313099495,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 85.82578239199938,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 86.07585440200637,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 87.82648958200298,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 88.57675577999908,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 89.3269699030061,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 89.57704290699621,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 94.07874621299561,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 94.32881802499469,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 97.08014883499709,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 97.33025363800698,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 99.5813157960074,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 100.33177384799637,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 101.33224394000717,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 101.58242003900523,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 102.58298592400388,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 102.83312252399628,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 105.08399499999359,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 106.08436013500614,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 108.83581429500191,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 109.0859016500035,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 110.08633581199683,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 110.5866072820063,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 111.58709322199866,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 123.09221547900233,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 123.34231825100142,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 125.34348715600208,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 125.593586478004,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 130.59600215099636,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 130.84609516800265,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 155.85812742100097,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 156.10823359599453,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 159.10929465200752,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 159.3593964400061,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 165.1115348440071,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 165.36163272500562,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 168.61297703899618,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 169.3632609030028,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 194.87298975700105,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 195.1230749069946,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 201.626099229994,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 201.876184955996,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 217.6334308289952,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 217.88351696600148,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 225.13672941899858,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 225.3867979649949,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 228.38784786600445,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 228.63792015399667,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 231.63934653399338,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 232.63972222800658,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 274.15936162100115,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 274.4095237739966,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 294.66720744200575,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 294.9172938270058,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 301.1699437829957,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 301.4200225079985,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 302.4204767290066,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 302.6705776470044,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 314.17513216199586,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 314.42521962799947,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 314.67536155099515,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 314.92544970499875,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 325.4306383399962,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 325.93084397999337,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 326.9312305909989,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 327.6815517350042,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 331.4330064030073,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 331.6831132780062,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 333.43397357099457,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 333.93428444399615,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 334.93476337200264,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 335.1848341629957,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 339.4369823760062,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 339.93715574800444,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 341.4377516639943,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 341.6878151370038,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 342.6893535709969,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 342.9395101169939,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 343.1896007239993,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 343.4396742340032,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 346.44100185099524,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 346.9411648230016,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 352.9441209049983,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 353.69448346999707,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 418.9769022929977,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 419.22697266099567,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 426.4802970739984,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 426.73040267000033,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 450.7418930129934,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 450.9919791739958,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 453.99304444699374,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 454.2431172450015,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 463.74778314300056,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 463.9978539750009,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 473.5022134190076,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 475.5029678669962,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 480.7553966169944,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 481.2555932690011,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 482.0059979689977,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 482.5063059880049,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 486.5083466460055,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 486.7584268579958,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 491.76015391199326,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 492.01022069499595,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 497.5127438950003,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 497.76286149599764,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 511.26925749699876,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 511.51935861499805,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 520.0229207480006,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 520.2730296999944,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 527.2766662759968,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 527.5267446869984,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 582.551908540001,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 583.052143131994,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 587.0535632259998,
+      "blockers": [
+        "basis_scale",
+        "coverage",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 587.3036607039976,
+      "blockers": [
+        "basis_scale",
+        "coverage"
+      ]
+    },
+    {
+      "elapsed_s": 590.304871365006,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 593.3060267219989,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 593.5560953789973,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 595.3068346509972,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 597.3077221349959,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 598.5582806750026,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 599.0585142579948,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 601.8096674289991,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 602.3098100180068,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 606.0612213809945,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 606.3113172830053,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 610.5633649889933,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 611.3135920479981,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 613.8144272979989,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 614.064518182,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 615.3148512329935,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 615.5650570650032,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 616.8155269830022,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 617.0655971460073,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 620.0669401600026,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 620.317025989003,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 620.5670973649976,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 621.317370498,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 621.5674719319941,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 625.5692543210025,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 625.8194213670067,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 627.3199088620022,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 627.5701547640056,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 631.3220156930038,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 631.572182895994,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 640.075799127997,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 640.5759647189989,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 641.5763413749955,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 641.8264921340015,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 656.0821266620042,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 656.3322254090017,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 656.5823214270058,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 659.0834607349971,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 659.333656828996,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 665.0864177549956,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 665.336505498999,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 668.8380655700021,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 669.3383389390074,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 672.5900359700026,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 672.8401365449972,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 682.3453173839953,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 682.5954756139981,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 684.346220929001,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 684.5963264879974,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 689.8488142370043,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 690.0989141960017,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 690.3490830390074,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 693.3505531349947,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 693.8508111440024,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 696.3521403019986,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 696.602225701994,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 701.8545949279942,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 702.1046643610025,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 702.6059754290036,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 705.6070703830046,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 705.857156565995,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 708.8582885189971,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 709.1083864050015,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 712.3594697609951,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 712.6095346219954,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 717.3614194980037,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 719.1121548270021,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 726.6152025850024,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 726.8652848799975,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 735.6190966709983,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 735.8691813650075,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 742.6219516980054,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 743.6222863860021,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 750.1250428450003,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 750.8753919269948,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 751.1254932239972,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 751.625651882001,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 753.6263838720042,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 753.8764764499938,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 755.1269146440027,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 756.1273040310043,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 757.877998986005,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 758.1281102979992,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 758.6283008030005,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 758.8784036300058,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 759.3785562489938,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 759.6286475060042,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 765.3807646780042,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 765.8809118009958,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 766.3810580050049,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 766.6311428500048,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 767.6315663910063,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 768.3819066620053,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 768.8821546569961,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 769.1323494850076,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 772.6337506059936,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 773.3839704040001,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 780.887596118002,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 781.1378095779946,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 783.8889720330044,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 784.389132516997,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 789.1411239720037,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 789.3911965070001,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 789.6412642140058,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 789.8913701309939,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 793.8928883810004,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 794.1429640879942,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 796.143823350998,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 796.3938907669944,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 798.3949620969943,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 798.8951441660029,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 800.645908046994,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 800.8959936860047,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 801.1461771619943,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 801.6464071340015,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 802.896898883002,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 803.6472186220053,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 806.8997059590038,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 807.1499252289941,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 807.3999905740056,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 807.6500823109964,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 814.4028671139968,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 814.9030371980043,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 815.1531726420071,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 824.4071680320048,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 824.6572653659969,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 825.4075173500023,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 825.9077257409954,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 839.1623474009975,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 840.162761421001,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 843.6640806049982,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 843.914245085005,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 844.914576463998,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 845.1646503960073,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 852.917985373002,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 853.6682088730013,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 854.1683962770039,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 854.4184714120056,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 856.6695076189935,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 857.4197985579958,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 858.9204752640071,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 859.1705573829968,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 860.6711226600019,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 860.9211859710049,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 861.6714727560029,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 862.1716649779992,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 864.4232769960072,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 864.6734332439955,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 867.4244612589973,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 867.6745550969936,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 879.1842033230059,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 879.4342954099993,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 880.6848090569983,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 880.9348971430009,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 884.4363306260057,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 884.6864125870052,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 885.1866225749982,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 885.6868245079968,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 887.187303187995,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 887.4373753569962,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 891.1885874370055,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 891.688722824998,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 893.4393690480065,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 893.6894604929985,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 894.4407127529994,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 894.6907853800076,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 897.9431450559932,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 898.9437467840035,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 911.4489257170062,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 911.6989911349956,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 916.7006871210033,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 916.9507396749977,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 918.9514471889997,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 919.451711214002,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 925.9541485219961,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 926.7044248760067,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 926.9545164750016,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 936.4579746550007,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 936.7080460839934,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 937.2082124680019,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 937.4582882590039,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 941.2100443389936,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 941.9603695190017,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 942.2104440859985,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 942.7105932630075,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 946.7142103950027,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 947.2144148149964,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 950.9657164999953,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 951.7160058409936,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 954.4669071480021,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 954.9670401210024,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 956.4675550490065,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 956.7176249409968,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 960.2188483950013,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 961.4693007619935,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 966.2213137549988,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 966.7214984780003,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 977.7256385509972,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 977.9757254209981,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 979.4762117409991,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 979.7263148750062,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 986.9790603930014,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 987.9793989369937,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 996.4823163209949,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 996.9825435039966,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 997.2326143020036,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 997.7327288590022,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1007.2367899380042,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1007.736934422006,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1008.4889149980008,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1008.7390039129968,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1008.989090668998,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1009.2397194660007,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1009.739913145997,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1009.9899842879968,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1010.2400631810015,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1011.4904715669982,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1012.7409372249967,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1013.2411133889982,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1014.2436792899971,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1014.4937361890043,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1020.7460449359933,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1021.2462357229961,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1021.4963288510044,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1021.7464434650028,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1023.4971029739972,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1023.7472064470057,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1023.9973083560035,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1025.2479190979939,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1025.748072264003,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1025.9981749050057,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1026.7485200429946,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1027.248721349999,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1030.7500279800006,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1031.7504206949961,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1032.2507625319995,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1032.5008313860017,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1033.5011251090036,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1034.5015552770055,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1041.0038135609939,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1041.2538966230059,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1041.7541265820037,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1042.0042956560064,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1042.2544696179975,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1047.2564935599949,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1047.7567304739932,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1049.0072932629992,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1049.7575714330014,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1054.2594991140068,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1055.7599970479932,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1057.7607161409978,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1058.0107866339968,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1061.7622600239993,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1062.0123794259998,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1063.2628355250054,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1067.0143192420073,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1067.5145029809937,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1070.515636223994,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1071.2659031689982,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1071.7660500890051,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1072.0161254370032,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1072.266218040997,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1073.2665623170033,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1077.5181247059954,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1077.7682074320037,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1078.7686703950021,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1079.0187370119966,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1080.519376355005,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1080.7694818040036,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1081.2697389940004,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "reconciliation_idle",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1082.020075747001,
+      "blockers": [
+        "reconciliation_idle"
+      ]
+    },
+    {
+      "elapsed_s": 1082.2701715580042,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1083.0204467879958,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1083.520719691005,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1084.0209038159956,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1085.021346687994,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1085.7716295330029,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1086.0217394100036,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1086.2719187589973,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1087.7725094479974,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1088.272660417002,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1088.7730331890052,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1089.5233524969954,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1090.5237794580025,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1092.0243101710075,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1092.2743799440068,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1093.0246163260017,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1093.2746855970036,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1096.0256645540067,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1096.525816088004,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1096.7758875639993,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1097.5261312049988,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1097.7762214349932,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1098.0263203679933,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1098.7766619979957,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1101.0276163399976,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1101.7778734080057,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1102.0280249829957,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1103.0285373710067,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1103.2787129000062,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1104.0289368649974,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1106.5300478540012,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1107.2803418520052,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1107.5304280239943,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1108.0307178109942,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1108.781049451005,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1109.5318625000073,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1111.2827998529974,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1115.034717033006,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1116.5355017779948,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1116.7856746150064,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1117.035737956001,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1118.2863673859974,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1118.5364496039983,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1118.7865365909965,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1119.0366350650002,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1119.5367767779971,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1119.7868960240012,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1120.0369884740066,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1120.2870857579983,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1121.2874809320056,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1121.5375508069992,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1123.0382556800032,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1124.0388667990046,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1124.7892296469945,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1125.2894720990007,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1126.5399686370074,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1126.790041743996,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1127.5404691809963,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1128.7910431700002,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1129.0412172780052,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1138.5447834310035,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1138.794868832003,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1139.2951317260013,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1139.5452149149933,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1144.5470305269992,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1144.7972104890068,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1150.0496077410062,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1150.2997051540005,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1152.3006441729958,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1152.5508451189962,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1158.0540667830064,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1158.3041594800015,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1159.3045229849959,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1159.5546014059946,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1159.8047096079972,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1160.0547807910043,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1161.8055051999982,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1162.0556023810059,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1162.305682170001,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1162.5557430799963,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1163.556079639995,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1164.806511199,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1165.3067159530037,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1165.8068737519934,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1166.056947339006,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1166.307030541997,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1166.5571909660066,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1166.8072873630008,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1167.307485864003,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1167.557585033006,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1171.0592152659956,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1171.3093133170041,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1173.810196765,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1174.0603122549946,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1176.0609264310042,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1176.3109946699988,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1178.8118615870044,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1179.0619320810074,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1179.562109186998,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1180.0623138369992,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1180.312413010004,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1189.3162364309974,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1189.566333982002,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1191.0668280740065,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1191.3168937059963,
+      "blockers": []
+    },
+    {
+      "elapsed_s": 1194.5680324540008,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1195.0682040730026,
+      "blockers": [
+        "basis_scale"
+      ]
+    },
+    {
+      "elapsed_s": 1195.3182942779968,
+      "blockers": [
+        "basis_scale",
+        "market_data",
+        "source_freshness"
+      ]
+    },
+    {
+      "elapsed_s": 1195.568384252998,
+      "blockers": []
+    }
+  ],
+  "age_and_local_processing_status": {
+    "binance_book_ms": {
+      "n": 4798,
+      "median": 58.0,
+      "p95": 115,
+      "max": 516
+    },
+    "lighter_book_ms": {
+      "n": 4798,
+      "median": 34.5,
+      "p95": 156,
+      "max": 474
+    },
+    "fx_conservative_s": {
+      "n": 4798,
+      "median": 1.1263165074924473,
+      "p95": 2.0203735909890383,
+      "max": 2.359073729996453
+    },
+    "account_account_s": {
+      "n": 4798,
+      "median": 6.134826814988628,
+      "p95": 12.021157814990147,
+      "max": 12.790685083004064
+    },
+    "account_active_orders_s": {
+      "n": 4798,
+      "median": 6.250591792500927,
+      "p95": 12.13225938299729,
+      "max": 12.900640614010626
+    },
+    "event_loop_reported_lag_ms": {
+      "n": 4798,
+      "median": 0.0,
+      "p95": 6.1,
+      "max": 19.0
+    },
+    "queue_backlog": {
+      "n": 4798,
+      "median": 0.0,
+      "p95": 0,
+      "max": 8
+    }
+  },
+  "decision_input_mismatch_samples": 0,
+  "decision_match_false_while_technically_eligible": 0,
+  "actual_evaluator_quote_timestamp_difference_samples": 0,
+  "decision_match_flag_limit": "flag requires both books to exist; two absent snapshots also return false. Compare recorded monotonic timestamps separately before inferring stale evaluation.",
+  "recorded_market_files": [
+    "market-20261005-18-574ae81f79294ba2b12b7562d5dfa135-0001.jsonl.gz"
+  ],
+  "bootstrap_snapshots": [
+    {
+      "receipt_epoch": 1791224364.1295547,
+      "sequence": 11742095104539,
+      "T": 1791224364034,
+      "E": 1791224364038,
+      "bid_levels": 1000,
+      "ask_levels": 1000,
+      "before_capture": true
+    }
+  ],
+  "clock_probe_summary": {
+    "count": 20,
+    "conservative_futures_weight": 20,
+    "lighter_weight": 0,
+    "outcomes": {
+      "verified": 19,
+      "clock_unverified": 1
+    },
+    "duration_ms_known_only": {
+      "n": 20,
+      "median": 189.853457,
+      "p95": 1556.943888,
+      "max": 1556.943888
+    },
+    "unverified_or_failed": [
+      {
+        "id": 9,
+        "started_ns": 1791224843609661408,
+        "weight": 1,
+        "host": {
+          "synchronized": true,
+          "host_error_ms": 11.008353999999999,
+          "reference_age_s": 590.1601989269257,
+          "leap_status": "Normal",
+          "system_time_correction_s": 0.000485061,
+          "root_delay_s": 0.014229216,
+          "root_dispersion_s": 0.003408685,
+          "source": "chronyc -c tracking, read-only"
+        },
+        "status": 200,
+        "provider_used_weight_1m": "1",
+        "received_ns": 1791224845166606372,
+        "duration_ms": 1556.943888,
+        "outcome": "clock_unverified"
+      }
+    ]
+  },
+  "final_quote_sequence_gaps": {
+    "binance": 0,
+    "lighter": 0
+  },
+  "persisted_end_of_window_proven": true,
+  "market_event_counts": {
+    "lighter:order_book": 19964,
+    "binance:fx": 600,
+    "binance:depthUpdate": 11764,
+    "lighter:ticker": 30139,
+    "lighter:trade": 4027,
+    "binance:aggTrade": 13398,
+    "binance:source_clock": 20
+  },
+  "application_receipt_gap_s": {
+    "lighter:order_book": {
+      "n": 19963,
+      "median": 0.050620882,
+      "p95": 0.148491272,
+      "max": 0.606169625
+    },
+    "lighter:ticker": {
+      "n": 30138,
+      "median": 0.0076299485,
+      "p95": 0.200432017,
+      "max": 2.631308478
+    },
+    "binance:depthUpdate": {
+      "n": 11763,
+      "median": 0.101981066,
+      "p95": 0.142468214,
+      "max": 0.700939469
+    },
+    "lighter:trade": {
+      "n": 4026,
+      "median": 0.1656700675,
+      "p95": 1.060943508,
+      "max": 3.9167733
+    },
+    "binance:aggTrade": {
+      "n": 13397,
+      "median": 2.1773e-05,
+      "p95": 0.46956768,
+      "max": 3.175218021
+    },
+    "binance:fx": {
+      "n": 599,
+      "median": 1.999956957,
+      "p95": 2.052066893,
+      "max": 2.319506814
+    },
+    "binance:source_clock": {
+      "n": 19,
+      "median": 60.002531049,
+      "p95": 61.363031974,
+      "max": 61.363031974
+    }
+  },
+  "long_book_or_fx_receipt_gaps": [],
+  "receipt_parse_queue_to_recorder_ms": {
+    "lighter:order_book:receipt_to_recorder_ms": {
+      "n": 19964,
+      "median": 0.145878,
+      "p95": 0.819366,
+      "max": 57.808946
+    },
+    "lighter:order_book:receive_to_enqueue_ms": {
+      "n": 19964,
+      "median": 0.049996,
+      "p95": 0.111068,
+      "max": 2.11523
+    },
+    "lighter:order_book:queue_to_recorder_ms": {
+      "n": 19964,
+      "median": 0.0792455,
+      "p95": 0.77628,
+      "max": 57.751052
+    },
+    "binance:fx:receipt_to_recorder_ms": {
+      "n": 600,
+      "median": 0.09799450000000001,
+      "p95": 0.17319,
+      "max": 0.235352
+    },
+    "binance:depthUpdate:receipt_to_recorder_ms": {
+      "n": 11764,
+      "median": 0.1893225,
+      "p95": 0.776513,
+      "max": 46.21337
+    },
+    "binance:depthUpdate:receive_to_enqueue_ms": {
+      "n": 11764,
+      "median": 0.084561,
+      "p95": 0.219411,
+      "max": 30.272965
+    },
+    "binance:depthUpdate:queue_to_recorder_ms": {
+      "n": 11764,
+      "median": 0.084742,
+      "p95": 0.591272,
+      "max": 46.10752
+    },
+    "lighter:ticker:receipt_to_recorder_ms": {
+      "n": 30139,
+      "median": 0.12483,
+      "p95": 1.903164,
+      "max": 32.385855
+    },
+    "lighter:ticker:receive_to_enqueue_ms": {
+      "n": 30139,
+      "median": 0.030229,
+      "p95": 0.080776,
+      "max": 1.411789
+    },
+    "lighter:ticker:queue_to_recorder_ms": {
+      "n": 30139,
+      "median": 0.079953,
+      "p95": 1.894128,
+      "max": 32.343218
+    },
+    "lighter:trade:receipt_to_recorder_ms": {
+      "n": 4027,
+      "median": 0.160985,
+      "p95": 2.137741,
+      "max": 25.648821
+    },
+    "lighter:trade:receive_to_enqueue_ms": {
+      "n": 4027,
+      "median": 0.035823,
+      "p95": 0.126997,
+      "max": 0.752794
+    },
+    "lighter:trade:queue_to_recorder_ms": {
+      "n": 4027,
+      "median": 0.106772,
+      "p95": 2.088203,
+      "max": 25.578837
+    },
+    "binance:aggTrade:receipt_to_recorder_ms": {
+      "n": 13398,
+      "median": 0.3108065,
+      "p95": 3.88971,
+      "max": 39.037478
+    },
+    "binance:aggTrade:receive_to_enqueue_ms": {
+      "n": 13398,
+      "median": 0.011496,
+      "p95": 0.076168,
+      "max": 1.096098
+    },
+    "binance:aggTrade:queue_to_recorder_ms": {
+      "n": 13398,
+      "median": 0.29351700000000003,
+      "p95": 3.872635,
+      "max": 38.967016
+    },
+    "binance:source_clock:receipt_to_recorder_ms": {
+      "n": 20,
+      "median": 0.017569500000000002,
+      "p95": 0.029225,
+      "max": 0.029225
+    }
+  },
+  "processing_measurement_limit": "receipt follows application read before parsing; recorder precedes book application; exact apply timings also in engine market_processing; pre-read network/socket buffering remains unobserved",
+  "final_market_processing": {
+    "lighter:trade": {
+      "processed": 4050,
+      "diagnostic_or_trade": 4050,
+      "max_receipt_gap_s": 3.9167733,
+      "max_receipt_to_processing_ms": 25.64695,
+      "max_processing_ms": 10.08069,
+      "processing_ms": 0.058146,
+      "max_receive_to_enqueue_ms": 0.752794,
+      "max_queue_wait_ms": 25.576966,
+      "queued_monotonic_ns": 111255943448221,
+      "receipt_ns": 1791225573704479652,
+      "receipt_monotonic_ns": 111255943414281,
+      "source_exchange_ms": null,
+      "processing_started_monotonic_ns": 111255943580824,
+      "processing_finished_monotonic_ns": 111255943638970,
+      "quote_monotonic_ns": 111255864301842,
+      "outcome": "diagnostic_or_trade"
+    },
+    "lighter:ticker": {
+      "processed": 30385,
+      "diagnostic_or_trade": 30385,
+      "max_receipt_gap_s": 2.631308478,
+      "max_receipt_to_processing_ms": 32.381459,
+      "max_processing_ms": 10.718766,
+      "processing_ms": 0.093612,
+      "max_receive_to_enqueue_ms": 1.411789,
+      "max_queue_wait_ms": 32.338822,
+      "queued_monotonic_ns": 111256267029572,
+      "receipt_ns": 1791225574027994070,
+      "receipt_monotonic_ns": 111256266930174,
+      "source_exchange_ms": 1791225573962,
+      "processing_started_monotonic_ns": 111256267118775,
+      "processing_finished_monotonic_ns": 111256267212387,
+      "quote_monotonic_ns": 111256218328395,
+      "outcome": "diagnostic_or_trade"
+    },
+    "lighter:order_book": {
+      "processed": 20114,
+      "applied": 20114,
+      "max_receipt_gap_s": 0.606169625,
+      "max_receipt_to_processing_ms": 57.780384,
+      "max_processing_ms": 13.701563,
+      "processing_ms": 0.069007,
+      "max_receive_to_enqueue_ms": 2.11523,
+      "max_queue_wait_ms": 57.72249,
+      "queued_monotonic_ns": 111256218364746,
+      "receipt_ns": 1791225573979393523,
+      "receipt_monotonic_ns": 111256218328395,
+      "source_exchange_ms": 1791225573913,
+      "processing_started_monotonic_ns": 111256218389636,
+      "processing_finished_monotonic_ns": 111256218458643,
+      "quote_monotonic_ns": 111256218328395,
+      "outcome": "applied"
+    },
+    "binance:snapshot": {
+      "processed": 1,
+      "applied": 1,
+      "max_receipt_gap_s": 0,
+      "max_receipt_to_processing_ms": 0.05994,
+      "max_processing_ms": 10.406746,
+      "processing_ms": 10.406746,
+      "max_receive_to_enqueue_ms": 0.005954,
+      "max_queue_wait_ms": 0.053986,
+      "queued_monotonic_ns": 110046368494974,
+      "receipt_ns": 1791224364129554735,
+      "receipt_monotonic_ns": 110046368489020,
+      "source_exchange_ms": 1791224364034,
+      "processing_started_monotonic_ns": 110046368548960,
+      "processing_finished_monotonic_ns": 110046378955706,
+      "quote_monotonic_ns": 110046368489020,
+      "outcome": "applied"
+    },
+    "binance:depthUpdate": {
+      "processed": 11863,
+      "duplicate_or_old_sequence": 1,
+      "max_receipt_gap_s": 0.700939469,
+      "max_receipt_to_processing_ms": 112.42745,
+      "max_processing_ms": 16.912281,
+      "processing_ms": 0.181039,
+      "max_receive_to_enqueue_ms": 101.96669,
+      "max_queue_wait_ms": 46.09296,
+      "queued_monotonic_ns": 111256202199710,
+      "receipt_ns": 1791225573963205339,
+      "receipt_monotonic_ns": 111256202140194,
+      "source_exchange_ms": 1791225573901,
+      "processing_started_monotonic_ns": 111256202233445,
+      "processing_finished_monotonic_ns": 111256202414484,
+      "quote_monotonic_ns": 111256202140194,
+      "outcome": "applied",
+      "applied": 11862
+    },
+    "binance:aggTrade": {
+      "processed": 13527,
+      "diagnostic_or_trade": 13527,
+      "max_receipt_gap_s": 3.175218021,
+      "max_receipt_to_processing_ms": 39.015998,
+      "max_processing_ms": 11.425772,
+      "processing_ms": 0.038288,
+      "max_receive_to_enqueue_ms": 1.096098,
+      "max_queue_wait_ms": 38.945536,
+      "queued_monotonic_ns": 111256204301742,
+      "receipt_ns": 1791225573965344111,
+      "receipt_monotonic_ns": 111256204278629,
+      "source_exchange_ms": 1791225573751,
+      "processing_started_monotonic_ns": 111256204328297,
+      "processing_finished_monotonic_ns": 111256204366585,
+      "quote_monotonic_ns": 111256202140194,
+      "outcome": "diagnostic_or_trade"
+    }
+  },
+  "feed_channels_final": {
+    "binance_public": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "last_frame_age_ms": 92
+    },
+    "binance_market": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "last_frame_age_ms": 90
+    },
+    "lighter": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "last_frame_age_ms": 27
+    }
+  },
+  "fx_request_count": 599,
+  "fx_request_outcomes": {
+    "verified": 599
+  },
+  "fx_request_duration_ms": {
+    "n": 599,
+    "median": 95.506564,
+    "p95": 200.439164,
+    "max": 430.030671
+  },
+  "fx_failed_requests": [],
+  "off_reload_runtime": null,
+  "production_metrics": {
+    "source_reason_seconds": {
+      "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 74.53262501100835,
+      "SOURCE_FRESH_WITH_CLOCK_BOUND": 1125.434282835995
+    },
+    "basis_scale_blocker_context_seconds": {
+      "preceding_evaluation_data_valid_false": 169.07251600787276,
+      "preceding_evaluation_valid_or_unknown": 511.23726888110104
+    },
+    "post_warmup_basis_scale_blocker_context_seconds": {
+      "preceding_evaluation_data_valid_false": 90.03800567696453
+    },
+    "source_assessment_statistics": {
+      "receipt_age_ms": {
+        "n": 4798,
+        "median": 67.196883,
+        "p95": 126.660777,
+        "max": 525.066482
+      },
+      "source_indicator_ms": {
+        "n": 4798,
+        "median": 136.11379296875,
+        "p95": 218.57492234375002,
+        "max": 932.9286729375
+      },
+      "source_age_low_ms": {
+        "n": 4798,
+        "median": 57.068324286375,
+        "p95": 139.460982350975,
+        "max": 850.2621045844
+      },
+      "source_age_high_ms": {
+        "n": 4798,
+        "median": 279.5966897165375,
+        "p95": 380.69840540395,
+        "max": 1087.75881550935
+      },
+      "clock_uncertainty_ms": {
+        "n": 4798,
+        "median": 110.06822458448126,
+        "p95": 128.42669751760002,
+        "max": 152.1958583754125
+      },
+      "clock_evidence_age_s": {
+        "n": 4798,
+        "median": 31.6205665365,
+        "p95": 60.017540231,
+        "max": 119.971905567
+      }
+    },
+    "source_consistency_violations": 0,
+    "request_budget_statistics": {
+      "used_last_60s": {
+        "n": 4798,
+        "median": 10.0,
+        "p95": 18,
+        "max": 18,
+        "min": 8,
+        "mean": 12.675281367236348
+      },
+      "reserved_unconsumed": {
+        "n": 4798,
+        "median": 0.0,
+        "p95": 0,
+        "max": 7,
+        "min": 0,
+        "mean": 0.03772405168820342
+      },
+      "normal_cap": {
+        "n": 4798,
+        "median": 40.0,
+        "p95": 40,
+        "max": 40,
+        "min": 40,
+        "mean": 40.0
+      },
+      "urgent_read_cap": {
+        "n": 4798,
+        "median": 47.0,
+        "p95": 47,
+        "max": 47,
+        "min": 47,
+        "mean": 47.0
+      },
+      "transaction_cap": {
+        "n": 4798,
+        "median": 55.0,
+        "p95": 55,
+        "max": 55,
+        "min": 55,
+        "mean": 55.0
+      },
+      "transaction_slots_remaining": {
+        "n": 4798,
+        "median": 45.0,
+        "p95": 47,
+        "max": 47,
+        "min": 37,
+        "mean": 42.28699458107545
+      },
+      "used_plus_reserved": {
+        "n": 4798,
+        "median": 10.0,
+        "p95": 18,
+        "max": 18,
+        "min": 8,
+        "mean": 12.713005418924553
+      }
+    },
+    "history_complete_seconds": 1199.9669078470033,
+    "exit_capacity_at_least_15_seconds": 1199.9669078470033,
+    "usable_duration_seconds": 1199.9669078470033,
+    "lighter_read_endpoint_summary": {
+      "/api/v1/account": {
+        "request_count": 99,
+        "quota_weight": 99,
+        "http_attempts": 99,
+        "reasons": {
+          "account_state_refresh": 90,
+          "account_reconciliation": 9
+        },
+        "outcomes": {
+          "ok": 99
+        },
+        "elapsed_ms": {
+          "n": 99,
+          "median": 113.998,
+          "p95": 225.338,
+          "max": 286.85
+        }
+      },
+      "/api/v1/accountActiveOrders": {
+        "request_count": 99,
+        "quota_weight": 99,
+        "http_attempts": 99,
+        "reasons": {
+          "account_state_refresh": 90,
+          "account_reconciliation": 9
+        },
+        "outcomes": {
+          "ok": 99
+        },
+        "elapsed_ms": {
+          "n": 99,
+          "median": 109.817,
+          "p95": 229.318,
+          "max": 274.383
+        }
+      },
+      "/api/v1/deposit/history": {
+        "request_count": 18,
+        "quota_weight": 18,
+        "http_attempts": 18,
+        "reasons": {
+          "account_reconciliation": 18
+        },
+        "outcomes": {
+          "ok": 18
+        },
+        "elapsed_ms": {
+          "n": 18,
+          "median": 125.1405,
+          "p95": 300.902,
+          "max": 300.902
+        }
+      },
+      "/api/v1/trades": {
+        "request_count": 9,
+        "quota_weight": 9,
+        "http_attempts": 9,
+        "reasons": {
+          "account_reconciliation": 9
+        },
+        "outcomes": {
+          "ok": 9
+        },
+        "elapsed_ms": {
+          "n": 9,
+          "median": 118.691,
+          "p95": 257.85,
+          "max": 257.85
+        }
+      },
+      "/api/v1/transfer/history": {
+        "request_count": 9,
+        "quota_weight": 9,
+        "http_attempts": 9,
+        "reasons": {
+          "account_reconciliation": 9
+        },
+        "outcomes": {
+          "ok": 9
+        },
+        "elapsed_ms": {
+          "n": 9,
+          "median": 120.269,
+          "p95": 449.651,
+          "max": 449.651
+        }
+      },
+      "/api/v1/withdraw/history": {
+        "request_count": 18,
+        "quota_weight": 18,
+        "http_attempts": 18,
+        "reasons": {
+          "account_reconciliation": 18
+        },
+        "outcomes": {
+          "ok": 18
+        },
+        "elapsed_ms": {
+          "n": 18,
+          "median": 122.32050000000001,
+          "p95": 294.799,
+          "max": 294.799
+        }
+      }
+    },
+    "lighter_read_request_average_per_minute": 12.6,
+    "binance_http_trace": [
+      {
+        "id": 1,
+        "task": 139744728698112,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791224363.606446,
+        "phase_ms": {
+          "acquire_connection": 0.06251900049392134,
+          "connect_or_tls": 198.14796499849763,
+          "dns": 50.556084999698214,
+          "connection_ready": 0.06369300535880029,
+          "waiting_headers": 98.36294899287168,
+          "body_ready": 0.005441004759632051
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 347.204,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791224363.9536543
+      },
+      {
+        "id": 2,
+        "task": 139744728698304,
+        "host": "fstream.binance.com",
+        "path": "/market/stream",
+        "started_at": 1791224363.6070504,
+        "phase_ms": {
+          "acquire_connection": 0.04575499042402953,
+          "connect_or_tls": 180.70396401162725,
+          "dns": 41.8372789863497,
+          "connection_ready": 0.03640601062215865,
+          "waiting_headers": 91.21529299591202,
+          "body_ready": 0.005163004971109331
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 313.85,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791224363.9209037
+      },
+      {
+        "id": 3,
+        "task": 139744728700800,
+        "host": "fapi.binance.com",
+        "path": "/fapi/v1/depth",
+        "started_at": 1791224363.9538126,
+        "phase_ms": {
+          "acquire_connection": 0.04754999827127904,
+          "connect_or_tls": 43.993926999974065,
+          "dns": 9.333841997431591,
+          "connection_ready": 0.03961300535593182,
+          "waiting_headers": 98.96206099074334,
+          "body_ready": 0.026658002752810717
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 152.408,
+        "error": null,
+        "status": 200,
+        "finished_at": 1791224364.106225
+      }
+    ],
+    "audit_outcomes": {
+      "account_state_diagnostic": {
+        "ok": 90
+      },
+      "reconcile_diagnostic": {
+        "ok": 9
+      }
+    },
+    "measurement_limit": "source age includes clock bounds; not network or fill latency"
+  },
+  "final_snapshot_account": {
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "exchange_active_order_count": 0,
+    "other_exchange_position_count": 0,
+    "position_price": "0.0",
+    "unrealized_pnl": "0.000000",
+    "realized_pnl": "0.000000",
+    "funding": "0",
+    "account_type_code": 0,
+    "account_trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "age_s": 3.9,
+    "component_ages_s": {
+      "account": 3.9241971480078064,
+      "active_orders": 4.062053020999883
+    },
+    "components_complete": true,
+    "exchange_order_count": 0,
+    "exchange_pending_count": 0,
+    "collateral": "49.430756",
+    "funding_audit_age_s": 117.7,
+    "daily_loss": "0",
+    "total_loss": "0",
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "effective_exposure_usd": "0E-7",
+    "recorded_fees": null,
+    "known_fees": "0",
+    "pending_fee_count": 4,
+    "fee_audit_complete": false,
+    "position_read_age_s": 3.9
+  },
+  "final_snapshot_state": "IDLE",
+  "final_snapshot_order_permission": false,
+  "final_snapshot_session_status": "closed",
+  "final_snapshot_history_audit": {
+    "complete": true,
+    "required": false,
+    "reason": "complete audit verified; idle periodic deadline 120s",
+    "idle_interval_seconds": 120.0,
+    "age_seconds": 117.64634912899055
+  },
+  "no_order_verification": "closed session, order OFF and no attempts/pending orders asserted in every usable local-status sample; final fresh exchange account read is documented separately"
+}
