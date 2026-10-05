@@ -5,6 +5,7 @@ import gzip
 import json
 import os
 import time
+import traceback
 import uuid
 from dataclasses import dataclass, field, replace
 from decimal import Decimal
@@ -38,6 +39,9 @@ def websocket_closed(ws: Any, channel: str, frame_type: str | None = None) -> Co
     error.ws_frame_type = frame_type  # type: ignore[attr-defined]
     cause = ws.exception()
     error.ws_cause = type(cause).__name__ if cause else None  # type: ignore[attr-defined]
+    # 1006 is an abnormal-closure classification, not evidence of a remote close.
+    # Keep the original transport exception instead of discarding its message/stack.
+    error.__cause__ = cause
     return error
 
 
@@ -268,6 +272,9 @@ class Feeds:
             "close_code": getattr(exc, "ws_close_code", None),
             "frame_type": getattr(exc, "ws_frame_type", None),
             "cause": getattr(exc, "ws_cause", None),
+            "exception_message": str(exc),
+            "cause_message": str(exc.__cause__) if exc.__cause__ is not None else None,
+            "exception_chain": "".join(traceback.format_exception(exc)),
         }
         state["last_transport_detail"] = detail
         self.reconnects[venue] += 1

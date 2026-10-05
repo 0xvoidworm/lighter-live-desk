@@ -5,11 +5,460 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import ipaddress
 import json
 import sqlite3
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
+
+
+def analyze_comparison(directory: Path, root: Path) -> dict:
+    """One independent read-only run; local telemetry is sampled, not fill latency."""
+    start = json.loads((directory / "started.json").read_text())
+    finish = json.loads((directory / "finished.json").read_text())
+    kinds, overlap, blocker_s = Counter(), Counter(), Counter()
+    minimal, events, app, requests, peers = {}, [], [], {}, set()
+    source_lags, app_source_lags, relative_lags = {}, {}, []
+    process_peaks, message_last, previous, streak, longest = {}, {}, None, 0.0, 0.0
+
+    def accumulate(status, seconds):
+        nonlocal streak, longest
+        blockers = tuple(status["diagnostic_observation"]["blockers"])
+        overlap[blockers] += seconds
+        for blocker in blockers:
+            blocker_s[blocker] += seconds
+        streak = 0.0 if blockers else streak + seconds
+        longest = max(longest, streak)
+
+    with (directory / "trace.jsonl").open() as source:
+        for line in source:
+            row = json.loads(line)
+            kind, body = row["kind"], row["body"]
+            kinds[kind] += 1
+            if kind == "message":
+                connection = minimal.setdefault(
+                    body["connection"],
+                    {
+                        "messages": 0,
+                        "streams": Counter(),
+                        "max_message_gap_s": 0,
+                        "sequence_gaps": 0,
+                    },
+                )
+                connection["messages"] += 1
+                connection["streams"][body["stream"]] += 1
+                connection["sequence_gaps"] += int(body["sequence_gap"])
+                last = message_last.get(body["connection"])
+                if last is not None:
+                    connection["max_message_gap_s"] = max(
+                        connection["max_message_gap_s"], row["elapsed"] - last
+                    )
+                message_last[body["connection"]] = row["elapsed"]
+                connection.setdefault("first_message_epoch", row["at"])
+                connection["last_message_epoch"] = row["at"]
+                connection["last_source_event_ms"] = body.get("E")
+                if isinstance(body.get("E"), (int, float)):
+                    source_lags.setdefault(body["event"], []).append(row["at"] - body["E"] / 1000)
+            elif kind == "app_snapshot":
+                status = body["status"]
+                if previous:
+                    accumulate(previous["status"], row["elapsed"] - previous["elapsed"])
+                previous = {"status": status, "elapsed": row["elapsed"]}
+                for request in status["binance_transport_trace"]["recent"]:
+                    requests[request["id"]] = request
+                decoded = []
+                for socket in body["sockets"]:
+                    raw, port = socket["remote_hex"].split(":")
+                    if int(port, 16) != 443:
+                        continue
+                    octets = (
+                        bytes.fromhex(raw)[::-1]
+                        if socket["family"] == "tcp"
+                        else b"".join(
+                            bytes.fromhex(raw[index : index + 8])[::-1] for index in range(0, 32, 8)
+                        )
+                    )
+                    peer = str(ipaddress.ip_address(octets))
+                    peers.add(peer)
+                    decoded.append(
+                        {
+                            "ip": peer,
+                            "inode": socket["inode"],
+                            "family": socket["family"],
+                            "local_hex": socket["local_hex"],
+                            "state": socket["state"],
+                        }
+                    )
+                for name, metric in status["market_processing"].items():
+                    received = metric.get("receipt_monotonic_ns")
+                    queued = metric.get("queued_monotonic_ns")
+                    processed = metric.get("processing_started_monotonic_ns")
+                    finished = metric.get("processing_finished_monotonic_ns")
+                    if (
+                        received is not None
+                        and queued is not None
+                        and processed is not None
+                        and finished is not None
+                    ):
+                        values = {
+                            "receive_to_enqueue_ms": (queued - received) / 1e6,
+                            "queue_wait_ms": (processed - queued) / 1e6,
+                            "processing_ms": (finished - processed) / 1e6,
+                        }
+                        peak = process_peaks.setdefault(name, {})
+                        for key, value in values.items():
+                            peak[key] = max(peak.get(key, 0), value)
+                    if metric.get("receipt_ns") and metric.get("source_exchange_ms"):
+                        app_source_lags.setdefault(name, []).append(
+                            metric["receipt_ns"] / 1e9 - metric["source_exchange_ms"] / 1000
+                        )
+                public = status["market_processing"].get("binance:depthUpdate", {})
+                market = status["market_processing"].get("binance:aggTrade", {})
+                if (
+                    public.get("source_exchange_ms")
+                    and market.get("source_exchange_ms")
+                    and abs(public["receipt_ns"] - market["receipt_ns"]) < 1e9
+                ):
+                    relative_lags.append(
+                        (public["receipt_ns"] - market["receipt_ns"]) / 1e9
+                        - (public["source_exchange_ms"] - market["source_exchange_ms"]) / 1000
+                    )
+                app.append(
+                    {
+                        "at": row["at"],
+                        "elapsed": row["elapsed"],
+                        "channels": status["feed_channels"],
+                        "sockets": decoded,
+                        "queue": status["queue_backlog"],
+                        "event_loop_lag_ms": status["event_loop_lag_ms"],
+                        "fx_age_s": status["diagnostic_observation"]["fx_age_s"],
+                    }
+                )
+            else:
+                events.append(row)
+    if previous:
+        accumulate(
+            previous["status"],
+            max(0, min(start["seconds"], finish["elapsed"]) - previous["elapsed"]),
+        )
+    handshakes = sorted(
+        (request for request in requests.values() if request["path"] == "/public/stream"),
+        key=lambda request: request["started_at"],
+    )
+    public_events = []
+    old = app[0]["channels"]["binance_public"]["reconnects"] if app else None
+    for sample in app:
+        channel = sample["channels"]["binance_public"]
+        if channel["reconnects"] == old:
+            continue
+        disconnected = channel["last_disconnect_at"]
+        preceding = [
+            request
+            for request in handshakes
+            if request.get("finished_at", float("inf")) < disconnected
+        ]
+        connected = preceding[-1] if preceding else None
+        following = next(
+            (request for request in handshakes if request["started_at"] > disconnected), None
+        )
+        public_events.append(
+            {
+                "counter_before": old,
+                "counter_after": channel["reconnects"],
+                "at": disconnected,
+                "connection_id": f"pid{start['engine_pid']}:http{connected['id']}"
+                if connected
+                else None,
+                "connected_at": connected.get("finished_at") if connected else None,
+                "age_s": disconnected - connected["finished_at"] if connected else None,
+                "exception": channel["last_error"],
+                "detail": channel["last_transport_detail"],
+                "retry_s": channel["retry_delay_s"],
+                "next_handshake": following,
+                "queue": sample["queue"],
+                "lag_ms": sample["event_loop_lag_ms"],
+            }
+        )
+        old = channel["reconnects"]
+    with sqlite3.connect(
+        "file:" + str(root / "state/desk.db") + "?mode=ro", uri=True
+    ) as connection:
+        gap_events = list(
+            connection.execute(
+                "SELECT at,kind,body FROM events WHERE at BETWEEN ? AND ? "
+                "AND kind='BOOK_GAP' ORDER BY at",
+                (start["at"], finish["at"]),
+            )
+        )
+        command_count = connection.execute(
+            "SELECT COUNT(*) FROM commands WHERE requested_at BETWEEN ? AND ?",
+            (start["at"], finish["at"]),
+        ).fetchone()[0]
+
+    def distribution(values):
+        ordered = sorted(values)
+        return (
+            {
+                "n": len(ordered),
+                **{
+                    name: ordered[int(q * (len(ordered) - 1))]
+                    for name, q in [
+                        ("min", 0),
+                        ("p50", 0.5),
+                        ("p95", 0.95),
+                        ("p99", 0.99),
+                        ("max", 1),
+                    ]
+                },
+            }
+            if ordered
+            else None
+        )
+
+    return {
+        "started": start,
+        "finished": finish,
+        "record_kinds": dict(kinds),
+        "minimal_connections": minimal,
+        "minimal_nonmessage_events": events,
+        "app_channel_initial": app[0]["channels"] if app else None,
+        "app_channel_final": app[-1]["channels"] if app else None,
+        "app_public_reconnects": public_events,
+        "app_socket_observations": app,
+        "app_443_peer_candidates": sorted(peers),
+        "technical_ready_s": overlap.get((), 0),
+        "longest_technical_ready_s": longest,
+        "blocker_s": dict(blocker_s),
+        "overlap_s": [
+            {"blockers": list(key), "seconds": seconds} for key, seconds in overlap.items()
+        ],
+        "sampled_last_event_processing_peak_ms": process_peaks,
+        "minimal_source_event_to_receive_indicator_s": {
+            name: distribution(values) for name, values in source_lags.items()
+        },
+        "app_sampled_source_to_receive_indicator_s": {
+            name: distribution(values) for name, values in app_source_lags.items()
+        },
+        "public_minus_market_source_to_receive_indicator_s": distribution(relative_lags),
+        "source_time_limits": (
+            "Exchange vs host clock offset unknown; these are delay indicators, "
+            "not one-way network or fill latency. Relative Binance public/market "
+            "indicator removes a common exchange/host clock offset, using receipts "
+            "less than 1s apart. App distributions are 1Hz sampled last events, "
+            "not all messages."
+        ),
+        "sequence_recovery_events": gap_events,
+        "runtime_command_count": command_count,
+        "sampling_limits": (
+            "Local snapshots 1 Hz; only sampled last processing metrics, socket "
+            "ownership does not prove hostname/channel. No wire packet capture. "
+            "Initial partial app connection and final ongoing connection are censored."
+        ),
+        "raw_sha256": hashlib.sha256((directory / "trace.jsonl").read_bytes()).hexdigest(),
+    }
+
+
+def reconnect_timeline(directory: Path, root: Path) -> dict:
+    """Reconstruct existing telemetry; never contact an exchange or assume 1006 ownership."""
+    rows = [json.loads(line) for line in gzip.open(directory / "snapshots.jsonl.gz", "rt")]
+    rows = [row for row in rows if "status" in row]
+    requests = {
+        request["id"]: request
+        for row in rows
+        for request in row["status"]["binance_transport_trace"]["recent"]
+    }
+    handshakes = sorted(
+        (request for request in requests.values() if request["path"] == "/public/stream"),
+        key=lambda request: request["started_at"],
+    )
+    start = json.loads((directory / "started.json").read_text())
+    finish = json.loads((directory / "finished.json").read_text())
+    previous = rows[0]["status"]["feed_channels"]["binance_public"]["reconnects"]
+    timeline = []
+    for row in rows:
+        status = row["status"]
+        channel = status["feed_channels"]["binance_public"]
+        if channel["reconnects"] == previous:
+            continue
+        at = channel["last_disconnect_at"]
+        preceding = [
+            request for request in handshakes if request.get("finished_at", float("inf")) < at
+        ]
+        connection = preceding[-1] if preceding else None
+        following = next((request for request in handshakes if request["started_at"] > at), None)
+        last = next(
+            (
+                sample
+                for sample in reversed(rows)
+                if sample["epoch"] < at
+                and sample["status"]["feed_channels"]["binance_public"]["connected"]
+            ),
+            None,
+        )
+        restored = next(
+            (
+                sample
+                for sample in rows
+                if sample["epoch"] > at and sample["status"]["binance_streams"]["public"]
+            ),
+            None,
+        )
+        timeline.append(
+            {
+                "counter_before": previous,
+                "counter_after": channel["reconnects"],
+                "counter_delta": channel["reconnects"] - previous,
+                "connection_id": f"pid{start['engine_pid']}:http{connection['id']}"
+                if connection
+                else None,
+                "connection_id_basis": (
+                    "derived HTTP handshake trace identity; not a native WS UUID"
+                ),
+                "connected_at": connection.get("finished_at") if connection else None,
+                "disconnect_at": at,
+                "connection_age_s": at - connection["finished_at"] if connection else None,
+                "exception": channel["last_error"],
+                "transport_detail": channel["last_transport_detail"],
+                "close_owner": "not recorded; 1006 is not a received close frame",
+                "last_connected_status_at": last["epoch"] if last else None,
+                "last_frame_age_ms_at_last_status": last["status"]["feed_channels"][
+                    "binance_public"
+                ]["last_frame_age_ms"]
+                if last
+                else None,
+                "queue_at_first_disconnect_status": status["queue_backlog"],
+                "event_loop_lag_ms_at_first_disconnect_status": status["event_loop_lag_ms"],
+                "heartbeat_frames": (
+                    "not recorded; aiohttp autoping handles control frames internally"
+                ),
+                "configured_backoff_s": channel["retry_delay_s"],
+                "actual_disconnect_to_next_handshake_start_s": following["started_at"] - at
+                if following
+                else None,
+                "next_handshake": following,
+                "first_public_valid_status_at": restored["epoch"] if restored else None,
+                "valid_status_observation_precision": (
+                    "collector sampling; not exact receive/apply timestamp"
+                ),
+            }
+        )
+        previous = channel["reconnects"]
+    with sqlite3.connect(
+        "file:" + str(root / "state/desk.db") + "?mode=ro", uri=True
+    ) as connection:
+        gap_events = list(
+            connection.execute(
+                "SELECT at,kind,body FROM events WHERE at BETWEEN ? AND ? "
+                "AND kind='BOOK_GAP' ORDER BY at",
+                (start["preparation_started_epoch"], finish["session"]["ended_at"]),
+            )
+        )
+    return {
+        "counter_initial": rows[0]["status"]["feed_channels"]["binance_public"]["reconnects"],
+        "counter_final": previous,
+        "observed_reconnects": sum(event["counter_delta"] for event in timeline),
+        "capture_first_epoch": rows[0]["epoch"],
+        "capture_last_epoch": rows[-1]["epoch"],
+        "uncaptured_initial_preparation_s": rows[0]["epoch"] - start["preparation_started_epoch"],
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms",
+        "subscription_mode": "implicit combined URL, no JSON SUBSCRIBE messages",
+        "sequence_recovery_events": gap_events,
+        "timeline": timeline,
+        "missing_evidence": [
+            "full original exception/stack",
+            "peer IP",
+            "server/client close frame",
+            "ping/pong frames",
+            "continuous initial preparation status",
+        ],
+    }
+
+
+def add_raw_reconnect_evidence(result: dict, root: Path) -> None:
+    """Replay only the existing public Book implementation; no engine/signing/network."""
+    from lldesk.market import Book, GapError
+    from lldesk.models import Stamp
+
+    begin, end = result["capture_first_epoch"], result["capture_last_epoch"]
+    hours = {datetime.fromtimestamp(point, UTC).strftime("%Y%m%d-%H") for point in (begin, end)}
+    pid = int(result["timeline"][0]["connection_id"].split(":")[0][3:])
+    book = Book("binance")
+    last_message, last_valid, gaps = None, None, 0
+    evidence = [{} for _ in result["timeline"]]
+    for path in sorted((root / "state/market").glob("*.jsonl.gz")):
+        if not any("market-" + hour + "-" in path.name for hour in hours):
+            continue
+        with gzip.open(path, "rt") as source:
+            for line in source:
+                row = json.loads(line)
+                if (
+                    row.get("pid") != pid
+                    or row.get("venue") != "binance"
+                    or row["kind"] == "aggTrade"
+                ):
+                    continue
+                processed = row["recorded_ns"] / 1e9
+                if processed > end:
+                    break
+                stamp = Stamp(
+                    receipt_ns=row["receipt_ns"],
+                    monotonic_ns=row["monotonic_ns"],
+                    exchange_ms=row.get("exchange_ms"),
+                )
+                brief = {
+                    "kind": row["kind"],
+                    "received_epoch": row["receipt_ns"] / 1e9,
+                    "recorded_before_apply_epoch": processed,
+                    "source_exchange_ms": row.get("exchange_ms"),
+                    "receipt_to_record_ms": (row["recorded_monotonic_ns"] - row["monotonic_ns"])
+                    / 1e6,
+                    "update_id": row["payload"].get("u", row["payload"].get("lastUpdateId")),
+                }
+                try:
+                    if row["kind"] == "disconnect" and row["payload"].get("channel") == "public":
+                        book.invalidate()
+                    elif row["kind"] == "snapshot":
+                        book.binance_snapshot(row["payload"], stamp)
+                    elif row["kind"] == "depthUpdate":
+                        book.binance_delta(row["payload"], stamp)
+                except GapError:
+                    gaps += int(processed >= begin)
+                if row["kind"] in {"bookTicker", "depthUpdate"}:
+                    last_message = brief
+                if row["kind"] == "depthUpdate" and book.valid and book.bridged:
+                    last_valid = brief
+                for event, raw in zip(result["timeline"], evidence, strict=True):
+                    at = event["disconnect_at"]
+                    following = event["next_handshake"]
+                    if processed <= at:
+                        raw["last_received_public_message"] = last_message
+                        raw["last_valid_depth"] = last_valid
+                    if processed >= at and following:
+                        if row["kind"] == "disconnect" and "disconnect_record" not in raw:
+                            raw["disconnect_record"] = brief
+                        if row["kind"] == "snapshot" and processed >= following["finished_at"]:
+                            raw.setdefault("next_snapshot", brief)
+                        if (
+                            row["kind"] in {"bookTicker", "depthUpdate"}
+                            and row["receipt_ns"] / 1e9 >= following["finished_at"]
+                        ):
+                            raw.setdefault("first_next_received_public_message", brief)
+                        if (
+                            row["kind"] == "depthUpdate"
+                            and book.valid
+                            and book.bridged
+                            and processed >= following["finished_at"]
+                        ):
+                            raw.setdefault("first_next_valid_depth", brief)
+    for event, raw in zip(result["timeline"], evidence, strict=True):
+        event["raw_evidence"] = raw
+    result["raw_replay_sequence_errors"] = gaps
+    result["raw_replay_limits"] = (
+        "Book-only deterministic replay, not a full evaluator/FX replay. "
+        "recorded_ns is before apply; received stamp is preserved for buffered data. "
+        "No NIC wire timestamps."
+    )
 
 
 def analyze(directory: Path, root: Path) -> dict:
@@ -182,7 +631,37 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("directory", type=Path)
     parser.add_argument("output", type=Path)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--reconnects",
+        action="store_true",
+        help="Reconstruct public transport instead of strategy results",
+    )
+    mode.add_argument(
+        "--comparison", action="store_true", help="Summarize the single Rust read-only comparison"
+    )
+    parser.add_argument(
+        "--raw", action="store_true", help="Add raw existing Book replay to --reconnects"
+    )
+    parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="Omit repetitive local socket snapshots from comparison export",
+    )
     args = parser.parse_args()
-    result = analyze(args.directory, Path(__file__).resolve().parents[1])
+    function = (
+        analyze_comparison
+        if args.comparison
+        else reconnect_timeline
+        if args.reconnects
+        else analyze
+    )
+    result = function(args.directory, Path(__file__).resolve().parents[1])
+    if args.raw:
+        if not args.reconnects:
+            parser.error("--raw requires --reconnects")
+        add_raw_reconnect_evidence(result, Path(__file__).resolve().parents[1])
+    if args.compact:
+        result.pop("app_socket_observations", None)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     print("Saved bounded preparation summary: " + str(args.output))

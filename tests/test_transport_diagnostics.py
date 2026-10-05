@@ -222,6 +222,82 @@ def test_ws_close_code_and_cause_survive_reconnect_classification():
     assert error.ws_frame_type == "ERROR"
 
 
+async def test_real_aiohttp_reset_preserves_original_cause(monkeypatch):
+    """A local TCP abort reproduces the missing transport evidence; no mainnet."""
+    app = web.Application()
+
+    async def handler(request):
+        socket = web.WebSocketResponse()
+        await socket.prepare(request)
+        await socket.send_str("one received message")
+        await asyncio.sleep(0.02)
+        request.transport.abort()
+        return socket
+
+    app.router.add_get("/public/stream", handler)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "127.0.0.1", 0)
+    await site.start()
+    port = site._server.sockets[0].getsockname()[1]
+    try:
+        async with aiohttp.ClientSession() as client:
+            async with client.ws_connect(f"http://127.0.0.1:{port}/public/stream") as ws:
+                assert await ws.receive_str() == "one received message"
+                async for _ in ws:
+                    pass
+                original = ws.exception()
+                error = websocket_closed(ws, "public")
+                assert original is not None and str(original)
+                assert error.__cause__ is original and error.ws_close_code == 1006
+                queue = asyncio.Queue()
+                feeds = Feeds(0, queue)
+
+                async def no_backoff(_):
+                    pass
+
+                monkeypatch.setattr("lldesk.market.asyncio.sleep", no_backoff)
+                await feeds.reconnect("binance", "public", error)
+                detail = feeds.channels["binance_public"]["last_transport_detail"]
+                assert detail["cause_message"] == str(original)
+                assert type(original).__name__ in detail["exception_chain"]
+                assert detail["frame_type"] is None
+    finally:
+        await runner.cleanup()
+
+
+async def test_bootstrap_receive_timeout_does_not_close_live_socket():
+    """Exercise the installed aiohttp receive_str timeout, then receive new data."""
+    app = web.Application()
+
+    async def handler(request):
+        socket = web.WebSocketResponse()
+        await socket.prepare(request)
+        await asyncio.sleep(1.1)
+        await socket.send_str("new book data")
+        async for _ in socket:
+            pass
+        return socket
+
+    app.router.add_get("/public/stream", handler)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "127.0.0.1", 0)
+    await site.start()
+    port = site._server.sockets[0].getsockname()[1]
+    try:
+        async with aiohttp.ClientSession() as client:
+            async with client.ws_connect(
+                f"http://127.0.0.1:{port}/public/stream", heartbeat=20
+            ) as ws:
+                with pytest.raises(TimeoutError):
+                    await ws.receive_str(timeout=1)
+                assert not ws.closed
+                assert await ws.receive_str(timeout=1) == "new book data"
+    finally:
+        await runner.cleanup()
+
+
 @pytest.mark.parametrize("side,raw", [("buy", Decimal("-18")), ("sell", Decimal("22"))])
 def test_normalized_signal_direction_and_basis_has_no_future_data(monkeypatch, side, raw):
     now = 1000.0

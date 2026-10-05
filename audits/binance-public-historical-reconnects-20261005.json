@@ -1,0 +1,904 @@
+{
+  "counter_initial": 54,
+  "counter_final": 63,
+  "observed_reconnects": 9,
+  "capture_first_epoch": 1791207424.945598,
+  "capture_last_epoch": 1791207849.5866797,
+  "uncaptured_initial_preparation_s": 291.9455978870392,
+  "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms",
+  "subscription_mode": "implicit combined URL, no JSON SUBSCRIBE messages",
+  "sequence_recovery_events": [],
+  "timeline": [
+    {
+      "counter_before": 54,
+      "counter_after": 55,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http111",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207426.4163857,
+      "disconnect_at": 1791207446.3701646,
+      "connection_age_s": 19.953778982162476,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207446.3605416,
+      "last_frame_age_ms_at_last_status": 415,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 3.3,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 30,
+      "actual_disconnect_to_next_handshake_start_s": 30.000895261764526,
+      "next_handshake": {
+        "id": 113,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207476.37106,
+        "phase_ms": {
+          "acquire_connection": 0.07059700146783143,
+          "connect_or_tls": 559.0786209941143,
+          "dns": 257.58228200720623,
+          "connection_ready": 0.0375340023310855,
+          "waiting_headers": 133.59953499457333,
+          "body_ready": 0.005259003955870867
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 950.38,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207477.3214443
+      },
+      "first_public_valid_status_at": 1791207446.6340034,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207446.3662086,
+          "recorded_before_apply_epoch": 1791207446.3693578,
+          "source_exchange_ms": 1791207428128,
+          "receipt_to_record_ms": 3.14905,
+          "update_id": 11740028588653
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207444.563909,
+          "recorded_before_apply_epoch": 1791207444.5640888,
+          "source_exchange_ms": 1791207428044,
+          "receipt_to_record_ms": 0.179088,
+          "update_id": 11740028552850
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207446.3701718,
+          "recorded_before_apply_epoch": 1791207446.3702083,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.036128,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207478.416799,
+          "recorded_before_apply_epoch": 1791207478.4169526,
+          "source_exchange_ms": 1791207478203,
+          "receipt_to_record_ms": 0.15337,
+          "update_id": 11740037172714
+        },
+        "first_next_received_public_message": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207477.3785229,
+          "recorded_before_apply_epoch": 1791207478.4258401,
+          "source_exchange_ms": 1791207477309,
+          "receipt_to_record_ms": 1047.317096,
+          "update_id": 11740037055908
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207479.6471603,
+          "recorded_before_apply_epoch": 1791207479.6474938,
+          "source_exchange_ms": 1791207478227,
+          "receipt_to_record_ms": 0.33216,
+          "update_id": 11740037174914
+        }
+      }
+    },
+    {
+      "counter_before": 55,
+      "counter_after": 56,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http113",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207477.3214443,
+      "disconnect_at": 1791207501.2117393,
+      "connection_age_s": 23.890295028686523,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207501.1226552,
+      "last_frame_age_ms_at_last_status": 456,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 2.3,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 30,
+      "actual_disconnect_to_next_handshake_start_s": 30.00091814994812,
+      "next_handshake": {
+        "id": 115,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207531.2126575,
+        "phase_ms": {
+          "acquire_connection": 0.08548599726054817,
+          "connect_or_tls": 393.690290991799,
+          "dns": 41.83308299980126,
+          "connection_ready": 0.11794400052167475,
+          "waiting_headers": 94.11393500340637,
+          "body_ready": 0.010364994523115456
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 529.862,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207531.742529
+      },
+      "first_public_valid_status_at": 1791207532.2978551,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207501.2044022,
+          "recorded_before_apply_epoch": 1791207501.2091267,
+          "source_exchange_ms": 1791207480550,
+          "receipt_to_record_ms": 4.724079,
+          "update_id": 11740037551419
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207500.2824347,
+          "recorded_before_apply_epoch": 1791207500.2835662,
+          "source_exchange_ms": 1791207480472,
+          "receipt_to_record_ms": 1.130432,
+          "update_id": 11740037514293
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207501.2117589,
+          "recorded_before_apply_epoch": 1791207501.2118819,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.121724,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207532.009499,
+          "recorded_before_apply_epoch": 1791207532.010307,
+          "source_exchange_ms": 1791207531828,
+          "receipt_to_record_ms": 0.807528,
+          "update_id": 11740046911173
+        },
+        "first_next_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207531.8304508,
+          "recorded_before_apply_epoch": 1791207532.0376418,
+          "source_exchange_ms": 1791207531762,
+          "receipt_to_record_ms": 207.190477,
+          "update_id": 11740046896021
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207533.4228275,
+          "recorded_before_apply_epoch": 1791207533.423128,
+          "source_exchange_ms": 1791207531880,
+          "receipt_to_record_ms": 0.299892,
+          "update_id": 11740046917957
+        }
+      }
+    },
+    {
+      "counter_before": 56,
+      "counter_after": 57,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http115",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207531.742529,
+      "disconnect_at": 1791207551.8269477,
+      "connection_age_s": 20.084418773651123,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207551.7645657,
+      "last_frame_age_ms_at_last_status": 178,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 0.0,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 30,
+      "actual_disconnect_to_next_handshake_start_s": 30.02175235748291,
+      "next_handshake": {
+        "id": 117,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207581.8487,
+        "phase_ms": {
+          "acquire_connection": 0.04798499867320061,
+          "connect_or_tls": 179.71655001747422,
+          "dns": 44.31947399280034,
+          "connection_ready": 0.03660698712337762,
+          "waiting_headers": 90.45318599964958,
+          "body_ready": 0.0072020047809928656
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 314.587,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207582.1632926
+      },
+      "first_public_valid_status_at": 1791207582.6483135,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207551.8217707,
+          "recorded_before_apply_epoch": 1791207551.8258255,
+          "source_exchange_ms": 1791207536764,
+          "receipt_to_record_ms": 4.054632,
+          "update_id": 11740047539460
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207551.8212466,
+          "recorded_before_apply_epoch": 1791207551.8220563,
+          "source_exchange_ms": 1791207536673,
+          "receipt_to_record_ms": 0.809412,
+          "update_id": 11740047528796
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207551.8269536,
+          "recorded_before_apply_epoch": 1791207551.8269794,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.025468,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207582.3237648,
+          "recorded_before_apply_epoch": 1791207582.3239822,
+          "source_exchange_ms": 1791207582233,
+          "receipt_to_record_ms": 0.217417,
+          "update_id": 11740054771208
+        },
+        "first_next_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207582.323506,
+          "recorded_before_apply_epoch": 1791207582.3366826,
+          "source_exchange_ms": 1791207582154,
+          "receipt_to_record_ms": 13.175578,
+          "update_id": 11740054764035
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207582.365828,
+          "recorded_before_apply_epoch": 1791207582.3659418,
+          "source_exchange_ms": 1791207582265,
+          "receipt_to_record_ms": 0.112876,
+          "update_id": 11740054774104
+        }
+      }
+    },
+    {
+      "counter_before": 57,
+      "counter_after": 58,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http117",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207582.1632926,
+      "disconnect_at": 1791207595.0393445,
+      "connection_age_s": 12.876051902770996,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207594.9983704,
+      "last_frame_age_ms_at_last_status": 149,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 0.0,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 30,
+      "actual_disconnect_to_next_handshake_start_s": 30.001317501068115,
+      "next_handshake": {
+        "id": 119,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207625.040662,
+        "phase_ms": {
+          "acquire_connection": 0.05330899148248136,
+          "connect_or_tls": 221.35267200064845,
+          "dns": 39.96174701023847,
+          "connection_ready": 0.051390990847721696,
+          "waiting_headers": 103.05699201126117,
+          "body_ready": 0.0053449912229552865
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 364.487,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207625.4051538
+      },
+      "first_public_valid_status_at": 1791207595.2689753,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207595.0326712,
+          "recorded_before_apply_epoch": 1791207595.0368416,
+          "source_exchange_ms": 1791207583977,
+          "receipt_to_record_ms": 4.170138,
+          "update_id": 11740055127832
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207595.0323162,
+          "recorded_before_apply_epoch": 1791207595.0334327,
+          "source_exchange_ms": 1791207583897,
+          "receipt_to_record_ms": 1.116455,
+          "update_id": 11740055120385
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207595.0393565,
+          "recorded_before_apply_epoch": 1791207595.0394356,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.078461,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207625.6015594,
+          "recorded_before_apply_epoch": 1791207625.6017253,
+          "source_exchange_ms": 1791207625461,
+          "receipt_to_record_ms": 0.165764,
+          "update_id": 11740062227427
+        },
+        "first_next_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207625.468222,
+          "recorded_before_apply_epoch": 1791207625.6158407,
+          "source_exchange_ms": 1791207625393,
+          "receipt_to_record_ms": 147.617812,
+          "update_id": 11740062221633
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207625.5917027,
+          "recorded_before_apply_epoch": 1791207625.6166575,
+          "source_exchange_ms": 1791207625514,
+          "receipt_to_record_ms": 24.953731,
+          "update_id": 11740062232196
+        }
+      }
+    },
+    {
+      "counter_before": 58,
+      "counter_after": 59,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http119",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207625.4051538,
+      "disconnect_at": 1791207674.9889815,
+      "connection_age_s": 49.58382773399353,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207674.760018,
+      "last_frame_age_ms_at_last_status": 182,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 0.0,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 2,
+      "actual_disconnect_to_next_handshake_start_s": 2.0008790493011475,
+      "next_handshake": {
+        "id": 121,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207676.9898605,
+        "phase_ms": {
+          "acquire_connection": 0.09593499999027699,
+          "connect_or_tls": 203.99341300071683,
+          "dns": 2055.420139004127,
+          "connection_ready": 0.0600829953327775,
+          "waiting_headers": 119.91184799990151,
+          "body_ready": 0.01266899926122278
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 2379.506,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207679.3693767
+      },
+      "first_public_valid_status_at": 1791207675.0269198,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207674.9873922,
+          "recorded_before_apply_epoch": 1791207674.987575,
+          "source_exchange_ms": 1791207658050,
+          "receipt_to_record_ms": 0.182534,
+          "update_id": 11740067479069
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207674.360651,
+          "recorded_before_apply_epoch": 1791207674.36091,
+          "source_exchange_ms": 1791207657952,
+          "receipt_to_record_ms": 0.258048,
+          "update_id": 11740067458151
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207674.9889874,
+          "recorded_before_apply_epoch": 1791207674.9890504,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.062948,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207679.5444024,
+          "recorded_before_apply_epoch": 1791207679.544519,
+          "source_exchange_ms": 1791207679456,
+          "receipt_to_record_ms": 0.116205,
+          "update_id": 11740071285030
+        },
+        "first_next_received_public_message": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207679.4420214,
+          "recorded_before_apply_epoch": 1791207679.554649,
+          "source_exchange_ms": 1791207679369,
+          "receipt_to_record_ms": 112.62641,
+          "update_id": 11740071276847
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207679.544061,
+          "recorded_before_apply_epoch": 1791207679.5548816,
+          "source_exchange_ms": 1791207679473,
+          "receipt_to_record_ms": 10.819635,
+          "update_id": 11740071286278
+        }
+      }
+    },
+    {
+      "counter_before": 59,
+      "counter_after": 60,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http121",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207679.3693767,
+      "disconnect_at": 1791207703.4674535,
+      "connection_age_s": 24.098076820373535,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207703.2790706,
+      "last_frame_age_ms_at_last_status": 200,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 0.0,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 4,
+      "actual_disconnect_to_next_handshake_start_s": 4.001444339752197,
+      "next_handshake": {
+        "id": 123,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207707.4688978,
+        "phase_ms": {
+          "acquire_connection": 0.15852900105528533,
+          "connect_or_tls": 195.68159399204887,
+          "dns": 34.99557600298431,
+          "connection_ready": 0.039592006942257285,
+          "waiting_headers": 89.0751389961224,
+          "body_ready": 0.011882002581842244
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 319.976,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207707.7888842
+      },
+      "first_public_valid_status_at": 1791207708.2204225,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207703.4664648,
+          "recorded_before_apply_epoch": 1791207703.466555,
+          "source_exchange_ms": 1791207690719,
+          "receipt_to_record_ms": 0.089989,
+          "update_id": 11740072962732
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207703.2849505,
+          "recorded_before_apply_epoch": 1791207703.2857192,
+          "source_exchange_ms": 1791207690694,
+          "receipt_to_record_ms": 0.768225,
+          "update_id": 11740072955870
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207703.467459,
+          "recorded_before_apply_epoch": 1791207703.4674823,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.023158,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207707.9859226,
+          "recorded_before_apply_epoch": 1791207707.9860518,
+          "source_exchange_ms": 1791207707856,
+          "receipt_to_record_ms": 0.129102,
+          "update_id": 11740075799132
+        },
+        "first_next_received_public_message": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207707.7975144,
+          "recorded_before_apply_epoch": 1791207707.9971292,
+          "source_exchange_ms": 1791207707728,
+          "receipt_to_record_ms": 199.613028,
+          "update_id": 11740075787616
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207708.013782,
+          "recorded_before_apply_epoch": 1791207708.0139368,
+          "source_exchange_ms": 1791207707929,
+          "receipt_to_record_ms": 0.153582,
+          "update_id": 11740075807640
+        }
+      }
+    },
+    {
+      "counter_before": 60,
+      "counter_after": 61,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http123",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207707.7888842,
+      "disconnect_at": 1791207737.2552898,
+      "connection_age_s": 29.466405630111694,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207737.181884,
+      "last_frame_age_ms_at_last_status": 93,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 0.0,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 8,
+      "actual_disconnect_to_next_handshake_start_s": 8.000633478164673,
+      "next_handshake": {
+        "id": 125,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207745.2559233,
+        "phase_ms": {
+          "acquire_connection": 0.0765269942348823,
+          "connect_or_tls": 641.7585619929014,
+          "dns": 84.14640500268433,
+          "connection_ready": 0.047146008000709116,
+          "waiting_headers": 102.18122099468019,
+          "body_ready": 0.005092995706945658
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 828.221,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207746.0841486
+      },
+      "first_public_valid_status_at": 1791207737.4583282,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207737.254119,
+          "recorded_before_apply_epoch": 1791207737.2542129,
+          "source_exchange_ms": 1791207726430,
+          "receipt_to_record_ms": 0.093911,
+          "update_id": 11740078790872
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207737.2504766,
+          "recorded_before_apply_epoch": 1791207737.2528787,
+          "source_exchange_ms": 1791207726394,
+          "receipt_to_record_ms": 2.401932,
+          "update_id": 11740078784340
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207737.2552958,
+          "recorded_before_apply_epoch": 1791207737.255323,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.026917,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207746.3004699,
+          "recorded_before_apply_epoch": 1791207746.300595,
+          "source_exchange_ms": 1791207746141,
+          "receipt_to_record_ms": 0.125002,
+          "update_id": 11740081781972
+        },
+        "first_next_received_public_message": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207746.2032533,
+          "recorded_before_apply_epoch": 1791207746.3112414,
+          "source_exchange_ms": 1791207746077,
+          "receipt_to_record_ms": 107.987378,
+          "update_id": 11740081776851
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207746.3005445,
+          "recorded_before_apply_epoch": 1791207746.311358,
+          "source_exchange_ms": 1791207746181,
+          "receipt_to_record_ms": 10.813382,
+          "update_id": 11740081785459
+        }
+      }
+    },
+    {
+      "counter_before": 61,
+      "counter_after": 62,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http125",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207746.0841486,
+      "disconnect_at": 1791207770.0858293,
+      "connection_age_s": 24.001680612564087,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207769.9348466,
+      "last_frame_age_ms_at_last_status": 63,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 0.0,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 16,
+      "actual_disconnect_to_next_handshake_start_s": 16.00120496749878,
+      "next_handshake": {
+        "id": 127,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207786.0870342,
+        "phase_ms": {
+          "acquire_connection": 0.0617159967077896,
+          "connect_or_tls": 423.581862996798,
+          "dns": 38.355548997060396,
+          "connection_ready": 0.04827200609724969,
+          "waiting_headers": 101.09620800358243,
+          "body_ready": 0.010021991329267621
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 563.163,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207786.6502056
+      },
+      "first_public_valid_status_at": 1791207770.2060788,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207770.0782864,
+          "recorded_before_apply_epoch": 1791207770.0789752,
+          "source_exchange_ms": 1791207755922,
+          "receipt_to_record_ms": 0.688816,
+          "update_id": 11740083132111
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207769.5668604,
+          "recorded_before_apply_epoch": 1791207769.5676336,
+          "source_exchange_ms": 1791207755871,
+          "receipt_to_record_ms": 0.772893,
+          "update_id": 11740083120519
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207770.0858338,
+          "recorded_before_apply_epoch": 1791207770.085853,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.019262,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207786.8442807,
+          "recorded_before_apply_epoch": 1791207786.8444142,
+          "source_exchange_ms": 1791207786716,
+          "receipt_to_record_ms": 0.133199,
+          "update_id": 11740087814080
+        },
+        "first_next_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207786.6591911,
+          "recorded_before_apply_epoch": 1791207786.8837626,
+          "source_exchange_ms": 1791207786583,
+          "receipt_to_record_ms": 224.570135,
+          "update_id": 11740087763021
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207789.189571,
+          "recorded_before_apply_epoch": 1791207789.1904929,
+          "source_exchange_ms": 1791207786780,
+          "receipt_to_record_ms": 0.921647,
+          "update_id": 11740087821996
+        }
+      }
+    },
+    {
+      "counter_before": 62,
+      "counter_after": 63,
+      "counter_delta": 1,
+      "connection_id": "pid255514:http127",
+      "connection_id_basis": "derived HTTP handshake trace identity; not a native WS UUID",
+      "connected_at": 1791207786.6502056,
+      "disconnect_at": 1791207808.380844,
+      "connection_age_s": 21.73063850402832,
+      "exception": "ConnectionError",
+      "transport_detail": {
+        "close_code": 1006,
+        "frame_type": null,
+        "cause": "ClientConnectionResetError"
+      },
+      "close_owner": "not recorded; 1006 is not a received close frame",
+      "last_connected_status_at": 1791207808.3743832,
+      "last_frame_age_ms_at_last_status": 153,
+      "queue_at_first_disconnect_status": 0,
+      "event_loop_lag_ms_at_first_disconnect_status": 0.0,
+      "heartbeat_frames": "not recorded; aiohttp autoping handles control frames internally",
+      "configured_backoff_s": 30,
+      "actual_disconnect_to_next_handshake_start_s": 30.004897117614746,
+      "next_handshake": {
+        "id": 129,
+        "task": 140033022134592,
+        "host": "fstream.binance.com",
+        "path": "/public/stream",
+        "started_at": 1791207838.3857412,
+        "phase_ms": {
+          "acquire_connection": 0.10283799201715738,
+          "connect_or_tls": 207.81386700400617,
+          "dns": 37.181095001869835,
+          "connection_ready": 0.06342199048958719,
+          "waiting_headers": 97.9044740088284,
+          "body_ready": 0.0064359919633716345
+        },
+        "http_attempts": 1,
+        "outcome": "ok",
+        "last_phase": "body_ready",
+        "elapsed_ms": 343.082,
+        "error": null,
+        "status": 101,
+        "finished_at": 1791207838.7288291
+      },
+      "first_public_valid_status_at": 1791207839.2840767,
+      "valid_status_observation_precision": "collector sampling; not exact receive/apply timestamp",
+      "raw_evidence": {
+        "last_received_public_message": {
+          "kind": "bookTicker",
+          "received_epoch": 1791207808.3733954,
+          "recorded_before_apply_epoch": 1791207808.374512,
+          "source_exchange_ms": 1791207796726,
+          "receipt_to_record_ms": 1.115781,
+          "update_id": 11740089242947
+        },
+        "last_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207807.5885375,
+          "recorded_before_apply_epoch": 1791207807.589125,
+          "source_exchange_ms": 1791207796673,
+          "receipt_to_record_ms": 0.58678,
+          "update_id": 11740089227970
+        },
+        "disconnect_record": {
+          "kind": "disconnect",
+          "received_epoch": 1791207808.3808572,
+          "recorded_before_apply_epoch": 1791207808.3811727,
+          "source_exchange_ms": null,
+          "receipt_to_record_ms": 0.314831,
+          "update_id": null
+        },
+        "next_snapshot": {
+          "kind": "snapshot",
+          "received_epoch": 1791207838.9254262,
+          "recorded_before_apply_epoch": 1791207838.9255972,
+          "source_exchange_ms": 1791207838793,
+          "receipt_to_record_ms": 0.170183,
+          "update_id": 11740095215922
+        },
+        "first_next_received_public_message": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207838.778481,
+          "recorded_before_apply_epoch": 1791207838.9414322,
+          "source_exchange_ms": 1791207838697,
+          "receipt_to_record_ms": 162.950772,
+          "update_id": 11740095207035
+        },
+        "first_next_valid_depth": {
+          "kind": "depthUpdate",
+          "received_epoch": 1791207838.880267,
+          "recorded_before_apply_epoch": 1791207838.9416625,
+          "source_exchange_ms": 1791207838800,
+          "receipt_to_record_ms": 61.393846,
+          "update_id": 11740095216637
+        }
+      }
+    }
+  ],
+  "missing_evidence": [
+    "full original exception/stack",
+    "peer IP",
+    "server/client close frame",
+    "ping/pong frames",
+    "continuous initial preparation status"
+  ],
+  "raw_replay_sequence_errors": 0,
+  "raw_replay_limits": "Book-only deterministic replay, not a full evaluator/FX replay. recorded_ns is before apply; received stamp is preserved for buffered data. No NIC wire timestamps."
+}

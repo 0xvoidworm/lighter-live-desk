@@ -1,0 +1,2022 @@
+{
+  "started": {
+    "at": 1791212588.1868944,
+    "client": "Rust tokio-tungstenite 0.30.0 native-root TLS; no engine/signer/key; no REST book bootstrap",
+    "engine_pid": 255514,
+    "family": "IPv4",
+    "heartbeat": "idle 20s/client pong 10s, auto server pong",
+    "measurement_includes": "DNS, connect, handshake, backoff",
+    "proxy": "disabled",
+    "resolver": "DoH A Cloudflare then Google",
+    "seconds": 900,
+    "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+  },
+  "finished": {
+    "at": 1791213488.189157,
+    "elapsed": 900.00231849,
+    "new_orders": "no transaction transport or trading dependencies",
+    "result": null
+  },
+  "record_kinds": {
+    "connecting": 9,
+    "app_snapshot": 899,
+    "dns": 9,
+    "tcp_connected": 9,
+    "connected": 9,
+    "message": 428480,
+    "receive_error": 8,
+    "backoff": 8,
+    "server_ping": 5,
+    "auto_pong_flushed": 5,
+    "local_close": 1,
+    "measurement_deadline": 1
+  },
+  "minimal_connections": {
+    "1": {
+      "messages": 4294,
+      "streams": {
+        "btcusdt@bookTicker": 4207,
+        "btcusdt@depth@100ms": 87
+      },
+      "max_message_gap_s": 6.340821779999999,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791212588.7999597,
+      "last_message_epoch": 1791212615.271522,
+      "last_source_event_ms": 1791212597631
+    },
+    "2": {
+      "messages": 10462,
+      "streams": {
+        "btcusdt@bookTicker": 10241,
+        "btcusdt@depth@100ms": 221
+      },
+      "max_message_gap_s": 0.7089443680000045,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791212617.7234309,
+      "last_message_epoch": 1791212650.3549814,
+      "last_source_event_ms": 1791212640122
+    },
+    "3": {
+      "messages": 6651,
+      "streams": {
+        "btcusdt@bookTicker": 6526,
+        "btcusdt@depth@100ms": 125
+      },
+      "max_message_gap_s": 0.5756923799999925,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791212652.7970946,
+      "last_message_epoch": 1791212670.5304842,
+      "last_source_event_ms": 1791212665481
+    },
+    "4": {
+      "messages": 12719,
+      "streams": {
+        "btcusdt@depth@100ms": 218,
+        "btcusdt@bookTicker": 12501
+      },
+      "max_message_gap_s": 0.611855183000003,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791212675.066279,
+      "last_message_epoch": 1791212709.9662223,
+      "last_source_event_ms": 1791212697196
+    },
+    "5": {
+      "messages": 41381,
+      "streams": {
+        "btcusdt@bookTicker": 40570,
+        "btcusdt@depth@100ms": 811
+      },
+      "max_message_gap_s": 0.9563842240000042,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791212712.5300376,
+      "last_message_epoch": 1791212803.1356907,
+      "last_source_event_ms": 1791212795092
+    },
+    "6": {
+      "messages": 64813,
+      "streams": {
+        "btcusdt@bookTicker": 63745,
+        "btcusdt@depth@100ms": 1068
+      },
+      "max_message_gap_s": 0.6533196650000264,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791212805.6716425,
+      "last_message_epoch": 1791212928.5153008,
+      "last_source_event_ms": 1791212914540
+    },
+    "7": {
+      "messages": 25980,
+      "streams": {
+        "btcusdt@bookTicker": 25399,
+        "btcusdt@depth@100ms": 581
+      },
+      "max_message_gap_s": 0.804412501999991,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791212931.2902348,
+      "last_message_epoch": 1791213003.1623363,
+      "last_source_event_ms": 1791212990367
+    },
+    "8": {
+      "messages": 33423,
+      "streams": {
+        "btcusdt@bookTicker": 32889,
+        "btcusdt@depth@100ms": 534
+      },
+      "max_message_gap_s": 0.42444152900003473,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791213005.6730778,
+      "last_message_epoch": 1791213066.0514045,
+      "last_source_event_ms": 1791213060064
+    },
+    "9": {
+      "messages": 228757,
+      "streams": {
+        "btcusdt@bookTicker": 224643,
+        "btcusdt@depth@100ms": 4114
+      },
+      "max_message_gap_s": 0.35286982600007377,
+      "sequence_gaps": 0,
+      "first_message_epoch": 1791213068.5277867,
+      "last_message_epoch": 1791213488.1857853,
+      "last_source_event_ms": 1791213488114
+    }
+  },
+  "minimal_nonmessage_events": [
+    {
+      "at": 1791212588.1870353,
+      "body": {
+        "connection": 1,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 0.000196508,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791212588.251623,
+      "body": {
+        "answers": [
+          {
+            "TTL": 42,
+            "data": "35.75.166.90",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 42,
+            "data": "13.196.76.177",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 42,
+            "data": "18.177.110.79",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 42,
+            "data": "52.69.206.255",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 42,
+            "data": "13.114.35.137",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 42,
+            "data": "13.114.132.33",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 42,
+            "data": "52.196.192.157",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 42,
+            "data": "54.92.1.124",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 1,
+        "ips": [
+          "13.114.35.137",
+          "13.114.132.33",
+          "13.196.76.177",
+          "18.177.110.79",
+          "35.75.166.90",
+          "52.69.206.255",
+          "52.196.192.157",
+          "54.92.1.124"
+        ],
+        "ms": 64.559478,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.249.249:443"
+      },
+      "elapsed": 0.064784179,
+      "kind": "dns"
+    },
+    {
+      "at": 1791212588.3554013,
+      "body": {
+        "connection": 1,
+        "family": "IPv4",
+        "local": "192.168.1.14:55132",
+        "ms": 103.735495,
+        "peer": "13.114.35.137:443"
+      },
+      "elapsed": 0.168562916,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791212588.7121856,
+      "body": {
+        "connection": 1,
+        "status": 101,
+        "tls_ws_ms": 356.739667,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 0.525347152,
+      "kind": "connected"
+    },
+    {
+      "at": 1791212615.271532,
+      "body": {
+        "age": 26.559296367,
+        "close_owner": "unknown_no_close_frame",
+        "connection": 1,
+        "error": "Protocol(ResetWithoutClosingHandshake)",
+        "last_rx_age": 9.661e-06
+      },
+      "elapsed": 27.084693188,
+      "kind": "receive_error"
+    },
+    {
+      "at": 1791212615.2715878,
+      "body": {
+        "connection": 1,
+        "consecutive_failures": 1,
+        "seconds": 2
+      },
+      "elapsed": 27.084749174,
+      "kind": "backoff"
+    },
+    {
+      "at": 1791212617.278603,
+      "body": {
+        "connection": 2,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 29.091764607,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791212617.2877762,
+      "body": {
+        "answers": [
+          {
+            "TTL": 13,
+            "data": "52.69.206.255",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 13,
+            "data": "13.114.35.137",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 13,
+            "data": "13.114.132.33",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 13,
+            "data": "52.196.192.157",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 13,
+            "data": "54.92.1.124",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 13,
+            "data": "35.75.166.90",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 13,
+            "data": "13.196.76.177",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 13,
+            "data": "18.177.110.79",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 2,
+        "ips": [
+          "13.114.35.137",
+          "13.114.132.33",
+          "13.196.76.177",
+          "18.177.110.79",
+          "35.75.166.90",
+          "52.69.206.255",
+          "52.196.192.157",
+          "54.92.1.124"
+        ],
+        "ms": 9.116747,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.249.249:443"
+      },
+      "elapsed": 29.100938179,
+      "kind": "dns"
+    },
+    {
+      "at": 1791212617.3753746,
+      "body": {
+        "connection": 2,
+        "family": "IPv4",
+        "local": "192.168.1.14:59154",
+        "ms": 87.481927,
+        "peer": "13.114.35.137:443"
+      },
+      "elapsed": 29.188536157,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791212617.6982806,
+      "body": {
+        "connection": 2,
+        "status": 101,
+        "tls_ws_ms": 322.821941,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 29.511445503,
+      "kind": "connected"
+    },
+    {
+      "at": 1791212650.3550107,
+      "body": {
+        "age": 32.656663027,
+        "close_owner": "unknown_no_close_frame",
+        "connection": 2,
+        "error": "Protocol(ResetWithoutClosingHandshake)",
+        "last_rx_age": 3.0769e-05
+      },
+      "elapsed": 62.168172065,
+      "kind": "receive_error"
+    },
+    {
+      "at": 1791212650.355133,
+      "body": {
+        "connection": 2,
+        "consecutive_failures": 1,
+        "seconds": 2
+      },
+      "elapsed": 62.168294474,
+      "kind": "backoff"
+    },
+    {
+      "at": 1791212652.3561654,
+      "body": {
+        "connection": 3,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 64.169327427,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791212652.3650336,
+      "body": {
+        "answers": [
+          {
+            "TTL": 24,
+            "data": "13.113.211.212",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "16.76.135.149",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "18.178.51.203",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "52.196.104.172",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "57.183.66.35",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "52.198.224.176",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "18.179.90.105",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.65.157.45",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 3,
+        "ips": [
+          "13.113.211.212",
+          "16.76.135.149",
+          "18.178.51.203",
+          "18.179.90.105",
+          "52.196.104.172",
+          "52.198.224.176",
+          "54.65.157.45",
+          "57.183.66.35"
+        ],
+        "ms": 8.783173,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.249.249:443"
+      },
+      "elapsed": 64.178195219,
+      "kind": "dns"
+    },
+    {
+      "at": 1791212652.4546592,
+      "body": {
+        "connection": 3,
+        "family": "IPv4",
+        "local": "192.168.1.14:59302",
+        "ms": 89.534529,
+        "peer": "13.113.211.212:443"
+      },
+      "elapsed": 64.26782072,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791212652.7920947,
+      "body": {
+        "connection": 3,
+        "status": 101,
+        "tls_ws_ms": 337.376803,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 64.605256354,
+      "kind": "connected"
+    },
+    {
+      "at": 1791212654.9053383,
+      "body": {
+        "bytes": 13,
+        "connection": 3
+      },
+      "elapsed": 66.71850063,
+      "kind": "server_ping"
+    },
+    {
+      "at": 1791212654.9054446,
+      "body": {
+        "connection": 3
+      },
+      "elapsed": 66.71860594,
+      "kind": "auto_pong_flushed"
+    },
+    {
+      "at": 1791212670.5305088,
+      "body": {
+        "age": 17.73836334,
+        "close_owner": "unknown_no_close_frame",
+        "connection": 3,
+        "error": "Protocol(ResetWithoutClosingHandshake)",
+        "last_rx_age": 2.4974e-05
+      },
+      "elapsed": 82.343669911,
+      "kind": "receive_error"
+    },
+    {
+      "at": 1791212670.5306284,
+      "body": {
+        "connection": 3,
+        "consecutive_failures": 2,
+        "seconds": 4
+      },
+      "elapsed": 82.343789792,
+      "kind": "backoff"
+    },
+    {
+      "at": 1791212674.5319152,
+      "body": {
+        "connection": 4,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 86.345077389,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791212674.5400355,
+      "body": {
+        "answers": [
+          {
+            "TTL": 2,
+            "data": "13.113.211.212",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 2,
+            "data": "16.76.135.149",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 2,
+            "data": "18.178.51.203",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 2,
+            "data": "52.196.104.172",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 2,
+            "data": "57.183.66.35",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 2,
+            "data": "52.198.224.176",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 2,
+            "data": "18.179.90.105",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 2,
+            "data": "54.65.157.45",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 4,
+        "ips": [
+          "13.113.211.212",
+          "16.76.135.149",
+          "18.178.51.203",
+          "18.179.90.105",
+          "52.196.104.172",
+          "52.198.224.176",
+          "54.65.157.45",
+          "57.183.66.35"
+        ],
+        "ms": 8.016041999999999,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.249.249:443"
+      },
+      "elapsed": 86.353197043,
+      "kind": "dns"
+    },
+    {
+      "at": 1791212674.6359892,
+      "body": {
+        "connection": 4,
+        "family": "IPv4",
+        "local": "192.168.1.14:49698",
+        "ms": 95.85837699999999,
+        "peer": "13.113.211.212:443"
+      },
+      "elapsed": 86.449150565,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791212674.9954505,
+      "body": {
+        "connection": 4,
+        "status": 101,
+        "tls_ws_ms": 359.420772,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 86.808612127,
+      "kind": "connected"
+    },
+    {
+      "at": 1791212709.9662504,
+      "body": {
+        "age": 34.97073986,
+        "close_owner": "unknown_no_close_frame",
+        "connection": 4,
+        "error": "Protocol(ResetWithoutClosingHandshake)",
+        "last_rx_age": 2.8214e-05
+      },
+      "elapsed": 121.779411633,
+      "kind": "receive_error"
+    },
+    {
+      "at": 1791212709.9663675,
+      "body": {
+        "connection": 4,
+        "consecutive_failures": 1,
+        "seconds": 2
+      },
+      "elapsed": 121.779528954,
+      "kind": "backoff"
+    },
+    {
+      "at": 1791212711.967216,
+      "body": {
+        "connection": 5,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 123.780377721,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791212711.9758341,
+      "body": {
+        "answers": [
+          {
+            "TTL": 24,
+            "data": "3.114.204.111",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "57.181.95.101",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "52.193.228.231",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.95.117.23",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "52.199.65.235",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "13.192.175.158",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "18.178.6.4",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "13.197.7.100",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 5,
+        "ips": [
+          "3.114.204.111",
+          "13.192.175.158",
+          "13.197.7.100",
+          "18.178.6.4",
+          "52.193.228.231",
+          "52.199.65.235",
+          "54.95.117.23",
+          "57.181.95.101"
+        ],
+        "ms": 8.554896,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.249.249:443"
+      },
+      "elapsed": 123.788995567,
+      "kind": "dns"
+    },
+    {
+      "at": 1791212712.0674214,
+      "body": {
+        "connection": 5,
+        "family": "IPv4",
+        "local": "192.168.1.14:39924",
+        "ms": 91.520629,
+        "peer": "3.114.204.111:443"
+      },
+      "elapsed": 123.880582851,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791212712.39361,
+      "body": {
+        "connection": 5,
+        "status": 101,
+        "tls_ws_ms": 326.131851,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 124.206771535,
+      "kind": "connected"
+    },
+    {
+      "at": 1791212803.1357226,
+      "body": {
+        "age": 90.742052214,
+        "close_owner": "unknown_no_close_frame",
+        "connection": 5,
+        "error": "Protocol(ResetWithoutClosingHandshake)",
+        "last_rx_age": 3.5665e-05
+      },
+      "elapsed": 214.948884077,
+      "kind": "receive_error"
+    },
+    {
+      "at": 1791212803.13588,
+      "body": {
+        "connection": 5,
+        "consecutive_failures": 1,
+        "seconds": 2
+      },
+      "elapsed": 214.949041406,
+      "kind": "backoff"
+    },
+    {
+      "at": 1791212805.1371415,
+      "body": {
+        "connection": 6,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 216.950303264,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791212805.1853437,
+      "body": {
+        "answers": [
+          {
+            "TTL": 24,
+            "data": "16.76.53.143",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "18.179.165.6",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.95.114.38",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.65.3.127",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.199.41.225",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "18.176.110.94",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "35.74.222.152",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "52.68.162.41",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 6,
+        "ips": [
+          "16.76.53.143",
+          "18.176.110.94",
+          "18.179.165.6",
+          "35.74.222.152",
+          "52.68.162.41",
+          "54.65.3.127",
+          "54.95.114.38",
+          "54.199.41.225"
+        ],
+        "ms": 48.098001000000004,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.248.249:443"
+      },
+      "elapsed": 216.998505733,
+      "kind": "dns"
+    },
+    {
+      "at": 1791212805.274882,
+      "body": {
+        "connection": 6,
+        "family": "IPv4",
+        "local": "192.168.1.14:41558",
+        "ms": 89.42905800000001,
+        "peer": "16.76.53.143:443"
+      },
+      "elapsed": 217.088044194,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791212805.5979242,
+      "body": {
+        "connection": 6,
+        "status": 101,
+        "tls_ws_ms": 322.980704,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 217.411085829,
+      "kind": "connected"
+    },
+    {
+      "at": 1791212872.406632,
+      "body": {
+        "bytes": 13,
+        "connection": 6
+      },
+      "elapsed": 284.219793137,
+      "kind": "server_ping"
+    },
+    {
+      "at": 1791212872.4066799,
+      "body": {
+        "connection": 6
+      },
+      "elapsed": 284.21984103,
+      "kind": "auto_pong_flushed"
+    },
+    {
+      "at": 1791212928.5153346,
+      "body": {
+        "age": 122.917351377,
+        "close_owner": "unknown_no_close_frame",
+        "connection": 6,
+        "error": "Protocol(ResetWithoutClosingHandshake)",
+        "last_rx_age": 3.4925e-05
+      },
+      "elapsed": 340.328495757,
+      "kind": "receive_error"
+    },
+    {
+      "at": 1791212928.5155404,
+      "body": {
+        "connection": 6,
+        "consecutive_failures": 1,
+        "seconds": 2
+      },
+      "elapsed": 340.328702013,
+      "kind": "backoff"
+    },
+    {
+      "at": 1791212930.5171204,
+      "body": {
+        "connection": 7,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 342.33028179,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791212930.6462843,
+      "body": {
+        "answers": [
+          {
+            "TTL": 60,
+            "data": "54.250.129.72",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 60,
+            "data": "18.177.104.66",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 60,
+            "data": "13.197.3.7",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 60,
+            "data": "3.114.75.22",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 60,
+            "data": "13.114.6.245",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 60,
+            "data": "176.34.25.49",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 60,
+            "data": "52.192.155.143",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 60,
+            "data": "52.199.234.52",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 7,
+        "ips": [
+          "3.114.75.22",
+          "13.114.6.245",
+          "13.197.3.7",
+          "18.177.104.66",
+          "52.192.155.143",
+          "52.199.234.52",
+          "54.250.129.72",
+          "176.34.25.49"
+        ],
+        "ms": 129.094249,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.248.249:443"
+      },
+      "elapsed": 342.459445924,
+      "kind": "dns"
+    },
+    {
+      "at": 1791212930.7457242,
+      "body": {
+        "connection": 7,
+        "family": "IPv4",
+        "local": "192.168.1.14:47906",
+        "ms": 99.35039699999999,
+        "peer": "3.114.75.22:443"
+      },
+      "elapsed": 342.558885671,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791212931.1072168,
+      "body": {
+        "connection": 7,
+        "status": 101,
+        "tls_ws_ms": 361.442084,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 342.920378415,
+      "kind": "connected"
+    },
+    {
+      "at": 1791213003.1623619,
+      "body": {
+        "age": 72.055054065,
+        "close_owner": "unknown_no_close_frame",
+        "connection": 7,
+        "error": "Protocol(ResetWithoutClosingHandshake)",
+        "last_rx_age": 2.5918e-05
+      },
+      "elapsed": 414.975523192,
+      "kind": "receive_error"
+    },
+    {
+      "at": 1791213003.1624875,
+      "body": {
+        "connection": 7,
+        "consecutive_failures": 1,
+        "seconds": 2
+      },
+      "elapsed": 414.97564874,
+      "kind": "backoff"
+    },
+    {
+      "at": 1791213005.1629338,
+      "body": {
+        "connection": 8,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 416.976095544,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791213005.1724935,
+      "body": {
+        "answers": [
+          {
+            "TTL": 24,
+            "data": "54.64.24.52",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "57.182.159.27",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "57.181.252.36",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.168.13.93",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "18.176.5.105",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.64.228.73",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.250.53.51",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 24,
+            "data": "54.178.205.105",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 8,
+        "ips": [
+          "18.176.5.105",
+          "54.64.24.52",
+          "54.64.228.73",
+          "54.168.13.93",
+          "54.178.205.105",
+          "54.250.53.51",
+          "57.181.252.36",
+          "57.182.159.27"
+        ],
+        "ms": 9.434470000000001,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.248.249:443"
+      },
+      "elapsed": 416.985655116,
+      "kind": "dns"
+    },
+    {
+      "at": 1791213005.2672365,
+      "body": {
+        "connection": 8,
+        "family": "IPv4",
+        "local": "192.168.1.14:40240",
+        "ms": 94.622101,
+        "peer": "18.176.5.105:443"
+      },
+      "elapsed": 417.080397929,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791213005.607455,
+      "body": {
+        "connection": 8,
+        "status": 101,
+        "tls_ws_ms": 340.167626,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 417.420616739,
+      "kind": "connected"
+    },
+    {
+      "at": 1791213066.051424,
+      "body": {
+        "age": 60.443905468,
+        "close_owner": "unknown_no_close_frame",
+        "connection": 8,
+        "error": "Protocol(ResetWithoutClosingHandshake)",
+        "last_rx_age": 1.9207e-05
+      },
+      "elapsed": 477.864585297,
+      "kind": "receive_error"
+    },
+    {
+      "at": 1791213066.051516,
+      "body": {
+        "connection": 8,
+        "consecutive_failures": 1,
+        "seconds": 2
+      },
+      "elapsed": 477.864677355,
+      "kind": "backoff"
+    },
+    {
+      "at": 1791213068.0533943,
+      "body": {
+        "connection": 9,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 479.866556098,
+      "kind": "connecting"
+    },
+    {
+      "at": 1791213068.0651834,
+      "body": {
+        "answers": [
+          {
+            "TTL": 55,
+            "data": "52.199.76.186",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 55,
+            "data": "35.79.61.110",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 55,
+            "data": "18.176.246.42",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 55,
+            "data": "16.76.18.2",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 55,
+            "data": "54.248.168.163",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 55,
+            "data": "35.76.166.16",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 55,
+            "data": "18.179.153.246",
+            "name": "fstream.binance.com",
+            "type": 1
+          },
+          {
+            "TTL": 55,
+            "data": "57.182.151.1",
+            "name": "fstream.binance.com",
+            "type": 1
+          }
+        ],
+        "connection": 9,
+        "ips": [
+          "16.76.18.2",
+          "18.176.246.42",
+          "18.179.153.246",
+          "35.76.166.16",
+          "35.79.61.110",
+          "52.199.76.186",
+          "54.248.168.163",
+          "57.182.151.1"
+        ],
+        "ms": 11.698216,
+        "provider": "https://cloudflare-dns.com/dns-query",
+        "provider_peer": "104.16.248.249:443"
+      },
+      "elapsed": 479.878345186,
+      "kind": "dns"
+    },
+    {
+      "at": 1791213068.1542678,
+      "body": {
+        "connection": 9,
+        "family": "IPv4",
+        "local": "192.168.1.14:48552",
+        "ms": 88.986832,
+        "peer": "16.76.18.2:443"
+      },
+      "elapsed": 479.96742932,
+      "kind": "tcp_connected"
+    },
+    {
+      "at": 1791213068.4859712,
+      "body": {
+        "connection": 9,
+        "status": 101,
+        "tls_ws_ms": 331.66148200000003,
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker/btcusdt@depth@100ms"
+      },
+      "elapsed": 480.299132653,
+      "kind": "connected"
+    },
+    {
+      "at": 1791213077.4479144,
+      "body": {
+        "bytes": 13,
+        "connection": 9
+      },
+      "elapsed": 489.261075914,
+      "kind": "server_ping"
+    },
+    {
+      "at": 1791213077.4480047,
+      "body": {
+        "connection": 9
+      },
+      "elapsed": 489.261165937,
+      "kind": "auto_pong_flushed"
+    },
+    {
+      "at": 1791213259.1624846,
+      "body": {
+        "bytes": 13,
+        "connection": 9
+      },
+      "elapsed": 670.975645829,
+      "kind": "server_ping"
+    },
+    {
+      "at": 1791213259.1625202,
+      "body": {
+        "connection": 9
+      },
+      "elapsed": 670.975681368,
+      "kind": "auto_pong_flushed"
+    },
+    {
+      "at": 1791213437.6922343,
+      "body": {
+        "bytes": 13,
+        "connection": 9
+      },
+      "elapsed": 849.505395403,
+      "kind": "server_ping"
+    },
+    {
+      "at": 1791213437.6922648,
+      "body": {
+        "connection": 9
+      },
+      "elapsed": 849.505425894,
+      "kind": "auto_pong_flushed"
+    },
+    {
+      "at": 1791213488.1878934,
+      "body": {
+        "age": 419.701873403,
+        "connection": 9,
+        "reason": "measurement_deadline"
+      },
+      "elapsed": 900.001054698,
+      "kind": "local_close"
+    },
+    {
+      "at": 1791213488.1882598,
+      "body": {
+        "connection": 9,
+        "local_cancel": true
+      },
+      "elapsed": 900.001421307,
+      "kind": "measurement_deadline"
+    }
+  ],
+  "app_channel_initial": {
+    "binance_market": {
+      "connected": true,
+      "consecutive_failures": 0,
+      "last_disconnect_at": 1791204098.7635562,
+      "last_error": "ConnectionError",
+      "last_frame_age_ms": 239,
+      "last_transport_detail": {
+        "cause": "ServerTimeoutError",
+        "close_code": 1006,
+        "frame_type": "ERROR"
+      },
+      "reconnects": 1,
+      "retry_delay_s": 0
+    },
+    "binance_public": {
+      "connected": true,
+      "consecutive_failures": 2,
+      "last_disconnect_at": 1791212580.0759392,
+      "last_error": "ConnectionError",
+      "last_frame_age_ms": 56,
+      "last_transport_detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "reconnects": 180,
+      "retry_delay_s": 0
+    },
+    "lighter": {
+      "connected": true,
+      "consecutive_failures": 0,
+      "last_disconnect_at": 1791203002.5976777,
+      "last_error": "ConnectionClosedError",
+      "last_frame_age_ms": 7,
+      "last_transport_detail": {
+        "cause": null,
+        "close_code": null,
+        "frame_type": null
+      },
+      "reconnects": 1,
+      "retry_delay_s": 0
+    }
+  },
+  "app_channel_final": {
+    "binance_market": {
+      "connected": true,
+      "consecutive_failures": 0,
+      "last_disconnect_at": 1791204098.7635562,
+      "last_error": "ConnectionError",
+      "last_frame_age_ms": 144,
+      "last_transport_detail": {
+        "cause": "ServerTimeoutError",
+        "close_code": 1006,
+        "frame_type": "ERROR"
+      },
+      "reconnects": 1,
+      "retry_delay_s": 0
+    },
+    "binance_public": {
+      "connected": true,
+      "consecutive_failures": 0,
+      "last_disconnect_at": 1791213072.5041904,
+      "last_error": "ConnectionError",
+      "last_frame_age_ms": 25,
+      "last_transport_detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "reconnects": 188,
+      "retry_delay_s": 0
+    },
+    "lighter": {
+      "connected": true,
+      "consecutive_failures": 0,
+      "last_disconnect_at": 1791203002.5976777,
+      "last_error": "ConnectionClosedError",
+      "last_frame_age_ms": 33,
+      "last_transport_detail": {
+        "cause": null,
+        "close_code": null,
+        "frame_type": null
+      },
+      "reconnects": 1,
+      "retry_delay_s": 0
+    }
+  },
+  "app_public_reconnects": [
+    {
+      "counter_before": 180,
+      "counter_after": 181,
+      "at": 1791212616.331956,
+      "connection_id": "pid255514:http363",
+      "connected_at": 1791212584.4095726,
+      "age_s": 31.922383308410645,
+      "exception": "ConnectionError",
+      "detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "retry_s": 2,
+      "next_handshake": {
+        "elapsed_ms": 356.776,
+        "error": null,
+        "finished_at": 1791212618.690003,
+        "host": "fstream.binance.com",
+        "http_attempts": 1,
+        "id": 365,
+        "last_phase": "body_ready",
+        "outcome": "ok",
+        "path": "/public/stream",
+        "phase_ms": {
+          "acquire_connection": 0.13131000741850585,
+          "body_ready": 0.013846001820638776,
+          "connect_or_tls": 196.34359200426843,
+          "connection_ready": 0.10660500265657902,
+          "dns": 70.56176099285949,
+          "waiting_headers": 89.60459798981901
+        },
+        "started_at": 1791212618.3332157,
+        "status": 101,
+        "task": 140033022134592
+      },
+      "queue": 0,
+      "lag_ms": 0.0
+    },
+    {
+      "counter_before": 181,
+      "counter_after": 182,
+      "at": 1791212650.800151,
+      "connection_id": "pid255514:http365",
+      "connected_at": 1791212618.690003,
+      "age_s": 32.110148191452026,
+      "exception": "ConnectionError",
+      "detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "retry_s": 2,
+      "next_handshake": {
+        "elapsed_ms": 364.021,
+        "error": null,
+        "finished_at": 1791212653.1655571,
+        "host": "fstream.binance.com",
+        "http_attempts": 1,
+        "id": 367,
+        "last_phase": "body_ready",
+        "outcome": "ok",
+        "path": "/public/stream",
+        "phase_ms": {
+          "acquire_connection": 0.117176998173818,
+          "body_ready": 0.01457099278923124,
+          "connect_or_tls": 203.71690500178377,
+          "connection_ready": 0.08113599324133247,
+          "dns": 55.88227800035384,
+          "waiting_headers": 104.1948790079914
+        },
+        "started_at": 1791212652.8015263,
+        "status": 101,
+        "task": 140033022134592
+      },
+      "queue": 0,
+      "lag_ms": 0.0
+    },
+    {
+      "counter_before": 182,
+      "counter_after": 183,
+      "at": 1791212673.9783716,
+      "connection_id": "pid255514:http367",
+      "connected_at": 1791212653.1655571,
+      "age_s": 20.812814474105835,
+      "exception": "ConnectionError",
+      "detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "retry_s": 4,
+      "next_handshake": {
+        "elapsed_ms": 327.979,
+        "error": null,
+        "finished_at": 1791212678.3401537,
+        "host": "fstream.binance.com",
+        "http_attempts": 1,
+        "id": 369,
+        "last_phase": "body_ready",
+        "outcome": "ok",
+        "path": "/public/stream",
+        "phase_ms": {
+          "acquire_connection": 0.17541499983053654,
+          "body_ready": 0.012160991900600491,
+          "connect_or_tls": 193.60481700277887,
+          "connection_ready": 0.08361099753528833,
+          "dns": 38.20700600044802,
+          "waiting_headers": 95.88091900513972
+        },
+        "started_at": 1791212678.0121646,
+        "status": 101,
+        "task": 140033022134592
+      },
+      "queue": 0,
+      "lag_ms": 0.0
+    },
+    {
+      "counter_before": 183,
+      "counter_after": 184,
+      "at": 1791212681.8016524,
+      "connection_id": "pid255514:http369",
+      "connected_at": 1791212678.3401537,
+      "age_s": 3.461498737335205,
+      "exception": "ConnectionError",
+      "detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "retry_s": 8,
+      "next_handshake": {
+        "elapsed_ms": 712.934,
+        "error": null,
+        "finished_at": 1791212690.5155282,
+        "host": "fstream.binance.com",
+        "http_attempts": 1,
+        "id": 371,
+        "last_phase": "body_ready",
+        "outcome": "ok",
+        "path": "/public/stream",
+        "phase_ms": {
+          "acquire_connection": 0.1256300020031631,
+          "body_ready": 0.016005011275410652,
+          "connect_or_tls": 545.1801009767223,
+          "connection_ready": 0.08218501170631498,
+          "dns": 56.29642101121135,
+          "waiting_headers": 111.2165159865981
+        },
+        "started_at": 1791212689.8025794,
+        "status": 101,
+        "task": 140033022134592
+      },
+      "queue": 0,
+      "lag_ms": 2.2
+    },
+    {
+      "counter_before": 184,
+      "counter_after": 185,
+      "at": 1791212709.7135365,
+      "connection_id": "pid255514:http371",
+      "connected_at": 1791212690.5155282,
+      "age_s": 19.1980082988739,
+      "exception": "ConnectionError",
+      "detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "retry_s": 16,
+      "next_handshake": {
+        "elapsed_ms": 319.104,
+        "error": null,
+        "finished_at": 1791212726.0342598,
+        "host": "fstream.binance.com",
+        "http_attempts": 1,
+        "id": 373,
+        "last_phase": "body_ready",
+        "outcome": "ok",
+        "path": "/public/stream",
+        "phase_ms": {
+          "acquire_connection": 0.11720099428202956,
+          "body_ready": 0.006154004950076342,
+          "connect_or_tls": 181.3000730035128,
+          "connection_ready": 0.05635101115331054,
+          "dns": 47.8954989957856,
+          "waiting_headers": 89.72042499226518
+        },
+        "started_at": 1791212725.7151492,
+        "status": 101,
+        "task": 140033022134592
+      },
+      "queue": 0,
+      "lag_ms": 0.0
+    },
+    {
+      "counter_before": 185,
+      "counter_after": 186,
+      "at": 1791212805.0108554,
+      "connection_id": "pid255514:http373",
+      "connected_at": 1791212726.0342598,
+      "age_s": 78.9765956401825,
+      "exception": "ConnectionError",
+      "detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "retry_s": 2,
+      "next_handshake": {
+        "elapsed_ms": 321.923,
+        "error": null,
+        "finished_at": 1791212807.3414574,
+        "host": "fstream.binance.com",
+        "http_attempts": 1,
+        "id": 375,
+        "last_phase": "body_ready",
+        "outcome": "ok",
+        "path": "/public/stream",
+        "phase_ms": {
+          "acquire_connection": 0.12321199756115676,
+          "body_ready": 0.01053301093634218,
+          "connect_or_tls": 182.90340299427044,
+          "connection_ready": 0.0800769921625033,
+          "dns": 47.54048700851854,
+          "waiting_headers": 91.25292800308672
+        },
+        "started_at": 1791212807.0195255,
+        "status": 101,
+        "task": 140033022134592
+      },
+      "queue": 0,
+      "lag_ms": 2.1
+    },
+    {
+      "counter_before": 186,
+      "counter_after": 187,
+      "at": 1791212906.5479088,
+      "connection_id": "pid255514:http375",
+      "connected_at": 1791212807.3414574,
+      "age_s": 99.20645141601562,
+      "exception": "ConnectionError",
+      "detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "retry_s": 2,
+      "next_handshake": {
+        "elapsed_ms": 331.039,
+        "error": null,
+        "finished_at": 1791212908.8802023,
+        "host": "fstream.binance.com",
+        "http_attempts": 1,
+        "id": 377,
+        "last_phase": "body_ready",
+        "outcome": "ok",
+        "path": "/public/stream",
+        "phase_ms": {
+          "acquire_connection": 0.08324399823322892,
+          "body_ready": 0.008179995347745717,
+          "connect_or_tls": 196.15236499521416,
+          "connection_ready": 0.05116900138091296,
+          "dns": 37.31046800385229,
+          "waiting_headers": 97.42462600115688
+        },
+        "started_at": 1791212908.549156,
+        "status": 101,
+        "task": 140033022134592
+      },
+      "queue": 0,
+      "lag_ms": 0.0
+    },
+    {
+      "counter_before": 187,
+      "counter_after": 188,
+      "at": 1791213072.5041904,
+      "connection_id": "pid255514:http377",
+      "connected_at": 1791212908.8802023,
+      "age_s": 163.6239881515503,
+      "exception": "ConnectionError",
+      "detail": {
+        "cause": "ClientConnectionResetError",
+        "close_code": 1006,
+        "frame_type": null
+      },
+      "retry_s": 2,
+      "next_handshake": {
+        "elapsed_ms": 361.94,
+        "error": null,
+        "finished_at": 1791213074.8686855,
+        "host": "fstream.binance.com",
+        "http_attempts": 1,
+        "id": 379,
+        "last_phase": "body_ready",
+        "outcome": "ok",
+        "path": "/public/stream",
+        "phase_ms": {
+          "acquire_connection": 0.14026999997440726,
+          "body_ready": 0.016076999600045383,
+          "connect_or_tls": 188.10917899827473,
+          "connection_ready": 0.08853200415614992,
+          "dns": 76.17714200750925,
+          "waiting_headers": 97.39514699322172
+        },
+        "started_at": 1791213074.5067356,
+        "status": 101,
+        "task": 140033022134592
+      },
+      "queue": 0,
+      "lag_ms": 0.0
+    }
+  ],
+  "app_443_peer_candidates": [
+    "104.16.248.249",
+    "104.16.249.249",
+    "108.156.144.2",
+    "13.230.14.233",
+    "13.35.36.10",
+    "13.35.36.109",
+    "13.35.36.25",
+    "175.41.253.91",
+    "18.176.189.71",
+    "3.112.157.214",
+    "3.114.108.18",
+    "3.165.75.112",
+    "3.165.75.97",
+    "3.168.203.15",
+    "3.168.203.20",
+    "3.168.203.77",
+    "54.250.224.205",
+    "54.95.114.38",
+    "54.95.157.158",
+    "54.95.93.254",
+    "57.180.95.250",
+    "57.182.151.1",
+    "65.8.76.49"
+  ],
+  "technical_ready_s": 175.5996893879999,
+  "longest_technical_ready_s": 120.21512978299995,
+  "blocker_s": {
+    "coverage": 721.390033765,
+    "basis_scale": 722.387680422,
+    "market_data": 61.081623250000035,
+    "reconciliation_fresh": 7.994176701999972,
+    "reconciliation_idle": 12.000802936999971,
+    "entry_request_reserve": 66.13216072499999
+  },
+  "overlap_s": [
+    {
+      "blockers": [
+        "coverage",
+        "basis_scale"
+      ],
+      "seconds": 624.2250033400001
+    },
+    {
+      "blockers": [
+        "market_data",
+        "coverage",
+        "basis_scale",
+        "reconciliation_fresh",
+        "reconciliation_idle",
+        "entry_request_reserve"
+      ],
+      "seconds": 4.002668386999996
+    },
+    {
+      "blockers": [
+        "market_data",
+        "coverage",
+        "basis_scale",
+        "entry_request_reserve"
+      ],
+      "seconds": 27.053293729999982
+    },
+    {
+      "blockers": [
+        "coverage",
+        "basis_scale",
+        "entry_request_reserve"
+      ],
+      "seconds": 35.07619860800001
+    },
+    {
+      "blockers": [
+        "market_data",
+        "coverage",
+        "basis_scale"
+      ],
+      "seconds": 25.036506161000062
+    },
+    {
+      "blockers": [
+        "market_data",
+        "coverage",
+        "basis_scale",
+        "reconciliation_fresh",
+        "reconciliation_idle"
+      ],
+      "seconds": 3.991508314999976
+    },
+    {
+      "blockers": [
+        "coverage",
+        "basis_scale",
+        "reconciliation_idle"
+      ],
+      "seconds": 2.0048552239999253
+    },
+    {
+      "blockers": [],
+      "seconds": 175.5996893879999
+    },
+    {
+      "blockers": [
+        "reconciliation_idle"
+      ],
+      "seconds": 2.0017710110000735
+    },
+    {
+      "blockers": [
+        "market_data",
+        "basis_scale"
+      ],
+      "seconds": 0.9976466570000184
+    }
+  ],
+  "sampled_last_event_processing_peak_ms": {
+    "binance:aggTrade": {
+      "receive_to_enqueue_ms": 0.711446,
+      "queue_wait_ms": 18.958633,
+      "processing_ms": 7.557079
+    },
+    "binance:bookTicker": {
+      "receive_to_enqueue_ms": 0.177701,
+      "queue_wait_ms": 36.339935,
+      "processing_ms": 6.208885
+    },
+    "binance:depthUpdate": {
+      "receive_to_enqueue_ms": 2.085554,
+      "queue_wait_ms": 45.760812,
+      "processing_ms": 29.464796
+    },
+    "binance:disconnect": {
+      "receive_to_enqueue_ms": 0.002044,
+      "queue_wait_ms": 0.064923,
+      "processing_ms": 4.491694
+    },
+    "binance:snapshot": {
+      "receive_to_enqueue_ms": 0.002967,
+      "queue_wait_ms": 0.372843,
+      "processing_ms": 35.096196
+    },
+    "lighter:disconnect": {
+      "receive_to_enqueue_ms": 0.00115,
+      "queue_wait_ms": 0.030185,
+      "processing_ms": 0.149138
+    },
+    "lighter:order_book": {
+      "receive_to_enqueue_ms": 0.31607,
+      "queue_wait_ms": 24.632285,
+      "processing_ms": 8.835971
+    },
+    "lighter:ticker": {
+      "receive_to_enqueue_ms": 0.334009,
+      "queue_wait_ms": 30.19437,
+      "processing_ms": 8.154449
+    },
+    "lighter:trade": {
+      "receive_to_enqueue_ms": 0.575673,
+      "queue_wait_ms": 30.23568,
+      "processing_ms": 11.002276
+    }
+  },
+  "minimal_source_event_to_receive_indicator_s": {
+    "bookTicker": {
+      "n": 420721,
+      "min": 0.0665748119354248,
+      "p50": 1.1382601261138916,
+      "p95": 10.08110499382019,
+      "p99": 16.404065132141113,
+      "max": 17.743649005889893
+    },
+    "depthUpdate": {
+      "n": 7759,
+      "min": 0.06688904762268066,
+      "p50": 0.4972655773162842,
+      "p95": 9.832181692123413,
+      "p99": 15.613499641418457,
+      "max": 17.700129985809326
+    }
+  },
+  "app_sampled_source_to_receive_indicator_s": {
+    "binance:aggTrade": {
+      "n": 899,
+      "min": 0.06750178337097168,
+      "p50": 0.21766948699951172,
+      "p95": 0.24217748641967773,
+      "p99": 0.28549623489379883,
+      "max": 2.5130655765533447
+    },
+    "binance:bookTicker": {
+      "n": 899,
+      "min": 0.06798624992370605,
+      "p50": 1.1793360710144043,
+      "p95": 8.595320224761963,
+      "p99": 15.98867130279541,
+      "max": 21.48453688621521
+    },
+    "binance:depthUpdate": {
+      "n": 899,
+      "min": 0.0687258243560791,
+      "p50": 0.9036810398101807,
+      "p95": 8.377317905426025,
+      "p99": 16.025668621063232,
+      "max": 21.508386611938477
+    },
+    "binance:snapshot": {
+      "n": 899,
+      "min": 0.08858823776245117,
+      "p50": 0.12062692642211914,
+      "p95": 0.1910998821258545,
+      "p99": 0.1910998821258545,
+      "max": 0.1910998821258545
+    },
+    "lighter:order_book": {
+      "n": 899,
+      "min": 0.0696260929107666,
+      "p50": 0.07149720191955566,
+      "p95": 0.08448243141174316,
+      "p99": 0.09441328048706055,
+      "max": 0.15655207633972168
+    },
+    "lighter:ticker": {
+      "n": 899,
+      "min": 0.06952762603759766,
+      "p50": 0.07182788848876953,
+      "p95": 0.08919453620910645,
+      "p99": 0.10442638397216797,
+      "max": 0.12383437156677246
+    }
+  },
+  "public_minus_market_source_to_receive_indicator_s": {
+    "n": 825,
+    "min": -0.44761029499999994,
+    "p50": 0.5815712630000001,
+    "p95": 8.155433592,
+    "p99": 14.453538295000001,
+    "max": 21.328022902999997
+  },
+  "source_time_limits": "Exchange vs host clock offset unknown; these are delay indicators, not one-way network or fill latency. Relative Binance public/market indicator removes a common exchange/host clock offset, using receipts less than 1s apart. App distributions are 1Hz sampled last events, not all messages.",
+  "sequence_recovery_events": [],
+  "runtime_command_count": 0,
+  "sampling_limits": "Local snapshots 1 Hz; only sampled last processing metrics, socket ownership does not prove hostname/channel. No wire packet capture. Initial partial app connection and final ongoing connection are censored.",
+  "raw_sha256": "be5a3a0af2facf6191edabf363887b020724fbddf417284618a8d25259ba5d02",
+  "runtime_basis_commit": "ab1d5c7",
+  "engine_restarted": false,
+  "comparator_binary_sha256": "8bb64528c863c2229d93c71e59a5fe7d7960e231384fe46657dc75437a4847e4",
+  "strategy_source_sha256": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c",
+  "risk_config": {
+    "account_index": 751745,
+    "market_symbol": "BTC",
+    "max_entry_notional_usd": "25",
+    "max_trade_risk_usd": "0.50",
+    "daily_loss_limit_usd": "5",
+    "max_effective_leverage": "1",
+    "max_data_age_ms": 1500,
+    "warmup_seconds": 600,
+    "max_hold_seconds": 180,
+    "binance_dns_mode": "doh"
+  },
+  "strategic_constants": {
+    "threshold_bps": "8",
+    "cost_buffer_bps": "5",
+    "coverage_window_seconds": 600,
+    "required_recent_samples": 480,
+    "allowed_gap_seconds": 5
+  },
+  "diagnostic_logging_patch_loaded": false
+}
