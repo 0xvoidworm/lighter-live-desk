@@ -1,5 +1,39 @@
 # Progress
 
+## Terbaru — 5 Oktober 2026, gap observasi kurs diperbaiki tanpa order
+
+Dari9028794/0f380e4, implementasi283ab14. Sumber FX ternyata REST Memory
+Spot USDCUSDT, bukan WebSocket.89/112pasang lama berharga sama tetap
+diterima. Gap25,6s melewati branch exception yang sebelumnya tidak direkam;
+jenis/fase lamaunknown. Sleep10s setelah request memperpanjang downtime
+dan melewati HTTPX keepalive5s. Cadence sekarang fixed2s/deadline2s,
+freshness15s tetap. Receipt/verification/price-change terpisah; request-start
+menjadi freshness konservatif, exchange-time/update IDNULL. Failed/invalid
+tetap blokir entry; midpoint strategy, threshold8bps, buffer5bps, risk,
+fee dan pemisahan state/audit tetap. Konversi executable memakai FXask
+untuk BTCsell/USDCbuy dan FXbid untuk BTCbuy/USDCsell.
+
+Satu window16:39:52.981–16:59:52.981WIB tepat1200s/PID239076/283ab14,
+4798snapshot/error0, source/config frozen.600tickerGET/1200weight,
+30GET/min, Spot bucket sendiri100/60s, official6000/min; rolling peak
+31request/80weight termasuk bootstrap carry-in. Lighter12,90GET/min,
+peak18, kapasitas menuju55≥37. Boot metadata20 dan diagnosis metadata20
+di luar window.1TCP connection sejak boot, failure/reconnect/overflow0.
+599success pada capture+1tail verified oleh Recorder pada52.779872 sebelum
+deadline52.980645; status HTTP exact tail tidak diasumsikan.600FX event
+terbukti,562size-only update ditangkap oleh status. Receiptgap max2,344s;
+age observasi max2,325s/konservatif2,417s, blocker FX0. Coverage-block
+572,278s hanya warm-up; teknis evaluasi620,437s/10m20s, longest120,056s.
+Tidak ada threshold baru, backfill historis atau sesi ulang.
+
+361tes (termasuk TCP/HTTP asli localhost), mypy19source, Ruff/format lulus;
+signer tetap lokal tanpa broadcast. Pemeriksaan17:06:59.237WIB:
+49,430756USDC, account751745/key4 Standard/Unified/Cross, semua posisi/
+order/pending/intent0, kas matched/difference0, fee exact4NULL/reportDP4
+tetap terpisah. IDLE/orderOFF/entry stopped, sessionclosed, autostartdisabled,
+tidak ada transaksi/fill/intents baru. Bukti AUDIT_FX_OBSERVATION_2026-10-05.md
+dan audits/fx-observation-{runtime,final-account}-20261005.json.
+
 ## Terbaru — 5 Oktober 2026, state15s dan audit history terpisah
 
 Dari c10d26f/2db23db, kebijakan pemisahan disetujui pengguna. Implementasi

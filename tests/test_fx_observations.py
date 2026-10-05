@@ -1,6 +1,7 @@
 """Official snapshot semantics, deadlines and independent Binance quota; no network."""
 
 import asyncio
+import json
 import time
 from decimal import Decimal
 
@@ -184,3 +185,54 @@ def test_no_new_observations_or_heartbeat_cannot_keep_old_snapshot_fresh(monkeyp
     )
     assert not value.status()["usable"]
     assert value.latest is original and value.counts["observations"] == 1
+
+
+@pytest.mark.parametrize("expire_between_calls", [False, True])
+async def test_real_httpcore_connection_reuse_and_phase_trace(monkeypatch, expire_between_calls):
+    # Real local TCP/HTTP transport, not a mock that silently accepts trace extensions.
+    handlers = set()
+    accepted = 0
+    body = json.dumps(BOOK).encode()
+
+    async def serve(reader, writer):
+        nonlocal accepted
+        accepted += 1
+        handlers.add(asyncio.current_task())
+        try:
+            while True:
+                await reader.readuntil(b"\r\n\r\n")
+                writer.write(
+                    b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: "
+                    + str(len(body)).encode()
+                    + b"\r\n\r\n"
+                    + body
+                )
+                await writer.drain()
+        except (asyncio.IncompleteReadError, ConnectionError):
+            pass
+        finally:
+            writer.close()
+            await writer.wait_closed()
+            handlers.discard(asyncio.current_task())
+
+    server = await asyncio.start_server(serve, "127.0.0.1", 0)
+    port = server.sockets[0].getsockname()[1]
+    monkeypatch.setattr("lldesk.fx.FX_BOOK", f"http://127.0.0.1:{port}/snapshot")
+    value = monitor()
+    try:
+        async with httpx.AsyncClient(
+            limits=httpx.Limits(keepalive_expiry=0.1), trust_env=False
+        ) as client:
+            first = await value.request(client)
+            await asyncio.sleep(0.15 if expire_between_calls else 0)
+            second = await value.request(client)
+        assert first and second and first.mid == second.mid
+        assert accepted == value.counts["tcp_connections"] == (2 if expire_between_calls else 1)
+        assert "http11.receive_response_headers" in value.recent[-1]["phase_ms"]
+        assert value.recent[-1]["outcome"] == "verified"
+    finally:
+        server.close()
+        await server.wait_closed()
+        for handler in list(handlers):
+            handler.cancel()
+        await asyncio.gather(*handlers, return_exceptions=True)
