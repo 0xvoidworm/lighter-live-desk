@@ -111,6 +111,7 @@ def observe(engine: Engine) -> dict:
                 depth = engine.books["lighter"].price_for(side, sizing.quantity)
                 counter_side = "sell" if side == "buy" else "buy"
                 comparator = engine.books["binance"].price_for(counter_side, sizing.quantity)
+                fx_observation = engine.fx_monitor.latest
                 levels = (
                     engine.books["lighter"].asks if side == "buy" else engine.books["lighter"].bids
                 )
@@ -130,6 +131,14 @@ def observe(engine: Engine) -> dict:
                     "planned_risk": str(sizing.planned_risk),
                     "local_vwap": str(depth) if depth else None,
                     "binance_comparator_vwap": str(comparator) if comparator else None,
+                    "binance_comparator_vwap_usdc": str(
+                        fx_observation.normalized_btc(comparator, counter_side)
+                    )
+                    if comparator is not None and fx_observation and engine.fx_monitor.usable
+                    else None,
+                    "fx_conversion_side": "buy_USDC_at_ask"
+                    if counter_side == "sell"
+                    else "sell_USDC_at_bid",
                     "impact_bps": str(abs(depth / best - 1) * 10000) if depth else None,
                     "within_ioc_limit_qty": str(within_limit),
                     "fillable_within_limit": within_limit >= sizing.quantity,
@@ -181,6 +190,7 @@ def observe(engine: Engine) -> dict:
         "decision_input_match": match,
         "fx": str(engine.fx) if engine.fx is not None else None,
         "fx_age_s": now - engine.fx_at if engine.fx is not None else None,
+        "fx_observation": engine.fx_monitor.status()["observation"],
         "request_entry_requirements": {
             "complete_audit_reads": engine.audit_scheduler.request_cost,
             "normal_cost": engine.audit_scheduler.request_cost + 2,

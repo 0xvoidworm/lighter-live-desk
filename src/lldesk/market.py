@@ -26,7 +26,6 @@ BINANCE_MARKET_WS = "wss://fstream.binance.com/market/stream?streams=btcusdt@agg
 BINANCE_DEPTH = "https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=1000"
 LIGHTER_WS = "wss://mainnet.zklighter.elliot.ai/stream"
 LIGHTER_MARKETS = "https://mainnet.zklighter.elliot.ai/api/v1/orderBookDetails?filter=perp"
-FX_BOOK = "https://data-api.binance.vision/api/v3/ticker/bookTicker?symbol=USDCUSDT"
 
 
 class GapError(Exception):

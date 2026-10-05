@@ -22,7 +22,8 @@ from .config import Config, load_config, repo_root
 from .db import Database
 from .diagnostics import observe as diagnostic_observation
 from .fee_audit import collect_export
-from .market import FX_BOOK, Book, Feeds, GapError, Recorder, dec, market_metadata
+from .fx import FRESH_SECONDS, FxMonitor, next_start
+from .market import Book, Feeds, GapError, Recorder, dec, market_metadata
 from .models import (
     TERMINAL_ORDER_STATES,
     AccountEvent,
@@ -77,6 +78,7 @@ class Engine:
         self.current_flow = Decimal(0)
         self.fx: Decimal | None = None
         self.fx_at = 0.0
+        self.fx_monitor = FxMonitor()
         self.last_decision = Decision(None, None, None, None, ("BELUM_ADA_DATA",))
         self.last_account_poll = 0.0
         self.last_reconcile_ok = 0.0
@@ -243,35 +245,52 @@ class Engine:
             raise RuntimeError("Standard fee changed; stop entries")
 
     async def fx_loop(self) -> None:
-        async with httpx.AsyncClient(timeout=5) as client:
+        async with httpx.AsyncClient(timeout=2) as client:
+            for _ in range(3):
+                await self.fx_monitor.request(client, metadata=True)
+                if self.fx_monitor.pair_verified:
+                    break
+                await asyncio.sleep(60)
+            if not self.fx_monitor.pair_verified:
+                return
+            due = time.monotonic()
             while True:
-                try:
-                    response = await client.get(FX_BOOK)
-                    response.raise_for_status()
-                    data = response.json()
-                    if data.get("symbol") != "USDCUSDT":
-                        raise ValueError("wrong FX symbol")
-                    bid, ask = dec(data["bidPrice"]), dec(data["askPrice"])
-                    if bid <= 0 or ask <= bid:
-                        raise ValueError("bad FX quote")
-                    self.fx = (bid + ask) / 2
-                    self.fx_at = time.monotonic()
-                    self.recorder.write(
-                        MarketEvent(
-                            "binance",
-                            "fx",
-                            {
-                                "symbol": "USDCUSDT",
-                                "rate": str(self.fx),
-                                "bid": str(bid),
-                                "ask": str(ask),
-                            },
-                            Stamp(),
+                await asyncio.sleep(max(0, due - time.monotonic()))
+                observation = await self.fx_monitor.request(client)
+                if observation:
+                    self.fx = observation.mid
+                    # Start is conservative; late body/parsing cannot make old data fresh.
+                    self.fx_at = observation.started.monotonic_ns / 1e9
+                    try:
+                        self.recorder.write(
+                            MarketEvent(
+                                "binance",
+                                "fx",
+                                {
+                                    "symbol": "USDCUSDT",
+                                    "rate": str(self.fx),
+                                    "bid": str(observation.bid),
+                                    "ask": str(observation.ask),
+                                    "bid_qty": str(observation.bid_qty),
+                                    "ask_qty": str(observation.ask_qty),
+                                    "request_started_ns": observation.started.receipt_ns,
+                                    "verified_monotonic_ns": observation.verified_ns,
+                                    "price_changed_ns": observation.price_changed_ns,
+                                    "source": "Binance Spot REST Memory",
+                                },
+                                observation.received,
+                            )
                         )
-                    )
-                except Exception:
+                    except Exception:
+                        self.fx = None
+                        self.journal_ok = False
+                        self.fx_monitor.counts["record_failures"] += 1
+                        self.invalidate_preflight("FX recording failed", history=False)
+                else:
                     self.fx = None
-                await asyncio.sleep(10)
+                    self.invalidate_preflight("FX snapshot failed/unverified", history=False)
+                # Fixed starts, skip missed intervals; no catch-up burst or blind retry.
+                due = next_start(due, time.monotonic())
 
     async def loop(self) -> None:
         self.risk_task = asyncio.create_task(self.risk_loop())
@@ -507,7 +526,7 @@ class Engine:
             and self.feeds.binance_public_ok
             and self.feeds.binance_trades_ok
             and self.fx is not None
-            and time.monotonic() - self.fx_at < 15
+            and time.monotonic() - self.fx_at < FRESH_SECONDS
             and self.queue.qsize() < 1500
         )
 
@@ -570,6 +589,7 @@ class Engine:
             "data_valid": valid,
             "fx": str(self.fx) if self.fx is not None else None,
             "fx_age_s": time.monotonic() - self.fx_at if self.fx is not None else None,
+            "fx_observation": self.fx_monitor.status()["observation"],
             "queue_backlog": self.queue.qsize(),
             "quotes": {
                 name: {
@@ -2861,6 +2881,7 @@ class Engine:
             if snap
             else None,
             "fx_usdcusdt": str(self.fx) if self.fx else None,
+            "fx_diagnostic": self.fx_monitor.status(),
             "decision": {
                 "side": self.last_decision.side,
                 "deviation_bps": str(self.last_decision.deviation_bps)

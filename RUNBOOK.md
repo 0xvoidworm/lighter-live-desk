@@ -1,5 +1,18 @@
 # Runbook Lighter Live Desk
 
+Kurs pembanding memakai snapshot resmi Binance Spot USDCUSDT (USDT perUSDC),
+bukan last trade atau kurs1:1. Bootstrap exchangeInfo sekali, lalu ticker
+bid/ask tiap deadline2s dengan total request2s, freshness15s tetap.
+Status `fx_diagnostic` memisahkan request/receipt/verification/price-change,
+outcome/phase dan quota Binance Spot. Harga sama dari respons baru boleh
+menyegarkan observasi, heartbeat tidak. Source exchange time/update IDNULL
+karena REST ini tidak menyediakannya. Data terlambat/cached/invalid gagal.
+Bobot ticker2 (sekitar60/menit), bootstrap20; localcap100weight/60s dan
+limit/header IP/Retry-After resmi tetap diperiksa. Bucket ini terpisah dari
+Lighter. Signal memakai mid; pembanding bid/ask executable memakai FXask
+untuk menjual BTC lalu membeliUSDC, FXbid untuk membeli BTC dari danaUSDC.
+Lihat AUDIT_FX_OBSERVATION_2026-10-05.md. Otorisasi order tidak berubah.
+
 Otorisasi sesi `f4645c06-b55d-45f4-b642-66b5e8c23864` sudah ditutup
 4 Oktober 2026 pukul 21:53:18 WIB setelah timeout rekonsiliasi; nol entry.
 Izin order dan policy reported fee sesi mati. Sisa kuota tidak dapat dipakai.
