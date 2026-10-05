@@ -3,6 +3,7 @@
 import time
 from dataclasses import replace
 from decimal import Decimal
+from unittest.mock import Mock
 
 import pytest
 from test_probe_only import engine as engine_fixture
@@ -35,6 +36,20 @@ def prepare(engine):
             "fingerprint": engine.db.accounting_fingerprint(),
         },
     )
+
+
+def test_source_guard_and_report_use_one_assessment_at_boundary(engine):
+    prepare(engine)
+    engine.source_freshness = Mock(
+        side_effect=[
+            {"passed": True, "reason": "SOURCE_FRESH_WITH_CLOCK_BOUND"},
+            {"passed": False, "reason": "SOURCE_DATA_LATE"},
+        ]
+    )
+    result = observe(engine)
+    assert result["technical_ready"] and result["source_freshness"]["passed"]
+    assert result["checks"]["source_freshness"] == result["source_freshness"]["passed"]
+    engine.source_freshness.assert_called_once()
 
 
 async def test_passive_technical_readiness_never_opens_entry(engine):

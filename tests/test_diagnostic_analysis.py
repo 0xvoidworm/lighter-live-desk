@@ -16,6 +16,62 @@ analysis = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(analysis)
 
 
+def test_depth_ab_analysis_keeps_disconnect_and_missing_clock_without_zero_latency(tmp_path):
+    """Synthetic offline fixture, never starts a transport or a measurement."""
+    spec = importlib.util.spec_from_file_location(
+        "bounded_ab", Path(__file__).parents[1] / "scripts/analyze_bounded_preparation.py"
+    )
+    bounded = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bounded)
+    (tmp_path / "started.json").write_text(json.dumps({"at": 100, "deadline_epoch": 110}))
+    (tmp_path / "finished.json").write_text(json.dumps({"at": 110}))
+    status = {
+        "diagnostic_observation": {"blockers": ["source_freshness", "coverage"]},
+        "source_clock": {"evidence": None, "recent": []},
+        "source_freshness": {"reason": "SOURCE_CLOCK_NOT_VERIFIED", "receipt_age_ms": 20},
+    }
+    (tmp_path / "app.jsonl").write_text(
+        json.dumps({"at": 100, "kind": "app_snapshot", "body": {"status": status}}) + "\n"
+    )
+    for arm, received in [("depth", 101), ("combined", 101.2)]:
+        rows = [
+            {
+                "at": received,
+                "elapsed": 1,
+                "kind": "message",
+                "body": {
+                    "connection": 1,
+                    "event": "depthUpdate",
+                    "received_at": received,
+                    "bytes": 99,
+                    "T": 97000,
+                    "E": 97000,
+                    "u": 123,
+                    "U": 121,
+                    "pu": 120,
+                    "bid": [],
+                    "ask": [],
+                    "sequence_gap": False,
+                },
+            },
+            {
+                "at": 102,
+                "elapsed": 2,
+                "kind": "receive_error",
+                "body": {"connection": 1, "error": "ResetWithoutClosingHandshake"},
+            },
+        ]
+        (tmp_path / f"{arm}.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    result = bounded.analyze_depth_ab(tmp_path, tmp_path)
+    assert result["arms"]["combined"]["counts"]["receive_error"] == 1
+    assert result["arms"]["depth"]["source_clock_bound_ms"] == {}
+    assert result["arms"]["depth"]["source_classifications"]["depthUpdate:T:clock_unknown"] == 1
+    assert result["paired_depth"]["combined_minus_depth_receipt_ms"]["p50"] == pytest.approx(200)
+    assert result["engine"]["technical_ready_s"] == 0
+    assert result["engine"]["blocker_s"]["coverage"] == 10
+    assert sum(v["seconds"] for v in result["engine"]["overlap_s"]) == 10
+
+
 @pytest.mark.parametrize("residual", [D(-1), D(1)])
 def test_no_reversion_loses_one_full_spread_and_keeps_fee_unknown(residual):
     result = analysis.book_reversion_estimate(D(101), D(99), D(100), D(100), residual, D(0), D(0))

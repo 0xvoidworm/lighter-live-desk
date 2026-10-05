@@ -8,9 +8,261 @@ import hashlib
 import ipaddress
 import json
 import sqlite3
+from bisect import bisect_right
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
+
+
+def analyze_depth_ab(directory: Path, root: Path) -> dict:
+    """Offline A/B transport analysis; no engine/SDK imports or network calls."""
+    start = json.loads((directory / "started.json").read_text())
+    finish = json.loads((directory / "finished.json").read_text())
+    end = start["deadline_epoch"]
+    app, clocks, clock_times, clock_attempts = [], [], [], {}
+    with (directory / "app.jsonl").open() as source:
+        for line in source:
+            row = json.loads(line)
+            if row["kind"] != "app_snapshot":
+                continue
+            s = row["body"]["status"]
+            app.append((row["at"], s))
+            clocks.append(s.get("source_clock", {}).get("evidence"))
+            clock_times.append(row["at"])
+            for attempt in s.get("source_clock", {}).get("recent", []):
+                clock_attempts[attempt["id"]] = attempt
+
+    def distribution(values):
+        values = sorted(values)
+        if not values:
+            return {"n": 0}
+        return {
+            "n": len(values),
+            "min": values[0],
+            "p50": values[int((len(values) - 1) * 0.50)],
+            "p95": values[int((len(values) - 1) * 0.95)],
+            "p99": values[int((len(values) - 1) * 0.99)],
+            "max": values[-1],
+        }
+
+    def bound(at):
+        index = bisect_right(clock_times, at) - 1
+        if index < 0:
+            return None
+        c = clocks[index]
+        if not c or not c["host"]["synchronized"]:
+            return None
+        age = at - c["received_ns"] / 1e9
+        if not 0 <= age <= 120:
+            return None
+        drift = age * 0.1  # Same explicit 100ppm allowance as runtime, ms.
+        low, high = c["offset_low_ms"] - drift, c["offset_high_ms"] + drift
+        if (high - low) / 2 > 250:
+            return None
+        if (
+            app[index][1]["source_freshness"]["reason"]
+            == "SOURCE_CLOCK_WALL_STEP_OR_INCONSISTENT_STAMP"
+        ):
+            return None
+        return low, high
+
+    blockers, overlap, source_reasons = Counter(), Counter(), Counter()
+    ready_s = streak = longest = receipt_new_but_source_late_s = 0.0
+    for i, (at, s) in enumerate(app):
+        duration = max(0, min(end, app[i + 1][0] if i + 1 < len(app) else end) - at)
+        blocked = tuple(s["diagnostic_observation"]["blockers"])
+        overlap[blocked] += duration
+        for b in blocked:
+            blockers[b] += duration
+        if not blocked:
+            ready_s += duration
+            streak += duration
+            longest = max(longest, streak)
+        else:
+            streak = 0.0
+        sf = s["source_freshness"]
+        source_reasons[sf["reason"]] += duration
+        if sf["reason"] == "SOURCE_DATA_LATE" and sf["receipt_age_ms"] < 1500:
+            receipt_new_but_source_late_s += duration
+
+    arms, depth_rows = {}, {}
+    for arm in ["depth", "combined"]:
+        counts, streams, payload, lag, corrected, events, peers = (
+            Counter(),
+            Counter(),
+            0,
+            {},
+            {},
+            [],
+            set(),
+        )
+        depths, last, gaps, parse_ns, stale, wall_discrepancy_ms = {}, {}, [], [], Counter(), []
+        parse_groups = {}
+        first_at = first_elapsed = None
+        with (directory / f"{arm}.jsonl").open() as source:
+            for line in source:
+                row = json.loads(line)
+                if row["at"] > end + 0.025:
+                    continue  # Exclude completion bookkeeping; never extend the window.
+                b, kind = row["body"], row["kind"]
+                counts[kind] += 1
+                if first_at is None:
+                    first_at, first_elapsed = row["at"], row["elapsed"]
+                wall_discrepancy_ms.append(
+                    abs(row["at"] - first_at - row["elapsed"] + first_elapsed) * 1000
+                )
+                if kind != "message":
+                    events.append(row)
+                    if kind == "tcp_connected":
+                        peers.add(b["peer"])
+                    continue
+                received = b.get("received_at", row["at"])
+                streams[b["event"]] += 1
+                payload += b["bytes"]
+                parse_ns.append(b.get("parse_ns", 0))
+                parse_groups.setdefault(b["event"], []).append(b.get("parse_ns", 0))
+                previous = last.get(b["connection"])
+                if previous is not None:
+                    gaps.append(received - previous)
+                last[b["connection"]] = received
+                bounds = bound(received)
+                for key in ["E", "T"]:
+                    if type(b.get(key)) is not int:
+                        stale[f"{b['event']}:{key}:missing"] += 1
+                        continue
+                    raw_ms = (received - b[key] / 1000) * 1000
+                    group = b["event"] + ":" + key
+                    lag.setdefault(group, []).append(raw_ms)
+                    if bounds and wall_discrepancy_ms[-1] <= 25:
+                        low, high = raw_ms + bounds[0], raw_ms + bounds[1]
+                        corrected.setdefault(group + ":lower", []).append(low)
+                        corrected.setdefault(group + ":upper", []).append(high)
+                        state = (
+                            "late"
+                            if high >= 1500
+                            else "future_uncertain"
+                            if low < -1
+                            else "fresh_bound"
+                        )
+                        stale[group + ":" + state] += 1
+                    else:
+                        stale[group + ":clock_unknown"] += 1
+                if b["event"] == "depthUpdate" and b.get("st", 1) in {1, None}:
+                    depths[(b["u"], b.get("T"))] = {
+                        "at": received,
+                        "economics": [b.get("U"), b.get("pu"), b["bid"], b["ask"]],
+                        "connection": b["connection"],
+                        "sequence_gap": b["sequence_gap"],
+                        "T": b.get("T"),
+                        "E": b.get("E"),
+                        "parse_ns": b.get("parse_ns"),
+                    }
+        marker = directory / f"{arm}-finished.json"
+        arms[arm] = {
+            "counts": dict(counts),
+            "streams": dict(streams),
+            "payload_bytes": payload,
+            "log_bytes": (directory / f"{arm}.jsonl").stat().st_size,
+            "source_indicator_ms": {k: distribution(v) for k, v in lag.items()},
+            "source_clock_bound_ms": {k: distribution(v) for k, v in corrected.items()},
+            "source_classifications": dict(stale),
+            "parse_and_field_ns": distribution(parse_ns),
+            "parse_and_field_by_event_ns": {k: distribution(v) for k, v in parse_groups.items()},
+            "within_connection_message_gap_s": distribution(gaps),
+            "sequence_gaps": sum(r["sequence_gap"] for r in depths.values()),
+            "clock_wall_vs_monotonic_max_ms": max(wall_discrepancy_ms, default=0),
+            "destination_peers": sorted(peers),
+            "events": events,
+            "finish": json.loads(marker.read_text()) if marker.exists() else None,
+        }
+        depth_rows[arm] = depths
+    common = set(depth_rows["depth"]) & set(depth_rows["combined"])
+    paired = [
+        (depth_rows["combined"][k]["at"] - depth_rows["depth"][k]["at"]) * 1000 for k in common
+    ]
+    hashes = {}
+    for name in ["started.json", "finished.json", "app.jsonl", "depth.jsonl", "combined.jsonl"]:
+        digest = hashlib.sha256()
+        with (directory / name).open("rb") as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(chunk)
+        hashes[name] = digest.hexdigest()
+    binary = root / "diagnostics/binance-ws-compare/target/release/binance-ws-compare"
+
+    def state_summary(state):
+        keys = [
+            "engine_pid",
+            "state",
+            "allow_live_orders",
+            "account",
+            "quotes",
+            "coverage",
+            "source_freshness",
+            "net_cash_audit",
+            "request_budget",
+            "market_processing",
+            "queue_backlog",
+            "event_loop_lag_ms",
+        ]
+        result = {key: state[key] for key in keys if key in state}
+        result["session"] = {
+            key: state.get("strategy_session", {}).get(key) for key in ["id", "status"]
+        }
+        result["history_complete"] = state.get("history_audit", {}).get("complete")
+        result["feed_reconnects"] = {
+            key: value.get("reconnects") for key, value in state.get("feed_channels", {}).items()
+        }
+        return result
+
+    return {
+        "start": start,
+        "finish": finish,
+        "raw_directory": str(directory),
+        "sha256": hashes,
+        "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest()
+        if binary.exists()
+        else None,
+        "arms": arms,
+        "paired_depth": {
+            "common_ids_T": len(common),
+            "economic_payload_mismatches": sum(
+                depth_rows["depth"][k]["economics"] != depth_rows["combined"][k]["economics"]
+                for k in common
+            ),
+            "combined_minus_depth_receipt_ms": distribution(paired),
+            "largest_receipt_difference": [
+                {
+                    "id_T": list(k),
+                    "depth": depth_rows["depth"][k],
+                    "combined": depth_rows["combined"][k],
+                }
+                for k in sorted(
+                    common,
+                    key=lambda k: depth_rows["combined"][k]["at"] - depth_rows["depth"][k]["at"],
+                    reverse=True,
+                )[:5]
+            ],
+        },
+        "clock_attempts": list(clock_attempts.values()),
+        "engine": {
+            "technical_ready_s": ready_s,
+            "longest_ready_s": longest,
+            "blocker_s": dict(blockers),
+            "source_reason_s": dict(source_reasons),
+            "receipt_new_but_source_late_s": receipt_new_but_source_late_s,
+            "overlap_s": [{"blockers": list(k), "seconds": v} for k, v in overlap.items()],
+            "first": state_summary(app[0][1]) if app else None,
+            "last": state_summary(app[-1][1]) if app else None,
+        },
+        "limitations": [
+            "One pair/same IP; different upstream workers/routes remain possible",
+            "No REST bootstrap; sequence gaps only checked within each connection",
+            "Source indicators are cross-clock; bounds assume UTC USD-M REST/WS clock domain",
+            "No one-way network or fill latency measurement; no order transport",
+            "Parse timing excludes body construction; logging includes serialize/write/flush",
+            "Readiness integration uses 1Hz sampled engine state; blocker durations overlap",
+        ],
+    }
 
 
 def analyze_comparison(directory: Path, root: Path) -> dict:
@@ -640,6 +892,7 @@ if __name__ == "__main__":
     mode.add_argument(
         "--comparison", action="store_true", help="Summarize the single Rust read-only comparison"
     )
+    mode.add_argument("--depth-ab", action="store_true", help="Summarize one pinned-IP Rust A/B")
     parser.add_argument(
         "--raw", action="store_true", help="Add raw existing Book replay to --reconnects"
     )
@@ -650,7 +903,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     function = (
-        analyze_comparison
+        analyze_depth_ab
+        if args.depth_ab
+        else analyze_comparison
         if args.comparison
         else reconnect_timeline
         if args.reconnects

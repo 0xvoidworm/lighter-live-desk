@@ -1,5 +1,6 @@
 {
   "origin": "trace.jsonl diagnostic_observation; historical clock calibration unavailable",
+  "raw_sha256": "be5a3a0af2facf6191edabf363887b020724fbddf417284618a8d25259ba5d02",
   "observed_at": 1791213413.4622974,
   "old_technical_ready": true,
   "receipt_age_ms": 732.022716,
