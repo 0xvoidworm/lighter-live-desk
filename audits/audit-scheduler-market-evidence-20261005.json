@@ -1,0 +1,50 @@
+{
+  "source": "existing Recorder only; no additional polling",
+  "files": [
+    "market-20261005-04-6ec4c52f670644349c708a083c180d32-0001.jsonl.gz",
+    "market-20261005-05-6ec4c52f670644349c708a083c180d32-0002.jsonl.gz"
+  ],
+  "events_by_venue_kind": [
+    {
+      "venue": "binance",
+      "kind": "aggTrade",
+      "count": 16676
+    },
+    {
+      "venue": "binance",
+      "kind": "bookTicker",
+      "count": 528650
+    },
+    {
+      "venue": "binance",
+      "kind": "depthUpdate",
+      "count": 11764
+    },
+    {
+      "venue": "binance",
+      "kind": "fx",
+      "count": 115
+    },
+    {
+      "venue": "lighter",
+      "kind": "order_book",
+      "count": 22052
+    },
+    {
+      "venue": "lighter",
+      "kind": "ticker",
+      "count": 39876
+    },
+    {
+      "venue": "lighter",
+      "kind": "trade",
+      "count": 4340
+    }
+  ],
+  "disconnect_events": [],
+  "market_queue_overflow_events": 0,
+  "fx_recorded_successes": 115,
+  "no_order_calls": true,
+  "limits": "Recorder events establish observed overflow/disconnect counts, not a guarantee against future faults; raw data remain private.",
+  "fx_scope": "115 successful existing loop responses, not a count of failed HTTPX attempts/RTT; Binance bucket separate from Lighter"
+}

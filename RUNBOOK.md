@@ -180,8 +180,16 @@ preflight tetap berlaku sebelum live. Jangan mengisi expected margin
 dengan perkiraan, menaikkan leverage, atau mengirim order untuk memaksa IDLE.
 
 Profil akun eksperimen saat ini memakai 8 read request per rekonsiliasi;
-intervalnya 12 detik untuk menjaga pagu baca lokal 40/min dan cadangan exit
-hingga 55/min. [Batas resmi Standard](https://apidocs.lighter.xyz/docs/rate-limits)
+jadwalnya sekarang mengikuti timestamp respons akun asli: umur15s dikurangi
+bound durasi audit (awal2s, high-water hasil terukur) dan margin0,5s. Retry
+audit yang gagal tetap diberi jeda12s; failure tidak memperbarui freshness.
+Setelah bootstrap, history dibaca lengkap dahulu dan account dekat akhir.
+Batch memakai reservasi atomik normal40/min; status memisahkan pemakaian
+dari reservasi yang belum terpakai. Pemanggil audit bersamaan berbagi task,
+sementara worker proteksi/exit tetap tidak menunggu lock/network pembukuan.
+Delapan GET masih dapat menghasilkan puncak40 dan memblokir guard entry≤33
+pada sebagian fase; pagu tidak dinaikkan. Cadangan exit tetap hingga55/min.
+[Batas resmi Standard](https://apidocs.lighter.xyz/docs/rate-limits)
 adalah 60 request per rolling minute dan dapat dibagi dengan klien lain.
 Batas freshness akun tetap 15 detik. Kesalahan rekonsiliasi tetap menghentikan
 entry sampai pemeriksaan berikutnya berhasil; umur data tidak diperbarui

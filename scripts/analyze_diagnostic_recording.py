@@ -409,7 +409,7 @@ def main(source, prefix):
         "cash_audit_matched_seconds": sum(
             v["seconds"]
             for v in intervals
-            if v["row"].get("status", {}).get("net_cash_audit", {}).get("status") == "matched"
+            if (v["row"].get("status", {}).get("net_cash_audit") or {}).get("status") == "matched"
         ),
         "request_window_boundary": {
             "completed_carry_in_requests": carry_in,

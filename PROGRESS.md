@@ -1,5 +1,39 @@
 # Progress
 
+## Terbaru — 5 Oktober 2026, scheduler audit dan satu verifikasi 20 menit
+
+Dari e5d0142 termasuk b493ac0, implementasi/tes/replay di2db23db. Tidak ada
+izin order/probe/sesi baru: OFF, entry stopped, sesi closed sepanjang tugas.
+History tetap lengkap; identitas L1 publik dibaca sekali, account dibaca dekat
+publikasi dengan timestamp respons asli. Scheduler memakai deadline15s,
+bound durasi2s+margin0,5s, reservasi batch atomik dan single-flight audit.
+Risk worker tidak menunggu network/lock audit. Pagu40/47/55, threshold8bps,
+buffer5bps, feeNULL, risk dan guard tidak dilonggarkan.319tes, mypy17source,
+Ruff/format lulus; native signer diuji tanpa broadcast.
+
+Satu verifikasi11:45:49.914–12:05:49.915WIB, tepat1200s, tidak diulang.
+GET/min37,15→35,60; peak rolling60s tetap40. Account age maksimum14,5→13,7s.
+Quota-block total795,341→616,019s; saat coverage lolos proporsinya
+69,36%→53,63%. Semua guard teknis lolos136,324→277,561s (4m38s), interval
+kontinu terpanjang4,253→6,752s. Coverage membaik juga, sehingga kenaikan
+total kesiapan tidak boleh dianggap seluruhnya hasil scheduler.
+
+89/89audit lengkap berhasil, timeout/retry/429 teramati0, cadangan transaksi
+minimal15 termasuk lease; reconnect/overflow0 selama window. Rekaman tidak
+menambah polling exchange. Simulasi scheduler terpisah dari bukti runtime.
+8GET/freshness<15s menghasilkan fase5batch/60s=40, sementara admission
+entry perlu≤33: perbaikan menyediakan window, belum menjamin kapasitas entry
+kontinu. Usulan berikutnya: lane account-state REST segar dan full-history
+barrier sebelum entry/sesudah lifecycle; perubahan definisi guard itu belum
+diterapkan. History panjang/pagination belum dapat di-cache tanpa bukti.
+
+Pemeriksaan12:14:16.883WIB: akun751745 Standard/Unified/Cross, saldo49,430756
+USDC, semua posisi/order/intent0, kas matched/selisih0, mesinIDLE/orderOFF,
+sesi closed/autostartdisabled. Empat fee exactNULL dan reported0,0000DP4
+tetap terpisah. Bukti AUDIT_AUDIT_SCHEDULER_2026-10-05.md dan
+audits/audit-scheduler-{simulation,before,after,comparison,market-evidence,
+final-account}-20261005.*. Tidak ada transaksi atau eksperimen strategi baru.
+
 ## Terbaru — 5 Oktober 2026, satu rekaman diagnostik 20 menit selesai
 
 Dari ca8c2b6, instrumentasi pasif ea46fbf dipakai PID146477 pada
