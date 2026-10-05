@@ -1,5 +1,39 @@
 # Progress
 
+## Terbaru — 5 Oktober 2026, state15s dan audit history terpisah
+
+Dari c10d26f/2db23db, kebijakan pemisahan disetujui pengguna. Implementasi
+9028794: state2GET dengan timestamp independen dan count konsisten; history
+lengkap startup/recovery, setiap entry, sesudah lifecycle/perubahan dana,
+dan120s saat flat. Bukti per-attempt/boot/generation/hash, TTL≤5s dan check
+di lock signer. Reservasi atomik full-read8+send2, envelope14 termasuksend2;
+admission awal≤25, normal40/urgent47/transaksi55, exit minimum15. Proteksi
+tetap di lane terpisah. Threshold8bps, buffer5bps, feeNULL dan risk tetap.
+344tes, mypy18source, Ruff/format, build frontend dan signer offline lulus.
+
+Satu window14:20:23.313–14:40:23.314WIB,1200s/PID217981/9028794,4798status,
+error0, source/config dibekukan. GET/min35,60→13,20; peak40→24 (lokal dengan
+lease26). Account age max12,697s, orders12,836s.11audit8GET dan88state2GET
+semuanya berhasil; retry/timeout0, capacity menuju55≥29. Reserve blocker
+616,019→1,001s, seluruh failing sample saat satu rehearsal sendiri berjalan.
+Teknis evaluasi465,475s/7m45s, longest120,055s; perbandingan bukan kausal
+murni karena history guard berubah eksplisit dan warm-up/feed berbeda.
+
+Command7 DIAGNOSE_PREFLIGHT:8GET/1,212s, send2reserved lalu dilepas,
+TTL5s/sendablefalse,0intent/sign/broadcast. Kesiapan bukti preflight terpisah
+dari kesiapan evaluasi dan izin order. Tidak ada pengulangan rekaman.
+Reconnect/overflow0; FXgap25,600s membuat data kurs kedaluwarsa10,755s dan
+gap basis11,303s menahan coverage di akhir. Book tetap segar; buffer tidak
+di-reset. Next diagnosis: kanal kurs USDCUSDT, tanpa threshold baru.
+
+Pemeriksaan15:20:13.375WIB:49,430756USDC, account751745/key4 Standard/
+Unified/Cross100%; globalpos/order/pending/intent0; kas matched/difference0;
+fee exact4NULL/report0,0000DP4 tetap terpisah. Tidak ada fill/intents baru.
+IDLE/entry stopped/orderOFF, exception flagsfalse, sesi closed dan autostart
+disabled. Konflik cadence/kuota quiet8GET teratasi; pagination/retry/recovery
+padat tetap bisa blokir. Bukti AUDIT_SPLIT_ACCOUNT_HISTORY_2026-10-05.md
+dan audits/split-account-history-{runtime,final-account}-20261005.json.
+
 ## Terbaru — 5 Oktober 2026, scheduler audit dan satu verifikasi 20 menit
 
 Dari e5d0142 termasuk b493ac0, implementasi/tes/replay di2db23db. Tidak ada
