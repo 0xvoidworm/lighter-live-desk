@@ -4,6 +4,7 @@ import asyncio
 import json
 import time
 from dataclasses import replace
+from datetime import UTC, datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock
 
@@ -46,6 +47,7 @@ def authorize(engine):
                 "transaction_hash": f"tx-{cid}",
                 "exchange_ms": stamp,
                 "evidence_sha256": "a" * 64,
+                "captured_at_utc": datetime.now(UTC).isoformat(),
             },
         )
     engine.db.set_flag("last_flat_epoch", str(time.time()))
@@ -114,6 +116,7 @@ async def test_incomplete_cash_or_changed_history_blocks_preflight(engine, incid
         engine.db.add_fill("1001", 1, "0.00012", "83000", "0.000001", 1000)
     elif incident == "stale":
         engine.last_reconcile_ok = time.monotonic() - 16
+        engine.history_required = True
     else:
         engine.db.set_flag("probe_session_id", "different-session")
     assert engine.probe_blockers()

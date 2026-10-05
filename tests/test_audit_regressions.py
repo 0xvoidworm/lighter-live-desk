@@ -36,6 +36,13 @@ def snapshot(qty="0", equity="50"):
         other_positions=(),
         other_assets=(),
         received_at=time.time(),
+        received_monotonic=time.monotonic(),
+        orders_received_at=time.time(),
+        orders_received_monotonic=time.monotonic(),
+        exchange_order_count=0,
+        exchange_pending_count=0,
+        collateral=Decimal(equity),
+        funding_flows=(("fixture-deposit", "50"),),
         account_trading_mode=0,
         margin_mode=0,
         initial_margin_fraction=Decimal(1),
@@ -61,6 +68,7 @@ def engine(tmp_path):
         "min_quote_amount": "10",
         "size_decimals": 5,
         "price_decimals": 1,
+        "taker_fee": "0.0000",
     }
     value.books["lighter"].lighter_snapshot(
         {
@@ -73,6 +81,22 @@ def engine(tmp_path):
         Stamp(),
     )
     value.account_snapshot = snapshot()
+    value._update_baseline(value.account_snapshot)
+    value.db.event(
+        "NET_CASH_AUDIT",
+        {
+            "equity_after": "50",
+            "cash_change_usdc": "0",
+            "fingerprint": value.db.accounting_fingerprint(),
+        },
+    )
+    value.state_refresh_failed = False
+    value.history_required = False
+    value.fx, value.fx_at = Decimal(1), time.monotonic()
+    value.strategy.coverage = lambda: {"ready": True}
+    value.books["binance"].binance_snapshot(
+        {"lastUpdateId": 1, "bids": [["83000", "2"]], "asks": [["83000.1", "2"]]}, Stamp()
+    )
     value.state = EngineState.LIVE
     value.entries_stopped = False
     value.session_end = time.monotonic() + 1800
@@ -241,8 +265,13 @@ async def test_cancel_blocks_entry_waiting_for_signer_lock(engine, monkeypatch, 
     async def statuses(ids):
         return {}
 
-    async def reconcile_noop():
-        return None
+    async def reconcile_noop(*, reserved=False):
+        # Isolated completed audit; this test targets the actual signer-lock guard.
+        engine.last_reconcile_ok = time.monotonic()
+        engine.history_required = False
+        engine.reconcile_failed = False
+        engine.state_refresh_failed = False
+        engine.audit_binding = engine.preflight_binding()
 
     adapter.order_statuses = statuses
     engine.account = adapter
@@ -379,8 +408,11 @@ async def test_probe_uses_minimum_legal_size(engine, monkeypatch):
     engine.account = exchange
     monkeypatch.setattr(engine, "data_valid", lambda: True)
 
-    async def reconcile_noop():
-        return None
+    async def reconcile_noop(*, reserved=False):
+        engine.last_reconcile_ok = time.monotonic()
+        engine.reconcile_failed = False
+        engine.history_required = False
+        engine.audit_binding = engine.preflight_binding()
 
     monkeypatch.setattr(engine, "safe_reconcile", reconcile_noop)
     engine.state = EngineState.READY

@@ -19,6 +19,10 @@ type Status = {
   event_loop_lag_ms?: number; last_order_ack_ms?: number | null; last_cancel_ack_ms?: number | null; reconnects?: Record<string, number>; binance_streams?: { public?: boolean; market?: boolean }; live_blockers?: string[];
   events?: { at: number; kind: string; body: Record<string, unknown> }[];
   coverage?: Coverage;
+  diagnostic_observation?: { technical_ready: boolean; blockers: string[] };
+  history_audit?: { complete: boolean; required: boolean; reason: string; idle_interval_seconds: number; age_seconds: number | null };
+  preflight?: { ready_to_send_technically: boolean; send_authorization: boolean; ttl_seconds: number; complete_reads_required: number; send_cost: number; diagnostic: { outcome?: string; elapsed_ms?: number; actual_read_cost?: number } };
+  account_state_diagnostic?: { outcome?: string };
   feed_channels?: Record<string, { connected: boolean; reconnects: number; last_frame_age_ms: number | null; last_error?: string | null; retry_delay_s: number }>;
   fee_lookup?: { lookup_paused_count: number; unknown_count: number };
   fee_reports?: { covered_unknown_fills: number; reported_fee_total_usdc: string | null; reports: { precision_decimals: number }[] };
@@ -83,6 +87,12 @@ function App() {
 
       <section className="card readiness"><div className="sectionHead"><h2>Pemanasan & kesiapan data</h2><span className={`pill ${coverage?.ready ? 'good' : 'bad'}`}>{coverage?.ready ? 'Riwayat cukup' : 'Riwayat belum cukup'}</span></div>
         <p className="hint">Koneksi tersambung, quote segar, dan riwayat yang cukup diperiksa terpisah. Probe dan strategi memakai persyaratan coverage yang sama.</p>
+        <div className="kv"><span>Siap mengevaluasi sinyal</span><strong>{connected && data.diagnostic_observation?.technical_ready ? 'Ya · kapasitas audit sebelum entry ikut dihitung' : 'Belum'}</strong></div>
+        <div className="kv"><span>Preflight lengkap, siap kirim secara teknis</span><strong>{connected && data.preflight?.ready_to_send_technically ? `Ya · bukti maks. ${data.preflight.ttl_seconds} detik` : 'Belum · audit wajib untuk setiap percobaan'}</strong></div>
+        <div className="kv"><span>Izin pengiriman</span><strong>{connected && data.preflight?.send_authorization ? 'Aktif sesuai lingkup sesi' : 'OFF'}</strong></div>
+        <div className="kv"><span>Audit riwayat lengkap</span><strong>{data.history_audit ? `${data.history_audit.complete ? 'Lengkap' : 'Wajib / belum lengkap'} · umur ${data.history_audit.age_seconds?.toFixed(1) ?? '—'} dtk · berkala ${data.history_audit.idle_interval_seconds} dtk` : '—'}</strong></div>
+        <p className="hint">Keadaan akun dan order masing-masing wajib segar maksimal 15 detik. Setiap entry menjalankan audit lengkap lagi ({data.preflight?.complete_reads_required ?? '—'} GET) serta menyisihkan {data.preflight?.send_cost ?? 2} request pengiriman. Bukti diagnostik tidak memberi izin order.</p>
+        <p className="hint">{connected && data.diagnostic_observation?.blockers?.length ? `Penghambat teknis: ${data.diagnostic_observation.blockers.join(', ')}` : ''}</p>
         <progress aria-label="Durasi pemanasan" max={coverage?.duration_required_s || 600} value={Math.min(coverage?.duration_observed_s || 0, coverage?.duration_required_s || 600)} />
         <div className="metrics four">
           <div><span>Durasi observasi</span><strong>{coverage ? `${Math.round(coverage.duration_observed_s)} / ${coverage.duration_required_s} dtk` : '—'}</strong></div>

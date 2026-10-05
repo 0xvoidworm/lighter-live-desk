@@ -40,7 +40,16 @@ class Exchange:
         return "mock-ack"
 
     async def snapshot(self, market_id):
-        return replace(self.current, received_at=time.time())
+        return replace(
+            self.current,
+            received_at=time.time(),
+            received_monotonic=time.monotonic(),
+            orders_received_at=time.time(),
+            orders_received_monotonic=time.monotonic(),
+        )
+
+    async def state_snapshot(self, market_id, previous=None):
+        return await self.snapshot(market_id)
 
     async def probe_snapshot(self, market_id, verified_flows=None, **kwargs):
         self.probe_scopes.append(verified_flows)
@@ -75,6 +84,7 @@ def engine(tmp_path):
         "min_quote_amount": "10",
         "size_decimals": 5,
         "price_decimals": 1,
+        "taker_fee": "0.0000",
     }
     value.books["lighter"].lighter_snapshot(
         {
@@ -99,6 +109,12 @@ def engine(tmp_path):
         other_positions=(),
         other_assets=(),
         received_at=time.time(),
+        received_monotonic=time.monotonic(),
+        orders_received_at=time.time(),
+        orders_received_monotonic=time.monotonic(),
+        exchange_order_count=0,
+        exchange_pending_count=0,
+        collateral=Decimal("49.43"),
         account_trading_mode=1,
         margin_mode=0,
         initial_margin_fraction=Decimal("100.00"),
@@ -108,14 +124,31 @@ def engine(tmp_path):
     value.account = Exchange(value.account_snapshot)
     value.last_reconcile_ok = time.monotonic()
     value.reconcile_failed = False
+    value.history_required = False
+    value.state_refresh_failed = False
     value.state = EngineState.READY
     value.data_valid = lambda: True
     value.last_decision = Decision("buy", Decimal(30), Decimal(0), Decimal(1), ())
     value.strategy = DeviationStrategy(config.warmup_seconds)
     value.strategy.evaluate = lambda *args: value.last_decision
+    value.strategy.coverage = lambda: {"ready": True}
+    value.fx, value.fx_at = Decimal(1), time.monotonic()
+    value.books["binance"].binance_snapshot(
+        {"lastUpdateId": 1, "bids": [["83000", "2"]], "asks": [["83000.1", "2"]]}, Stamp()
+    )
+    value._update_baseline(value.account_snapshot)
+    value.db.event(
+        "NET_CASH_AUDIT",
+        {
+            "equity_after": "49.43",
+            "cash_change_usdc": "0",
+            "fingerprint": value.db.accounting_fingerprint(),
+        },
+    )
 
-    async def no_reconcile():
-        pass
+    async def no_reconcile(*, reserved=False):
+        if reserved:
+            await Engine.safe_reconcile(value, reserved=True)
 
     value.safe_reconcile = no_reconcile
     yield value
@@ -231,6 +264,7 @@ def fault(engine, name):
         engine.journal_ok = False
     elif name == "stale_reconcile":
         engine.last_reconcile_ok = time.monotonic() - 16
+        engine.history_required = True  # New policy: required audit, not mere age >15s.
     elif name == "failed_reconcile":
         engine.reconcile_failed = True
     elif name == "account":
@@ -242,7 +276,7 @@ def fault(engine, name):
     elif name == "manual":
         engine.manual_exposure = True
     elif name == "rate":
-        engine.account.rate.claim("reconcile", cost=40)
+        engine.account.rate.claim("exit", cost=40)  # Urgent work can invalidate send admission.
     elif name == "reconciling":
         engine.reconcile_task = SimpleNamespace(done=lambda: False)
     elif name == "over_budget":
@@ -489,7 +523,7 @@ async def test_exposure_read_does_not_refresh_funding_audit_or_finish_probe(engi
     assert engine.account_snapshot.received_at > time.time() - 1
     assert engine.probe_active
     assert engine.account.probe_scopes[-1] == engine.account_snapshot.funding_flows
-    assert "rekonsiliasi akun belum segar" in engine.live_blockers()
+    assert "audit riwayat lengkap wajib belum selesai" in engine.live_blockers()
 
 
 async def test_probe_cannot_finish_when_final_funding_audit_fails(engine):

@@ -68,6 +68,7 @@ def test_diagnostic_reports_real_guards_without_altering_them(engine, fault, blo
         engine.account_snapshot = replace(engine.account_snapshot, received_at=time.time() - 16)
     if fault == "reconcile":
         engine.last_reconcile_ok = time.monotonic() - 16
+        engine.history_required = True
     if fault == "coverage":
         engine.strategy.coverage = lambda: {"ready": False}
     if fault == "cash":

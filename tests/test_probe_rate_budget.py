@@ -21,6 +21,9 @@ def adapter():
         available_balance="49.43",
         account_type=0,
         account_trading_mode=1,
+        collateral="49.43",
+        total_order_count=0,
+        pending_order_count=0,
     )
     history_calls = []
 

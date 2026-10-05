@@ -21,7 +21,14 @@ ALLOWED_ORIGINS = {
     "http://lighter.localhost:8765",
     "http://lighter.localhost:5173",
 }
-COMMANDS = {"START_LIVE", "STOP_ENTRIES", "CANCEL_ENTRIES", "CLOSE_POSITION", "PROBE_ONCE"}
+COMMANDS = {
+    "START_LIVE",
+    "STOP_ENTRIES",
+    "CANCEL_ENTRIES",
+    "CLOSE_POSITION",
+    "PROBE_ONCE",
+    "DIAGNOSE_PREFLIGHT",
+}
 
 
 def create_app(root: Path | None = None) -> FastAPI:

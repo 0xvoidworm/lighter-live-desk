@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import sqlite3
 import time
+from dataclasses import replace
 from decimal import Decimal
 from types import SimpleNamespace
 
@@ -642,6 +643,51 @@ async def test_journal_failure_prevents_send(tmp_path, monkeypatch) -> None:
 
 
 def authorize_test_session(engine):
+    # Isolated exchange now supplies the complete audit required before signing.
+    engine.account.account_index = 77
+    if not hasattr(engine.account, "rate"):
+        engine.account.rate = RateBudget()
+    engine.account_snapshot = replace(
+        engine.account_snapshot,
+        received_monotonic=time.monotonic(),
+        orders_received_at=time.time(),
+        orders_received_monotonic=time.monotonic(),
+        collateral=Decimal(50),
+        exchange_order_count=0,
+        exchange_pending_count=0,
+        funding_flows=(("fixture-deposit", "50"),),
+    )
+    engine._update_baseline(engine.account_snapshot)
+    engine.market["taker_fee"] = "0.0000"
+    engine.fx, engine.fx_at = Decimal(1), time.monotonic()
+    engine.strategy.coverage = lambda: {"ready": True}
+    engine.books["binance"].binance_snapshot(
+        {"lastUpdateId": 1, "bids": [["83000", "2"]], "asks": [["83000.1", "2"]]}, Stamp()
+    )
+
+    async def snapshot(*args, **kwargs):
+        engine.account.rate.claim("reconcile", 7)
+        return replace(
+            engine.account_snapshot,
+            received_at=time.time(),
+            received_monotonic=time.monotonic(),
+            orders_received_at=time.time(),
+            orders_received_monotonic=time.monotonic(),
+        )
+
+    async def trades(*args, **kwargs):
+        engine.account.rate.claim("reconcile")
+        return []
+
+    async def statuses(*args, **kwargs):
+        return {}
+
+    engine.account.snapshot = snapshot
+    engine.account.probe_snapshot = snapshot
+    engine.account.recent_trades = trades
+    engine.account.order_statuses = statuses
+    engine.state_refresh_failed = False
+    engine.history_required = False
     engine.config = engine.config.model_copy(update={"session_accept_reported_fees": True})
     engine.session.authorize(
         "offline-failure-test", engine.config, str(engine.account_snapshot.equity)

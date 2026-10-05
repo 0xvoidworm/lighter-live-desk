@@ -33,8 +33,8 @@ def observe(engine: Engine) -> dict:
             and snap.account_type_code == config.expected_account_type_code
         ),
         "margin_settings": bool(snap and engine.margin_settings_valid(snap)),
-        "account_fresh": bool(snap and wall - snap.received_at < 15),
-        "reconciliation_fresh": not engine.reconcile_failed and now - engine.last_reconcile_ok < 15,
+        "account_fresh": engine.account_state_valid(),
+        "reconciliation_fresh": engine.history_valid(),
         "reconciliation_idle": not (engine.reconcile_task and not engine.reconcile_task.done()),
         "entry_request_reserve": engine.entry_rate_ready(),
         "flat_clean": bool(
@@ -170,7 +170,8 @@ def observe(engine: Engine) -> dict:
         "checks": checks,
         "blockers": [name for name, ok in checks.items() if not ok],
         "definition": (
-            "passive preflight technical checks; authorization/state/signal excluded; "
+            "signal-evaluation readiness including full preflight admission cost; "
+            "not completed preflight; authorization/signal excluded; "
             "reported evidence validated, no fee-policy enable"
         ),
         "observed_at": wall,
@@ -180,7 +181,15 @@ def observe(engine: Engine) -> dict:
         "decision_input_match": match,
         "fx": str(engine.fx) if engine.fx is not None else None,
         "fx_age_s": now - engine.fx_at if engine.fx is not None else None,
-        "request_entry_requirements": {"normal_cost": 2, "urgent_read_cost": 14, "max_used": 33},
+        "request_entry_requirements": {
+            "complete_audit_reads": engine.audit_scheduler.request_cost,
+            "normal_cost": engine.audit_scheduler.request_cost + 2,
+            "urgent_read_envelope": engine.audit_scheduler.request_cost + 14,
+            "max_used_before_audit": min(
+                40 - engine.audit_scheduler.request_cost - 2,
+                47 - engine.audit_scheduler.request_cost - 14,
+            ),
+        },
         "entry_authorized": False,
         "local_metadata_fee_model_only": True,
         "receipt_skew_ms": abs(local.stamp.receipt_ns - remote.stamp.receipt_ns) / 1e6

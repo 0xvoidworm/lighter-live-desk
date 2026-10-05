@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import time
+import uuid
 from contextlib import nullcontext
 from datetime import datetime
 from decimal import Decimal
@@ -31,6 +32,15 @@ from .models import (
     OrderState,
     Stamp,
     normalize_order_state,
+)
+from .preflight import (
+    HISTORY_IDLE_SECONDS,
+    PREFLIGHT_TTL_SECONDS,
+    Evidence,
+    component_ages,
+    digest,
+    state_complete,
+    state_digest,
 )
 from .risk import EquityBaseline, limit_price, size_entry
 from .session import BoundedSession, parameter_hash
@@ -99,6 +109,20 @@ class Engine:
         self.reconcile_task: asyncio.Task | None = None
         self.reconcile_lock = asyncio.Lock()
         self.audit_scheduler = AuditScheduler()
+        self.state_scheduler = AuditScheduler()
+        self.state_scheduler.request_cost = 2
+        self.state_refresh_task: asyncio.Task | None = None
+        self.state_refresh_failed = True
+        self.last_state_diagnostic: dict = {}
+        self.history_required = True
+        self.history_reason = "startup: complete REST audit required"
+        self.audit_binding: str | None = None
+        self.preflight_generation = 0
+        self.preflight_boot_id = uuid.uuid4().hex
+        self.preflight_evidence: Evidence | None = None
+        self.preflight_attempt: str | None = None
+        self.preflight_in_progress = False
+        self.last_preflight_diagnostic: dict = {}
         self._reconcile_owner: asyncio.Task | None = None
         self.entry_epoch = 0
         self.entry_tasks: set[asyncio.Task] = set()
@@ -193,6 +217,8 @@ class Engine:
             self.entries_stopped = True
             if self.reconcile_task:
                 self.tasks.append(self.reconcile_task)
+            if self.state_refresh_task:
+                self.tasks.append(self.state_refresh_task)
             self.tasks.extend(self.entry_tasks)
             for task in self.tasks:
                 task.cancel()
@@ -287,6 +313,7 @@ class Engine:
             except TimeoutError:
                 pass
             except GapError as exc:
+                self.invalidate_preflight("market sequence gap", history=True)
                 self.state = EngineState.RECOVERING
                 self.reason = str(exc)
                 self.entries_stopped = True
@@ -311,16 +338,29 @@ class Engine:
             await self.commands()
             if (
                 self.account
+                and not self.preflight_in_progress
                 and not (self.probe_active and self.entry_tasks)
                 and not self.entry_tasks
                 and (self.fee_audit_task is None or self.fee_audit_task.done())
                 and time.monotonic() >= self.audit_scheduler.next_due
                 and not self.risk_needs_read()
                 and self.account.rate.can_claim("reconcile", self.audit_scheduler.request_cost)
-                and self.probe_read_ready()
                 and (self.reconcile_task is None or self.reconcile_task.done())
+                and (self.state_refresh_task is None or self.state_refresh_task.done())
             ):
                 self.reconcile_task = asyncio.create_task(self.safe_reconcile())
+            elif (
+                self.account
+                and not self.preflight_in_progress
+                and self.last_reconcile_ok
+                and not self.risk_needs_read()
+                and not self.entry_tasks
+                and (self.reconcile_task is None or self.reconcile_task.done())
+                and (self.state_refresh_task is None or self.state_refresh_task.done())
+                and time.monotonic() >= self.state_scheduler.next_due
+                and self.account.rate.can_claim("reconcile", 2)
+            ):
+                self.state_refresh_task = asyncio.create_task(self.refresh_account_state())
             self.decide()
             self.session_tick()
             if self.probe_active and self.session_end and time.monotonic() >= self.session_end:
@@ -345,6 +385,7 @@ class Engine:
             await asyncio.sleep(0)
 
     async def restart_feeds(self) -> None:
+        self.invalidate_preflight("feed recovery", history=True)
         if not self.feeds:
             return
         for task in self.tasks[:2]:
@@ -366,6 +407,7 @@ class Engine:
         if not book:
             return
         if event.kind == "disconnect":
+            self.invalidate_preflight("market reconnect: " + event.venue, history=True)
             channel = str(event.payload.get("channel", "unknown"))
             self.strategy.interrupted(event.venue, channel, str(event.payload.get("reason", "")))
             # Loss of the trade channel does not invalidate an independent public book.
@@ -395,6 +437,7 @@ class Engine:
 
     def on_account(self, event: AccountEvent) -> None:
         if event.payload.get("type") == "disconnect":
+            self.invalidate_preflight("account reconnect", history=True)
             self.entries_stopped = True
             self.state = EngineState.PAUSED
             self.reason = "feed akun terputus; menunggu rekonsiliasi REST"
@@ -407,6 +450,7 @@ class Engine:
                 for x in (group if isinstance(group, list) else [group])
             ]
         for trade in trades:
+            self.invalidate_preflight("account trade update", history=True)
             self._record_trade(trade, event.account_index)
 
     def _record_trade(self, trade: dict, account_index: int) -> None:
@@ -483,8 +527,8 @@ class Engine:
             and self.account
             and snap
             and not self.reconcile_failed
-            and now - self.last_reconcile_ok < 15
-            and time.time() - snap.received_at < 15
+            and self.history_valid()
+            and self.account_state_valid()
             and self.config.expected_account_type_code is not None
             and snap.account_type_code == self.config.expected_account_type_code
             and self.config.expected_account_trading_mode is not None
@@ -584,7 +628,7 @@ class Engine:
                 task.add_done_callback(self.entry_tasks.discard)
                 self.entries_stopped = True  # prevent duplicate signal while send is in flight
 
-    async def safe_reconcile(self) -> None:
+    async def safe_reconcile(self, *, reserved: bool = False) -> None:
         task = asyncio.current_task()
         if (
             self._reconcile_owner
@@ -596,22 +640,23 @@ class Engine:
         self._reconcile_owner = task
         self.audit_scheduler.refresh_requested = False
         started = time.monotonic()
+        generation = self.preflight_generation
         acquired: float | None = None
         trace = getattr(self.account, "transport_trace", None)
         trace_start = trace.sequence if trace else 0
         task_id = id(asyncio.current_task())
         outcome, error = "cancelled", None
         rate = getattr(self.account, "rate", None)
-        deadline = self.audit_scheduler.timeout(self.audit_account_age())
+        deadline = 8.0
         try:
             async with self.reconcile_lock:
                 acquired = time.monotonic()
                 self.last_account_poll = time.monotonic()
-                deadline = self.audit_scheduler.timeout(self.audit_account_age())
+                deadline = 8.0
                 with (
                     (
                         rate.reserve("reconcile", self.audit_scheduler.request_cost)
-                        if rate and hasattr(rate, "reserve")
+                        if rate and hasattr(rate, "reserve") and not reserved
                         else nullcontext()
                     ),
                     (
@@ -625,6 +670,7 @@ class Engine:
                 self.reconcile_failed = False
                 outcome = "ok"
         except Exception as exc:
+            self.invalidate_preflight("complete audit failed", history=True)
             outcome, error = "error", type(exc).__name__
             self.reconcile_failed = True
             self.entries_stopped = True
@@ -650,16 +696,28 @@ class Engine:
                 "request_used_60s": len(rate.calls) if rate else None,
             }
             if outcome == "ok":
-                if not self.audit_scheduler.refresh_requested:
-                    self.audit_scheduler.completed(
-                        time.monotonic(),
-                        self.audit_account_age() or 0.0,
-                        (time.monotonic() - started),
-                        len(requests),
+                self.audit_scheduler.request_cost = max(
+                    self.audit_scheduler.request_cost, len(requests)
+                )
+                if self.last_reconcile_ok >= started and generation == self.preflight_generation:
+                    self.history_required = False
+                    self.history_reason = "complete audit verified; idle periodic deadline 120s"
+                    self.audit_binding = self.preflight_binding()
+                    self.audit_scheduler.next_due = time.monotonic() + HISTORY_IDLE_SECONDS
+                    self.audit_scheduler.reason = self.history_reason
+                    self.state_refresh_failed = False
+                    self.state_scheduler.completed(
+                        time.monotonic(), self.state_age(), time.monotonic() - started, 2
                     )
                 else:
-                    self.audit_scheduler.request_now("newer exposure read requires fresh audit")
+                    self.history_required = True
+                    self.audit_scheduler.request_now(
+                        "exposure-only or superseded audit; recovery continues"
+                    )
             else:
+                self.history_required = True
+                self.reconcile_failed = True
+                self.preflight_evidence = None
                 self.audit_scheduler.next_due = (
                     time.monotonic() + ACCOUNT_RECONCILE_INTERVAL_SECONDS
                 )
@@ -668,6 +726,99 @@ class Engine:
                 )
             self._reconcile_owner = None
             self.db.event("ACCOUNT_RECONCILE_DIAGNOSTIC", self.last_reconcile_diagnostic)
+
+    def invalidate_preflight(self, reason: str, *, history: bool = False) -> None:
+        self.preflight_generation += 1
+        self.preflight_evidence = None
+        if history:
+            self.history_required = True
+            self.history_reason = reason
+            self.audit_scheduler.request_now(reason)
+
+    def account_state_valid(self) -> bool:
+        return not self.state_refresh_failed and state_complete(self.account_snapshot)
+
+    def state_age(self) -> float:
+        return max(
+            (age if age is not None else 15.0)
+            for age in component_ages(self.account_snapshot).values()
+        )
+
+    def history_valid(self) -> bool:
+        return bool(
+            self.last_reconcile_ok and not self.reconcile_failed and not self.history_required
+        )
+
+    def preflight_binding(self) -> str:
+        return digest(
+            {
+                "boot_id": self.preflight_boot_id,
+                "account_index": self.config.account_index,
+                "risk": parameter_hash(self.config),
+                "history": self.db.accounting_fingerprint(),
+                "checkpoint": self.db.flag("last_trade_id"),
+                "fee_reports": self.db.conn.execute(
+                    "SELECT key,value FROM flags WHERE key LIKE 'fee_report:%' ORDER BY key"
+                ).fetchall(),
+                "cash_proof": self.db.conn.execute(
+                    "SELECT id,body FROM events WHERE kind='NET_CASH_AUDIT' "
+                    "ORDER BY id DESC LIMIT 1"
+                ).fetchone(),
+                "state": state_digest(self.account_snapshot) if self.account_snapshot else None,
+            }
+        )
+
+    async def refresh_account_state(self) -> None:
+        if not self.account or not self.market:
+            return
+        started = time.monotonic()
+        trace = getattr(self.account, "transport_trace", None)
+        seq = trace.sequence if trace else 0
+        task_id = id(asyncio.current_task())
+        outcome, error = "error", None
+        try:
+            with (
+                self.account.rate.reserve("reconcile", 2),
+                (
+                    trace.operation("account_state_refresh", "reconcile", 1)
+                    if trace
+                    else nullcontext()
+                ),
+            ):
+                async with asyncio.timeout(self.state_scheduler.timeout(self.state_age())):
+                    snap = await self.account.state_snapshot(
+                        int(self.market["market_id"]), self.account_snapshot
+                    )
+            if not state_complete(snap):
+                raise RuntimeError("account components incomplete/stale/inconsistent")
+            if self.account_snapshot and snap.received_at < self.account_snapshot.received_at:
+                return
+            if self.account_snapshot and state_digest(snap) != state_digest(self.account_snapshot):
+                self.invalidate_preflight("account state/funds changed", history=True)
+            self.account_snapshot = snap
+            self.last_position_read_ok = time.monotonic()
+            self.state_refresh_failed = False
+            outcome = "ok"
+            self.state_scheduler.completed(
+                time.monotonic(), self.state_age(), time.monotonic() - started, 2
+            )
+        except Exception as exc:
+            error = type(exc).__name__
+            self.state_refresh_failed = True
+            self.invalidate_preflight("account state refresh failed", history=True)
+            self.entries_stopped = True
+            self.state_scheduler.next_due = time.monotonic() + 2
+        finally:
+            self.last_state_diagnostic = {
+                "finished_at": time.time(),
+                "elapsed_ms": (time.monotonic() - started) * 1000,
+                "outcome": outcome,
+                "error": error,
+                "requests": [r for r in trace.completed if r["id"] > seq and r["task"] == task_id]
+                if trace
+                else [],
+            }
+            self.db.event("ACCOUNT_STATE_DIAGNOSTIC", self.last_state_diagnostic)
 
     def audit_account_age(self) -> float | None:
         snap = self.account_snapshot
@@ -729,6 +880,10 @@ class Engine:
                 )
             if self.account_snapshot and snap.received_at < self.account_snapshot.received_at:
                 return
+            if self.account_snapshot and state_digest(snap) != state_digest(self.account_snapshot):
+                self.invalidate_preflight(
+                    "exposure/lifecycle changed; full audit after cleanup", history=True
+                )
             self.account_snapshot = snap
             self.last_position_read_ok = time.monotonic()
             if snap.position_qty:
@@ -914,7 +1069,8 @@ class Engine:
             return
         market_id = int(self.market["market_id"])
         exposure_only = bool(
-            (self.probe_active or self.session_open())
+            not self.preflight_in_progress
+            and (self.probe_active or self.session_open())
             and self.account_snapshot
             and (
                 self.account_snapshot.position_qty
@@ -1350,7 +1506,147 @@ class Engine:
             if isinstance(exc, asyncio.CancelledError):
                 raise
 
+    def preflight_valid(self, attempt: str, *, sending: bool = False) -> bool:
+        proof = self.preflight_evidence
+        binding = self.preflight_binding()
+        return bool(
+            proof
+            and proof.valid(attempt, self.preflight_generation, binding, sending=sending)
+            and self.audit_binding == binding
+            and self.history_valid()
+            and self.account_state_valid()
+            and self.data_valid()
+            and self.journal_ok
+            and self.last_decision.basis_bps is not None
+        )
+
+    async def prepare_preflight(self, attempt: str, *, sendable: bool) -> bool:
+        """Caller owns one mixed audit+send lease. No intent/signing in this method."""
+        self.preflight_evidence = None
+        started = time.monotonic()
+        generation = self.preflight_generation
+        before = self.preflight_binding()
+        planned = self.audit_scheduler.request_cost
+        await self.safe_reconcile(reserved=True)
+        actual = sum(t >= started for t in self.account.rate.calls) if self.account else 0
+        snap = self.account_snapshot
+        blockers = []
+        if (
+            not self.history_valid()
+            or not self.account_state_valid()
+            or self.last_reconcile_ok < started
+        ):
+            blockers.append("complete history/account state failed or incomplete")
+        if before != self.preflight_binding() or generation != self.preflight_generation:
+            blockers.append("state/history changed during preflight")
+        if actual > planned:
+            blockers.append("pagination/retry grew beyond admission plan")
+        if not snap or snap.position_qty or snap.active_orders or self.db.unresolved():
+            blockers.append("account not flat/clean")
+        if (
+            not snap
+            or self.db.net_cash_status(str(snap.equity), str(snap.position_qty))["status"]
+            != "matched"
+        ):
+            blockers.append("cash audit not matched")
+        checks = diagnostic_observation(self)["checks"]
+        if self.probe_active:
+            checks["incident_flags"] = not any(
+                self.db.flag(flag) == "1"
+                for flag in (
+                    "funding_change_pending",
+                    "account_incident_pending",
+                    "total_loss_stop",
+                )
+            )
+        blockers.extend(
+            name
+            for name, passed in checks.items()
+            if not passed
+            and name not in {"entry_request_reserve", "lifecycle_idle", "reconciliation_idle"}
+        )
+        if not self.data_valid() or self.last_decision.basis_bps is None:
+            blockers.append("market/coverage not ready")
+        if not self.dispatch_rate_ready():
+            blockers.append("send/protection headroom unavailable")
+        if not blockers:
+            now = time.monotonic()
+            ttl = min(PREFLIGHT_TTL_SECONDS, 15 - self.state_age() - 0.5)
+            self.preflight_evidence = Evidence(
+                attempt, generation, self.preflight_binding(), now, now + max(0.0, ttl), sendable
+            )
+        self.last_preflight_diagnostic = {
+            "finished_at": time.time(),
+            "elapsed_ms": (time.monotonic() - started) * 1000,
+            "attempt": attempt,
+            "sendable": sendable,
+            "planned_read_cost": planned,
+            "actual_read_cost": actual,
+            "reserved_send_cost": 2,
+            "broadcast": False,
+            "ttl_seconds": PREFLIGHT_TTL_SECONDS,
+            "blockers": blockers,
+            "outcome": "complete_no_send"
+            if not blockers and not sendable
+            else "ready"
+            if not blockers
+            else "blocked",
+            "binding": self.preflight_binding(),
+            "generation": generation,
+        }
+        self.db.event("ENTRY_PREFLIGHT_DIAGNOSTIC", self.last_preflight_diagnostic)
+        return not blockers
+
+    async def diagnose_preflight(self) -> str:
+        """Read-only rehearsal; evidence cannot authorize signing even if orders enabled."""
+        if (
+            self.preflight_in_progress
+            or self.entry_tasks
+            or self.risk_needs_read()
+            or not self.account
+            or not self.history_valid()
+        ):
+            return "preflight diagnostik diblok: lifecycle/history belum bersih"
+        if self.reconcile_task and not self.reconcile_task.done():
+            await asyncio.shield(self.reconcile_task)
+        if self.state_refresh_task and not self.state_refresh_task.done():
+            await asyncio.shield(self.state_refresh_task)
+        if self.preflight_in_progress or not self.entry_rate_ready():
+            return "preflight diagnostik diblok: kapasitas penuh belum tersedia"
+        self.preflight_in_progress = True
+        try:
+            with self.account.rate.reserve("preflight", self.audit_scheduler.request_cost + 2):
+                ok = await self.prepare_preflight("diagnostic:" + uuid.uuid4().hex, sendable=False)
+        finally:
+            self.preflight_in_progress = False
+        return "preflight lengkap tanpa signing/broadcast" if ok else "preflight diagnostik gagal"
+
     async def enter(
+        self, side: str, kind: str = "ENTRY", *, scheduled_epoch: int | None = None
+    ) -> None:
+        if self.preflight_in_progress or not self.config.allow_live_orders or not self.account:
+            return
+        if self.reconcile_task and not self.reconcile_task.done():
+            await asyncio.shield(self.reconcile_task)
+        if self.state_refresh_task and not self.state_refresh_task.done():
+            await asyncio.shield(self.state_refresh_task)
+        if self.preflight_in_progress or not self.entry_rate_ready():
+            return
+        attempt = uuid.uuid4().hex
+        self.preflight_in_progress = True
+        try:
+            with self.account.rate.reserve("preflight", self.audit_scheduler.request_cost + 2):
+                if not await self.prepare_preflight(attempt, sendable=True):
+                    self.entries_stopped = True
+                    return
+                self.preflight_attempt = attempt
+                await self._enter_dispatch(side, kind, scheduled_epoch=scheduled_epoch)
+        finally:
+            self.preflight_attempt = None
+            self.preflight_evidence = None
+            self.preflight_in_progress = False
+
+    async def _enter_dispatch(
         self, side: str, kind: str = "ENTRY", *, scheduled_epoch: int | None = None
     ) -> None:
         epoch = self.entry_epoch if scheduled_epoch is None else scheduled_epoch
@@ -1378,7 +1674,7 @@ class Engine:
         fingerprint_before = self.db.accounting_fingerprint()
         equity_before = snap.equity
         if (
-            time.time() - snap.received_at > 15
+            not self.account_state_valid()
             or snap.account_type_code != self.config.expected_account_type_code
             or not self.margin_settings_valid(snap)
             or snap.active_orders
@@ -1435,7 +1731,8 @@ class Engine:
                     self.entry_epoch != epoch
                     or self.state != entry_state
                     or (kind == "PROBE" and not self.probe_active)
-                    or not self.entry_rate_ready()
+                    or not self.dispatch_rate_ready()
+                    or not self.preflight_valid(self.preflight_attempt or "", sending=True)
                     or (
                         kind == "ENTRY"
                         and (
@@ -1469,7 +1766,7 @@ class Engine:
                         kind in {"PROBE", "ENTRY"}
                         and (
                             self.reconcile_failed
-                            or time.monotonic() - self.last_reconcile_ok > 15
+                            or not self.history_valid()
                             or self.last_decision.basis_bps is None
                         )
                     )
@@ -1492,6 +1789,18 @@ class Engine:
                 else:
                     self.db.order_state(client_id, OrderState.SENT)
                 self.dispatching_entries.add(client_id)
+                proof = self.preflight_evidence
+                assert proof is not None  # Validated above, without an intervening await.
+                self.db.event(
+                    "ENTRY_PREFLIGHT_CONSUMED",
+                    {
+                        "client_id": client_id,
+                        "attempt": self.preflight_attempt,
+                        "binding": proof.binding,
+                        "expires_monotonic": proof.expires,
+                    },
+                )
+                self.preflight_evidence = None  # One signing attempt only.
                 self.db.event(
                     "ENTRY_DISPATCH",
                     {
@@ -1737,6 +2046,9 @@ class Engine:
                 result = self.start_session()
             elif kind == "PROBE_ONCE":
                 result = await self.probe_once()
+            elif kind == "DIAGNOSE_PREFLIGHT":
+                self.tasks.append(asyncio.create_task(self.diagnose_preflight()))
+                result = "preflight diagnostik dijadwalkan; tanpa intent/signing/broadcast"
             else:
                 result = "perintah tidak dikenal"
             self.db.finish_command(command_id, result)
@@ -1818,6 +2130,7 @@ class Engine:
             snap
             and full
             and not snap.position_qty
+            and not snap.active_orders
             and not full.position_qty
             and not full.active_orders
             and not self.db.unresolved()
@@ -1829,9 +2142,9 @@ class Engine:
             and not snap.other_positions
             and not snap.other_assets
             and full.received_at >= last_attempt
-            and time.time() - full.received_at < 15
+            and self.account_state_valid()
             and not self.reconcile_failed
-            and time.monotonic() - self.last_reconcile_ok < 15
+            and self.history_valid()
         )
 
     def end_session(self, reason: str) -> None:
@@ -1997,7 +2310,7 @@ class Engine:
                 snap.position_qty
                 or snap.active_orders
                 or fingerprint != self.db.accounting_fingerprint()
-                or time.monotonic() - self.last_reconcile_ok >= 15
+                or not self.history_valid()
             ):
                 return
             if sum((dec(row[1]) * (1 if row[4] == "buy" else -1) for row in new), Decimal(0)):
@@ -2183,6 +2496,16 @@ class Engine:
         }
 
     def entry_rate_ready(self) -> bool:
+        """Include the COMPLETE audit still to run, not only two send calls."""
+        rate = getattr(self.account, "rate", None)
+        reads = self.audit_scheduler.request_cost
+        return bool(
+            rate
+            and rate.can_claim("preflight", reads + 2)
+            and rate.can_claim("probe_read", reads + 14)
+        )
+
+    def dispatch_rate_ready(self) -> bool:
         rate = getattr(self.account, "rate", None)
         return bool(
             rate is not None
@@ -2258,7 +2581,7 @@ class Engine:
                     )
         if self.db.net_cash_status(str(snap.equity), str(snap.position_qty))["status"] != "matched":
             blockers.append("audit net kas/dana probe belum cocok")
-        if self.reconcile_failed or time.monotonic() - self.last_reconcile_ok > 15:
+        if not self.history_valid():
             blockers.append("audit kas/dana probe belum segar")
         if session_policy:
             record = self.session.read()
@@ -2326,8 +2649,10 @@ class Engine:
             blockers.append("mode idle; entry dinonaktifkan")
         elif self.state != EngineState.READY:
             blockers.append("engine belum READY")
-        if time.monotonic() - self.last_reconcile_ok > 15:
-            blockers.append("rekonsiliasi akun belum segar")
+        if not self.history_valid():
+            blockers.append("audit riwayat lengkap wajib belum selesai")
+        if not self.account_state_valid():
+            blockers.append("komponen keadaan akun belum lengkap/segar/konsisten")
         if self.account and self.reconcile_failed:
             blockers.append("rekonsiliasi akun terakhir gagal")
         if self.last_decision.basis_bps is None or not self.data_valid():
@@ -2465,6 +2790,43 @@ class Engine:
                 ),
             },
             "audit_scheduler": self.audit_scheduler.status(time.monotonic()),
+            "account_state_scheduler": self.state_scheduler.status(time.monotonic()),
+            "account_state_diagnostic": self.last_state_diagnostic,
+            "history_audit": {
+                "complete": self.history_valid(),
+                "required": self.history_required,
+                "reason": self.history_reason,
+                "idle_interval_seconds": HISTORY_IDLE_SECONDS,
+                "age_seconds": time.monotonic() - self.last_reconcile_ok
+                if self.last_reconcile_ok
+                else None,
+            },
+            "preflight": {
+                "diagnostic": self.last_preflight_diagnostic,
+                "ttl_seconds": PREFLIGHT_TTL_SECONDS,
+                "complete_reads_required": self.audit_scheduler.request_cost,
+                "send_cost": 2,
+                "protection_headroom_envelope": 14,
+                "ready_to_send_technically": bool(
+                    self.preflight_evidence
+                    and self.preflight_valid(self.preflight_evidence.attempt)
+                ),
+                "send_authorization": False
+                if not self.preflight_evidence
+                else bool(
+                    self.preflight_evidence.sendable
+                    and self.config.allow_live_orders
+                    and self.preflight_valid(self.preflight_evidence.attempt)
+                    and (
+                        self.session_entry_ready()
+                        or (
+                            self.probe_active
+                            and self.config.live_entry_scope == "probe_only"
+                            and time.monotonic() < self.session_end
+                        )
+                    )
+                ),
+            },
             "state": self.state,
             "reason": self.reason,
             "market_id": self.market["market_id"] if self.market else None,
@@ -2532,6 +2894,11 @@ class Engine:
                 if snap.initial_margin_fraction is not None
                 else None,
                 "age_s": round(time.time() - snap.received_at, 1),
+                "component_ages_s": component_ages(snap),
+                "components_complete": self.account_state_valid(),
+                "exchange_order_count": snap.exchange_order_count,
+                "exchange_pending_count": snap.exchange_pending_count,
+                "collateral": str(snap.collateral) if snap.collateral is not None else None,
                 "funding_audit_age_s": round(time.monotonic() - self.last_reconcile_ok, 1)
                 if self.last_reconcile_ok
                 else None,

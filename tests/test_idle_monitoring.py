@@ -35,10 +35,18 @@ def monitor(tmp_path):
         other_positions=(),
         other_assets=(),
         received_at=time.time(),
+        received_monotonic=time.monotonic(),
+        orders_received_at=time.time(),
+        orders_received_monotonic=time.monotonic(),
+        exchange_order_count=0,
+        exchange_pending_count=0,
+        collateral=Decimal("49.43"),
         account_trading_mode=1,
     )
     engine.last_reconcile_ok = time.monotonic()
     engine.reconcile_failed = False
+    engine.history_required = False
+    engine.state_refresh_failed = False
     engine.state = EngineState.PAUSED
     engine.data_valid = lambda: True
     decision = Decision(None, Decimal(0), Decimal(0), Decimal(1), ())
@@ -110,6 +118,7 @@ def test_idle_requires_fresh_successful_reconciliation_and_clean_journal(monitor
     monitor.decide()
     if fault == "stale_reconcile":
         monitor.last_reconcile_ok = time.monotonic() - 16
+        monitor.history_required = True
     elif fault == "failed_reconcile":
         monitor.reconcile_failed = True
     elif fault == "market":

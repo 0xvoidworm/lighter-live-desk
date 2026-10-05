@@ -179,16 +179,61 @@ tidak menghalangi pemantauan IDLE; semua guard margin, izin order dan
 preflight tetap berlaku sebelum live. Jangan mengisi expected margin
 dengan perkiraan, menaikkan leverage, atau mengirim order untuk memaksa IDLE.
 
-Profil akun eksperimen saat ini memakai 8 read request per rekonsiliasi;
-jadwalnya sekarang mengikuti timestamp respons akun asli: umur15s dikurangi
-bound durasi audit (awal2s, high-water hasil terukur) dan margin0,5s. Retry
-audit yang gagal tetap diberi jeda12s; failure tidak memperbarui freshness.
-Setelah bootstrap, history dibaca lengkap dahulu dan account dekat akhir.
+Profil akun saat ini memakai2GET per pembaruan state dan8GET per audit
+lengkap. State dijadwalkan dari umur komponen tertua:15s dikurangi bound
+durasi awal2s/high-water dan margin0,5s. Timeout state mengikuti sisa umur
+komponen, full history maksimum8s; retry audit gagal12s, retry state2s.
+Failure tidak memperbarui freshness. Setelah bootstrap, full history dibaca
+dahulu dan account dekat akhir; state refresh tidak membaca funding history.
+Kebijakan dua lane disetujui 5 Oktober 2026: keadaan akun/order masing-masing
+wajib segar ≤15s, tetapi riwayat lengkap tidak lagi mengikuti interval itu.
+`account` membuktikan posisi semua market, collateral/equity/available, tier,
+mode/margin dan total/pending order count; `accountActiveOrders` tanpa market
+membuktikan seluruh order. Timestamp masing-masing berasal dari responsnya;
+GET posisi saja, heartbeat dan socket idle tidak menyegarkan order/history.
+Count tidak cocok, komponen kosong/basi atau cursor order yang tidak dapat
+diikuti SDK membatalkan kesiapan entry.
+
+Audit lengkap wajib pada startup/recovery, tepat sebelum SETIAP percobaan
+entry, setelah lifecycle selesai dan setelah perubahan dana/state/aktivitas
+tak terjelaskan. Saat flat, periodik **120s**: perubahan ekonomi/count atau
+transaction_time pada dua GET dan hint trade/reconnect mempercepat audit;
+aktivitas net-zero yang luput dari hint tetap dicari saat periodik/sebelum
+entry. Transaction_time hanya petunjuk perubahan, bukan bukti kontinuitas.
+Funding pagination tetap lengkap, trade checkpoint/deduplikasi tetap ada.
+Audit gagal/truncation tidak lulus; fee NULL tetap terpisah dari ekspor resmi.
+
+Preflight memegang reservasi atomik audit lengkap + send2 (saat ini8+2),
+menyertakan dua GET keadaan akun dalam8, tanpa menghitungnya dua kali.
+Admission juga memeriksa audit8 + envelope entry/priority-read14 ≤47
+(used≤25 sebelum audit8), serta normal≤40 agar tersisa minimal15 menuju55.
+Lease mengubah slot belum terpakai menjadi konsumsi; hanya sisa dilepas saat
+batal. Pagination/retry bertambah membatalkan preflight, tidak meminjam slot
+send secara diam-diam. Worker risiko tidak mengambil lease preflight.
+
+Bukti terikat boot/process, satu UUID percobaan, akun, risk parameter hash,
+checkpoint/fingerprint ledger, state akun, bukti fee dan referensi kas.
+TTL monotonic paling lama **5s**, dipotong sisa freshness komponen−0,5s.
+TTL tidak diperpanjang oleh pembaruan data yang ekonominya sama. Dispatch
+memeriksa ulang binding, freshness, kapasitas, sinyal, dan izin sesi; bukti
+dikonsumsi sebelum signing. Restart/gap/reconnect/perubahan state membatalkan.
+Audit/fee pending sesudah fill hanya memblokir entry berikutnya; risk worker
+proteksi, close, cancel dan timer tetap independen.
+
+Status membedakan `diagnostic_observation.technical_ready` (evaluasi +
+kapasitas biaya preflight yang belum dijalankan) dari
+`preflight.ready_to_send_technically` (audit baru selesai dan bukti belum
+kedaluwarsa). `DIAGNOSE_PREFLIGHT` hanya menjalankan GET yang sama dengan
+reserve send2 yang tidak dikonsumsi; bukti sendable=false, tidak membuat
+intent/signing/broadcast, tidak mengaktifkan sesi/fee policy/order. Jalannya
+background agar coordinator tetap memproses pasar. Jangan menyamakan bukti
+ini dengan order diterima exchange atau latensi fill.
+
 Batch memakai reservasi atomik normal40/min; status memisahkan pemakaian
 dari reservasi yang belum terpakai. Pemanggil audit bersamaan berbagi task,
 sementara worker proteksi/exit tetap tidak menunggu lock/network pembukuan.
-Delapan GET masih dapat menghasilkan puncak40 dan memblokir guard entry≤33
-pada sebagian fase; pagu tidak dinaikkan. Cadangan exit tetap hingga55/min.
+Jadwal lama8GET per pembaruan diganti2GET + audit lengkap periodik/barrier.
+Histori panjang tetap dapat menghabiskan admission; pagu tidak dinaikkan.
 [Batas resmi Standard](https://apidocs.lighter.xyz/docs/rate-limits)
 adalah 60 request per rolling minute dan dapat dibagi dengan klien lain.
 Batas freshness akun tetap 15 detik. Kesalahan rekonsiliasi tetap menghentikan

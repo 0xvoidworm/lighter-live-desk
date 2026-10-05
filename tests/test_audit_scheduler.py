@@ -178,7 +178,7 @@ async def test_slow_or_incomplete_bookkeeping_never_refreshes_audit(engine):
     )
 
     async def slow():
-        await asyncio.sleep(1)
+        await asyncio.sleep(9)  # Full history has its own bounded 8s deadline now.
 
     engine.reconcile = AsyncMock(side_effect=slow)
     await engine.safe_reconcile()

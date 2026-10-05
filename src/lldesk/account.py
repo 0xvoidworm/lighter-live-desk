@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import dataclasses
 import json
 import time
 from collections import deque
@@ -42,7 +43,15 @@ class RateBudget:
         held = sum(n for _, n in self.reservations.values())
         key = self._reservation.get()
         owner = self.reservations.get(key) if key is not None else None
-        if owner and owner[0] == priority:
+        if owner and (
+            owner[0] == priority
+            or (
+                owner[0] == "preflight"
+                and (
+                    priority in {"entry", "reconcile"} or (priority == "probe_read" and cost == 14)
+                )
+            )
+        ):
             held -= min(owner[1], cost)
         return held
 
@@ -52,6 +61,15 @@ class RateBudget:
             self.calls.popleft()
         # Urgent account reads must leave eight slots for stop/close/cancel.
         cap = {"exit": 55, "probe_read": 47}.get(priority, 40)
+        key = self._reservation.get()
+        owner = self.reservations.get(key) if key is not None else None
+        if (
+            owner
+            and owner[0] == "preflight"
+            and priority in {"entry", "reconcile"}
+            and cost > owner[1]
+        ):
+            return False  # Extra pagination/retry requires a new complete admission.
         return len(self.calls) + self._held(priority, cost) + cost <= cap
 
     @contextmanager
@@ -77,8 +95,15 @@ class RateBudget:
         now = time.monotonic()
         key = self._reservation.get()
         owner = self.reservations.get(key) if key is not None else None
-        if key is not None and owner and owner[0] == priority:
-            self.reservations[key] = (priority, max(0, owner[1] - cost))
+        if (
+            key is not None
+            and owner
+            and (
+                owner[0] == priority
+                or (owner[0] == "preflight" and priority in {"entry", "reconcile"})
+            )
+        ):
+            self.reservations[key] = (owner[0], max(0, owner[1] - cost))
         self.calls.extend([now] * cost)
 
 
@@ -101,6 +126,12 @@ class AccountSnapshot:
     margin_mode: int | None = None
     initial_margin_fraction: Decimal | None = None
     received_monotonic: float = 0.0
+    orders_received_at: float = 0.0
+    orders_received_monotonic: float = 0.0
+    exchange_order_count: int | None = None
+    exchange_pending_count: int | None = None
+    collateral: Decimal | None = None
+    transaction_time: int | None = None
 
 
 class LighterAccount:
@@ -176,7 +207,7 @@ class LighterAccount:
     ) -> AccountSnapshot:
         """One priority GET. Cached orders/flows are NOT a fresh cleanup/funding audit."""
         acct, received_at, received_mono = await self._read_account(priority)
-        return self._parse_account(
+        snap = self._parse_account(
             acct,
             market_id,
             received_at,
@@ -184,6 +215,21 @@ class LighterAccount:
             previous.funding_flows if previous else (),
             received_mono,
         )
+        # A position-only GET never refreshes orders or history.
+        if previous:
+            snap = dataclasses.replace(
+                snap,
+                orders_received_at=previous.orders_received_at,
+                orders_received_monotonic=previous.orders_received_monotonic,
+            )
+        return snap
+
+    async def state_snapshot(
+        self, market_id: int, previous: AccountSnapshot | None = None
+    ) -> AccountSnapshot:
+        """Two authoritative GETs; funding flows are explicitly historical."""
+        flows = previous.funding_flows if previous else ()
+        return await self._snapshot(market_id, "reconcile", flows)
 
     async def _read_account(self, priority: str) -> tuple[Any, float, float]:
         self.rate.claim(priority)
@@ -222,6 +268,11 @@ class LighterAccount:
         )
         if orders.code != 200:
             raise RuntimeError("Lighter active orders request failed")
+        if getattr(orders, "next_cursor", None):
+            raise RuntimeError(
+                "active order response incomplete; cursor cannot be followed by this SDK"
+            )
+        orders_wall, orders_mono = time.time(), time.monotonic()
         if acct is None:
             acct, received_at, received_mono = await self._read_account(priority)
             if acct.l1_address != address:
@@ -242,7 +293,9 @@ class LighterAccount:
             received_mono,
         )
         self._funding_l1_address = address
-        return snapshot
+        return dataclasses.replace(
+            snapshot, orders_received_at=orders_wall, orders_received_monotonic=orders_mono
+        )
 
     def _parse_account(
         self,
@@ -283,6 +336,10 @@ class LighterAccount:
             account_trading_mode=acct.account_trading_mode,
             margin_mode=position.margin_mode if position else None,
             initial_margin_fraction=Decimal(position.initial_margin_fraction) if position else None,
+            exchange_order_count=getattr(acct, "total_order_count", None),
+            exchange_pending_count=getattr(acct, "pending_order_count", None),
+            collateral=Decimal(str(acct.collateral)) if hasattr(acct, "collateral") else None,
+            transaction_time=getattr(acct, "transaction_time", None),
         )
 
     async def funding_history(
