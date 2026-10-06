@@ -6,7 +6,7 @@ import socket
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Literal
+from typing import Any, Literal
 
 import aiohttp
 from aiohttp.abc import AbstractResolver, ResolveResult
@@ -89,7 +89,10 @@ class BinanceResolver(AbstractResolver):
 
 @asynccontextmanager
 async def binance_session(
-    mode: DnsMode = "system", *, trace_configs: list[aiohttp.TraceConfig] | None = None
+    mode: DnsMode = "system",
+    *,
+    trace_configs: list[aiohttp.TraceConfig] | None = None,
+    ws_response_class: Any = aiohttp.ClientWebSocketResponse,
 ) -> AsyncIterator[aiohttp.ClientSession]:
     resolver = BinanceResolver(mode)
     try:
@@ -101,6 +104,7 @@ async def binance_session(
             timeout=aiohttp.ClientTimeout(total=10, connect=5),
             trust_env=False,
             trace_configs=trace_configs,
+            ws_response_class=ws_response_class,
         ) as client:
             yield client
     finally:

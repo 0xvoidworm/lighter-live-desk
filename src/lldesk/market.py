@@ -7,8 +7,10 @@ import os
 import time
 import traceback
 import uuid
+from contextlib import nullcontext
 from dataclasses import dataclass, field, replace
 from decimal import Decimal
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +21,12 @@ import websockets
 from .models import MarketEvent, Quote, Stamp
 from .network import DnsMode, binance_session
 from .transport_trace import TransportTrace
+from .websocket_trace import (
+    CURRENT_CONNECTION,
+    ObservedAiohttpSocket,
+    ObservedLighterSocket,
+    WebsocketTrace,
+)
 
 BINANCE_PUBLIC_WS = "wss://fstream.binance.com/public/stream?streams=btcusdt@depth@100ms"
 BINANCE_MARKET_WS = "wss://fstream.binance.com/market/stream?streams=btcusdt@aggTrade"
@@ -205,6 +213,7 @@ class Recorder:
                     "recorded_monotonic_ns": time.monotonic_ns(),
                     "run_id": self.run_id,
                     "pid": os.getpid(),
+                    "connection_id": event.connection_id,
                 }
             )
             + "\n"
@@ -220,8 +229,13 @@ class Recorder:
 
 class Feeds:
     def __init__(
-        self, market_id: int, queue: asyncio.Queue[MarketEvent], dns_mode: DnsMode = "system"
+        self,
+        market_id: int,
+        queue: asyncio.Queue[MarketEvent],
+        dns_mode: DnsMode = "system",
+        telemetry: WebsocketTrace | None = None,
     ):
+        self.telemetry = telemetry
         self.market_id = market_id
         self.queue = queue
         self._emitted_since_yield = 0
@@ -248,6 +262,11 @@ class Feeds:
 
     def channel_started(self, name: str) -> None:
         self.channels[name].update(connected=True, retry_delay_s=0, _started=time.monotonic())
+
+    def connection(self, name: str, url: str):
+        connection = self.telemetry.connect(name, url) if self.telemetry else None
+        self.channels[name]["connection_id"] = connection.id if connection else None
+        return connection
 
     def channel_data(self, name: str) -> None:
         now = time.monotonic()
@@ -276,6 +295,14 @@ class Feeds:
             "exception_chain": "".join(traceback.format_exception(exc)),
         }
         state["last_transport_detail"] = detail
+        if self.telemetry:
+            self.telemetry.event(
+                "disconnect",
+                connection_id=state.get("connection_id"),
+                channel=name,
+                exception_type=type(exc).__name__,
+                retry_delay_s=delay,
+            )
         self.reconnects[venue] += 1
         await self.emit(
             venue,
@@ -314,7 +341,11 @@ class Feeds:
         stamp = stamp or Stamp(exchange_ms=exchange_ms)
         if stamp.exchange_ms is None and exchange_ms is not None:
             stamp = replace(stamp, exchange_ms=exchange_ms)
-        event = MarketEvent(venue, kind, payload, stamp, time.monotonic_ns())
+        connection_id = CURRENT_CONNECTION.get()
+        if kind == "disconnect":
+            name = "lighter" if venue == "lighter" else "binance_" + str(payload.get("channel"))
+            connection_id = self.channels.get(name, {}).get("connection_id")
+        event = MarketEvent(venue, kind, payload, stamp, time.monotonic_ns(), connection_id)
         try:
             self.queue.put_nowait(event)
         except asyncio.QueueFull as exc:
@@ -341,13 +372,22 @@ class Feeds:
 
     async def _binance_public(self) -> None:
         while True:
+            connection = self.connection("binance_public", BINANCE_PUBLIC_WS)
+            observed: dict[str, Any] = (
+                {"ws_response_class": partial(ObservedAiohttpSocket, evidence=connection)}
+                if connection
+                else {}
+            )
             try:
                 async with (
                     binance_session(
-                        self.dns_mode, trace_configs=[self.transport_trace.config()]
+                        self.dns_mode, trace_configs=[self.transport_trace.config()], **observed
                     ) as client,
                     client.ws_connect(BINANCE_PUBLIC_WS, heartbeat=20) as ws,
+                    connection.scope() if connection else nullcontext(),
                 ):
+                    if connection:
+                        connection.event("handshake_completed")
                     self.channel_started("binance_public")
                     buffered: list[tuple[dict[str, Any], Stamp]] = []
                     snap_task = asyncio.create_task(self._binance_snapshot(client))
@@ -358,6 +398,8 @@ class Feeds:
                             except TimeoutError:
                                 continue
                             received = Stamp()
+                            if connection:
+                                connection.frame("application", "TEXT", len(raw.encode()))
                             msg = json.loads(raw)
                             data = msg.get("data", msg)
                             buffered.append(
@@ -393,28 +435,43 @@ class Feeds:
                         if frame.type != aiohttp.WSMsgType.TEXT:
                             raise websocket_closed(ws, "public", frame.type.name)
                         message = json.loads(frame.data)
+                        if connection:
+                            connection.frame("application", "TEXT", len(frame.data))
                         if await self._binance_message(
                             message.get("data", message), stamp=received
                         ):
                             self.channel_data("binance_public")
                     raise websocket_closed(ws, "public")
             except asyncio.CancelledError:
+                if connection:
+                    connection.begin_close("task_cancellation")
                 self.binance_public_ok = False
                 self.channels["binance_public"]["connected"] = False
                 raise
             except Exception as exc:
+                if connection:
+                    connection.failure(exc)
                 self.binance_public_ok = False
                 await self.reconnect("binance", "public", exc)
 
     async def _binance_trades(self) -> None:
         while True:
+            connection = self.connection("binance_market", BINANCE_MARKET_WS)
+            observed: dict[str, Any] = (
+                {"ws_response_class": partial(ObservedAiohttpSocket, evidence=connection)}
+                if connection
+                else {}
+            )
             try:
                 async with (
                     binance_session(
-                        self.dns_mode, trace_configs=[self.transport_trace.config()]
+                        self.dns_mode, trace_configs=[self.transport_trace.config()], **observed
                     ) as client,
                     client.ws_connect(BINANCE_MARKET_WS, heartbeat=20) as ws,
+                    connection.scope() if connection else nullcontext(),
                 ):
+                    if connection:
+                        connection.event("handshake_completed")
                     self.channel_started("binance_market")
                     self.binance_trades_ok = True
                     async for frame in ws:
@@ -422,16 +479,22 @@ class Feeds:
                         if frame.type != aiohttp.WSMsgType.TEXT:
                             raise websocket_closed(ws, "market", frame.type.name)
                         message = json.loads(frame.data)
+                        if connection:
+                            connection.frame("application", "TEXT", len(frame.data))
                         if await self._binance_message(
                             message.get("data", message), stamp=received
                         ):
                             self.channel_data("binance_market")
                     raise websocket_closed(ws, "market")
             except asyncio.CancelledError:
+                if connection:
+                    connection.begin_close("task_cancellation")
                 self.binance_trades_ok = False
                 self.channels["binance_market"]["connected"] = False
                 raise
             except Exception as exc:
+                if connection:
+                    connection.failure(exc)
                 self.binance_trades_ok = False
                 await self.reconnect("binance", "market", exc)
 
@@ -454,10 +517,21 @@ class Feeds:
 
     async def lighter(self) -> None:
         while True:
+            connection = self.connection("lighter", LIGHTER_WS)
+            observed: dict[str, Any] = (
+                {"create_connection": partial(ObservedLighterSocket, evidence=connection)}
+                if connection
+                else {}
+            )
             try:
-                async with websockets.connect(
-                    LIGHTER_WS, ping_interval=30, max_queue=256, open_timeout=10
-                ) as ws:
+                async with (
+                    websockets.connect(
+                        LIGHTER_WS, ping_interval=30, max_queue=256, open_timeout=10, **observed
+                    ) as ws,
+                    connection.scope() if connection else nullcontext(),
+                ):
+                    if connection:
+                        connection.event("handshake_completed")
                     self.channel_started("lighter")
                     for channel in (
                         f"order_book/{self.market_id}",
@@ -465,8 +539,12 @@ class Feeds:
                         f"ticker/{self.market_id}",
                     ):
                         await ws.send(json.dumps({"type": "subscribe", "channel": channel}))
+                    if connection:
+                        connection.event("subscriptions_sent", subscription_count=3)
                     async for raw in ws:
                         received = Stamp()
+                        if connection:
+                            connection.frame("application", "TEXT", len(raw))
                         data = json.loads(raw)
                         channel = str(data.get("channel", ""))
                         if channel.startswith(("order_book:", "trade:", "ticker:")):
@@ -480,7 +558,11 @@ class Feeds:
                             )
                     raise ConnectionError("Lighter stream ended")
             except asyncio.CancelledError:
+                if connection:
+                    connection.begin_close("task_cancellation")
                 self.channels["lighter"]["connected"] = False
                 raise
             except Exception as exc:
+                if connection:
+                    connection.failure(exc)
                 await self.reconnect("lighter", "ws", exc)

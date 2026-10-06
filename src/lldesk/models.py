@@ -75,6 +75,7 @@ class MarketEvent:
     payload: dict
     stamp: Stamp
     queued_monotonic_ns: int | None = None
+    connection_id: str | None = None
 
 
 @dataclass(frozen=True)

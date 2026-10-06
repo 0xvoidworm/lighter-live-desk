@@ -47,6 +47,7 @@ from .risk import EquityBaseline, limit_price, size_entry
 from .session import BoundedSession, parameter_hash
 from .source_time import BinanceSourceClock
 from .strategy import Decision, DeviationStrategy
+from .websocket_trace import WebsocketTrace
 
 LOG = logging.getLogger("lldesk.engine")
 JAKARTA = ZoneInfo("Asia/Jakarta")
@@ -72,6 +73,11 @@ class Engine:
         self.account_queue: asyncio.Queue[AccountEvent] = asyncio.Queue(maxsize=256)
         self.feeds: Feeds | None = None
         self.recorder = Recorder(self.root / "state" / "market")
+        self.ws_telemetry = WebsocketTrace(self.root / "state" / "transport", self.recorder.run_id)
+        self.ws_telemetry.context_provider = self.telemetry_context
+        self._receipt_source_recorded = False
+        self._coverage_observed: bool | None = None
+        self.market_record_max_ns = 0
         self.strategy = DeviationStrategy(config.warmup_seconds)
         self.source_clock = BinanceSourceClock(config.max_data_age_ms)
         self.exit_basis_bps: Decimal | None = None
@@ -196,7 +202,10 @@ class Engine:
             self.market = await market_metadata()
             self._check_market()
             self.feeds = Feeds(
-                int(self.market["market_id"]), self.queue, self.config.binance_dns_mode
+                int(self.market["market_id"]),
+                self.queue,
+                self.config.binance_dns_mode,
+                telemetry=self.ws_telemetry,
             )
             if self.config.mode == "live_capable":
                 try:
@@ -216,11 +225,16 @@ class Engine:
                 asyncio.create_task(
                     self.source_clock.run(self.config.binance_dns_mode, self.record_source_clock)
                 ),
+                asyncio.create_task(self.ws_telemetry.run(self.telemetry_context)),
             ]
             if self.account:
                 self.tasks.append(
                     asyncio.create_task(
-                        self.account.stream(int(self.market["market_id"]), self.account_queue)
+                        self.account.stream(
+                            int(self.market["market_id"]),
+                            self.account_queue,
+                            telemetry=self.ws_telemetry,
+                        )
                     )
                 )
             await self.loop()
@@ -232,6 +246,9 @@ class Engine:
             if self.state_refresh_task:
                 self.tasks.append(self.state_refresh_task)
             self.tasks.extend(self.entry_tasks)
+            for connection in self.ws_telemetry.connections.values():
+                if connection.first_close is None:
+                    connection.begin_close("engine_shutdown")
             for task in self.tasks:
                 task.cancel()
             await asyncio.gather(*self.tasks, return_exceptions=True)
@@ -417,6 +434,12 @@ class Engine:
         self.invalidate_preflight("feed recovery", history=True)
         if not self.feeds:
             return
+        self._receipt_source_recorded = False
+        self.ws_telemetry.event("application_feed_recovery", context=self.telemetry_context())
+        for state in self.feeds.channels.values():
+            connection = self.ws_telemetry.connections.get(state.get("connection_id") or "")
+            if connection:
+                connection.begin_close("application_feed_recovery")
         for task in self.tasks[:2]:
             task.cancel()
         await asyncio.gather(*self.tasks[:2], return_exceptions=True)
@@ -434,6 +457,8 @@ class Engine:
         started = time.monotonic_ns()
         book = self.books.get(event.venue)
         previous_stamp = book.stamp.monotonic_ns if book else None
+        previous_bridged = book.bridged if book else False
+        previous_valid = book.valid if book else False
         outcome = "error"
         try:
             self._apply_market(event)
@@ -468,6 +493,24 @@ class Engine:
             processing = (finished - started) / 1e6
             record["max_processing_ms"] = max(record.get("max_processing_ms", 0), processing)
             record["processing_ms"] = processing
+            if (
+                event.kind == "snapshot"
+                or (event.kind == "depthUpdate" and book and book.bridged and not previous_bridged)
+                or (event.venue == "lighter" and book and book.valid and not previous_valid)
+            ):
+                self.ws_telemetry.event(
+                    "snapshot_applied"
+                    if event.kind == "snapshot" or event.venue == "lighter"
+                    else "depth_bridged",
+                    connection_id=event.connection_id,
+                    venue=event.venue,
+                    receipt_monotonic_ns=event.stamp.monotonic_ns,
+                    source_ms=event.stamp.exchange_ms,
+                    sequence=book.sequence if book else None,
+                    U=event.payload.get("U"),
+                    u=event.payload.get("u"),
+                    pu=event.payload.get("pu"),
+                )
             if event.queued_monotonic_ns is not None:
                 parsing = (event.queued_monotonic_ns - event.stamp.monotonic_ns) / 1e6
                 waiting = (started - event.queued_monotonic_ns) / 1e6
@@ -487,11 +530,18 @@ class Engine:
             )
 
     def _apply_market(self, event: MarketEvent) -> None:
-        self.recorder.write(event)
+        writing = time.monotonic_ns()
+        try:
+            self.recorder.write(event)
+        finally:
+            self.market_record_max_ns = max(
+                self.market_record_max_ns, time.monotonic_ns() - writing
+            )
         book = self.books.get(event.venue)
         if not book:
             return
         if event.kind == "disconnect":
+            self._receipt_source_recorded = False
             self.invalidate_preflight("market reconnect: " + event.venue, history=True)
             channel = str(event.payload.get("channel", "unknown"))
             self.strategy.interrupted(event.venue, channel, str(event.payload.get("reason", "")))
@@ -708,6 +758,11 @@ class Engine:
                 for name, q in (("lighter", lighter), ("binance", binance))
             },
         }
+        if valid and guard is not None and not self._receipt_source_recorded:
+            self._receipt_source_recorded = True
+            self.ws_telemetry.event(
+                "receipt_source_valid", data_guard=guard, context=self.telemetry_context()
+            )
         self.last_decision = self.strategy.evaluate(lighter, binance, valid, self.fx)
         if valid and self.last_decision.basis_bps is not None:
             self.exit_basis_bps = self.last_decision.basis_bps
@@ -2968,7 +3023,35 @@ class Engine:
             blockers.append("batas loss tercapai")
         return blockers
 
+    def telemetry_context(self) -> dict:
+        trace = getattr(self.account, "transport_trace", None)
+        active = trace.status()["active"] if trace else []
+        return {
+            "market_queue": self.queue.qsize(),
+            "account_queue": self.account_queue.qsize(),
+            "market_recorder_max_ms": self.market_record_max_ns / 1e6,
+            "active_rest": [
+                {
+                    k: r.get(k)
+                    for k in ("id", "host", "path", "started_at", "last_phase", "elapsed_ms")
+                }
+                for r in active
+            ],
+            "market_connections": {
+                name: state.get("connection_id")
+                for name, state in getattr(self.feeds, "channels", {}).items()
+            }
+            if self.feeds
+            else {},
+        }
+
     def status(self) -> dict:
+        coverage = self.strategy.coverage()
+        if coverage["ready"] != self._coverage_observed:
+            self._coverage_observed = coverage["ready"]
+            self.ws_telemetry.event(
+                "coverage_observed", coverage=coverage, context=self.telemetry_context()
+            )
         now = time.monotonic_ns()
         quotes = {}
         for venue, book in self.books.items():
@@ -3100,7 +3183,8 @@ class Engine:
             "transport_trace": self.account.transport_trace.status()
             if self.account and hasattr(self.account, "transport_trace")
             else None,
-            "coverage": self.strategy.coverage(),
+            "coverage": coverage,
+            "websocket_telemetry": self.ws_telemetry.status(),
             "feed_channels": getattr(self.feeds, "channel_status", lambda: {})(),
             "binance_transport_trace": self.feeds.transport_trace.status()
             if self.feeds and hasattr(self.feeds, "transport_trace")

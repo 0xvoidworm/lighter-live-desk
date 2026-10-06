@@ -6,10 +6,11 @@ import json
 import time
 from collections import deque
 from collections.abc import Callable, Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from contextvars import ContextVar
 from dataclasses import dataclass
 from decimal import Decimal
+from functools import partial
 from typing import Any
 
 import lighter
@@ -18,6 +19,7 @@ import websockets
 from .config import Config, load_secrets
 from .models import AccountEvent, OrderIntent, Stamp
 from .transport_trace import TransportTrace
+from .websocket_trace import ObservedLighterSocket, WebsocketTrace
 
 BASE_URL = "https://mainnet.zklighter.elliot.ai"
 
@@ -573,20 +575,46 @@ class LighterAccount:
             raise RuntimeError("Lighter cancel not acknowledged")
         return str(response.tx_hash)
 
-    async def stream(self, market_id: int, queue: asyncio.Queue[AccountEvent]) -> None:
+    async def stream(
+        self,
+        market_id: int,
+        queue: asyncio.Queue[AccountEvent],
+        *,
+        telemetry: WebsocketTrace | None = None,
+    ) -> None:
         """Private events speed up fill detection; REST remains reconciliation authority."""
         channel = f"account_market/{market_id}/{self.account_index}"
         while True:
+            connection = (
+                telemetry.connect(
+                    "lighter_account", BASE_URL.replace("https://", "wss://") + "/stream"
+                )
+                if telemetry
+                else None
+            )
+            observed: dict[str, Any] = (
+                {"create_connection": partial(ObservedLighterSocket, evidence=connection)}
+                if connection
+                else {}
+            )
             try:
-                async with websockets.connect(
-                    BASE_URL.replace("https://", "wss://") + "/stream",
-                    ping_interval=30,
-                    max_queue=128,
-                    open_timeout=10,
-                ) as ws:
+                async with (
+                    websockets.connect(
+                        BASE_URL.replace("https://", "wss://") + "/stream",
+                        ping_interval=30,
+                        max_queue=128,
+                        open_timeout=10,
+                        **observed,
+                    ) as ws,
+                    connection.scope() if connection else nullcontext(),
+                ):
+                    if connection:
+                        connection.event("handshake_completed")
                     await ws.send(
                         json.dumps({"type": "subscribe", "channel": channel, "auth": self.auth()})
                     )
+                    if connection:
+                        connection.event("subscriptions_sent", subscription_count=1)
                     # Reconnect before the SDK's 10-minute auth token expires.
                     deadline = time.monotonic() + 480
                     while time.monotonic() < deadline:
@@ -595,14 +623,22 @@ class LighterAccount:
                         except TimeoutError:
                             continue
                         data = json.loads(raw)
+                        if connection:
+                            connection.frame("application", "TEXT", len(raw))
                         if data.get("type") == "update/account_market":
                             event = AccountEvent(
                                 self.account_index, data, Stamp(exchange_ms=data.get("timestamp"))
                             )
                             queue.put_nowait(event)
+                    if connection:
+                        connection.begin_close("application_auth_rotation")
             except asyncio.CancelledError:
+                if connection:
+                    connection.begin_close("task_cancellation")
                 raise
-            except Exception:
+            except Exception as exc:
+                if connection:
+                    connection.failure(exc)
                 # Dropped account events invalidate incremental state. REST must reconcile.
                 while not queue.empty():
                     queue.get_nowait()

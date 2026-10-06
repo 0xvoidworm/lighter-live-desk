@@ -16,6 +16,24 @@ proof, anchor, offset dasar, drift dan TTL. Entry/preflight/dispatch tetap melak
 pemeriksaan baru; rekaman keputusan tidak memberi izin. Penilaian diagnostik yang
 lebih baru dapat berbeda secara sah. Lihat AUDIT_CLOCK_DECISION_RECONNECT_2026-10-06.md.
 
+## Bukti transport pasif
+
+`websocket_telemetry` menyimpan connection/event ID, handshake, frame library versus
+pesan aplikasi, jadwal/callback heartbeat, serta pemicu close pertama dan error
+cleanup terpisah. Pada aiohttp, PONG diamati sebelum autoping menyembunyikannya;
+pada websockets, frame diamati sebelum pencocokan pong. Tidak adanya PONG di
+iterator aplikasi bukan bukti pong hilang. Callback terlambat dicatat terhadap
+deadline monotonic, tanpa mengubah heartbeat atau timer evaluator.
+
+Event jarang ditulis ke `state/transport/` oleh thread dengan queue512 dan
+`put_nowait`; data frame hanya dihitung. Periksa `events_dropped`, `write_errors`,
+umur antrean dan lag sebelum memakai bukti sebagai timeline lengkap. Logger tidak
+menambah polling akun, ping, atau koneksi. Snapshot, bridge U/u/pu, source-valid
+dan coverage observed terikat connection ID; gap historis tetap berlaku.
+Hook keepalive websockets terikat hash implementasi16.1.1; jika berubah, hook
+jadwal dinonaktifkan dan keepalive asli dipakai. Lihat
+TRANSPORT_TELEMETRY_DESIGN_2026-10-06.md untuk batas pengamatan dan kriteria rollout.
+
 ## Kesegaran sumber Binance untuk entry dan sampel
 
 Receipt monotonic tetap memakai guard lama 1500ms. Entry/sampel juga wajib
