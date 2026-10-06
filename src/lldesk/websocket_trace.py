@@ -20,11 +20,14 @@ from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 import aiohttp
 from aiohttp.streams import EofStream
 from websockets.asyncio.client import ClientConnection
 from websockets.frames import CloseCode, Frame, Opcode
+
+from .socket_trace import socket_metadata, unavailable
 
 CURRENT_CONNECTION: ContextVar[str | None] = ContextVar("ws_connection", default=None)
 
@@ -39,11 +42,33 @@ class ConnectionEvidence:
         self.heartbeat_scheduled_ns: int | None = None
         self.heartbeat_resets = 0
         self.handshake_completed_ns: int | None = None
+        self.socket_metadata_status: str | None = None
+        self.socket_capture_ms: float | None = None
 
     def event(self, kind: str, **fields: Any) -> None:
         if kind == "handshake_completed":
-            self.handshake_completed_ns = time.monotonic_ns()
+            self.handshake_completed_ns = fields.get("monotonic_ns", time.monotonic_ns())
         self.owner.event(kind, connection_id=self.id, channel=self.channel, **fields)
+
+    def handshake_completed(self, ws: Any, library: str) -> None:
+        if self.socket_metadata_status is not None:
+            return  # Identity is captured once for this lifetime, never inherited by a reconnect.
+        wall, mono = time.time_ns(), time.monotonic_ns()
+        try:
+            metadata = socket_metadata(ws, library)
+        except Exception as exc:
+            metadata = unavailable(f"metadata_probe_failed:{type(exc).__name__}")
+        self.socket_capture_ms = (time.monotonic_ns() - mono) / 1e6
+        self.owner.hook_ns += round(self.socket_capture_ms * 1e6)
+        self.socket_metadata_status = metadata["status"]
+        self.event(
+            "handshake_completed",
+            wall_ns=wall,
+            monotonic_ns=mono,
+            socket_metadata=metadata,
+            library=library,
+            socket_capture_ms=self.socket_capture_ms,
+        )
 
     def failure(self, exc: BaseException) -> None:
         if self.handshake_completed_ns is None:
@@ -94,6 +119,8 @@ class ConnectionEvidence:
             "heartbeat_scheduled_ns": self.heartbeat_scheduled_ns,
             "heartbeat_resets": self.heartbeat_resets,
             "handshake_completed_ns": self.handshake_completed_ns,
+            "socket_metadata_status": self.socket_metadata_status,
+            "socket_capture_ms": self.socket_capture_ms,
         }
 
 
@@ -125,7 +152,15 @@ class WebsocketTrace:
         if len(self.connections) > 32:
             oldest = next(iter(self.connections))
             del self.connections[oldest]
-        connection.event("handshake_started", url=url, previous_connection_id=previous)
+        # Logging only. Never log userinfo, query/auth or fragment; transport keeps its URL.
+        try:
+            parsed = urlsplit(url)
+            safe_url = urlunsplit(
+                (parsed.scheme, parsed.netloc.rsplit("@", 1)[-1], parsed.path, "", "")
+            )
+        except ValueError:
+            safe_url = "unavailable:URL_parse_failed"
+        connection.event("handshake_started", url=safe_url, previous_connection_id=previous)
         return connection
 
     def event(self, kind: str, **fields: Any) -> None:
@@ -174,7 +209,11 @@ class WebsocketTrace:
             "max_loop_lag_ms": self.max_loop_lag_ns / 1e6,
             "connections": [c.summary() for c in self.connections.values()],
             "recent": [
-                {k: v for k, v in row.items() if k not in {"context", "telemetry"}}
+                {
+                    k: v
+                    for k, v in row.items()
+                    if k not in {"context", "telemetry", "socket_metadata"}
+                }
                 for row in self.recent
             ],
         }

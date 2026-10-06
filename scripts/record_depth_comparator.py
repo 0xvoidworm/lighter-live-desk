@@ -59,7 +59,7 @@ async def consume(trace, connection, url: str, mode: str, stats: dict, session_f
         client.ws_connect(url, heartbeat=20) as ws,
         connection.scope(),
     ):
-        connection.event("handshake_completed")
+        connection.handshake_completed(ws, "aiohttp")
         transport = ws._writer.transport
         stats["peer"] = tcp_state(transport)["peer"]
         stats["transport"] = transport

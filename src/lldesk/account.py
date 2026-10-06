@@ -609,7 +609,7 @@ class LighterAccount:
                     connection.scope() if connection else nullcontext(),
                 ):
                     if connection:
-                        connection.event("handshake_completed")
+                        connection.handshake_completed(ws, "websockets")
                     await ws.send(
                         json.dumps({"type": "subscribe", "channel": channel, "auth": self.auth()})
                     )

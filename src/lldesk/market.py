@@ -387,7 +387,7 @@ class Feeds:
                     connection.scope() if connection else nullcontext(),
                 ):
                     if connection:
-                        connection.event("handshake_completed")
+                        connection.handshake_completed(ws, "aiohttp")
                     self.channel_started("binance_public")
                     buffered: list[tuple[dict[str, Any], Stamp]] = []
                     snap_task = asyncio.create_task(self._binance_snapshot(client))
@@ -471,7 +471,7 @@ class Feeds:
                     connection.scope() if connection else nullcontext(),
                 ):
                     if connection:
-                        connection.event("handshake_completed")
+                        connection.handshake_completed(ws, "aiohttp")
                     self.channel_started("binance_market")
                     self.binance_trades_ok = True
                     async for frame in ws:
@@ -531,7 +531,7 @@ class Feeds:
                     connection.scope() if connection else nullcontext(),
                 ):
                     if connection:
-                        connection.event("handshake_completed")
+                        connection.handshake_completed(ws, "websockets")
                     self.channel_started("lighter")
                     for channel in (
                         f"order_book/{self.market_id}",

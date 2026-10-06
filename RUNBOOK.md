@@ -34,6 +34,26 @@ Hook keepalive websockets terikat hash implementasi16.1.1; jika berubah, hook
 jadwal dinonaktifkan dan keepalive asli dipakai. Lihat
 TRANSPORT_TELEMETRY_DESIGN_2026-10-06.md untuk batas pengamatan dan kriteria rollout.
 
+Setiap `handshake_completed` menyimpan identitas socket dari **transport koneksi
+yang telah tersambung**: run ID, PID, connection ID/channel, wall/monotonic, tuple
+lokal/remote, family, FD/inode, serta cookie bila library/platform menyediakannya.
+aiohttp memakai `_writer.transport`; websockets memakai `transport`. Query,
+userinfo dan fragment URL tidak dicatat. Metadata gagal menjadi `null` dengan
+alasan; tidak mengubah transport. Capture hanya sekali pada lifetime itu;
+reconnect/rotasi account mendapat connection ID baru, walaupun FD digunakan ulang.
+
+Alamat lokal dan tuple lengkap **hanya berada di trace privat**, bukan API/status
+atau Git. Status publik hanya melaporkan ketersediaan metadata dan durasi capture.
+Untuk korelasi OS read-only, gunakan `lldesk.socket_trace.process_socket_observation(PID)`
+dan `match_socket_observation(event, observation, close_monotonic_ns=...)`, atau
+`active_at_observation=True` setelah memverifikasi connection ID masih aktif
+selama pembacaan. Pencocokan memakai PID, family, tuple dan bracket monotonic,
+ditambah inode/FD bila tersedia. Bukti masa hidup yang tidak diketahui, race FD,
+baris ganda atau pembacaan tidak lengkap menghasilkan **ambiguous**, bukan tebakan
+dari DNS atau urutan daftar socket. Ini pembacaan diagnostik lokal, tidak dijadwalkan
+engine dan tidak menambah request exchange. Peer public eksperimen pembanding lama
+tetap unknown; metadata baru tidak berlaku retrospektif.
+
 ## Kesegaran sumber Binance untuk entry dan sampel
 
 Receipt monotonic tetap memakai guard lama 1500ms. Entry/sampel juga wajib
