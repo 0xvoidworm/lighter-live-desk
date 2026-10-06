@@ -1,7 +1,7 @@
 """Supervise an explicitly authorized UUID through the existing local command API.
 
 Uses the installed engine's database/config models; no exchange client, order,
-signer, signal override, rearm, or retry of START_LIVE exists in this script.
+signer, signal override, rearm, or retry of activation exists in this script.
 Private snapshots are analysis inputs, never public audit artifacts.
 """
 
@@ -14,6 +14,7 @@ import json
 import os
 import time
 import urllib.request
+import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -28,15 +29,22 @@ def get_status() -> dict:
         return json.load(response)
 
 
-def command(kind: str) -> int:
-    assert kind in {"LOAD_SESSION_PERMISSION", "DIAGNOSE_PREFLIGHT", "START_LIVE", "STOP_ENTRIES"}
+def command(kind: str, binding: dict | None = None) -> int:
+    assert kind in {
+        "LOAD_SESSION_PERMISSION",
+        "DIAGNOSE_PREFLIGHT",
+        "START_LIVE",
+        "START_WHEN_READY",
+        "STOP_ENTRIES",
+    }
+    assert (kind == "START_WHEN_READY") == (binding is not None)
     with urllib.request.urlopen(BASE + "/api/csrf", timeout=2) as response:
         token = json.load(response)["token"]
     request = urllib.request.Request(
         BASE + "/api/command/" + kind,
-        data=b"",
+        data=json.dumps(binding).encode() if binding else b"",
         method="POST",
-        headers={"X-CSRF-Token": token},
+        headers={"X-CSRF-Token": token, "Content-Type": "application/json"},
     )
     with urllib.request.urlopen(request, timeout=2) as response:
         return int(json.load(response)["command_id"])
@@ -86,6 +94,7 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
     assert record["id"] == session_id and record["status"] == "authorized"
     assert record["started_at"] is None and not record["attempts"]
     assert record["max_seconds"] <= 1800 and record["max_attempts"] <= 3
+    assert preparation_started == record["authorized_at"], "original preparation clock required"
     pid = initial["engine_pid"]
     hashes = {
         str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
@@ -97,7 +106,7 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
         {
             "session_id": session_id,
             "preparation_started_epoch": preparation_started,
-            "preparation_deadline_epoch": preparation_started + 1200,
+            "preparation_deadline_epoch": record["authorization_expires_epoch"],
             "collector_started_utc": datetime.now(UTC).isoformat(),
             "engine_pid": pid,
             "source_hashes": hashes,
@@ -105,22 +114,27 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
             "authorization": record,
             "only_commands": [
                 "LOAD_SESSION_PERMISSION",
-                "DIAGNOSE_PREFLIGHT",
-                "START_LIVE",
+                "START_WHEN_READY",
                 "STOP_ENTRIES",
             ],
         },
     )
-    diag_requested = False
     load_requested = False
     start_requested = False
     stop_requested = False
     active_seen = False
     abort_reason = None
     last_notice = 0.0
-    previous = initial
     samples = 0
     errors = 0
+    activation_binding = {
+        "request_id": str(uuid.uuid4()),
+        "session_id": record["id"],
+        "account_index": record["account_index"],
+        "parameter_hash": record["parameter_hash"],
+        "authorization_expires_epoch": record["authorization_expires_epoch"],
+    }
+    persist(output / "activation-binding.json", activation_binding)
     with (output / "snapshots.jsonl.gz").open("xb") as raw:
         os.fchmod(raw.fileno(), 0o600)
         with gzip.GzipFile(fileobj=raw, mode="wb") as capture:
@@ -156,6 +170,9 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
                             {
                                 "utc": datetime.now(UTC).isoformat(),
                                 "session": record["status"],
+                                "activation": (status.get("activation_request") or {}).get(
+                                    "status"
+                                ),
                                 "state": status["state"],
                                 "attempts": len(record["attempts"]),
                                 "remaining": status.get("session_remaining_s"),
@@ -194,29 +211,26 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
                             + str(command("LOAD_SESSION_PERMISSION")),
                             flush=True,
                         )
-                    elif not diag_requested and not status["live_blockers"]:
-                        diag_requested = True
-                        print(
-                            "DIAGNOSE_PREFLIGHT command=" + str(command("DIAGNOSE_PREFLIGHT")),
-                            flush=True,
-                        )
-                    elif diag_requested and not start_requested:
-                        diagnostic = status["preflight"]["diagnostic"]
-                        if diagnostic and diagnostic != previous["preflight"]["diagnostic"]:
-                            if diagnostic["outcome"] != "complete_no_send":
-                                abort_reason = "activation preflight failed: " + str(
-                                    diagnostic["blockers"]
-                                )
-                                revoke_unused(session_id, abort_reason)
-                        if (
-                            diagnostic.get("outcome") == "complete_no_send"
-                            and now - diagnostic["finished_at"] < 4
-                            and not status["live_blockers"]
-                            and status["diagnostic_observation"]["technical_ready"]
-                        ):
-                            # Latch before POST: an uncertain command is never retried.
-                            start_requested = True
-                            print("START_LIVE command=" + str(command("START_LIVE")), flush=True)
+                    elif (
+                        not start_requested
+                        and status.get("loaded_session_permission_id") == session_id
+                    ):
+                        # Persisted client ID + latch before POST. Engine owns readiness
+                        # and the fresh audit, not repeated supervisor START_LIVE calls.
+                        start_requested = True
+                        try:
+                            print(
+                                "START_WHEN_READY command="
+                                + str(command("START_WHEN_READY", activation_binding)),
+                                flush=True,
+                            )
+                        except Exception as exc:
+                            print(
+                                "activation response ambiguous: "
+                                + type(exc).__name__
+                                + "; monitor same persisted request ID and journal; no POST retry",
+                                flush=True,
+                            )
                 elif record["status"] in {"active", "ending"}:
                     active_seen = True
                     if record["status"] == "active":
@@ -259,7 +273,6 @@ def supervise(output: Path, session_id: str, preparation_started: float) -> None
                             flush=True,
                         )
                         return
-                previous = status
                 time.sleep(0.25)
 
 

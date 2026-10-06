@@ -5,12 +5,20 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+from collections.abc import Callable
 from pathlib import Path
 
+from .activation import ActivationRequests
 from .config import Config
 from .db import Database
 
 AUTHORIZATION_SECONDS = 1200
+
+
+class ActivationDeferred(ValueError):
+    def __init__(self, assessment: dict):
+        super().__init__("current production guards/preflight block activation")
+        self.assessment = assessment
 
 
 def parameter_hash(config: Config) -> str:
@@ -117,7 +125,15 @@ class BoundedSession:
             self.db.conn.rollback()
             raise
 
-    def activate(self, *, expected_id: str | None = None, expected_hash: str | None = None) -> dict:
+    def activate(
+        self,
+        *,
+        expected_id: str | None = None,
+        expected_hash: str | None = None,
+        activation_request_id: str | None = None,
+        assessment: dict | None = None,
+        validate: Callable[[], dict] | None = None,
+    ) -> dict:
         self.db.conn.execute("BEGIN IMMEDIATE")
         try:
             record = self.read()
@@ -128,6 +144,37 @@ class BoundedSession:
                 expected_hash is not None and record["parameter_hash"] != expected_hash
             ):
                 raise ValueError("authorization changed before activation")
+            requests = ActivationRequests(self.db)
+            pending = self.db.conn.execute(
+                "SELECT body FROM activation_requests WHERE status IN ('QUEUED','WAITING')"
+            ).fetchone()
+            request = json.loads(pending[0]) if pending else None
+            if activation_request_id is not None:
+                if (
+                    not request
+                    or request["request_id"] != activation_request_id
+                    or request["status"] != "WAITING"
+                    or request["session_id"] != record["id"]
+                    or request["account_index"] != record["account_index"]
+                    or request["parameter_hash"] != record["parameter_hash"]
+                    or request["authorization_expires_epoch"]
+                    != record["authorization_expires_epoch"]
+                    or time.monotonic() >= request["expires_monotonic"]
+                    or validate is None
+                ):
+                    raise ValueError("pending activation binding changed")
+                if self.db.conn.execute(
+                    "SELECT 1 FROM commands WHERE state='PENDING' AND kind IN "
+                    "('STOP_ENTRIES','CANCEL_ENTRIES','CLOSE_POSITION','LOAD_SESSION_PERMISSION')"
+                ).fetchone():
+                    raise ValueError("cancellation/permission command queued before activation")
+                # Recheck AFTER any SQLite lock wait, inside the same atomic transition.
+                # Synchronous state-owner callback: no network or await while locked.
+                assessment = validate()
+                if not assessment["passed"]:
+                    raise ActivationDeferred(assessment)
+            elif request:
+                raise ValueError("pending request owns activation")
             now = time.time()
             record.update(
                 status="active", started_at=now, deadline_epoch=now + record["max_seconds"]
@@ -135,6 +182,28 @@ class BoundedSession:
             self.write(record)
             self.db.set_flag(f"session_used:{record['id']}", "1")
             self.db.event("STRATEGY_SESSION_STARTED", record)
+            if request:
+                request.update(
+                    status="ACTIVATED",
+                    reason="all production guards and fresh audit passed",
+                    terminal_at=now,
+                    assessment=assessment,
+                    started_at=now,
+                    deadline_epoch=record["deadline_epoch"],
+                    control_transition={
+                        "command_id": request["command_id"],
+                        "request_id": request["request_id"],
+                        "session_id": request["session_id"],
+                        "wall_ns": time.time_ns(),
+                        "monotonic_ns": time.monotonic_ns(),
+                        "result": "ACTIVATED",
+                        "assessment_role": "atomic_transition_guards",
+                        "readiness_skipped": False,
+                    },
+                )
+                requests.write(request)
+                self.db.finish_command(request["command_id"], "ACTIVATED: sesi live dimulai")
+                self.db.event("ACTIVATION_CONTROL_DECISION", request)
             self.db.conn.commit()
         except Exception:
             self.db.conn.rollback()

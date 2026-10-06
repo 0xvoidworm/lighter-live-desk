@@ -3,12 +3,15 @@ from __future__ import annotations
 import secrets
 import time
 from pathlib import Path
+from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
+from .activation import ActivationRequests
 from .config import repo_root
 from .db import Database
 
@@ -24,12 +27,21 @@ ALLOWED_ORIGINS = {
 COMMANDS = {
     "LOAD_SESSION_PERMISSION",
     "START_LIVE",
+    "START_WHEN_READY",
     "STOP_ENTRIES",
     "CANCEL_ENTRIES",
     "CLOSE_POSITION",
     "PROBE_ONCE",
     "DIAGNOSE_PREFLIGHT",
 }
+
+
+class ActivationBinding(BaseModel):
+    request_id: UUID
+    session_id: UUID
+    account_index: int = Field(ge=0)
+    parameter_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    authorization_expires_epoch: float = Field(gt=0, allow_inf_nan=False)
 
 
 def create_app(root: Path | None = None) -> FastAPI:
@@ -69,8 +81,19 @@ def create_app(root: Path | None = None) -> FastAPI:
         finally:
             db.close()
 
+    @app.get("/api/activation/{request_id}")
+    def activation_status(request_id: UUID):
+        db = Database(root / "state" / "desk.db")
+        try:
+            record = ActivationRequests(db).read(str(request_id))
+            if record is None:
+                raise HTTPException(404, "activation request not found")
+            return record
+        finally:
+            db.close()
+
     @app.post("/api/command/{kind}")
-    def command(kind: str, request: Request):
+    def command(kind: str, request: Request, binding: ActivationBinding | None = None):
         if kind not in COMMANDS:
             raise HTTPException(404, "unknown command")
         if not secrets.compare_digest(request.headers.get("x-csrf-token", ""), csrf):
@@ -79,6 +102,21 @@ def create_app(root: Path | None = None) -> FastAPI:
         try:
             if time.time() - db.read_status().get("updated_at", 0) >= 3:
                 raise HTTPException(503, "engine disconnected")
+            if kind == "START_WHEN_READY":
+                if binding is None:
+                    raise HTTPException(
+                        422, "explicit request/session/account/parameter/expiry binding required"
+                    )
+                try:
+                    activation = ActivationRequests(db).submit(binding.model_dump(mode="json"))
+                except ValueError as exc:
+                    raise HTTPException(409, str(exc)) from exc
+                return {
+                    "command_id": activation["command_id"],
+                    "state": activation["status"],
+                    "activation_request": activation,
+                    "message": "permintaan aktivasi tercatat; belum menjadi sesi aktif",
+                }
             command_id = db.command(kind)
             return {
                 "command_id": command_id,

@@ -13,6 +13,18 @@ scope strategy, config izin live, policy sesi, preflight bersih dan cadangan
 request. Aktivasi mengonsumsi otorisasi; START_LIVE kedua ditolak. Tidak ada
 otorisasi sesi baru otomatis. Flag probe dan semua riwayat lama dipertahankan.
 
+Alternatif eksplisit `START_WHEN_READY` (persetujuan alur kontrol 6 Oktober)
+mengikat satu request ID pada UUID, akun, hash parameter dan expiry persiapan
+asli. Status menunggu tidak aktif dan tidak mengonsumsi kuota entry. Engine
+menjalankan guard/preflight produksi lalu mengonsumsi otorisasi tepat sekali
+bersama transisi session/request/command dalam transaksi atomic. Masa aktif
+tetap mulai saat aktivasi berhasil. TTL preflight tetap maksimal lima detik.
+`START_LIVE` mempertahankan semantik langsung; supervisor tidak mengulangnya.
+STOP/CANCEL/CLOSE, OFF, revoke, expiry atau restart menutup request menunggu.
+Restart tidak melanjutkan request otomatis. Alur ini tidak memberi izin baru
+atau menghidupkan kembali otorisasi closed; trading tetap memerlukan instruksi
+pengguna terpisah. Detail binding/idempotensi berada di RUNBOOK.md.
+
 Sebelum signer, transaksi SQLite atomic mencatat kuota dan state SENT. Signing
 ditolak, timeout atau kegagalan sesudah titik ini tetap menghitung percobaan;
 guard yang membatalkan sebelum titik ini tidak mengirim order. Satu entry task,

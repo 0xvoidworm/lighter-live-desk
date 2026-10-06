@@ -98,15 +98,60 @@ deadline. Identity/risk/config hash, flat, fresh account, full history, kas
 dan bukti fee diperiksa sebelum engine memuat flag. Coverage dan timestamp
 observasi tetap dipertahankan. LOAD tidak mengaktifkan sesi atau mengirim order.
 Config flags yang dimuat mempersiapkan izin; entry tetap stopped sampai
-START_LIVE yang terpisah dan seluruh preflight lolos.
+permintaan aktivasi terpisah dan seluruh preflight lolos.
 
 Supervisor sesi yang diluncurkan dengan otorisasi eksplisit memakai LOAD,
-preflight diagnostik, lalu maksimal satu START_LIVE. Audit-before-every-entry
+lalu tepat satu START_WHEN_READY yang terikat izin tersebut. Audit-before-every-entry
 dan TTL5s tetap wajib; peluang dievaluasi ulang setelah audit. Restart fisik
 tetap RECONCILING dan tidak memulihkan loaded permission atau entry otomatis.
 STOP_ENTRIES atau LOAD dengan configOFF mencabut izin melalui engine,
 menutup unused authorization atau memulai ending/cleanup bila sedang aktif.
 Supervisor tidak boleh menulis ulang state/config/kuota untuk revocation.
+
+### Aktivasi langsung atau menunggu kesiapan
+
+`START_LIVE` tetap mencoba aktivasi langsung sekali. Guard yang gagal menolak
+command itu; engine tidak mengubahnya menjadi permintaan menunggu.
+`START_WHEN_READY` adalah pilihan eksplisit untuk izin baru yang sudah sah dan
+dimuat. Tugas implementasi/diagnosis tanpa izin trading tidak boleh memakainya.
+
+POST lokal `/api/command/START_WHEN_READY` memakai CSRF dan body
+`request_id`, `session_id`, `account_index`, `parameter_hash`, serta
+`authorization_expires_epoch`. UUID request disimpan sebelum POST. Binding
+harus persis cocok dengan record otorisasi asli; expiry tetap 20 menit sejak
+authorize, bukan sejak request. Maksimal satu request pending dan satu request
+per UUID otorisasi. Journal/state `QUEUED` atau `WAITING` berarti **belum aktif**:
+entries stopped, belum ada intent/signing/order. Dashboard menampilkan status
+tersebut terpisah dari `ACTIVATED`, `CANCELLED`, dan `REJECTED`.
+
+Engine pemilik state mengevaluasi guard lokal maksimal tiap 250 ms. Hanya
+blocker sementara yang dikenali boleh menunggu. Identitas/parameter berubah,
+izin tidak sah, insiden, dan blocker tidak dikenal membatalkan permintaan.
+Audit lengkap menggunakan scheduler/reservasi produksi, tidak polling setiap
+tick; retry audit berjarak minimal 30 detik dan hanya dimulai saat guard lain
+lolos. Audit/proof yang expired tetap gagal; tidak menjadi tiket menunggu.
+Read-only preflight aktivasi tidak mengonsumsi kuota entry atau mengizinkan
+dispatch order. Setiap entry setelah aktivasi masih wajib audit/proof sendiri,
+TTL maksimal lima detik, serta recheck sinyal/data/risiko/izin saat dispatch.
+
+Pada aktivasi, transaksi SQLite memeriksa ulang binding, guard aktual dan
+preflight **setelah lock diperoleh**, lalu mengonsumsi izin dan menyimpan
+session aktif, request `ACTIVATED`, dan command `DONE` bersama. Deadline aktif
+1.800 detik dimulai di titik itu; tiga percobaan entry tetap counter terpisah.
+Journal mencatat assessment yang benar-benar digunakan, termasuk pemeriksaan
+yang dilewati dan kedua assessment sumber guard produksi. Perubahan alasan
+menunggu dicatat paling cepat tiap lima detik, bukan setiap tick.
+
+STOP_ENTRIES, CANCEL_ENTRIES, CLOSE_POSITION, config order OFF, revoke, expiry,
+dan restart membatalkan request menunggu. Setelah restart request tidak
+dilanjutkan otomatis; izin yang terkait ditutup, entry OFF. Recovery posisi
+aktif tetap mengikuti aturan lama. Pembatalan disarm hanya flag izin dalam
+config disk yang masih valid, sehingga edit parameter pengguna dipertahankan.
+
+Respons POST ambigu: GET `/api/activation/{request_id}` dan command journal
+untuk ID/UUID **yang sama**. Duplikat binding identik mengembalikan record
+terdahulu, termasuk record terminal; binding berbeda ditolak. Jangan membuat
+UUID pengganti, memperpanjang expiry, atau mengulang aktivasi dari supervisor.
 
 Untuk diagnosis feed, gunakan `market_processing` dan Recorder enqueue stamp:
 receipt aplikasi sebelum parse, sumber exchange asli, enqueue, processing,

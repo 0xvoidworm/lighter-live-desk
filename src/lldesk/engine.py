@@ -9,14 +9,17 @@ import os
 import time
 import uuid
 from contextlib import nullcontext
+from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import httpx
 
 from .account import AccountSnapshot, DispatchBlocked, LighterAccount, LocalOrderRejected
+from .activation import AUDIT_RETRY_SECONDS, ActivationRequests, terminal_failures
 from .audit_scheduler import AuditScheduler
 from .config import Config, load_config, repo_root
 from .db import Database
@@ -44,7 +47,7 @@ from .preflight import (
     state_digest,
 )
 from .risk import EquityBaseline, limit_price, size_entry
-from .session import BoundedSession, parameter_hash
+from .session import ActivationDeferred, BoundedSession, parameter_hash
 from .source_time import BinanceSourceClock
 from .strategy import Decision, DeviationStrategy
 from .websocket_trace import WebsocketTrace
@@ -146,6 +149,15 @@ class Engine:
         self.session = BoundedSession(self.db)
         # Volatile admission: restart never implicitly loads entry permission.
         self.loaded_session_permission_id: str | None = None
+        self.activation = ActivationRequests(self.db)
+        self.pending_activation_id: str | None = None
+        self.activation_deadline = 0.0
+        self.activation_next_tick = 0.0
+        self.activation_next_audit = 0.0
+        self.activation_audit_attempt: str | None = None
+        self.activation_audit_task: asyncio.Task | None = None
+        self.activation_last_reasons: tuple | None = None
+        self.activation_last_log = 0.0
         self.session_cleanup_task: asyncio.Task | None = None
         self.fee_audit_task: asyncio.Task | None = None
         self.last_session_sample = 0.0
@@ -197,6 +209,7 @@ class Engine:
 
     async def run(self) -> None:
         self.exclusive()
+        self.abort_restored_activation()
         self.state = EngineState.RECONCILING
         self.entries_stopped = True
         try:
@@ -1783,7 +1796,7 @@ class Engine:
         self.db.event("ENTRY_PREFLIGHT_DIAGNOSTIC", self.last_preflight_diagnostic)
         return not blockers
 
-    async def diagnose_preflight(self) -> str:
+    async def diagnose_preflight(self, *, attempt: str | None = None) -> str:
         """Read-only rehearsal; evidence cannot authorize signing even if orders enabled."""
         if (
             self.preflight_in_progress
@@ -1802,7 +1815,9 @@ class Engine:
         self.preflight_in_progress = True
         try:
             with self.account.rate.reserve("preflight", self.audit_scheduler.request_cost + 2):
-                ok = await self.prepare_preflight("diagnostic:" + uuid.uuid4().hex, sendable=False)
+                ok = await self.prepare_preflight(
+                    attempt or "diagnostic:" + uuid.uuid4().hex, sendable=False
+                )
         finally:
             self.preflight_in_progress = False
         return "preflight lengkap tanpa signing/broadcast" if ok else "preflight diagnostik gagal"
@@ -2143,6 +2158,7 @@ class Engine:
             await self.protect_position(self.account_snapshot)
 
     async def close_position(self) -> str:
+        self.cancel_activation("close position requested while waiting")
         if not self.account or not self.market or not self.account_snapshot:
             return "akun tidak tersedia"
         snap = self.account_snapshot
@@ -2227,15 +2243,20 @@ class Engine:
             elif kind == "LOAD_SESSION_PERMISSION":
                 result = self.load_session_permission()
             elif kind == "CANCEL_ENTRIES":
+                self.cancel_activation("CANCEL_ENTRIES while waiting")
                 self.entry_epoch += 1
                 self.entries_stopped = True
                 result = await self.cancel_entries()
             elif kind == "CLOSE_POSITION":
+                self.cancel_activation("CLOSE_POSITION while waiting")
                 self.entry_epoch += 1
                 self.entries_stopped = True
                 result = await self.close_position()
             elif kind == "START_LIVE":
-                result = self.start_session()
+                result = self.start_session(command_id=command_id)
+            elif kind == "START_WHEN_READY":
+                self.accept_activation_request(command_id)
+                continue  # Request owns WAITING/terminal journal; never marked DONE early.
             elif kind == "PROBE_ONCE":
                 result = await self.probe_once()
             elif kind == "DIAGNOSE_PREFLIGHT":
@@ -2247,6 +2268,7 @@ class Engine:
             self.db.event("COMMAND", {"kind": kind, "result": result})
 
     async def cancel_entries(self) -> str:
+        self.cancel_activation("cancel entry requested while waiting")
         self.entry_epoch += 1
         self.entries_stopped = True
         if not self.account or not self.market:
@@ -2353,6 +2375,8 @@ class Engine:
         self.reason = "sesi berakhir; cleanup/proteksi/exit tetap berjalan"
 
     def session_tick(self, *, risk_only: bool = False) -> None:
+        if not risk_only:
+            self.activation_tick()
         record = self.session.read()
         if (
             record
@@ -2603,6 +2627,7 @@ class Engine:
 
     def revoke_session_permission(self, reason: str) -> None:
         """Engine owns runtime permission; cleanup workers retain their authority."""
+        self.cancel_activation(reason, revoke=False)
         self.end_session(reason)
         self.session.revoke(reason)
         self.entries_stopped = True
@@ -2618,8 +2643,23 @@ class Engine:
         )
         path = self.root / "config.json"
         if path.exists():
+            # Preserve unrelated user edits; revoke only permission fields on disk.
+            try:
+                disk = load_config(path)
+            except Exception:
+                self.db.event(
+                    "STAGED_PERMISSION_DISARM_BLOCKED", {"reason": "invalid config preserved"}
+                )
+                return  # Runtime OFF, closed/ending authorization cannot resume entry.
+            disk = disk.model_copy(
+                update={
+                    "allow_live_orders": False,
+                    "session_accept_reported_fees": False,
+                    "probe_accept_reported_fees": False,
+                }
+            )
             temp = path.with_suffix(".json.pending")
-            temp.write_text(self.config.model_dump_json(indent=2) + "\n")
+            temp.write_text(disk.model_dump_json(indent=2) + "\n")
             temp.chmod(0o600)
             temp.replace(path)
 
@@ -2691,9 +2731,14 @@ class Engine:
         )
         return "permission dimuat; belum aktif, START_LIVE dan preflight tetap wajib"
 
-    def start_session(self) -> str:
-        blockers = self.live_blockers()
+    def start_session(self, *, command_id: int | None = None) -> str:
+        assessment = self.activation_assessment(command_id)
+        blockers = assessment["blockers"]
+        if self.pending_activation_id:
+            blockers.append("pending START_WHEN_READY owns activation")
         if blockers:
+            assessment.update(result="REJECTED", passed=False)
+            self.db.event("ACTIVATION_CONTROL_DECISION", assessment)
             return "live diblok: " + ", ".join(blockers)
         try:
             record = self.session.activate(
@@ -2701,14 +2746,328 @@ class Engine:
                 expected_hash=parameter_hash(self.config),
             )
         except ValueError:
+            assessment.update(result="REJECTED", reason="authorization changed/expired")
+            self.db.event("ACTIVATION_CONTROL_DECISION", assessment)
             return "live diblok: authorization changed/expired before activation"
+        assessment.update(result="ACTIVATED", started_at=record["started_at"])
+        self.db.event("ACTIVATION_CONTROL_DECISION", assessment)
+        self.adopt_active_session(record)
+        return "sesi live dimulai"
+
+    def adopt_active_session(self, record: dict) -> None:
         self.db.set_flag("live_ever", "1")
-        self.session_end = time.monotonic() + record["max_seconds"]
+        self.session_end = time.monotonic() + max(0, record["deadline_epoch"] - time.time())
         self.session_positions = 0
         self.entries_stopped = False
         self.state = EngineState.LIVE
         self.reason = "sesi live terbatas berjalan"
-        return "sesi live dimulai"
+
+    def abort_restored_activation(self) -> None:
+        """Only called after acquiring the engine lock; never resume queued requests."""
+        cancelled = self.activation.cancel_pending("restart: pending activation not resumed")
+        record = self.session.read()
+        if (
+            record
+            and record["status"] == "authorized"
+            and any(r["session_id"] == record["id"] for r in cancelled)
+        ):
+            self.revoke_session_permission("restart cancelled pending authorization")
+
+    def cancel_activation(self, reason: str, *, revoke: bool = True) -> None:
+        cancelled = self.activation.cancel_pending(reason)
+        self.pending_activation_id = None
+        self.activation_deadline = 0.0
+        if self.activation_audit_task and not self.activation_audit_task.done():
+            self.activation_audit_task.cancel()
+        if cancelled:
+            self.entries_stopped = True
+            self.invalidate_preflight("pending activation cancelled", history=False)
+            if revoke:
+                record = self.session.read()
+                if (
+                    record
+                    and record["status"] == "authorized"
+                    and any(r["session_id"] == record["id"] for r in cancelled)
+                ):
+                    self.revoke_session_permission(reason)
+
+    def accept_activation_request(self, command_id: int) -> None:
+        row = self.db.conn.execute(
+            "SELECT body FROM activation_requests WHERE command_id=?", (command_id,)
+        ).fetchone()
+        if not row:
+            self.db.finish_command(command_id, "REJECTED: explicit activation binding missing")
+            return
+        request = json.loads(row[0])
+        if request["status"] not in {"QUEUED", "WAITING"}:
+            return
+        if self.pending_activation_id and self.pending_activation_id != request["request_id"]:
+            self.activation.finish(request, "REJECTED", "another pending activation", None)
+            return
+        if request["status"] == "WAITING":
+            return  # Same ID: keep original monotonic deadline, no second transition.
+        record = self.session.read()
+        if (
+            not self.session.authorization_valid(record)
+            or record is None
+            or request["session_id"] != record["id"]
+            or request["account_index"] != record["account_index"]
+            or request["parameter_hash"] != record["parameter_hash"]
+            or request["authorization_expires_epoch"] != record["authorization_expires_epoch"]
+            or self.loaded_session_permission_id != record["id"]
+        ):
+            self.activation.finish(
+                request,
+                "REJECTED",
+                "unused loaded authorization binding required",
+                {
+                    "command_id": command_id,
+                    "request_id": request["request_id"],
+                    "session_id": request["session_id"],
+                    "wall_ns": time.time_ns(),
+                    "monotonic_ns": time.monotonic_ns(),
+                    "passed": False,
+                    "checks": {"binding": {"result": "failed"}},
+                    "skipped": ["market/source", "account", "preflight", "atomic_activation"],
+                },
+            )
+            if (
+                record
+                and record["id"] == request["session_id"]
+                and record["status"] == "authorized"
+            ):
+                self.revoke_session_permission("pending request has invalid admission binding")
+            return
+        self.entries_stopped = True
+        self.pending_activation_id = request["request_id"]
+        self.activation_deadline = min(
+            request["expires_monotonic"],
+            time.monotonic() + max(0, request["authorization_expires_epoch"] - time.time()),
+        )
+        request.update(status="WAITING", reason="waiting for production guards and fresh audit")
+        self.activation.waiting(request)
+
+    def activation_assessment(self, command_id: int | None, request: dict | None = None) -> dict:
+        """Output-only: retain the actual checks and their assessment times, no replay."""
+        record = self.session.read()
+        quotes = {}
+        for name, book in self.books.items():
+            quote = book.quote()
+            quotes[name] = (
+                {
+                    "bid": str(quote.bid),
+                    "ask": str(quote.ask),
+                    "receipt_ns": book.stamp.receipt_ns,
+                    "monotonic_ns": book.stamp.monotonic_ns,
+                    "source_ms": book.stamp.exchange_ms,
+                }
+                if quote
+                else None
+            )
+        evidence: dict[str, Any] = {
+            "command_id": command_id,
+            "request_id": request["request_id"] if request else None,
+            "session_id": request["session_id"] if request else record["id"] if record else None,
+            "account_index": self.config.account_index,
+            "parameter_hash": parameter_hash(self.config),
+            "started_wall_ns": time.time_ns(),
+            "started_monotonic_ns": time.monotonic_ns(),
+            "authorization_expires_epoch": record.get("authorization_expires_epoch")
+            if record
+            else None,
+            "quotes": quotes,
+        }
+        blockers = self.live_blockers(evidence=evidence)
+        if request:
+            coverage = bool(self.strategy.coverage()["ready"])
+            evidence["checks"]["coverage"] = {"result": "passed" if coverage else "failed"}
+            if not coverage:
+                blockers.append("coverage not ready")
+            incident = (
+                self.state == EngineState.HALTED
+                or self.manual_exposure
+                or self.db.flag("close_requested") == "1"
+            )
+            evidence["checks"]["control_incident"] = {"result": "failed" if incident else "passed"}
+            if incident:
+                blockers.append("halted/manual exposure/close requested while waiting")
+        evidence.update(
+            blockers=blockers,
+            passed=not blockers,
+            finished_wall_ns=time.time_ns(),
+            finished_monotonic_ns=time.monotonic_ns(),
+        )
+        return evidence
+
+    def activation_commit_assessment(self, request: dict) -> dict:
+        evidence = self.activation_assessment(request["command_id"], request)
+        proof, before = self.preflight_evidence, self._last_data_guard
+        valid = bool(
+            self.activation_audit_attempt and self.preflight_valid(self.activation_audit_attempt)
+        )
+        evidence["preflight"] = {
+            "executed": True,
+            "passed": valid,
+            "attempt": self.activation_audit_attempt,
+            "expires_monotonic": proof.expires if proof else None,
+            "binding": proof.binding if proof else None,
+            "data_guard": deepcopy(self._last_data_guard)
+            if self._last_data_guard is not before
+            else None,
+        }
+        if not valid:
+            evidence["blockers"].append("fresh request-bound activation preflight required")
+        try:
+            disk_valid = (
+                parameter_hash(load_config(self.root / "config.json")) == request["parameter_hash"]
+            )
+        except Exception:
+            disk_valid = False
+        evidence["checks"]["dispatch_permission_binding"] = {
+            "result": "passed" if disk_valid else "failed"
+        }
+        if not disk_valid:
+            evidence["blockers"].append("staged config/order permission changed")
+        evidence.update(
+            passed=not evidence["blockers"],
+            result="ACTIVATED" if not evidence["blockers"] else "WAITING",
+            finished_wall_ns=time.time_ns(),
+            finished_monotonic_ns=time.monotonic_ns(),
+        )
+        return evidence
+
+    def activation_tick(self) -> None:
+        if not self.pending_activation_id or time.monotonic() < self.activation_next_tick:
+            return
+        self.activation_next_tick = time.monotonic() + 0.25
+        request = self.activation.read(self.pending_activation_id)
+        if not request or request["status"] != "WAITING":
+            self.pending_activation_id = None
+            return
+        self.entries_stopped = True
+        record = self.session.read()
+        terminal = None
+        if not self.session.authorization_valid(record):
+            terminal = "authorization expired/revoked/closed/used"
+        elif time.monotonic() >= self.activation_deadline:
+            terminal = "original preparation deadline reached"
+        elif (
+            record is None
+            or request["session_id"] != record["id"]
+            or request["account_index"] != record["account_index"]
+            or request["parameter_hash"] != record["parameter_hash"]
+            or request["authorization_expires_epoch"] != record["authorization_expires_epoch"]
+            or self.loaded_session_permission_id != record["id"]
+            or request["parameter_hash"] != parameter_hash(self.config)
+        ):
+            terminal = "authorization/account/parameter/expiry binding changed"
+        else:
+            try:
+                disk = load_config(self.root / "config.json")
+                if parameter_hash(disk) != request["parameter_hash"]:
+                    terminal = "staged config/order permission changed"
+            except Exception:
+                terminal = "staged config unreadable/invalid"
+        assessment = self.activation_assessment(request["command_id"], request)
+        if (
+            self.state == EngineState.HALTED
+            or self.manual_exposure
+            or self.db.flag("close_requested") == "1"
+        ):
+            terminal = terminal or "halted/manual exposure/close requested while waiting"
+        failures = terminal_failures(assessment)
+        if failures:
+            terminal = terminal or "terminal production guards: " + ",".join(sorted(failures))
+        if terminal:
+            assessment.update(result="REJECTED", transition_reason=terminal)
+            assessment["preflight"] = {"executed": False, "reason": "terminal guard/binding"}
+            self.activation.finish(request, "REJECTED", terminal, assessment)
+            self.pending_activation_id = None
+            if record and record["id"] == request["session_id"]:
+                self.revoke_session_permission(terminal)
+            return
+        if self.activation_audit_task and self.activation_audit_task.done():
+            try:
+                self.activation_audit_task.result()
+            except (Exception, asyncio.CancelledError):
+                self.preflight_evidence = None
+            self.activation_audit_task = None
+        ready = not assessment["blockers"]
+        if ready:
+            proof = self.preflight_evidence
+            before = self._last_data_guard
+            valid_proof = bool(
+                self.activation_audit_attempt
+                and self.preflight_valid(self.activation_audit_attempt)
+            )
+            assessment["preflight"] = {
+                "executed": True,
+                "passed": valid_proof,
+                "attempt": self.activation_audit_attempt,
+                "expires_monotonic": proof.expires if proof else None,
+                "binding": proof.binding if proof else None,
+                "data_guard": deepcopy(self._last_data_guard)
+                if self._last_data_guard is not before
+                else None,
+            }
+            if valid_proof:
+                assessment.update(passed=True, result="ACTIVATED")
+                try:
+                    active = self.session.activate(
+                        expected_id=request["session_id"],
+                        expected_hash=request["parameter_hash"],
+                        activation_request_id=request["request_id"],
+                        assessment=assessment,
+                        validate=lambda: self.activation_commit_assessment(request),
+                    )
+                except ActivationDeferred as exc:
+                    assessment = exc.assessment
+                    if terminal_failures(assessment):
+                        assessment.update(result="REJECTED")
+                        self.activation.finish(
+                            request, "REJECTED", "terminal guard at commit boundary", assessment
+                        )
+                        self.pending_activation_id = None
+                        self.revoke_session_permission("terminal guard at commit boundary")
+                        return
+                except ValueError as exc:
+                    assessment.update(passed=False, result="REJECTED", transition_reason=str(exc))
+                    self.activation.finish(request, "REJECTED", str(exc), assessment)
+                    self.pending_activation_id = None
+                    self.revoke_session_permission("atomic activation rejected")
+                    return
+                else:
+                    self.pending_activation_id = None
+                    self.adopt_active_session(active)
+                    return
+            assessment["blockers"].append("fresh request-bound activation preflight required")
+            if (
+                self.activation_audit_task is None
+                and not self.preflight_in_progress
+                and time.monotonic() >= self.activation_next_audit
+            ):
+                self.activation_next_audit = time.monotonic() + AUDIT_RETRY_SECONDS
+                self.activation_audit_attempt = (
+                    "activation:" + request["request_id"] + ":" + uuid.uuid4().hex
+                )
+                self.activation_audit_task = asyncio.create_task(
+                    self.diagnose_preflight(attempt=self.activation_audit_attempt)
+                )
+                self.tasks.append(self.activation_audit_task)
+        else:
+            assessment["preflight"] = {"executed": False, "reason": "production guards blocked"}
+        assessment.update(passed=False, result="WAITING")
+        signature = tuple(assessment["blockers"])
+        if (
+            signature != self.activation_last_reasons
+            and time.monotonic() - self.activation_last_log >= 5
+        ):
+            self.activation_last_reasons = signature
+            self.activation_last_log = time.monotonic()
+            request.update(reason="; ".join(signature), assessment=assessment)
+            self.activation.write(request)
+            self.db.event("ACTIVATION_CONTROL_DECISION", request)
+        self.reason = "menunggu kesiapan; sesi belum aktif"
 
     async def probe_once(self) -> str:
         blockers = self.probe_blockers()
@@ -2913,119 +3272,227 @@ class Engine:
             blockers.append("fill/dana berubah setelah preflight probe")
         return blockers
 
-    def live_blockers(self, *, for_probe: bool = False) -> list[str]:
-        blockers = []
+    def live_blockers(self, *, for_probe: bool = False, evidence: dict | None = None) -> list[str]:
+        blockers: list[str] = []
+        checks: dict = {}
+
+        def check(name: str, failed: bool, reason: str, *, ran: bool = True) -> None:
+            checks[name] = {
+                "result": "failed" if failed and ran else "passed" if ran else "skipped",
+                "reason": reason if failed and ran else None,
+            }
+            if failed and ran:
+                blockers.append(reason)
+
+        record = self.session.read()
         if not for_probe:
-            record = self.session.read()
-            if not record or record["status"] != "authorized":
-                blockers.append("tidak ada otorisasi sesi strategi sekali pakai")
-            elif not self.session.authorization_valid(record):
-                blockers.append("otorisasi sesi expired/revoked/used")
-            elif self.loaded_session_permission_id != record["id"]:
-                blockers.append("izin sesi belum dimuat eksplisit oleh engine")
-            if not self.entry_rate_ready():
-                blockers.append("cadangan request entry/proteksi belum cukup")
-            if (
-                self.entry_tasks
-                or self.dispatching_entries
-                or self.protection_id is not None
-                or self.exit_id is not None
-            ):
-                blockers.append("siklus posisi sebelumnya belum bersih")
-            if self.reconcile_task and not self.reconcile_task.done():
-                blockers.append("rekonsiliasi akun masih berjalan")
-        if not for_probe and self.config.live_entry_scope != "strategy":
-            blockers.append("izin entry hanya untuk satu probe; START_LIVE dilarang")
-        if self.config.mode != "live_capable" or not self.config.allow_live_orders:
-            blockers.append("konfigurasi observe/allow_live_orders=false")
-        if self.probe_active or self.db.flag("probe_pending") == "1":
-            blockers.append("uji probe belum selesai")
-        if not self.account or not self.account_snapshot:
-            blockers.append("akun/kunci belum tersambung")
-        if not self.market:
-            blockers.append("metadata BTC belum tersedia")
-        if self.account_snapshot and self.account_snapshot.active_orders:
-            blockers.append("ada order aktif di bursa")
-        if self.state == EngineState.IDLE:
-            blockers.append("mode idle; entry dinonaktifkan")
-        elif self.state != EngineState.READY:
-            blockers.append("engine belum READY")
-        if not self.history_valid():
-            blockers.append("audit riwayat lengkap wajib belum selesai")
-        if not self.account_state_valid():
-            blockers.append("komponen keadaan akun belum lengkap/segar/konsisten")
-        if self.account and self.reconcile_failed:
-            blockers.append("rekonsiliasi akun terakhir gagal")
-        if self.last_decision.basis_bps is None or not self.data_valid():
-            blockers.append("data atau warm-up belum valid")
+            check(
+                "authorization",
+                not record or record["status"] != "authorized",
+                "tidak ada otorisasi sesi strategi sekali pakai",
+            )
+            check(
+                "authorization_valid",
+                not self.session.authorization_valid(record),
+                "otorisasi sesi expired/revoked/used",
+                ran=bool(record and record["status"] == "authorized"),
+            )
+            check(
+                "loaded_permission",
+                bool(record and self.loaded_session_permission_id != record["id"]),
+                "izin sesi belum dimuat eksplisit oleh engine",
+                ran=self.session.authorization_valid(record),
+            )
+            check(
+                "request_capacity",
+                not self.entry_rate_ready(),
+                "cadangan request entry/proteksi belum cukup",
+            )
+            check(
+                "lifecycle",
+                bool(
+                    self.entry_tasks
+                    or self.dispatching_entries
+                    or self.protection_id is not None
+                    or self.exit_id is not None
+                ),
+                "siklus posisi sebelumnya belum bersih",
+            )
+            check(
+                "reconcile_busy",
+                bool(self.reconcile_task and not self.reconcile_task.done()),
+                "rekonsiliasi akun masih berjalan",
+            )
+            check(
+                "scope",
+                self.config.live_entry_scope != "strategy",
+                "izin entry hanya untuk satu probe; START_LIVE dilarang",
+            )
+        check(
+            "order_permission",
+            self.config.mode != "live_capable" or not self.config.allow_live_orders,
+            "konfigurasi observe/allow_live_orders=false",
+        )
+        check(
+            "probe",
+            self.probe_active or self.db.flag("probe_pending") == "1",
+            "uji probe belum selesai",
+        )
+        check(
+            "account_connection",
+            not self.account or not self.account_snapshot,
+            "akun/kunci belum tersambung",
+        )
+        check("metadata", not self.market, "metadata BTC belum tersedia")
+        snap = self.account_snapshot
+        check(
+            "active_orders",
+            bool(snap and snap.active_orders),
+            "ada order aktif di bursa",
+            ran=snap is not None,
+        )
+        check(
+            "engine_ready",
+            self.state != EngineState.READY,
+            "mode idle; entry dinonaktifkan"
+            if self.state == EngineState.IDLE
+            else "engine belum READY",
+        )
+        check("history", not self.history_valid(), "audit riwayat lengkap wajib belum selesai")
+        check(
+            "account_state",
+            not self.account_state_valid(),
+            "komponen keadaan akun belum lengkap/segar/konsisten",
+        )
+        check(
+            "reconcile_ok",
+            self.reconcile_failed,
+            "rekonsiliasi akun terakhir gagal",
+            ran=self.account is not None,
+        )
+        # Preserve the immediate path's actual guards, including its short circuit and
+        # additional source assessment. Log BOTH inputs rather than recomputing later.
+        basis_missing = self.last_decision.basis_bps is None
+        data_ok = self.data_valid() if not basis_missing else False
+        data_guard = deepcopy(self._last_data_guard) if not basis_missing else None
+        check("market_basis", basis_missing or not data_ok, "data atau warm-up belum valid")
         source = self.source_freshness()
-        if not source["passed"]:
-            blockers.append(f"kesegaran sumber Binance: {source['reason']}")
-        if self.db.unresolved():
-            blockers.append("order sebelumnya belum pasti")
-        if self.account_snapshot and self.account_snapshot.position_qty:
-            blockers.append("masih ada posisi")
-        if self.account_snapshot and time.time() - self.account_snapshot.received_at > 15:
-            blockers.append("snapshot akun basi")
-        if self.account_snapshot and self.account_snapshot.equity <= self.config.exit_reserve_usd:
-            blockers.append("equity tidak cukup untuk order dan cadangan exit")
-        if self.account_snapshot and self.market and not self.account_snapshot.position_qty:
-            quote = self.books["lighter"].quote()
-            if quote:
-                try:
-                    size_entry(
-                        self.config,
-                        min(self.account_snapshot.equity, self.account_snapshot.available),
-                        Decimal(0),
-                        Decimal(0),
-                        quote.ask,
-                        "buy",
-                        dec(self.market["min_base_amount"]),
-                        dec(self.market["min_quote_amount"]),
-                        int(self.market["size_decimals"]),
-                        int(self.market["price_decimals"]),
-                        Decimal(35),
-                        Decimal(0),
-                        minimum_only=True,
-                    )
-                except ValueError:
-                    blockers.append("ukuran minimum legal melampaui kapasitas dan cadangan")
-        if Decimal(self.db.gross_deposits()) > self.config.max_funding_usd:
-            blockers.append("total deposit melampaui pagu")
-        if (
-            self.account_snapshot
-            and self.account_snapshot.equity > 0
-            and Decimal(self.db.gross_deposits()) <= 0
+        check("source", not source["passed"], f"kesegaran sumber Binance: {source['reason']}")
+        check("unresolved", bool(self.db.unresolved()), "order sebelumnya belum pasti")
+        check(
+            "position", bool(snap and snap.position_qty), "masih ada posisi", ran=snap is not None
+        )
+        check(
+            "account_age",
+            bool(snap and time.time() - snap.received_at > 15),
+            "snapshot akun basi",
+            ran=snap is not None,
+        )
+        check(
+            "equity",
+            bool(snap and snap.equity <= self.config.exit_reserve_usd),
+            "equity tidak cukup untuk order dan cadangan exit",
+            ran=snap is not None,
+        )
+        sizing_failed = False
+        quote = self.books["lighter"].quote()
+        sizing_ran = bool(snap and self.market and not snap.position_qty and quote)
+        if sizing_ran:
+            assert snap is not None and self.market is not None and quote is not None
+            try:
+                size_entry(
+                    self.config,
+                    min(snap.equity, snap.available),
+                    Decimal(0),
+                    Decimal(0),
+                    quote.ask,
+                    "buy",
+                    dec(self.market["min_base_amount"]),
+                    dec(self.market["min_quote_amount"]),
+                    int(self.market["size_decimals"]),
+                    int(self.market["price_decimals"]),
+                    Decimal(35),
+                    Decimal(0),
+                    minimum_only=True,
+                )
+            except ValueError:
+                sizing_failed = True
+        check(
+            "minimum_sizing",
+            sizing_failed,
+            "ukuran minimum legal melampaui kapasitas dan cadangan",
+            ran=sizing_ran,
+        )
+        gross = Decimal(self.db.gross_deposits())
+        check("funding_cap", gross > self.config.max_funding_usd, "total deposit melampaui pagu")
+        check(
+            "funding_known",
+            bool(snap and snap.equity > 0 and gross <= 0),
+            "asal dana akun belum tercatat di riwayat",
+            ran=snap is not None,
+        )
+        for name, flag, value, reason in (
+            (
+                "daily_loss",
+                "daily_stop_day",
+                datetime.now(JAKARTA).date().isoformat(),
+                "batas loss harian sudah dipicu",
+            ),
+            ("total_loss", "total_loss_stop", "1", "batas loss total sudah dipicu"),
+            (
+                "funding_incident",
+                "funding_change_pending",
+                "1",
+                "arus dana berubah setelah sesi live",
+            ),
+            (
+                "account_incident",
+                "account_incident_pending",
+                "1",
+                "trade akun tidak dikenal atau tidak lengkap",
+            ),
         ):
-            blockers.append("asal dana akun belum tercatat di riwayat")
-        if self.db.flag("daily_stop_day") == datetime.now(JAKARTA).date().isoformat():
-            blockers.append("batas loss harian sudah dipicu")
-        if self.db.flag("total_loss_stop") == "1":
-            blockers.append("batas loss total sudah dipicu")
-        if self.db.flag("funding_change_pending") == "1":
-            blockers.append("arus dana berubah setelah sesi live")
-        if self.db.flag("account_incident_pending") == "1":
-            blockers.append("trade akun tidak dikenal atau tidak lengkap")
-        if (
-            self.account_snapshot
-            and self.config.expected_account_type_code != self.account_snapshot.account_type_code
-        ):
-            blockers.append("tier akun belum cocok dengan verifikasi lokal")
-        if self.account_snapshot and not self.margin_settings_valid(self.account_snapshot):
-            blockers.append("mode akun atau margin BTC belum cocok dengan verifikasi lokal")
-        if self.account_snapshot and (
-            self.account_snapshot.other_positions or self.account_snapshot.other_assets
-        ):
-            blockers.append("akun memiliki aset/posisi lain")
-        if not self.journal_ok:
-            blockers.append("jurnal tidak sehat")
-        blockers.extend(self.entry_fee_blockers("PROBE" if for_probe else "ENTRY"))
-        if (
-            self.baseline
-            and self.account_snapshot
-            and self.baseline.check(self.config, self.account_snapshot.equity, self.current_flow)
-        ):
-            blockers.append("batas loss tercapai")
+            check(name, self.db.flag(flag) == value, reason)
+        check(
+            "tier",
+            bool(snap and self.config.expected_account_type_code != snap.account_type_code),
+            "tier akun belum cocok dengan verifikasi lokal",
+            ran=snap is not None,
+        )
+        check(
+            "margin",
+            bool(snap and not self.margin_settings_valid(snap)),
+            "mode akun atau margin BTC belum cocok dengan verifikasi lokal",
+            ran=snap is not None,
+        )
+        check(
+            "other_exposure",
+            bool(snap and (snap.other_positions or snap.other_assets)),
+            "akun memiliki aset/posisi lain",
+            ran=snap is not None,
+        )
+        check("journal", not self.journal_ok, "jurnal tidak sehat")
+        fees = self.entry_fee_blockers("PROBE" if for_probe else "ENTRY")
+        checks["fee_cash_binding"] = {"result": "failed" if fees else "passed", "reasons": fees}
+        blockers.extend(fees)
+        check(
+            "loss_risk",
+            bool(
+                self.baseline
+                and snap
+                and self.baseline.check(self.config, snap.equity, self.current_flow)
+            ),
+            "batas loss tercapai",
+            ran=bool(self.baseline and snap),
+        )
+        if evidence is not None:
+            evidence.update(
+                checks=checks,
+                data_guard=data_guard,
+                data_guard_executed=not basis_missing,
+                source_freshness=deepcopy(source),
+                source_guard_executed=True,
+            )
         return blockers
 
     def telemetry_context(self) -> dict:
@@ -3107,6 +3574,7 @@ class Engine:
             "probe_accept_reported_fees": self.config.probe_accept_reported_fees,
             "session_accept_reported_fees": self.config.session_accept_reported_fees,
             "strategy_session": self.session.read(),
+            "activation_request": self.activation.latest(),
             "loaded_session_permission_id": self.loaded_session_permission_id,
             "probe_session_id": self.db.flag("probe_session_id"),
             "probe_preview": self.probe_preview(),

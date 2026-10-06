@@ -13,7 +13,9 @@ type Status = {
   probe_used?: boolean; probe_active?: boolean; probe_blockers?: string[];
   probe_accept_reported_fees?: boolean;
   session_accept_reported_fees?: boolean;
-  strategy_session?: { id: string; status: string; max_attempts: number; attempts: { client_id: number }[]; completed_positions: number[]; stop_reason?: string | null } | null;
+  strategy_session?: { id: string; status: string; account_index: number; parameter_hash: string; authorization_expires_epoch: number; max_attempts: number; attempts: { client_id: number }[]; completed_positions: number[]; stop_reason?: string | null } | null;
+  allow_live_orders?: boolean; loaded_session_permission_id?: string | null;
+  activation_request?: { request_id: string; command_id: number; session_id: string; status: string; reason: string; authorization_expires_epoch: number } | null;
   pending_orders?: { client_id: number; kind: string; state: string; qty: string; side: string }[];
   protection_id?: number | null; protection_confirmed?: boolean; exit_id?: number | null; journal_ok?: boolean; queue_backlog?: number;
   event_loop_lag_ms?: number; last_order_ack_ms?: number | null; last_cancel_ack_ms?: number | null; reconnects?: Record<string, number>; binance_streams?: { public?: boolean; market?: boolean }; live_blockers?: string[];
@@ -61,10 +63,19 @@ function App() {
       if (!tokenResponse.ok) throw new Error('CSRF tidak tersedia')
       const { token: csrf } = await tokenResponse.json()
       if (!csrf) throw new Error('CSRF tidak tersedia')
-      const r = await fetch(`/api/command/${kind}`, { method: 'POST', headers: { 'X-CSRF-Token': csrf } })
+      let binding: Record<string, unknown> | undefined
+      if (kind === 'START_WHEN_READY') {
+        const session = data.strategy_session
+        if (!session || session.status !== 'authorized') throw new Error('Tidak ada otorisasi baru')
+        const key = `lighter-activation:${session.id}`
+        const requestId = sessionStorage.getItem(key) || crypto.randomUUID()
+        sessionStorage.setItem(key, requestId) // Same ID survives uncertain response/reload.
+        binding = { request_id: requestId, session_id: session.id, account_index: session.account_index, parameter_hash: session.parameter_hash, authorization_expires_epoch: session.authorization_expires_epoch }
+      }
+      const r = await fetch(`/api/command/${kind}`, { method: 'POST', headers: { 'X-CSRF-Token': csrf, 'Content-Type': 'application/json' }, body: binding ? JSON.stringify(binding) : undefined })
       const v = await r.json()
       setNotice(r.ok ? `${v.message} (#${v.command_id})` : `${v.detail || 'Perintah gagal'}`)
-    } catch { setNotice('API tidak terhubung; perintah tidak terkirim') }
+    } catch { setNotice('Respons belum pasti; periksa request ID dan jurnal sebelum mengulang. Jangan membuat izin pengganti.') }
   }
 
   const connected = !!data.connected
@@ -149,9 +160,10 @@ function App() {
         </section>
 
         <section className="card"><div className="sectionHead"><h2>Kontrol sesi</h2><span className="subtle">{data.session_remaining_s || 0} dtk tersisa · {data.strategy_session?.attempts.length || 0}/{data.strategy_session?.max_attempts || 3} percobaan entry · {data.strategy_session?.completed_positions.length || 0} posisi selesai</span></div>
+          {data.activation_request && <p className="hint">Aktivasi #{data.activation_request.command_id}: {['QUEUED', 'WAITING'].includes(data.activation_request.status) ? 'Menunggu kesiapan · belum aktif, entry berhenti' : data.activation_request.status === 'ACTIVATED' ? 'Aktivasi berhasil satu kali' : 'Dibatalkan / ditolak terminal'} · {data.activation_request.reason}. Batas persiapan: {time(data.activation_request.authorization_expires_epoch)}. Request {data.activation_request.request_id}.</p>}
           {data.strategy_session && <p className="hint">Sesi {data.strategy_session.status}{data.strategy_session.stop_reason ? ` · ${data.strategy_session.stop_reason}` : ''}. Kuota mencakup pengiriman yang ditolak atau gagal; restart tidak melanjutkan entry dan tidak mengulang deadline.</p>}
           <p className="hint">Probe 1× menguji satu transaksi dari status READY; entry strategi tetap berhenti. Perintah dicatat di antrean dan hasil order, cancel, serta close harus dikonfirmasi oleh Lighter.</p>
-          <div className="actions"><button disabled={!connected || data.state !== 'READY' || !!data.live_blockers?.length} onClick={() => command('START_LIVE')}>Mulai sesi live</button><button disabled={!connected} onClick={() => command('STOP_ENTRIES')}>Hentikan entry</button><button disabled={!connected} onClick={() => command('CANCEL_ENTRIES')}>Batalkan entry</button><button className="danger" disabled={!connected} onClick={() => command('CLOSE_POSITION')}>Minta tutup posisi</button><button disabled={!connected || data.state !== 'READY' || !data.entries_stopped || !data.probe_blockers || !!data.probe_blockers.length || data.probe_used} onClick={() => command('PROBE_ONCE')}>Probe 1×</button></div>
+          <div className="actions"><button disabled={!connected || !data.allow_live_orders || data.strategy_session?.status !== 'authorized' || data.loaded_session_permission_id !== data.strategy_session?.id || data.activation_request?.session_id === data.strategy_session?.id} onClick={() => command('START_WHEN_READY')}>Mulai saat siap</button><button disabled={!connected || !!data.activation_request && ['QUEUED', 'WAITING'].includes(data.activation_request.status) || data.state !== 'READY' || !!data.live_blockers?.length} onClick={() => command('START_LIVE')}>Mulai langsung</button><button disabled={!connected} onClick={() => command('STOP_ENTRIES')}>Hentikan entry</button><button disabled={!connected} onClick={() => command('CANCEL_ENTRIES')}>Batalkan entry</button><button className="danger" disabled={!connected} onClick={() => command('CLOSE_POSITION')}>Minta tutup posisi</button><button disabled={!connected || data.state !== 'READY' || !data.entries_stopped || !data.probe_blockers || !!data.probe_blockers.length || data.probe_used} onClick={() => command('PROBE_ONCE')}>Probe 1×</button></div>
           {notice && <div className="notice">{notice}</div>}
           <a className="export" href="/api/report" download="lighter-live-desk-report.json">Ekspor laporan JSON ↗</a>
         </section>
