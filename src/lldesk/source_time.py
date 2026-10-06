@@ -16,12 +16,15 @@ from typing import Any, TypeGuard
 
 import aiohttp
 
-from .clock_trace import clock_trace, transport_record
+from .clock_trace import calibration_request, clock_trace, transport_record
 from .models import Stamp
 from .network import DnsMode, binance_session
 
 CLOCK_TTL_S = 120
 CLOCK_INTERVAL_S = 60
+# 60s cadence + unchanged 2s request budget + 13s scheduling/idle headroom.
+# Idle retention is transport policy, never an extension of DNS or clock evidence TTL.
+CALIBRATION_KEEPALIVE_S = CLOCK_INTERVAL_S + 15
 MAX_UNCERTAINTY_MS = 250
 MAX_HOST_ERROR_MS = 50
 MAX_WALL_STEP_MS = 25
@@ -86,6 +89,7 @@ class BinanceSourceClock:
         self.last_attempt: dict | None = None
         self.recent: deque[dict] = deque(maxlen=32)
         self.requests = 0
+        self.request_weight = 0
 
     @property
     def evidence(self) -> ClockEvidence | None:
@@ -280,7 +284,9 @@ class BinanceSourceClock:
             "interval_seconds": CLOCK_INTERVAL_S,
             "drift_allowance_ppm": DRIFT_PPM,
             "request_count": self.requests,
-            "futures_request_weight": self.requests,
+            "futures_request_weight": self.request_weight,
+            "request_count_definition": "scheduled calibrations; sends counted by headers hook",
+            "keepalive_timeout_seconds": CALIBRATION_KEEPALIVE_S,
             "lighter_request_weight": 0,
             "proof_cache_count": len(self._proofs),
             "proof_cache_limit": 3,
@@ -294,7 +300,11 @@ class BinanceSourceClock:
 
     async def run(self, dns_mode: DnsMode, record: Callable[[dict], None]) -> None:
         # Independent worker: no order/nonce locks; no account requests; no blind retry.
-        async with binance_session(dns_mode, trace_configs=[clock_trace()]) as client:
+        async with binance_session(
+            dns_mode,
+            trace_configs=[clock_trace()],
+            keepalive_timeout=CALIBRATION_KEEPALIVE_S,
+        ) as client:
             due = time.monotonic()
             while True:
                 await asyncio.sleep(max(0, due - time.monotonic()))
@@ -304,7 +314,7 @@ class BinanceSourceClock:
                     self.invalidate("host_unsynchronized")
                 started = Stamp()
                 self.requests += 1
-                attempt = {
+                attempt: dict[str, Any] = {
                     "id": self.requests,
                     "started_ns": started.receipt_ns,
                     "weight": 1,
@@ -318,6 +328,8 @@ class BinanceSourceClock:
                     "transport": transport_record(),
                 }
                 retry_after_s = 0.0
+                cancelled = False
+                token = calibration_request.set(attempt)
                 try:
                     async with client.get(
                         TIME_URL,
@@ -362,6 +374,9 @@ class BinanceSourceClock:
                             provider_used_weight_1m=response.headers.get("X-MBX-USED-WEIGHT-1M"),
                             outcome="verified" if ok else "clock_unverified",
                         )
+                except asyncio.CancelledError:
+                    cancelled = True
+                    attempt.update(outcome="cancelled", failed_stage=attempt["stage"])
                 except Exception as exc:
                     attempt.update(
                         outcome="failed",
@@ -369,7 +384,16 @@ class BinanceSourceClock:
                         message=str(exc),
                         failed_stage=attempt["stage"],
                     )
+                finally:
+                    calibration_request.reset(token)
                 attempt["finished_monotonic_ns"] = time.monotonic_ns()
+                sends = attempt["transport"]["http_send_attempts"]
+                attempt["http_attempts"] = sends
+                attempt["http_retries"] = max(0, sends - 1)
+                # Conservatively budget one even if failure occurs before headers;
+                # an automatic idempotent retry consumes another provider request.
+                attempt["weight"] = max(1, sends)
+                self.request_weight += attempt["weight"]
                 attempt["latest_proof_id"] = self.identity(self.evidence) if self.evidence else None
                 attempt["selected_assessment"] = self.last_assessment
                 self.last_attempt = attempt
@@ -379,6 +403,8 @@ class BinanceSourceClock:
                 except Exception:
                     self.invalidate("evidence_record_failed")
                     attempt["outcome"] = "evidence_record_failed"
+                if cancelled:
+                    raise asyncio.CancelledError
                 # Skip missed deadlines; never catch up with a request burst.
                 due += CLOCK_INTERVAL_S
                 if due < time.monotonic():

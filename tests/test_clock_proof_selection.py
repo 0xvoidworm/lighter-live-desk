@@ -200,7 +200,8 @@ async def test_real_aiohttp_passive_phases_and_rejected_server_time(monkeypatch,
 
     @asynccontextmanager
     async def session(dns_mode, **kwargs):
-        assert list(kwargs) == ["trace_configs"]
+        assert list(kwargs) == ["trace_configs", "keepalive_timeout"]
+        assert kwargs.pop("keepalive_timeout") == 75
         async with aiohttp.ClientSession(**kwargs) as client:
             yield client
 

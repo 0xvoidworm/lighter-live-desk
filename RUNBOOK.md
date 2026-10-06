@@ -65,6 +65,21 @@ Guard gap5s, coverage600s/480, FX, threshold8bps, buffer5bps dan risiko tidak be
 
 ## Pemilihan proof dan pencatatan clock
 
+Kalibrasi memakai session HTTP khusus dengan idle keepalive **75 detik** pada
+konektor Binance dan HTTP DoH milik resolver session itu: cadence tetap 60 detik,
+request total tetap 2 detik, dengan 13 detik ruang idle/penjadwalan. Jalur feed,
+snapshot, akun Lighter, dan kurs tetap memakai default sebelumnya. Koneksi aktif
+boleh digunakan ulang; resolusi baru tetap menghormati TTL jawaban (maksimal
+60 detik), tanpa IP tetap atau perubahan DNS/TLS. Server boleh menutup koneksi;
+reuse bukan jaminan. Batas RTT 400ms dan TTL proof 120 detik tidak berubah.
+
+Trace kalibrasi menghitung `http_attempts` dari hook pengiriman header, termasuk
+retry GET idempotent oleh aiohttp ketika koneksi persisten sudah mati. Ini bukan
+bukti penerimaan server. Bobot konservatif minimal satu per kalibrasi, ditambah
+setiap pengiriman ulang; cancellation dicatat tanpa memperbarui proof. Fase
+resolver mencakup lock/cache/DoH dan tidak sama dengan latensi DNS OS; TLS
+tersendiri tetap tidak teramati.
+
 Kebijakan proof clock (disetujui 6 Oktober): latest accepted selalu menjadi
 fallback. Cache maksimal tiga proof accepted hanya dalam RAM; restart unverified.
 Satu assessment memakai satu pasangan wall/monotonic. Proof lama dipilih hanya
