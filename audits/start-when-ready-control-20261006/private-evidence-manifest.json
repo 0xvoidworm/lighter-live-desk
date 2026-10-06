@@ -1,0 +1,97 @@
+{
+  "created_at_utc": "2026-10-06T11:06:09.481799+00:00",
+  "private_root": "/home/yuri/Workspace/outputs/lighter-start-when-ready-20261006-1802",
+  "raw_in_git": false,
+  "files": [
+    {
+      "name": "after-restart-status.json",
+      "bytes": 146809,
+      "sha256": "1bdec8b82df49bec0a9de381e39747ec7e6385db91596f44f6856a07d0999d7a"
+    },
+    {
+      "name": "before-restart-db.sqlite",
+      "bytes": 40976384,
+      "sha256": "f66b3d799ff04257c7095d19a669e0896e5157fc5c100cdebb0c593ddd814648"
+    },
+    {
+      "name": "before-restart-status.json",
+      "bytes": 360953,
+      "sha256": "a60d3378c5bcc7dcde024ab94044d98e167bcc13bda6f55d6ad81dc7405f5394"
+    },
+    {
+      "name": "checks.json",
+      "bytes": 1754,
+      "sha256": "54f77f8b3d610bddee32cb1212c82d3edeeee1594ccde0f4ec821015ef001dce"
+    },
+    {
+      "name": "final-checks.json",
+      "bytes": 1784,
+      "sha256": "94ec957257b0b322c1ce62bf66316b3034583a2b5efe7f41e5e4b264684373c5"
+    },
+    {
+      "name": "final-mypy.log",
+      "bytes": 44,
+      "sha256": "7f43e759c997a0af903a210f4a10fd709457c5a5125336929ab037d3ed6702ce"
+    },
+    {
+      "name": "final-production-suite.log",
+      "bytes": 1713,
+      "sha256": "2a567953373cd362ee45e7d0824df5991b79fcc91c7baf97aad794361eb07371"
+    },
+    {
+      "name": "final-ruff.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "final-status.json",
+      "bytes": 167446,
+      "sha256": "a70531e2a0b8b6849b8c02c7bb51c875d1bbfe0a098139066e1e1a51c763a626"
+    },
+    {
+      "name": "final-targeted.log",
+      "bytes": 1231,
+      "sha256": "aad07ff864c92aa2d1877a8669429109c01739fd9fbe07fba1bd2194375a090b"
+    },
+    {
+      "name": "final-ui-build.log",
+      "bytes": 388,
+      "sha256": "9d364a6bd9067766e8d48be639e32a55c2997670aa8b95e7b7623c968cf68b43"
+    },
+    {
+      "name": "mypy.log",
+      "bytes": 44,
+      "sha256": "7f43e759c997a0af903a210f4a10fd709457c5a5125336929ab037d3ed6702ce"
+    },
+    {
+      "name": "production-suite.log",
+      "bytes": 1713,
+      "sha256": "95ae6eb2a9f632d79a3f74692cbd5ab00350e7b68debf7bdf7d69b0a7ceb6ac3"
+    },
+    {
+      "name": "restart.json",
+      "bytes": 3587,
+      "sha256": "da2c9893fc0ee941df15251cdb24fbe228c501b48f3d16753e4b796f7836a061"
+    },
+    {
+      "name": "ruff.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "smoke.json",
+      "bytes": 3268,
+      "sha256": "74a7fef9086e6211c106fb839db2198a8c716df92ca4e0e68f84219ea9d8d056"
+    },
+    {
+      "name": "targeted.log",
+      "bytes": 1231,
+      "sha256": "61adf26aef2430313d365a4df81977024227a718da2f04ddac44e279fafb82a1"
+    },
+    {
+      "name": "ui-build.log",
+      "bytes": 388,
+      "sha256": "b3b13ae6b9207feca5290ef012652df83b0a7ae12d81149436328ddb0b647588"
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "before_pid": 363683,
+  "before_api_pid": 255515,
+  "restart_started_epoch": 1791284604.421002,
+  "restart_finished_epoch": 1791284604.6256473,
+  "restart_started_wib": "2026-10-06T18:03:24.421002+07:00",
+  "restart_count": 1,
+  "smoke_lookup_status": 404,
+  "real_control_posts": 0,
+  "final": {
+    "verified_at_epoch": 1791284769.4768333,
+    "verified_at_wib": "2026-10-06T18:06:09.476833+07:00",
+    "engine_pid": 378689,
+    "api_pid": 378690,
+    "code_commit": "777f68e66fa1850cc1c21f7f82dfc20d03dc7ea5",
+    "account_index": 751745,
+    "equity_usdc": "49.430756",
+    "collateral_usdc": "49.430756",
+    "position_qty": "0.00000",
+    "active_order_count": 0,
+    "pending_order_count": 0,
+    "other_position_count": 0,
+    "unresolved_intents": 0,
+    "pending_activation_requests": 0,
+    "activation_request_total": 0,
+    "session_status": "closed",
+    "session_id": "a269dd7f-a216-4f21-b641-5bc909d5ba39",
+    "allow_live_orders": false,
+    "entries_stopped": true,
+    "loaded_session_permission_id": null,
+    "state": "IDLE",
+    "cash": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "history": {
+      "complete": true,
+      "required": false,
+      "reason": "complete audit verified; idle periodic deadline 120s",
+      "idle_interval_seconds": 120.0,
+      "age_seconds": 40.95752644800814
+    },
+    "account_component_ages_s": {
+      "account": 3.151443488022778,
+      "active_orders": 3.2611522850056645
+    },
+    "coverage": {
+      "duration_required_s": 600,
+      "duration_observed_s": 162.5,
+      "duration_remaining_s": 437.5,
+      "total_samples_required": 480,
+      "total_samples": 159,
+      "window_s": 600,
+      "recent_samples_required": 480,
+      "recent_samples": 159,
+      "max_sample_gap_s": 1.094,
+      "allowed_gap_s": 5,
+      "long_gap_count": 0,
+      "gap_wait_remaining_s": 0,
+      "last_sample_age_s": 0.9,
+      "warmup_complete": false,
+      "coverage_complete": false,
+      "ready": false,
+      "buffer_started_at": 1791284605.7277775,
+      "buffer_reset_reason": "engine_start",
+      "last_interruption": null
+    },
+    "source_freshness_reason": "SOURCE_FRESH_WITH_CLOCK_BOUND",
+    "request_budget": {
+      "used_last_60s": 16,
+      "reserved_unconsumed": 0,
+      "normal_cap": 40,
+      "urgent_read_cap": 47,
+      "transaction_cap": 55,
+      "transaction_slots_remaining": 39
+    },
+    "fee_exact_unknown": 4,
+    "fee_reported": [
+      {
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export"
+      },
+      {
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export"
+      },
+      {
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export"
+      },
+      {
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export"
+      }
+    ],
+    "unchanged_command_counts": [
+      [
+        "CLOSE_POSITION",
+        "DONE",
+        1
+      ],
+      [
+        "DIAGNOSE_PREFLIGHT",
+        "DONE",
+        3
+      ],
+      [
+        "LOAD_SESSION_PERMISSION",
+        "DONE",
+        4
+      ],
+      [
+        "PROBE_ONCE",
+        "DONE",
+        3
+      ],
+      [
+        "START_LIVE",
+        "DONE",
+        3
+      ],
+      [
+        "STOP_ENTRIES",
+        "DONE",
+        5
+      ]
+    ],
+    "intents_by_state": [
+      [
+        "CANCELED",
+        1
+      ],
+      [
+        "FILLED",
+        4
+      ],
+      [
+        "REJECTED",
+        1
+      ]
+    ],
+    "config_unchanged": true
+  },
+  "loaded_source_hashes": {
+    "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+    "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+    "src/lldesk/models.py": "605e3ceb2a3c7f93dc857b5b9639b418a4eb0b1ca6afc1aad722425074d60ea5",
+    "src/lldesk/db.py": "8cefd5c365c41fe044895d11fb49223ef6f4684fbc2c63f7a55b1182985e6a6a",
+    "src/lldesk/market.py": "e922d6c202c5652eda7645cf81a1525432dad23838b0b13c0f6178ca6de1d963",
+    "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+    "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c",
+    "src/lldesk/account.py": "7885d0f98fdcd02c61121f215d998705c8efa725c073893cba420c9ada41e1a9",
+    "src/lldesk/engine.py": "7a5e2ac8a48a6a7376cd18bb8e6e696cb86759c2dcaf1e4f9cd6308265bced42",
+    "src/lldesk/api.py": "830dc22aa93c22f95e56cfe729258c49422c9cd6fed715d5b6d90c6f9a0d55c4",
+    "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+    "src/lldesk/network.py": "23e9bcb29bcf11c798e024564824de60751eca7b1793672ceb6494f4f3b4dc67",
+    "src/lldesk/session.py": "f52288a062717fc59e744c17f89bc8d14c255c802db65c581639fc7494189458",
+    "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+    "src/lldesk/transport_trace.py": "642b82548b32556096ce1b4aedbe23b1375ab3aef539f9ab84172df1ba645978",
+    "src/lldesk/diagnostics.py": "82c76d515e542d9f05c8033879e3c8d2efbb2d424136e3af196c18abf2bfd3f3",
+    "src/lldesk/audit_scheduler.py": "95e073a99eac38fb028d496bbb9efffba5121aeb3b36ee7eed3795b02c8638f4",
+    "src/lldesk/preflight.py": "4bbf6c05655fb0e8bebf45475c3847bd13863f0faf22eaec5d066e60b8f6a2e3",
+    "src/lldesk/fx.py": "e477e46b38f097284b6b4091862ff6e5b7f8b4b1ba9ecc1d5fdeadb04ae6822e",
+    "src/lldesk/source_time.py": "d30f6fb1ff5a9c07f82683234c99918fab48ec4d1ceb862bfa0e396445a9ba02",
+    "src/lldesk/websocket_trace.py": "1789359a66098374652e26ebb80d80d2d381714b3940b48e11e2cb2bda12d6dd",
+    "src/lldesk/clock_trace.py": "fbf398f8cc5748b9302a63aa1dd298c793f429b4c46fa144036e5eb769f0439c",
+    "src/lldesk/activation.py": "61fdd51192c1293a9feab1563cb6b851457d0d8952b18957c07657ef46b77b8a"
+  }
+}
