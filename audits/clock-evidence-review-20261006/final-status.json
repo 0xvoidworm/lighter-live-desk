@@ -1,0 +1,36 @@
+{
+  "verified_at_wib": "2026-10-06T12:43:24.654177+07:00",
+  "verified_at_epoch": 1791265404.6541772,
+  "engine_pid": 341351,
+  "runtime_source_commit": "1205d35",
+  "production_sources_unchanged": true,
+  "state": "IDLE",
+  "allow_live_orders": false,
+  "entries_stopped": true,
+  "loaded_session_permission_id": null,
+  "session_status": "closed",
+  "equity_usdc": "49.430756",
+  "collateral_usdc": "49.430756",
+  "position_qty": "0.00000",
+  "other_position_count": 0,
+  "exchange_order_count": 0,
+  "exchange_pending_count": 0,
+  "local_pending_order_count": 0,
+  "unresolved_intents": 0,
+  "component_ages_s": {
+    "account": 6.837248166004429,
+    "active_orders": 6.953109632013366
+  },
+  "history_audit_complete": true,
+  "cash_audit": {
+    "status": "matched",
+    "net_difference_usdc": "0.000000",
+    "cash_change_usdc": "0.000000",
+    "individual_fees_known": false
+  },
+  "fee_exact_null_count": 4,
+  "reported_fee_total_usdc": "0.0000",
+  "reported_fee_precision_decimals": 4,
+  "latest_control_command_id": 15,
+  "no_runtime_recording_started_by_analysis": true
+}

@@ -1,0 +1,12 @@
+{
+  "python_version": "3.12.14",
+  "aiohttp_version": "3.14.3",
+  "aiohttp_connector_sha256": "d226165168e173ccc363059df89e26b5f863a23cc645171b9d06e7bb063e9e35",
+  "keepalive_timeout_default_s": 15,
+  "source_time_poll_interval_s": 60,
+  "source_time_request_timeout_total_s": 2,
+  "source_time_dns_mode_frozen": "doh",
+  "source_time_has_trace_config": false,
+  "tcp_tls_individual_phase_observed": false,
+  "production_configuration_changed": false
+}
