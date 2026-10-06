@@ -1,0 +1,1888 @@
+{
+  "historical_window": {
+    "start_epoch": 1791224374.358374,
+    "deadline_epoch": 1791225574.358374,
+    "duration_seconds": 1200
+  },
+  "clock_replay": {
+    "samples": 4798,
+    "matching_recorded_second_assessment_reasons": 4798,
+    "proof_unavailable": 0,
+    "second_assessment_reasons": {
+      "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 674,
+      "SOURCE_FRESH_WITH_CLOCK_BOUND": 4124
+    },
+    "source_lower_ms": {
+      "n": 4798,
+      "median": 47.044034914175,
+      "p95": 127.290316234125,
+      "max": 838.8928536232
+    },
+    "drift_allowance_ms": {
+      "n": 4798,
+      "median": 3.1610896745,
+      "p95": 6.000570493600001,
+      "max": 11.996058446700001
+    },
+    "second_assessment_after_decision_stamp_ms": {
+      "n": 4798,
+      "median": 0.000917,
+      "p95": 0.001512,
+      "max": 0.047164
+    },
+    "basis_scale_sample_context": {
+      "invalid_input": 676,
+      "valid_input": 2044
+    },
+    "post_warmup_basis_context_seconds": {
+      "decision:SOURCE_TIMESTAMP_FUTURE_UNCERTAIN;diagnostic:SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 42.51910754798155,
+      "decision:SOURCE_TIMESTAMP_FUTURE_UNCERTAIN;diagnostic:SOURCE_FRESH_WITH_CLOCK_BOUND": 47.268815910982084,
+      "decision:SOURCE_FRESH_WITH_CLOCK_BOUND;diagnostic:SOURCE_FRESH_WITH_CLOCK_BOUND": 0.25008221800089814
+    },
+    "sampled_post_warmup_ready_endings": {
+      "market_data+source_freshness+basis_scale": 59,
+      "reconciliation_idle": 4,
+      "basis_scale": 106
+    },
+    "decision_invalid_diagnostic_source_passed": 378,
+    "diagnostic_delay_for_invalid_decision_ms": {
+      "n": 378,
+      "median": 10.3987225,
+      "p95": 15.708526,
+      "max": 22.102243
+    },
+    "two_ambiguous_decisions": [
+      {
+        "elapsed_s": 373.4551871050062,
+        "decision_monotonic_ns": 110429898306603,
+        "second_assessment": {
+          "passed": true,
+          "reason": "SOURCE_FRESH_WITH_CLOCK_BOUND",
+          "receipt_age_ms": 2.198913,
+          "source_indicator_ms": 70.37225284375,
+          "transaction_ms": 1791224747589,
+          "max_source_age_ms": 1500,
+          "max_clock_uncertainty_ms": 250,
+          "evaluated_monotonic_ns": 110429898307950,
+          "evaluated_wall_ns": 1791224747659373635,
+          "clock_ttl_seconds": 120,
+          "clock_proof_id": "1791224723736:110406031864672",
+          "clock_received_monotonic_ns": 110406031864672,
+          "clock_received_wall_ns": 1791224723792929977,
+          "clock_base_offset_low_ms": -68.977709640625,
+          "clock_base_offset_high_ms": 130.312670578125,
+          "clock_evidence_age_s": 23.866443278,
+          "clock_drift_allowance_ms": 2.3866443277999996,
+          "clock_offset_low_ms": -71.364353968425,
+          "clock_offset_high_ms": 132.699314905925,
+          "clock_uncertainty_ms": 102.03183443717501,
+          "source_age_low_ms": -0.9921011246749885,
+          "source_age_high_ms": 203.071567749675
+        },
+        "quotes": {
+          "lighter": {
+            "bid": "85476.9",
+            "ask": "85477.0",
+            "receipt_ns": 1791224747616940100,
+            "monotonic_ns": 110429855876198,
+            "exchange_ms": 1791224747557,
+            "exchange_event_ms": null
+          },
+          "binance": {
+            "bid": "85468.80",
+            "ask": "85468.90",
+            "receipt_ns": 1791224747657173183,
+            "monotonic_ns": 110429896109037,
+            "exchange_ms": 1791224747589,
+            "exchange_event_ms": 1791224747592
+          }
+        },
+        "fx_age_s": 1.3699214280059095,
+        "queue_backlog": 0,
+        "diagnostic_delay_ms": 11.880475,
+        "lower_bound_margin_to_future_boundary_us": 7.898875325011545,
+        "first_assessment": "not recorded; boundary crossing is plausible, not proven"
+      },
+      {
+        "elapsed_s": 1118.2863673859974,
+        "decision_monotonic_ns": 111174656898851,
+        "second_assessment": {
+          "passed": true,
+          "reason": "SOURCE_FRESH_WITH_CLOCK_BOUND",
+          "receipt_age_ms": 40.378058,
+          "source_indicator_ms": 116.96472792187501,
+          "transaction_ms": 1791225492301,
+          "max_source_age_ms": 1500,
+          "max_clock_uncertainty_ms": 250,
+          "evaluated_monotonic_ns": 111174656899302,
+          "evaluated_wall_ns": 1791225492417965251,
+          "clock_ttl_seconds": 120,
+          "clock_proof_id": "1791225443725:111126064469898",
+          "clock_received_monotonic_ns": 111126064469898,
+          "clock_received_wall_ns": 1791225443825534797,
+          "clock_base_offset_low_ms": -113.10077646875,
+          "clock_base_offset_high_ms": 128.667426859375,
+          "clock_evidence_age_s": 48.592429404,
+          "clock_drift_allowance_ms": 4.859242940400001,
+          "clock_offset_low_ms": -117.96001940915,
+          "clock_offset_high_ms": 133.52666979977502,
+          "clock_uncertainty_ms": 125.74334460446251,
+          "source_age_low_ms": -0.995291487274983,
+          "source_age_high_ms": 250.49139772165003
+        },
+        "quotes": {
+          "lighter": {
+            "bid": "85545.0",
+            "ask": "85545.4",
+            "receipt_ns": 1791225492379625391,
+            "monotonic_ns": 111174618559847,
+            "exchange_ms": 1791225492310,
+            "exchange_event_ms": null
+          },
+          "binance": {
+            "bid": "85530.10",
+            "ask": "85530.20",
+            "receipt_ns": 1791225492377586803,
+            "monotonic_ns": 111174616521244,
+            "exchange_ms": 1791225492301,
+            "exchange_event_ms": 1791225492302
+          }
+        },
+        "fx_age_s": 0.1281639160006307,
+        "queue_backlog": 0,
+        "diagnostic_delay_ms": 6.077699,
+        "lower_bound_margin_to_future_boundary_us": 4.708512725017044,
+        "first_assessment": "not recorded; boundary crossing is plausible, not proven"
+      }
+    ],
+    "limits": "First guard time/result absent. Replay checks recorded SECOND assessment using already available proof and bracketed wall time; no retroactive approval."
+  },
+  "post_window": {
+    "begin_epoch": 1791225574.358374,
+    "end_epoch": 1791248764.0,
+    "reconnects": [
+      {
+        "channel": "lighter",
+        "disconnect": {
+          "kind": "disconnect",
+          "receipt_ns": 1791246478008898391,
+          "monotonic_ns": 132160247834986,
+          "recorded_ns": 1791246478009148499,
+          "recorded_monotonic_ns": 132160248082864,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "payload": {
+          "reason": "ConnectionClosedError",
+          "channel": "ws",
+          "retry_delay_s": 2,
+          "consecutive_failures": 1,
+          "transport_detail": {
+            "close_code": null,
+            "frame_type": null,
+            "cause": null,
+            "exception_message": "sent 1011 (internal error) keepalive ping timeout; no close frame received",
+            "cause_message": "timed out while closing connection",
+            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
+          }
+        },
+        "last_messages": {
+          "lighter": {
+            "kind": "order_book",
+            "receipt_ns": 1791246443736147727,
+            "monotonic_ns": 132125975082275,
+            "recorded_ns": 1791246443740679272,
+            "recorded_monotonic_ns": 132125979613518,
+            "exchange_ms": 1791246443657,
+            "update_id": null
+          },
+          "binance_public": {
+            "kind": "depthUpdate",
+            "receipt_ns": 1791246469667101967,
+            "monotonic_ns": 132151906036321,
+            "recorded_ns": 1791246469668268938,
+            "recorded_monotonic_ns": 132151907203080,
+            "exchange_ms": 1791246435165,
+            "update_id": 11743796329936
+          },
+          "fx": {
+            "kind": "fx",
+            "receipt_ns": 1791246476386933264,
+            "monotonic_ns": 132158625869006,
+            "recorded_ns": 1791246476387111850,
+            "recorded_monotonic_ns": 132158626046338,
+            "exchange_ms": null,
+            "update_id": null
+          },
+          "binance_market": {
+            "kind": "aggTrade",
+            "receipt_ns": 1791246462145673942,
+            "monotonic_ns": 132144384610172,
+            "recorded_ns": 1791246462145886737,
+            "recorded_monotonic_ns": 132144384821177,
+            "exchange_ms": 1791246442577,
+            "update_id": null
+          }
+        },
+        "first_following_message": {
+          "kind": "order_book",
+          "receipt_ns": 1791246554219769214,
+          "monotonic_ns": 132236458703970,
+          "recorded_ns": 1791246554239211021,
+          "recorded_monotonic_ns": 132236478145188,
+          "exchange_ms": 1791246554065,
+          "update_id": null
+        },
+        "receipt_gap_s": 110.483621695,
+        "last_receipt_to_disconnect_s": 34.272752711,
+        "disconnect_to_receipt_s": 76.210868984
+      },
+      {
+        "channel": "binance_public",
+        "disconnect": {
+          "kind": "disconnect",
+          "receipt_ns": 1791246517763245031,
+          "monotonic_ns": 132200002180001,
+          "recorded_ns": 1791246517763316040,
+          "recorded_monotonic_ns": 132200002250321,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "payload": {
+          "reason": "ConnectionError",
+          "channel": "public",
+          "retry_delay_s": 2,
+          "consecutive_failures": 1,
+          "transport_detail": {
+            "close_code": 1006,
+            "frame_type": "ERROR",
+            "cause": "ServerTimeoutError",
+            "exception_message": "Binance public websocket closed",
+            "cause_message": "No PONG received after 10.0 seconds",
+            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 394, in _binance_public\n    raise websocket_closed(ws, \"public\", frame.type.name)\nConnectionError: Binance public websocket closed\n"
+          }
+        },
+        "last_messages": {
+          "lighter": {
+            "kind": "order_book",
+            "receipt_ns": 1791246443736147727,
+            "monotonic_ns": 132125975082275,
+            "recorded_ns": 1791246443740679272,
+            "recorded_monotonic_ns": 132125979613518,
+            "exchange_ms": 1791246443657,
+            "update_id": null
+          },
+          "binance_public": {
+            "kind": "depthUpdate",
+            "receipt_ns": 1791246485905358588,
+            "monotonic_ns": 132168144293255,
+            "recorded_ns": 1791246485913708942,
+            "recorded_monotonic_ns": 132168152643338,
+            "exchange_ms": 1791246445675,
+            "update_id": 11743797083936
+          },
+          "fx": {
+            "kind": "fx",
+            "receipt_ns": 1791246506738937300,
+            "monotonic_ns": 132188977871856,
+            "recorded_ns": 1791246506738986365,
+            "recorded_monotonic_ns": 132188977920573,
+            "exchange_ms": null,
+            "update_id": null
+          },
+          "binance_market": {
+            "kind": "aggTrade",
+            "receipt_ns": 1791246500803594929,
+            "monotonic_ns": 132183042529516,
+            "recorded_ns": 1791246500811297711,
+            "recorded_monotonic_ns": 132183050231966,
+            "exchange_ms": 1791246460660,
+            "update_id": null
+          }
+        },
+        "following_snapshot": {
+          "kind": "snapshot",
+          "receipt_ns": 1791246528397852630,
+          "monotonic_ns": 132210636789356,
+          "recorded_ns": 1791246528398115653,
+          "recorded_monotonic_ns": 132210637050312,
+          "exchange_ms": 1791246520441,
+          "update_id": 11743803853974
+        },
+        "first_following_message": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246556311825191,
+          "monotonic_ns": 132238550759730,
+          "recorded_ns": 1791246556436184105,
+          "recorded_monotonic_ns": 132238675118355,
+          "exchange_ms": 1791246556241,
+          "update_id": 11743807291303
+        },
+        "following_valid_depth": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246556311825191,
+          "monotonic_ns": 132238550759730,
+          "recorded_ns": 1791246556436184105,
+          "recorded_monotonic_ns": 132238675118355,
+          "exchange_ms": 1791246556241,
+          "update_id": 11743807291303
+        },
+        "receipt_gap_s": 70.406466475,
+        "last_receipt_to_disconnect_s": 31.857886746,
+        "disconnect_to_receipt_s": 38.548579729
+      },
+      {
+        "channel": "lighter",
+        "disconnect": {
+          "kind": "disconnect",
+          "receipt_ns": 1791246545956545564,
+          "monotonic_ns": 132228195481314,
+          "recorded_ns": 1791246545956695884,
+          "recorded_monotonic_ns": 132228195630349,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "payload": {
+          "reason": "ConnectionClosedError",
+          "channel": "ws",
+          "retry_delay_s": 4,
+          "consecutive_failures": 2,
+          "transport_detail": {
+            "close_code": null,
+            "frame_type": null,
+            "cause": null,
+            "exception_message": "sent 1011 (internal error) keepalive ping timeout; no close frame received",
+            "cause_message": "timed out while closing connection",
+            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
+          }
+        },
+        "last_messages": {
+          "lighter": {
+            "kind": "order_book",
+            "receipt_ns": 1791246443736147727,
+            "monotonic_ns": 132125975082275,
+            "recorded_ns": 1791246443740679272,
+            "recorded_monotonic_ns": 132125979613518,
+            "exchange_ms": 1791246443657,
+            "update_id": null
+          },
+          "binance_public": {
+            "kind": "depthUpdate",
+            "receipt_ns": 1791246485905358588,
+            "monotonic_ns": 132168144293255,
+            "recorded_ns": 1791246485913708942,
+            "recorded_monotonic_ns": 132168152643338,
+            "exchange_ms": 1791246445675,
+            "update_id": 11743797083936
+          },
+          "fx": {
+            "kind": "fx",
+            "receipt_ns": 1791246506738937300,
+            "monotonic_ns": 132188977871856,
+            "recorded_ns": 1791246506738986365,
+            "recorded_monotonic_ns": 132188977920573,
+            "exchange_ms": null,
+            "update_id": null
+          },
+          "binance_market": {
+            "kind": "aggTrade",
+            "receipt_ns": 1791246525653667289,
+            "monotonic_ns": 132207892602034,
+            "recorded_ns": 1791246525653864441,
+            "recorded_monotonic_ns": 132207892798891,
+            "exchange_ms": 1791246474409,
+            "update_id": null
+          }
+        },
+        "first_following_message": {
+          "kind": "order_book",
+          "receipt_ns": 1791246554219769214,
+          "monotonic_ns": 132236458703970,
+          "recorded_ns": 1791246554239211021,
+          "recorded_monotonic_ns": 132236478145188,
+          "exchange_ms": 1791246554065,
+          "update_id": null
+        },
+        "receipt_gap_s": 110.483621695,
+        "last_receipt_to_disconnect_s": 102.220399039,
+        "disconnect_to_receipt_s": 8.263222656
+      },
+      {
+        "channel": "binance_public",
+        "disconnect": {
+          "kind": "disconnect",
+          "receipt_ns": 1791246551764320637,
+          "monotonic_ns": 132234003256355,
+          "recorded_ns": 1791246551764460987,
+          "recorded_monotonic_ns": 132234003395436,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "payload": {
+          "reason": "ConnectionError",
+          "channel": "public",
+          "retry_delay_s": 4,
+          "consecutive_failures": 2,
+          "transport_detail": {
+            "close_code": 1006,
+            "frame_type": "ERROR",
+            "cause": "ServerTimeoutError",
+            "exception_message": "Binance public websocket closed",
+            "cause_message": "No PONG received after 10.0 seconds",
+            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 394, in _binance_public\n    raise websocket_closed(ws, \"public\", frame.type.name)\nConnectionError: Binance public websocket closed\n"
+          }
+        },
+        "last_messages": {
+          "lighter": {
+            "kind": "order_book",
+            "receipt_ns": 1791246443736147727,
+            "monotonic_ns": 132125975082275,
+            "recorded_ns": 1791246443740679272,
+            "recorded_monotonic_ns": 132125979613518,
+            "exchange_ms": 1791246443657,
+            "update_id": null
+          },
+          "binance_public": {
+            "kind": "depthUpdate",
+            "receipt_ns": 1791246485905358588,
+            "monotonic_ns": 132168144293255,
+            "recorded_ns": 1791246485913708942,
+            "recorded_monotonic_ns": 132168152643338,
+            "exchange_ms": 1791246445675,
+            "update_id": 11743797083936
+          },
+          "fx": {
+            "kind": "fx",
+            "receipt_ns": 1791246506738937300,
+            "monotonic_ns": 132188977871856,
+            "recorded_ns": 1791246506738986365,
+            "recorded_monotonic_ns": 132188977920573,
+            "exchange_ms": null,
+            "update_id": null
+          },
+          "binance_market": {
+            "kind": "aggTrade",
+            "receipt_ns": 1791246525653667289,
+            "monotonic_ns": 132207892602034,
+            "recorded_ns": 1791246525653864441,
+            "recorded_monotonic_ns": 132207892798891,
+            "exchange_ms": 1791246474409,
+            "update_id": null
+          }
+        },
+        "following_snapshot": {
+          "kind": "snapshot",
+          "receipt_ns": 1791246556424880383,
+          "monotonic_ns": 132238663814922,
+          "recorded_ns": 1791246556424970709,
+          "recorded_monotonic_ns": 132238663904921,
+          "exchange_ms": 1791246556187,
+          "update_id": 11743807286847
+        },
+        "first_following_message": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246556311825191,
+          "monotonic_ns": 132238550759730,
+          "recorded_ns": 1791246556436184105,
+          "recorded_monotonic_ns": 132238675118355,
+          "exchange_ms": 1791246556241,
+          "update_id": 11743807291303
+        },
+        "following_valid_depth": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246556311825191,
+          "monotonic_ns": 132238550759730,
+          "recorded_ns": 1791246556436184105,
+          "recorded_monotonic_ns": 132238675118355,
+          "exchange_ms": 1791246556241,
+          "update_id": 11743807291303
+        },
+        "receipt_gap_s": 70.406466475,
+        "last_receipt_to_disconnect_s": 65.8589631,
+        "disconnect_to_receipt_s": 4.547503375
+      },
+      {
+        "channel": "binance_market",
+        "disconnect": {
+          "kind": "disconnect",
+          "receipt_ns": 1791246556763450094,
+          "monotonic_ns": 132239002386364,
+          "recorded_ns": 1791246556763583873,
+          "recorded_monotonic_ns": 132239002518291,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "payload": {
+          "reason": "ConnectionError",
+          "channel": "market",
+          "retry_delay_s": 2,
+          "consecutive_failures": 1,
+          "transport_detail": {
+            "close_code": 1006,
+            "frame_type": "ERROR",
+            "cause": "ServerTimeoutError",
+            "exception_message": "Binance market websocket closed",
+            "cause_message": "No PONG received after 10.0 seconds",
+            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 423, in _binance_trades\n    raise websocket_closed(ws, \"market\", frame.type.name)\nConnectionError: Binance market websocket closed\n"
+          }
+        },
+        "last_messages": {
+          "lighter": {
+            "kind": "order_book",
+            "receipt_ns": 1791246556704775497,
+            "monotonic_ns": 132238943711845,
+            "recorded_ns": 1791246556739160672,
+            "recorded_monotonic_ns": 132238978095032,
+            "exchange_ms": 1791246556639,
+            "update_id": null
+          },
+          "binance_public": {
+            "kind": "depthUpdate",
+            "receipt_ns": 1791246556743985734,
+            "monotonic_ns": 132238982920675,
+            "recorded_ns": 1791246556744083460,
+            "recorded_monotonic_ns": 132238983017701,
+            "exchange_ms": 1791246556649,
+            "update_id": 11743807321854
+          },
+          "fx": {
+            "kind": "fx",
+            "receipt_ns": 1791246556423840238,
+            "monotonic_ns": 132238662774665,
+            "recorded_ns": 1791246556423916150,
+            "recorded_monotonic_ns": 132238662850412,
+            "exchange_ms": null,
+            "update_id": null
+          },
+          "binance_market": {
+            "kind": "aggTrade",
+            "receipt_ns": 1791246525653667289,
+            "monotonic_ns": 132207892602034,
+            "recorded_ns": 1791246525653864441,
+            "recorded_monotonic_ns": 132207892798891,
+            "exchange_ms": 1791246474409,
+            "update_id": null
+          }
+        },
+        "first_following_message": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246559531172269,
+          "monotonic_ns": 132241770108576,
+          "recorded_ns": 1791246559531372107,
+          "recorded_monotonic_ns": 132241770306553,
+          "exchange_ms": 1791246559465,
+          "update_id": null
+        },
+        "receipt_gap_s": 33.877506542,
+        "last_receipt_to_disconnect_s": 31.10978433,
+        "disconnect_to_receipt_s": 2.767722212
+      },
+      {
+        "channel": "lighter",
+        "disconnect": {
+          "kind": "disconnect",
+          "receipt_ns": 1791247694179019020,
+          "monotonic_ns": 133376417953720,
+          "recorded_ns": 1791247694179075451,
+          "recorded_monotonic_ns": 133376418009641,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "payload": {
+          "reason": "ConnectionClosedError",
+          "channel": "ws",
+          "retry_delay_s": 2,
+          "consecutive_failures": 1,
+          "transport_detail": {
+            "close_code": null,
+            "frame_type": null,
+            "cause": null,
+            "exception_message": "sent 1011 (internal error) keepalive ping timeout; no close frame received",
+            "cause_message": "timed out while closing connection",
+            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
+          }
+        },
+        "last_messages": {
+          "lighter": {
+            "kind": "order_book",
+            "receipt_ns": 1791247670373283894,
+            "monotonic_ns": 133352612218125,
+            "recorded_ns": 1791247670373820487,
+            "recorded_monotonic_ns": 133352612754651,
+            "exchange_ms": 1791247642330,
+            "update_id": null
+          },
+          "binance_public": {
+            "kind": "depthUpdate",
+            "receipt_ns": 1791247693656792743,
+            "monotonic_ns": 133375895729146,
+            "recorded_ns": 1791247693657124260,
+            "recorded_monotonic_ns": 133375896058793,
+            "exchange_ms": 1791247628793,
+            "update_id": 11743905143635
+          },
+          "fx": {
+            "kind": "fx",
+            "receipt_ns": 1791247681017652350,
+            "monotonic_ns": 133363256588169,
+            "recorded_ns": 1791247681017834553,
+            "recorded_monotonic_ns": 133363256769056,
+            "exchange_ms": null,
+            "update_id": null
+          },
+          "binance_market": {
+            "kind": "aggTrade",
+            "receipt_ns": 1791247669025301620,
+            "monotonic_ns": 133351264236431,
+            "recorded_ns": 1791247669025710263,
+            "recorded_monotonic_ns": 133351264644553,
+            "exchange_ms": 1791247651098,
+            "update_id": null
+          }
+        },
+        "first_following_message": {
+          "kind": "order_book",
+          "receipt_ns": 1791247699072499322,
+          "monotonic_ns": 133381311434160,
+          "recorded_ns": 1791247699073671986,
+          "recorded_monotonic_ns": 133381312606159,
+          "exchange_ms": 1791247698872,
+          "update_id": null
+        },
+        "receipt_gap_s": 28.699216035,
+        "last_receipt_to_disconnect_s": 23.805735595,
+        "disconnect_to_receipt_s": 4.89348044
+      },
+      {
+        "channel": "binance_market",
+        "disconnect": {
+          "kind": "disconnect",
+          "receipt_ns": 1791247700764343682,
+          "monotonic_ns": 133383003279204,
+          "recorded_ns": 1791247700764550448,
+          "recorded_monotonic_ns": 133383003484816,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "payload": {
+          "reason": "ConnectionError",
+          "channel": "market",
+          "retry_delay_s": 2,
+          "consecutive_failures": 1,
+          "transport_detail": {
+            "close_code": 1006,
+            "frame_type": "ERROR",
+            "cause": "ServerTimeoutError",
+            "exception_message": "Binance market websocket closed",
+            "cause_message": "No PONG received after 10.0 seconds",
+            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 423, in _binance_trades\n    raise websocket_closed(ws, \"market\", frame.type.name)\nConnectionError: Binance market websocket closed\n"
+          }
+        },
+        "last_messages": {
+          "lighter": {
+            "kind": "order_book",
+            "receipt_ns": 1791247700607337380,
+            "monotonic_ns": 133382846271976,
+            "recorded_ns": 1791247700607384019,
+            "recorded_monotonic_ns": 133382846318222,
+            "exchange_ms": 1791247700538,
+            "update_id": null
+          },
+          "binance_public": {
+            "kind": "depthUpdate",
+            "receipt_ns": 1791247700689692046,
+            "monotonic_ns": 133382928626620,
+            "recorded_ns": 1791247700693918898,
+            "recorded_monotonic_ns": 133382932853266,
+            "exchange_ms": 1791247638993,
+            "update_id": 11743905922023
+          },
+          "fx": {
+            "kind": "fx",
+            "receipt_ns": 1791247700402827093,
+            "monotonic_ns": 133382641761740,
+            "recorded_ns": 1791247700402888187,
+            "recorded_monotonic_ns": 133382641822360,
+            "exchange_ms": null,
+            "update_id": null
+          },
+          "binance_market": {
+            "kind": "aggTrade",
+            "receipt_ns": 1791247669025301620,
+            "monotonic_ns": 133351264236431,
+            "recorded_ns": 1791247669025710263,
+            "recorded_monotonic_ns": 133351264644553,
+            "exchange_ms": 1791247651098,
+            "update_id": null
+          }
+        },
+        "first_following_message": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791247703822301129,
+          "monotonic_ns": 133386061237078,
+          "recorded_ns": 1791247703822468673,
+          "recorded_monotonic_ns": 133386061403093,
+          "exchange_ms": 1791247703608,
+          "update_id": null
+        },
+        "receipt_gap_s": 34.797000647,
+        "last_receipt_to_disconnect_s": 31.739042773,
+        "disconnect_to_receipt_s": 3.057957874
+      },
+      {
+        "channel": "binance_public",
+        "disconnect": {
+          "kind": "disconnect",
+          "receipt_ns": 1791247703191992425,
+          "monotonic_ns": 133385430927028,
+          "recorded_ns": 1791247703192032556,
+          "recorded_monotonic_ns": 133385430966764,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "payload": {
+          "reason": "ConnectionError",
+          "channel": "public",
+          "retry_delay_s": 2,
+          "consecutive_failures": 1,
+          "transport_detail": {
+            "close_code": 1006,
+            "frame_type": null,
+            "cause": "ClientConnectionResetError",
+            "exception_message": "Binance public websocket closed",
+            "cause_message": "Cannot write to closing transport",
+            "exception_chain": "Traceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/client_ws.py\", line 411, in receive\n    msg = await self._reader.read()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"aiohttp/_websocket/reader_c.py\", line 122, in read\n  File \"aiohttp/_websocket/reader_c.py\", line 133, in aiohttp._websocket.reader_c.WebSocketDataQueue._read_from_buffer\naiohttp.streams.EofStream\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/client_ws.py\", line 336, in close\n    await self._writer.close(code, message)\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 257, in close\n    await self.send_frame(\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 82, in send_frame\n    self._write_websocket_frame(message, opcode, 0)\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 150, in _write_websocket_frame\n    raise ClientConnectionResetError(\"Cannot write to closing transport\")\naiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 400, in _binance_public\n    raise websocket_closed(ws, \"public\")\nConnectionError: Binance public websocket closed\n"
+          }
+        },
+        "last_messages": {
+          "lighter": {
+            "kind": "order_book",
+            "receipt_ns": 1791247703150900354,
+            "monotonic_ns": 133385389836101,
+            "recorded_ns": 1791247703151062334,
+            "recorded_monotonic_ns": 133385389996755,
+            "exchange_ms": 1791247703085,
+            "update_id": null
+          },
+          "binance_public": {
+            "kind": "depthUpdate",
+            "receipt_ns": 1791247703184874611,
+            "monotonic_ns": 133385423809099,
+            "recorded_ns": 1791247703185815264,
+            "recorded_monotonic_ns": 133385424749499,
+            "exchange_ms": 1791247655109,
+            "update_id": 11743907398690
+          },
+          "fx": {
+            "kind": "fx",
+            "receipt_ns": 1791247702404470795,
+            "monotonic_ns": 133384643405168,
+            "recorded_ns": 1791247702404515741,
+            "recorded_monotonic_ns": 133384643449905,
+            "exchange_ms": null,
+            "update_id": null
+          },
+          "binance_market": {
+            "kind": "aggTrade",
+            "receipt_ns": 1791247669025301620,
+            "monotonic_ns": 133351264236431,
+            "recorded_ns": 1791247669025710263,
+            "recorded_monotonic_ns": 133351264644553,
+            "exchange_ms": 1791247651098,
+            "update_id": null
+          }
+        },
+        "following_snapshot": {
+          "kind": "snapshot",
+          "receipt_ns": 1791247705664476441,
+          "monotonic_ns": 133387903410720,
+          "recorded_ns": 1791247705664525492,
+          "recorded_monotonic_ns": 133387903459662,
+          "exchange_ms": 1791247705553,
+          "update_id": 11743911770148
+        },
+        "first_following_message": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247705664319390,
+          "monotonic_ns": 133387903253784,
+          "recorded_ns": 1791247705674210070,
+          "recorded_monotonic_ns": 133387913144303,
+          "exchange_ms": 1791247705598,
+          "update_id": 11743911772833
+        },
+        "following_valid_depth": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247705664319390,
+          "monotonic_ns": 133387903253784,
+          "recorded_ns": 1791247705674210070,
+          "recorded_monotonic_ns": 133387913144303,
+          "exchange_ms": 1791247705598,
+          "update_id": 11743911772833
+        },
+        "receipt_gap_s": 2.479444685,
+        "last_receipt_to_disconnect_s": 0.007117929,
+        "disconnect_to_receipt_s": 2.472326756
+      }
+    ],
+    "raw_event_counts": {
+      "binance:aggTrade": 146327,
+      "binance:depthUpdate": 225769,
+      "lighter:order_book": 351821,
+      "lighter:ticker": 420518,
+      "lighter:trade": 63687,
+      "binance:fx": 11509,
+      "binance:source_clock": 386,
+      "lighter:disconnect": 3,
+      "binance:disconnect": 5,
+      "binance:snapshot": 3
+    },
+    "receipt_gaps_over_5s": [
+      {
+        "channel": "binance_market",
+        "gap_s": 7.356536457,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791232125219728005,
+          "monotonic_ns": 117807458662355,
+          "recorded_ns": 1791232125221935096,
+          "recorded_monotonic_ns": 117807460869298,
+          "exchange_ms": 1791232125002,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791232132576264478,
+          "monotonic_ns": 117814815198812,
+          "recorded_ns": 1791232132576597163,
+          "recorded_monotonic_ns": 117814815531344,
+          "exchange_ms": 1791232132353,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 5.051673645,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791239972301141958,
+          "monotonic_ns": 125654540076485,
+          "recorded_ns": 1791239972301618712,
+          "recorded_monotonic_ns": 125654540552892,
+          "exchange_ms": 1791239972080,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791239977352814239,
+          "monotonic_ns": 125659591750130,
+          "recorded_ns": 1791239977352968709,
+          "recorded_monotonic_ns": 125659591903135,
+          "exchange_ms": 1791239977138,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 5.343032345,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791240141553824734,
+          "monotonic_ns": 125823792760716,
+          "recorded_ns": 1791240141553993726,
+          "recorded_monotonic_ns": 125823792928164,
+          "exchange_ms": 1791240141335,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791240146896857848,
+          "monotonic_ns": 125829135793061,
+          "recorded_ns": 1791240146896961060,
+          "recorded_monotonic_ns": 125829135895297,
+          "exchange_ms": 1791240146677,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 5.206888278,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791242920253256884,
+          "monotonic_ns": 128602492192928,
+          "recorded_ns": 1791242920253641320,
+          "recorded_monotonic_ns": 128602492575635,
+          "exchange_ms": 1791242920035,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791242925460145168,
+          "monotonic_ns": 128607699081206,
+          "recorded_ns": 1791242925460324703,
+          "recorded_monotonic_ns": 128607699259137,
+          "exchange_ms": 1791242925248,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 5.018452334,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791243419136350028,
+          "monotonic_ns": 129101375285329,
+          "recorded_ns": 1791243419136483763,
+          "recorded_monotonic_ns": 129101375418021,
+          "exchange_ms": 1791243419069,
+          "update_id": 11743547115352
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791243424154802924,
+          "monotonic_ns": 129106393737663,
+          "recorded_ns": 1791243424154893932,
+          "recorded_monotonic_ns": 129106393828103,
+          "exchange_ms": 1791243419173,
+          "update_id": 11743547121598
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 10.526712353,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791243418398190883,
+          "monotonic_ns": 129100637125348,
+          "recorded_ns": 1791243418398255045,
+          "recorded_monotonic_ns": 129100637189225,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791243428924902416,
+          "monotonic_ns": 129111163837701,
+          "recorded_ns": 1791243428925049330,
+          "recorded_monotonic_ns": 129111163983698,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 19.260489958,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791243420550971688,
+          "monotonic_ns": 129102789908416,
+          "recorded_ns": 1791243420551205705,
+          "recorded_monotonic_ns": 129102790140145,
+          "exchange_ms": 1791243420362,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791243439811462869,
+          "monotonic_ns": 129122050398374,
+          "recorded_ns": 1791243439811603682,
+          "recorded_monotonic_ns": 129122050538040,
+          "exchange_ms": 1791243420484,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 10.039008936,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791243430703834224,
+          "monotonic_ns": 129112942769837,
+          "recorded_ns": 1791243430704005208,
+          "recorded_monotonic_ns": 129112942939612,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791243440742842622,
+          "monotonic_ns": 129122981778773,
+          "recorded_ns": 1791243440743135481,
+          "recorded_monotonic_ns": 129122982070185,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 5.191281628,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791243452793642484,
+          "monotonic_ns": 129135032577369,
+          "recorded_ns": 1791243452793732480,
+          "recorded_monotonic_ns": 129135032666685,
+          "exchange_ms": 1791243452581,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791243457984922668,
+          "monotonic_ns": 129140223858997,
+          "recorded_ns": 1791243457985240205,
+          "recorded_monotonic_ns": 129140224174652,
+          "exchange_ms": 1791243452796,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 7.17897851,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791243455557256572,
+          "monotonic_ns": 129137796190916,
+          "recorded_ns": 1791243455557610036,
+          "recorded_monotonic_ns": 129137796544193,
+          "exchange_ms": 1791243450897,
+          "update_id": 11743549189303
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791243462736232492,
+          "monotonic_ns": 129144975169426,
+          "recorded_ns": 1791243462736600035,
+          "recorded_monotonic_ns": 129144975534523,
+          "exchange_ms": 1791243450999,
+          "update_id": 11743549201969
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 18.016820924,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791243450702767729,
+          "monotonic_ns": 129132941703499,
+          "recorded_ns": 1791243450702944496,
+          "recorded_monotonic_ns": 129132941878977,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791243468719590062,
+          "monotonic_ns": 129150958524423,
+          "recorded_ns": 1791243468719649693,
+          "recorded_monotonic_ns": 129150958583868,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 5.533998995,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791243470239859352,
+          "monotonic_ns": 129152478795549,
+          "recorded_ns": 1791243470240172403,
+          "recorded_monotonic_ns": 129152479106798,
+          "exchange_ms": 1791243470175,
+          "update_id": 11743550028694
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791243475773859714,
+          "monotonic_ns": 129158012794544,
+          "recorded_ns": 1791243475773989491,
+          "recorded_monotonic_ns": 129158012923672,
+          "exchange_ms": 1791243470277,
+          "update_id": 11743550033628
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 6.326710032,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791243476390151927,
+          "monotonic_ns": 129158629087582,
+          "recorded_ns": 1791243476390327967,
+          "recorded_monotonic_ns": 129158629262498,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791243482716863056,
+          "monotonic_ns": 129164955797614,
+          "recorded_ns": 1791243482716924063,
+          "recorded_monotonic_ns": 129164955858258,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "lighter",
+        "gap_s": 29.195112082,
+        "before": {
+          "kind": "order_book",
+          "receipt_ns": 1791243456026543385,
+          "monotonic_ns": 129138265477816,
+          "recorded_ns": 1791243456026786796,
+          "recorded_monotonic_ns": 129138265721045,
+          "exchange_ms": 1791243455961,
+          "update_id": null
+        },
+        "after": {
+          "kind": "order_book",
+          "receipt_ns": 1791243485221653062,
+          "monotonic_ns": 129167460589898,
+          "recorded_ns": 1791243485221870220,
+          "recorded_monotonic_ns": 129167460804603,
+          "exchange_ms": 1791243456014,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 9.50834015,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246426522508614,
+          "monotonic_ns": 132108761444651,
+          "recorded_ns": 1791246426522709514,
+          "recorded_monotonic_ns": 132108761643916,
+          "exchange_ms": 1791246424967,
+          "update_id": 11743795574105
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246436030849857,
+          "monotonic_ns": 132118269784801,
+          "recorded_ns": 1791246436030940895,
+          "recorded_monotonic_ns": 132118269875081,
+          "exchange_ms": 1791246425069,
+          "update_id": 11743795581395
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 9.563478614,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246438209622203,
+          "monotonic_ns": 132120448558546,
+          "recorded_ns": 1791246438209876682,
+          "recorded_monotonic_ns": 132120448811236,
+          "exchange_ms": 1791246427517,
+          "update_id": 11743795750234
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246447773101082,
+          "monotonic_ns": 132130012037160,
+          "recorded_ns": 1791246447773333687,
+          "recorded_monotonic_ns": 132130012268152,
+          "exchange_ms": 1791246427617,
+          "update_id": 11743795758320
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 19.675403228,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246442470270606,
+          "monotonic_ns": 132124709206944,
+          "recorded_ns": 1791246442470481485,
+          "recorded_monotonic_ns": 132124709415918,
+          "exchange_ms": 1791246442256,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246462145673942,
+          "monotonic_ns": 132144384610172,
+          "recorded_ns": 1791246462145886737,
+          "recorded_monotonic_ns": 132144384821177,
+          "exchange_ms": 1791246442577,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 16.638539555,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246447773101082,
+          "monotonic_ns": 132130012037160,
+          "recorded_ns": 1791246447773333687,
+          "recorded_monotonic_ns": 132130012268152,
+          "exchange_ms": 1791246427617,
+          "update_id": 11743795758320
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246464411640328,
+          "monotonic_ns": 132146650576715,
+          "recorded_ns": 1791246464412914554,
+          "recorded_monotonic_ns": 132146651849022,
+          "exchange_ms": 1791246427721,
+          "update_id": 11743795784284
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 27.334326651,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791246438715144329,
+          "monotonic_ns": 132120954078729,
+          "recorded_ns": 1791246438715205499,
+          "recorded_monotonic_ns": 132120954139702,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791246466049469604,
+          "monotonic_ns": 132148288405380,
+          "recorded_ns": 1791246466049650633,
+          "recorded_monotonic_ns": 132148288585085,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 10.947914634,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246469667101967,
+          "monotonic_ns": 132151906036321,
+          "recorded_ns": 1791246469668268938,
+          "recorded_monotonic_ns": 132151907203080,
+          "exchange_ms": 1791246435165,
+          "update_id": 11743796329936
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246480615014587,
+          "monotonic_ns": 132162853950955,
+          "recorded_ns": 1791246480616763333,
+          "recorded_monotonic_ns": 132162855697754,
+          "exchange_ms": 1791246435269,
+          "update_id": 11743796337776
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 19.20795442,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246462145673942,
+          "monotonic_ns": 132144384610172,
+          "recorded_ns": 1791246462145886737,
+          "recorded_monotonic_ns": 132144384821177,
+          "exchange_ms": 1791246442577,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246481353629952,
+          "monotonic_ns": 132163592564592,
+          "recorded_ns": 1791246481353840570,
+          "recorded_monotonic_ns": 132163592774789,
+          "exchange_ms": 1791246444497,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 19.002333882,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246481800563998,
+          "monotonic_ns": 132164039498345,
+          "recorded_ns": 1791246481803418833,
+          "recorded_monotonic_ns": 132164042352973,
+          "exchange_ms": 1791246460658,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246500802896371,
+          "monotonic_ns": 132183041832227,
+          "recorded_ns": 1791246500803695522,
+          "recorded_monotonic_ns": 132183042630044,
+          "exchange_ms": 1791246460659,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 23.248285467,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791246480384939475,
+          "monotonic_ns": 132162623875278,
+          "recorded_ns": 1791246480385130134,
+          "recorded_monotonic_ns": 132162624064625,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791246503633225257,
+          "monotonic_ns": 132185872160745,
+          "recorded_ns": 1791246503633378775,
+          "recorded_monotonic_ns": 132185872313205,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 18.94240664,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246500803594929,
+          "monotonic_ns": 132183042529516,
+          "recorded_ns": 1791246500811297711,
+          "recorded_monotonic_ns": 132183050231966,
+          "exchange_ms": 1791246460660,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246519745999709,
+          "monotonic_ns": 132201984936156,
+          "recorded_ns": 1791246519746621308,
+          "recorded_monotonic_ns": 132201985555721,
+          "exchange_ms": 1791246460660,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 46.9403976,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791246506738937300,
+          "monotonic_ns": 132188977871856,
+          "recorded_ns": 1791246506738986365,
+          "recorded_monotonic_ns": 132188977920573,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791246553679333745,
+          "monotonic_ns": 132235918269456,
+          "recorded_ns": 1791246553679505802,
+          "recorded_monotonic_ns": 132235918440202,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "lighter",
+        "gap_s": 110.483621695,
+        "before": {
+          "kind": "order_book",
+          "receipt_ns": 1791246443736147727,
+          "monotonic_ns": 132125975082275,
+          "recorded_ns": 1791246443740679272,
+          "recorded_monotonic_ns": 132125979613518,
+          "exchange_ms": 1791246443657,
+          "update_id": null
+        },
+        "after": {
+          "kind": "order_book",
+          "receipt_ns": 1791246554219769214,
+          "monotonic_ns": 132236458703970,
+          "recorded_ns": 1791246554239211021,
+          "recorded_monotonic_ns": 132236478145188,
+          "exchange_ms": 1791246554065,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 70.406466475,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246485905358588,
+          "monotonic_ns": 132168144293255,
+          "recorded_ns": 1791246485913708942,
+          "recorded_monotonic_ns": 132168152643338,
+          "exchange_ms": 1791246445675,
+          "update_id": 11743797083936
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791246556311825191,
+          "monotonic_ns": 132238550759730,
+          "recorded_ns": 1791246556436184105,
+          "recorded_monotonic_ns": 132238675118355,
+          "exchange_ms": 1791246556241,
+          "update_id": 11743807291303
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 33.877506542,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246525653667289,
+          "monotonic_ns": 132207892602034,
+          "recorded_ns": 1791246525653864441,
+          "recorded_monotonic_ns": 132207892798891,
+          "exchange_ms": 1791246474409,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791246559531172269,
+          "monotonic_ns": 132241770108576,
+          "recorded_ns": 1791246559531372107,
+          "recorded_monotonic_ns": 132241770306553,
+          "exchange_ms": 1791246559465,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 6.086672693,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247626123700841,
+          "monotonic_ns": 133308362636938,
+          "recorded_ns": 1791247626124447377,
+          "recorded_monotonic_ns": 133308363381779,
+          "exchange_ms": 1791247626037,
+          "update_id": 11743904913748
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247632210374584,
+          "monotonic_ns": 133314449309631,
+          "recorded_ns": 1791247632210573506,
+          "recorded_monotonic_ns": 133314449507899,
+          "exchange_ms": 1791247626141,
+          "update_id": 11743904920793
+        }
+      },
+      {
+        "channel": "lighter",
+        "gap_s": 6.885801969,
+        "before": {
+          "kind": "order_book",
+          "receipt_ns": 1791247634474569627,
+          "monotonic_ns": 133316713504612,
+          "recorded_ns": 1791247634475308651,
+          "recorded_monotonic_ns": 133316714242893,
+          "exchange_ms": 1791247634390,
+          "update_id": null
+        },
+        "after": {
+          "kind": "order_book",
+          "receipt_ns": 1791247641360370297,
+          "monotonic_ns": 133323599306581,
+          "recorded_ns": 1791247641360572696,
+          "recorded_monotonic_ns": 133323599507052,
+          "exchange_ms": 1791247634488,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 22.55277717,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791247624381412664,
+          "monotonic_ns": 133306620347228,
+          "recorded_ns": 1791247624381481853,
+          "recorded_monotonic_ns": 133306620416028,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791247646934188586,
+          "monotonic_ns": 133329173124398,
+          "recorded_ns": 1791247646934369104,
+          "recorded_monotonic_ns": 133329173303565,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 14.400214249,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247635511203855,
+          "monotonic_ns": 133317750138728,
+          "recorded_ns": 1791247635511391534,
+          "recorded_monotonic_ns": 133317750325748,
+          "exchange_ms": 1791247626345,
+          "update_id": 11743904935699
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247649911417029,
+          "monotonic_ns": 133332150352977,
+          "recorded_ns": 1791247649912482074,
+          "recorded_monotonic_ns": 133332151416420,
+          "exchange_ms": 1791247626447,
+          "update_id": 11743904941392
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 19.434192851,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791247631924709153,
+          "monotonic_ns": 133314163645293,
+          "recorded_ns": 1791247631924896305,
+          "recorded_monotonic_ns": 133314163830804,
+          "exchange_ms": 1791247631711,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791247651358901562,
+          "monotonic_ns": 133333597838144,
+          "recorded_ns": 1791247651359272038,
+          "recorded_monotonic_ns": 133333598206685,
+          "exchange_ms": 1791247632107,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 6.963421974,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247652143479862,
+          "monotonic_ns": 133334382416149,
+          "recorded_ns": 1791247652143933742,
+          "recorded_monotonic_ns": 133334382868145,
+          "exchange_ms": 1791247626650,
+          "update_id": 11743904951440
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247659106903389,
+          "monotonic_ns": 133341345838123,
+          "recorded_ns": 1791247659107177011,
+          "recorded_monotonic_ns": 133341346111261,
+          "exchange_ms": 1791247626753,
+          "update_id": 11743904960138
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 5.729323595,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247660275901728,
+          "monotonic_ns": 133342514837654,
+          "recorded_ns": 1791247660276154232,
+          "recorded_monotonic_ns": 133342515088609,
+          "exchange_ms": 1791247627057,
+          "update_id": 11743904979484
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247666005226360,
+          "monotonic_ns": 133348244161249,
+          "recorded_ns": 1791247666005532287,
+          "recorded_monotonic_ns": 133348244466485,
+          "exchange_ms": 1791247627161,
+          "update_id": 11743904985502
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 13.702768671,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791247655022915345,
+          "monotonic_ns": 133337261850843,
+          "recorded_ns": 1791247655023097206,
+          "recorded_monotonic_ns": 133337262031658,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791247668725683764,
+          "monotonic_ns": 133350964619514,
+          "recorded_ns": 1791247668725858404,
+          "recorded_monotonic_ns": 133350964792887,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 9.835049214,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791247659189977314,
+          "monotonic_ns": 133341428911538,
+          "recorded_ns": 1791247659190121745,
+          "recorded_monotonic_ns": 133341429055899,
+          "exchange_ms": 1791247648804,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791247669025024756,
+          "monotonic_ns": 133351263960752,
+          "recorded_ns": 1791247669025445997,
+          "recorded_monotonic_ns": 133351264380343,
+          "exchange_ms": 1791247649160,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "lighter",
+        "gap_s": 28.31091741,
+        "before": {
+          "kind": "order_book",
+          "receipt_ns": 1791247642062231632,
+          "monotonic_ns": 133324301166256,
+          "recorded_ns": 1791247642068284494,
+          "recorded_monotonic_ns": 133324307218771,
+          "exchange_ms": 1791247641734,
+          "update_id": null
+        },
+        "after": {
+          "kind": "order_book",
+          "receipt_ns": 1791247670373149373,
+          "monotonic_ns": 133352612083666,
+          "recorded_ns": 1791247670373476168,
+          "recorded_monotonic_ns": 133352612410305,
+          "exchange_ms": 1791247641790,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_public",
+        "gap_s": 14.562477339,
+        "before": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247678067404713,
+          "monotonic_ns": 133360306341297,
+          "recorded_ns": 1791247678067729953,
+          "recorded_monotonic_ns": 133360306664444,
+          "exchange_ms": 1791247628589,
+          "update_id": 11743905124737
+        },
+        "after": {
+          "kind": "depthUpdate",
+          "receipt_ns": 1791247692629883403,
+          "monotonic_ns": 133374868818636,
+          "recorded_ns": 1791247692630140098,
+          "recorded_monotonic_ns": 133374869074535,
+          "exchange_ms": 1791247628691,
+          "update_id": 11743905135910
+        }
+      },
+      {
+        "channel": "fx",
+        "gap_s": 17.657746788,
+        "before": {
+          "kind": "fx",
+          "receipt_ns": 1791247681017652350,
+          "monotonic_ns": 133363256588169,
+          "recorded_ns": 1791247681017834553,
+          "recorded_monotonic_ns": 133363256769056,
+          "exchange_ms": null,
+          "update_id": null
+        },
+        "after": {
+          "kind": "fx",
+          "receipt_ns": 1791247698675399139,
+          "monotonic_ns": 133380914334957,
+          "recorded_ns": 1791247698675560348,
+          "recorded_monotonic_ns": 133380914494812,
+          "exchange_ms": null,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "lighter",
+        "gap_s": 28.699216035,
+        "before": {
+          "kind": "order_book",
+          "receipt_ns": 1791247670373283894,
+          "monotonic_ns": 133352612218125,
+          "recorded_ns": 1791247670373820487,
+          "recorded_monotonic_ns": 133352612754651,
+          "exchange_ms": 1791247642330,
+          "update_id": null
+        },
+        "after": {
+          "kind": "order_book",
+          "receipt_ns": 1791247699072499322,
+          "monotonic_ns": 133381311434160,
+          "recorded_ns": 1791247699073671986,
+          "recorded_monotonic_ns": 133381312606159,
+          "exchange_ms": 1791247698872,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 34.797000647,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791247669025301620,
+          "monotonic_ns": 133351264236431,
+          "recorded_ns": 1791247669025710263,
+          "recorded_monotonic_ns": 133351264644553,
+          "exchange_ms": 1791247651098,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791247703822301129,
+          "monotonic_ns": 133386061237078,
+          "recorded_ns": 1791247703822468673,
+          "recorded_monotonic_ns": 133386061403093,
+          "exchange_ms": 1791247703608,
+          "update_id": null
+        }
+      },
+      {
+        "channel": "binance_market",
+        "gap_s": 5.069128364,
+        "before": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791248183241979494,
+          "monotonic_ns": 133865480915841,
+          "recorded_ns": 1791248183242189603,
+          "recorded_monotonic_ns": 133865481124059,
+          "exchange_ms": 1791248183025,
+          "update_id": null
+        },
+        "after": {
+          "kind": "aggTrade",
+          "receipt_ns": 1791248188311108153,
+          "monotonic_ns": 133870550044205,
+          "recorded_ns": 1791248188311569866,
+          "recorded_monotonic_ns": 133870550504312,
+          "exchange_ms": 1791248188096,
+          "update_id": null
+        }
+      }
+    ],
+    "receipt_to_record_ms": {
+      "n": 735426,
+      "median": 0.18410149999999997,
+      "p95": 1.70539,
+      "max": 124.358625
+    },
+    "recorder_wall_step_over_25ms": [],
+    "offline_sequence_errors": 0,
+    "limits": "No continuous post-window status, ping/pong wire stamps, connection IDs, handshake phases, event-loop scheduling delay or complete recovery coverage timeline. Gzip prefixes may lack trailers. Raw stamps precede book application."
+  },
+  "account_timeout_warnings": [
+    {
+      "at_epoch": 1791246448.730304,
+      "message": "2026-10-06 07:27:28,729 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791246456.932209,
+      "message": "2026-10-06 07:27:36,931 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791246465.059322,
+      "message": "2026-10-06 07:27:45,059 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791246503.133095,
+      "message": "2026-10-06 07:28:23,132 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791246511.285625,
+      "message": "2026-10-06 07:28:31,285 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791246533.810946,
+      "message": "2026-10-06 07:28:53,810 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791246541.873638,
+      "message": "2026-10-06 07:29:01,873 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791247639.303408,
+      "message": "2026-10-06 07:47:19,303 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791247647.436418,
+      "message": "2026-10-06 07:47:27,436 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791247655.538857,
+      "message": "2026-10-06 07:47:35,538 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791247663.678774,
+      "message": "2026-10-06 07:47:43,678 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791247671.803579,
+      "message": "2026-10-06 07:47:51,803 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791247679.929805,
+      "message": "2026-10-06 07:47:59,929 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791247688.035952,
+      "message": "2026-10-06 07:48:08,035 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    },
+    {
+      "at_epoch": 1791247696.1657,
+      "message": "2026-10-06 07:48:16,165 WARNING lldesk.engine reconciliation blocked: TimeoutError"
+    }
+  ],
+  "no_runtime_recording": true,
+  "persistent_account_diagnostics_summary": {
+    "begin_epoch": 1791225574.358374,
+    "end_epoch": 1791248764,
+    "outcomes": {
+      "ACCOUNT_RECONCILE_DIAGNOSTIC:ok": 197,
+      "ACCOUNT_STATE_DIAGNOSTIC:ok": 1726,
+      "ACCOUNT_STATE_DIAGNOSTIC:error": 26,
+      "ACCOUNT_RECONCILE_DIAGNOSTIC:error": 15
+    },
+    "request_failure_phases": {
+      "waiting_headers": 25,
+      "connect_or_tls": 15,
+      "dns": 1
+    },
+    "failed_reconcile_lock_wait_ms": {
+      "n": 15,
+      "median": 0.008501025149598718,
+      "p95": 0.014056975487619638,
+      "max": 0.014056975487619638
+    },
+    "failed_reconcile_quota_used": {
+      "n": 15,
+      "median": 28,
+      "p95": 33,
+      "max": 33
+    },
+    "no_exchange_request": true
+  }
+}

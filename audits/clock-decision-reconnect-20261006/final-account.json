@@ -1,0 +1,80 @@
+{
+  "verified_at_epoch": 1791250287.8143103,
+  "status_updated_at": 1791250287.5568624,
+  "engine_pid": 301678,
+  "configured_account_index": 751745,
+  "state": "IDLE",
+  "allow_live_orders": false,
+  "entries_stopped": true,
+  "session_status": "closed",
+  "session_id": "9ce8b029-1f0b-4b1e-afb7-f6c1732e7b3a",
+  "session_attempt_count": 0,
+  "pending_order_or_intent_count": 0,
+  "account": {
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "exchange_active_order_count": 0,
+    "other_exchange_position_count": 0,
+    "position_price": "0.0",
+    "unrealized_pnl": "0.000000",
+    "realized_pnl": "0.000000",
+    "funding": "0",
+    "account_type_code": 0,
+    "account_trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "age_s": 9.0,
+    "component_ages_s": {
+      "account": 8.976049900986254,
+      "active_orders": 9.158161242987262
+    },
+    "components_complete": true,
+    "exchange_order_count": 0,
+    "exchange_pending_count": 0,
+    "collateral": "49.430756",
+    "funding_audit_age_s": 41.6,
+    "daily_loss": "0",
+    "total_loss": "0",
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "effective_exposure_usd": "0E-7",
+    "recorded_fees": null,
+    "known_fees": "0",
+    "pending_fee_count": 4,
+    "fee_audit_complete": false,
+    "position_read_age_s": 9.0
+  },
+  "history_audit": {
+    "complete": true,
+    "required": false,
+    "reason": "complete audit verified; idle periodic deadline 120s",
+    "idle_interval_seconds": 120.0,
+    "age_seconds": 41.53505770099582
+  },
+  "net_cash_audit": {
+    "status": "matched",
+    "net_difference_usdc": "0.000000",
+    "cash_change_usdc": "0.000000",
+    "individual_fees_known": false
+  },
+  "request_budget": {
+    "used_last_60s": 16,
+    "reserved_unconsumed": 0,
+    "normal_cap": 40,
+    "urgent_read_cap": 47,
+    "transaction_cap": 55,
+    "transaction_slots_remaining": 39
+  },
+  "fee_exact_null_count": 4,
+  "feed_reconnect_counters": {
+    "binance_public": 6,
+    "binance_market": 3,
+    "lighter": 4
+  },
+  "decision_guard_metadata_loaded": false,
+  "runtime_code_commit": "818b508137f8647502353658f1875670a21caf8c",
+  "unloaded_code_commit": "31813c8",
+  "new_exchange_requests_from_this_check": 0
+}
