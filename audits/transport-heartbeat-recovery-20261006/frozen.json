@@ -1,0 +1,9 @@
+{
+  "copied_at": 1791253991.5040076,
+  "run_id": "af6a07219b1848829f66f31f19c5edc6",
+  "pid": 341351,
+  "copy_limit": "open gzip member prefix; immutable raw bytes; no synthetic tail or rows",
+  "window_start_epoch": 1791252765.680063,
+  "window_end_epoch": 1791253965.680063,
+  "finished_marker_present": true
+}

@@ -1,0 +1,11 @@
+{
+  "ended_at_utc": "2026-10-06T02:32:45.680589+00:00",
+  "analysis_window_seconds": 1200,
+  "elapsed_wall_monotonic_seconds": 1200.0005574820098,
+  "records": 4798,
+  "collector_errors": 0,
+  "configuration_unchanged": true,
+  "source_hashes_unchanged": true,
+  "snapshot_sha256": "56a3e1c75177954d49392487c8bfa25bb10eb1928ad30da9878739ad972db543",
+  "order_authorization": false
+}

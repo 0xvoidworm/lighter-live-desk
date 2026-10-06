@@ -1,0 +1,897 @@
+{
+  "captured_at": 1791254619.058599,
+  "loaded_code_commit": "1205d35f3432958b79061d978c9fccb620bcbb6b",
+  "sqlite_readonly_fill_count": 4,
+  "sqlite_exact_null_count": 4,
+  "new_intent_count": 0,
+  "engine_pid": 341351,
+  "state": "IDLE",
+  "allow_live_orders": false,
+  "entries_stopped": true,
+  "account": {
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "exchange_active_order_count": 0,
+    "other_exchange_position_count": 0,
+    "position_price": "0.0",
+    "unrealized_pnl": "0.000000",
+    "realized_pnl": "0.000000",
+    "funding": "0",
+    "account_type_code": 0,
+    "account_trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "age_s": 4.1,
+    "component_ages_s": {
+      "account": 4.088879614020698,
+      "active_orders": 4.212780083005782
+    },
+    "components_complete": true,
+    "exchange_order_count": 0,
+    "exchange_pending_count": 0,
+    "collateral": "49.430756",
+    "funding_audit_age_s": 54.7,
+    "daily_loss": "0",
+    "total_loss": "0",
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "effective_exposure_usd": "0.000000",
+    "recorded_fees": null,
+    "known_fees": "0",
+    "pending_fee_count": 4,
+    "fee_audit_complete": false,
+    "position_read_age_s": 4.1
+  },
+  "strategy_session": {
+    "id": "9ce8b029-1f0b-4b1e-afb7-f6c1732e7b3a",
+    "status": "closed",
+    "authorized_at": 1791207392.6000223,
+    "authorization_expires_epoch": 1791208592.6000223,
+    "revoked_at": 1791207849.3770242,
+    "started_at": null,
+    "deadline_epoch": null,
+    "ended_at": 1791207849.3770242,
+    "max_seconds": 1800,
+    "max_attempts": 3,
+    "attempts": [],
+    "completed_positions": [],
+    "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+    "account_index": 751745,
+    "equity_before": "49.430756",
+    "initial_fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "audited_fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "audited_equity": "49.430756",
+    "stop_reason": "entry dihentikan melalui perintah",
+    "fee_policy": "official_export_reported_precision_one_session"
+  },
+  "pending_orders": [],
+  "history_audit": {
+    "complete": true,
+    "required": false,
+    "reason": "complete audit verified; idle periodic deadline 120s",
+    "idle_interval_seconds": 120.0,
+    "age_seconds": 54.71666067701881
+  },
+  "net_cash_audit": {
+    "status": "matched",
+    "net_difference_usdc": "0.000000",
+    "cash_change_usdc": "0.000000",
+    "individual_fees_known": false
+  },
+  "request_budget": {
+    "used_last_60s": 16,
+    "reserved_unconsumed": 0,
+    "normal_cap": 40,
+    "urgent_read_cap": 47,
+    "transaction_cap": 55,
+    "transaction_slots_remaining": 39
+  },
+  "probe_active": false,
+  "manual_exposure": false,
+  "journal_ok": true,
+  "updated_at": 1791254619.0162156,
+  "websocket_telemetry": {
+    "events_emitted": 1973,
+    "events_written": 1973,
+    "events_dropped": 0,
+    "write_errors": 0,
+    "queue_size": 0,
+    "queue_capacity": 512,
+    "peak_queue_size": 7,
+    "bytes_written": 5404277,
+    "hook_total_ms": 1745.426549,
+    "max_write_ms": 15.544263,
+    "max_queue_age_ms": 12.432803,
+    "max_loop_lag_ms": 98.218175,
+    "connections": [
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "first_close": null,
+        "frames": {
+          "library_protocol:TEXT": 85637,
+          "library_protocol:bytes": 51062112,
+          "application:TEXT": 85637,
+          "application:bytes": 51061864,
+          "library_protocol:PONG": 62
+        },
+        "last_frames": {
+          "library_protocol": {
+            "kind": "TEXT",
+            "monotonic_ns": 140301156099186,
+            "wall_ns": 1791254618917170338
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 140301156154160,
+            "wall_ns": 1791254618917221446
+          }
+        },
+        "heartbeat_scheduled_ns": null,
+        "heartbeat_resets": 0,
+        "handshake_completed_ns": 138427901535361
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:2",
+        "channel": "lighter_account",
+        "first_close": {
+          "cause": "application_auth_rotation",
+          "monotonic_ns": 138918081722366
+        },
+        "frames": {
+          "library_protocol:TEXT": 2,
+          "library_protocol:bytes": 686,
+          "application:TEXT": 2,
+          "application:bytes": 620,
+          "library_protocol:PONG": 16,
+          "library_protocol:CLOSE": 1
+        },
+        "last_frames": {
+          "library_protocol": {
+            "kind": "CLOSE",
+            "monotonic_ns": 138918181662491,
+            "wall_ns": 1791253235942783498
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 138428042591751,
+            "wall_ns": 1791252745803661977
+          }
+        },
+        "heartbeat_scheduled_ns": null,
+        "heartbeat_resets": 0,
+        "handshake_completed_ns": 138427897589074
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+        "channel": "binance_public",
+        "first_close": null,
+        "frames": {
+          "library_transport:CHUNK": 17193,
+          "library_dequeue:TEXT": 18363,
+          "library_dequeue:bytes": 47703008,
+          "application:TEXT": 18363,
+          "application:bytes": 47702878,
+          "library_dequeue:PING": 10
+        },
+        "last_frames": {
+          "library_transport": {
+            "kind": "CHUNK",
+            "monotonic_ns": 140301192046837,
+            "wall_ns": 1791254618953124042
+          },
+          "library_dequeue": {
+            "kind": "TEXT",
+            "monotonic_ns": 140301192212484,
+            "wall_ns": 1791254618953284051
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 140301192355706,
+            "wall_ns": 1791254618953425068
+          }
+        },
+        "heartbeat_scheduled_ns": 140322000000000,
+        "heartbeat_resets": 17194,
+        "handshake_completed_ns": 138428213930366
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:4",
+        "channel": "binance_market",
+        "first_close": null,
+        "frames": {
+          "library_transport:CHUNK": 6521,
+          "library_dequeue:TEXT": 19384,
+          "library_dequeue:bytes": 3964884,
+          "application:TEXT": 19384,
+          "application:bytes": 3964754,
+          "library_dequeue:PING": 10
+        },
+        "last_frames": {
+          "library_transport": {
+            "kind": "CHUNK",
+            "monotonic_ns": 140300975155278,
+            "wall_ns": 1791254618736229383
+          },
+          "library_dequeue": {
+            "kind": "TEXT",
+            "monotonic_ns": 140300975288740,
+            "wall_ns": 1791254618736358044
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 140300975347015,
+            "wall_ns": 1791254618736414887
+          }
+        },
+        "heartbeat_scheduled_ns": 140321000000000,
+        "heartbeat_resets": 6522,
+        "handshake_completed_ns": 138428216577430
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:5",
+        "channel": "lighter_account",
+        "first_close": {
+          "cause": "application_auth_rotation",
+          "monotonic_ns": 139408706388176
+        },
+        "frames": {
+          "library_protocol:TEXT": 2,
+          "library_protocol:bytes": 686,
+          "application:TEXT": 2,
+          "application:bytes": 620,
+          "library_protocol:PONG": 16,
+          "library_protocol:CLOSE": 1
+        },
+        "last_frames": {
+          "library_protocol": {
+            "kind": "CLOSE",
+            "monotonic_ns": 139408918083687,
+            "wall_ns": 1791253726679152883
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 138918617898120,
+            "wall_ns": 1791253236378966619
+          }
+        },
+        "heartbeat_scheduled_ns": null,
+        "heartbeat_resets": 0,
+        "handshake_completed_ns": 138918496766391
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:6",
+        "channel": "lighter_account",
+        "first_close": {
+          "cause": "application_auth_rotation",
+          "monotonic_ns": 139900106708868
+        },
+        "frames": {
+          "library_protocol:TEXT": 2,
+          "library_protocol:bytes": 686,
+          "application:TEXT": 2,
+          "application:bytes": 620,
+          "library_protocol:PONG": 16,
+          "library_protocol:CLOSE": 1
+        },
+        "last_frames": {
+          "library_protocol": {
+            "kind": "CLOSE",
+            "monotonic_ns": 139900200628703,
+            "wall_ns": 1791254217961707913
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 139409897696953,
+            "wall_ns": 1791253727658765993
+          }
+        },
+        "heartbeat_scheduled_ns": null,
+        "heartbeat_resets": 0,
+        "handshake_completed_ns": 139409620654194
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:7",
+        "channel": "lighter_account",
+        "first_close": null,
+        "frames": {
+          "library_protocol:TEXT": 2,
+          "library_protocol:bytes": 672,
+          "application:TEXT": 2,
+          "application:bytes": 620,
+          "library_protocol:PONG": 13
+        },
+        "last_frames": {
+          "library_protocol": {
+            "kind": "PONG",
+            "monotonic_ns": 140290746996838,
+            "wall_ns": 1791254608508079585
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 139900662231766,
+            "wall_ns": 1791254218423301106
+          }
+        },
+        "heartbeat_scheduled_ns": null,
+        "heartbeat_resets": 0,
+        "handshake_completed_ns": 139900568536119
+      }
+    ],
+    "recent": [
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1942",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254594195284536,
+        "monotonic_ns": 140276434216494,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140276398336657,
+        "lag_ms": 35.855381
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1943",
+        "kind": "coverage_observed",
+        "wall_ns": 1791254596918329902,
+        "monotonic_ns": 140279157261180,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "coverage": {
+          "duration_required_s": 600,
+          "duration_observed_s": 1791.6,
+          "duration_remaining_s": 0,
+          "total_samples_required": 480,
+          "total_samples": 1649,
+          "window_s": 600,
+          "recent_samples_required": 480,
+          "recent_samples": 571,
+          "max_sample_gap_s": 2.966,
+          "allowed_gap_s": 5,
+          "long_gap_count": 0,
+          "gap_wait_remaining_s": 0,
+          "last_sample_age_s": 0.6,
+          "warmup_complete": true,
+          "coverage_complete": true,
+          "ready": true,
+          "buffer_started_at": 1791252744.1770086,
+          "buffer_reset_reason": "engine_start",
+          "last_interruption": null
+        }
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1944",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254597701977475,
+        "monotonic_ns": 140279940908201,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140279898336657,
+        "lag_ms": 42.534317
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1945",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254598725250062,
+        "monotonic_ns": 140280964181437,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140280898336657,
+        "lag_ms": 65.817212
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1946",
+        "kind": "pulse",
+        "wall_ns": 1791254598725386085,
+        "monotonic_ns": 140280964319076,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1947",
+        "kind": "heartbeat_callback",
+        "wall_ns": 1791254600761997553,
+        "monotonic_ns": 140283000929226,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+        "channel": "binance_public",
+        "scheduled_ns": 140283000000000,
+        "heartbeat_due_ns": 140303000000000,
+        "callback_lag_ms": 0.929226
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1948",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254601723752965,
+        "monotonic_ns": 140283962685314,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140283898336657,
+        "lag_ms": 64.32531
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1949",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254602702734754,
+        "monotonic_ns": 140284941667385,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140284898336657,
+        "lag_ms": 43.310124
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1950",
+        "kind": "pulse",
+        "wall_ns": 1791254604162495428,
+        "monotonic_ns": 140286401424911,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1951",
+        "kind": "heartbeat_callback",
+        "wall_ns": 1791254606200784487,
+        "monotonic_ns": 140288439715570,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "scheduled_ns": 140288438306395,
+        "callback_lag_ms": 1.409175
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1952",
+        "kind": "control_send_started",
+        "wall_ns": 1791254606200863109,
+        "monotonic_ns": 140288439795614,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "frame_type": "PING",
+        "ping_id": 62
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1953",
+        "kind": "control_send_completed",
+        "wall_ns": 1791254606201343858,
+        "monotonic_ns": 140288440274558,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "frame_type": "PING",
+        "ping_id": 62
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1954",
+        "kind": "pong_deadline",
+        "wall_ns": 1791254606201394282,
+        "monotonic_ns": 140288440326561,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "scheduled_ns": 140308440314409
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1955",
+        "kind": "control_frame",
+        "wall_ns": 1791254606299232437,
+        "monotonic_ns": 140288538163322,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "layer": "library_protocol",
+        "frame_type": "PONG",
+        "size": 4
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1956",
+        "kind": "pong_observed",
+        "wall_ns": 1791254606299295009,
+        "monotonic_ns": 140288538227226,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "matched": true
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1957",
+        "kind": "heartbeat_schedule",
+        "wall_ns": 1791254606301452421,
+        "monotonic_ns": 140288540383861,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "scheduled_ns": 140318441933030
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1958",
+        "kind": "heartbeat_callback",
+        "wall_ns": 1791254606783220468,
+        "monotonic_ns": 140289022152450,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:4",
+        "channel": "binance_market",
+        "scheduled_ns": 140289000000000,
+        "heartbeat_due_ns": 140309000000000,
+        "callback_lag_ms": 22.15245
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1959",
+        "kind": "heartbeat_callback",
+        "wall_ns": 1791254608416958656,
+        "monotonic_ns": 140290655889381,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:7",
+        "channel": "lighter_account",
+        "scheduled_ns": 140290655392489,
+        "callback_lag_ms": 0.496892
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1960",
+        "kind": "control_send_started",
+        "wall_ns": 1791254608417043414,
+        "monotonic_ns": 140290655975605,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:7",
+        "channel": "lighter_account",
+        "frame_type": "PING",
+        "ping_id": 13
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1961",
+        "kind": "control_send_completed",
+        "wall_ns": 1791254608417607805,
+        "monotonic_ns": 140290656538447,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:7",
+        "channel": "lighter_account",
+        "frame_type": "PING",
+        "ping_id": 13
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1962",
+        "kind": "pong_deadline",
+        "wall_ns": 1791254608417654816,
+        "monotonic_ns": 140290656587310,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:7",
+        "channel": "lighter_account",
+        "scheduled_ns": 140310656576357
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1963",
+        "kind": "control_frame",
+        "wall_ns": 1791254608508090736,
+        "monotonic_ns": 140290747023006,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:7",
+        "channel": "lighter_account",
+        "layer": "library_protocol",
+        "frame_type": "PONG",
+        "size": 4
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1964",
+        "kind": "pong_observed",
+        "wall_ns": 1791254608508123429,
+        "monotonic_ns": 140290747056883,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:7",
+        "channel": "lighter_account",
+        "matched": true
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1965",
+        "kind": "heartbeat_schedule",
+        "wall_ns": 1791254608508181772,
+        "monotonic_ns": 140290747114988,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:7",
+        "channel": "lighter_account",
+        "scheduled_ns": 140320656091642
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1966",
+        "kind": "pulse",
+        "wall_ns": 1791254609660281259,
+        "monotonic_ns": 140291899211171,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1967",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254610192369329,
+        "monotonic_ns": 140292431301187,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140292398336657,
+        "lag_ms": 32.933057
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1968",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254613687860346,
+        "monotonic_ns": 140295926792316,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140295898336657,
+        "lag_ms": 28.428414
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1969",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254614688852356,
+        "monotonic_ns": 140296927785240,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140296898336657,
+        "lag_ms": 29.421354
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1970",
+        "kind": "pulse",
+        "wall_ns": 1791254614688967103,
+        "monotonic_ns": 140296927900311,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1971",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254615720214684,
+        "monotonic_ns": 140297959146105,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140297898336657,
+        "lag_ms": 60.776793
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1972",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254616737025570,
+        "monotonic_ns": 140298975957243,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140298898336657,
+        "lag_ms": 77.591916
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1973",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791254618689788993,
+        "monotonic_ns": 140300928721152,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 140300898336657,
+        "lag_ms": 30.361724
+      }
+    ]
+  },
+  "fee_reports": {
+    "covered_unknown_fills": 4,
+    "all_unknown_fills_covered": true,
+    "reported_fee_total_usdc": "0.0000",
+    "reports": [
+      {
+        "trade_id": "33141524453",
+        "client_id": 2,
+        "qty": "0.000120",
+        "price": "84539.000000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "c4530690d1f3f1495d771a799aa39d11e9a5b381448c89a7510742aa52227e30ba6005ec7d9a6c26",
+        "exchange_ms": 1791020396773,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750138+00:00",
+        "order_id": "844421373195178"
+      },
+      {
+        "trade_id": "33141644233",
+        "client_id": 3,
+        "qty": "0.000120",
+        "price": "84543.800000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "0df1411fa4e223ecc11f2645ab19ff5abec1ee4900a6786e1661135ee525cb1d8d1616a905307f26",
+        "exchange_ms": 1791020597030,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750084+00:00",
+        "order_id": "562953474977251"
+      },
+      {
+        "trade_id": "33170714739",
+        "client_id": 4,
+        "qty": "0.000120",
+        "price": "84794.700000",
+        "side": "Open Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "d476599ecd45f9c027b49828c08e5dc3320c09b678be56f41e66cd4d940b591e31b50a84fc354ca3",
+        "exchange_ms": 1791055841985,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.750004+00:00",
+        "order_id": "844421372216756"
+      },
+      {
+        "trade_id": "33170717917",
+        "client_id": 6,
+        "qty": "0.000120",
+        "price": "84796.200000",
+        "side": "Close Long",
+        "market": "BTC",
+        "role": "Taker",
+        "reported_fee_usdc": "0.0000",
+        "precision_decimals": 4,
+        "source": "official_account_export",
+        "account_index": 751745,
+        "transaction_hash": "a7ffa45d41f5c3158e0d95cc7cf604096ec735218dda996af46f15291425db8f5be0d677fdcc159c",
+        "exchange_ms": 1791055846698,
+        "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663",
+        "captured_at_utc": "2026-10-04T14:06:12.749855+00:00",
+        "order_id": "562953476061280"
+      }
+    ],
+    "exact_fee_established": false
+  },
+  "feed_channels": {
+    "binance_public": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+      "last_frame_age_ms": 55
+    },
+    "binance_market": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "connection_id": "af6a07219b1848829f66f31f19c5edc6:4",
+      "last_frame_age_ms": 272
+    },
+    "lighter": {
+      "connected": true,
+      "reconnects": 0,
+      "consecutive_failures": 0,
+      "retry_delay_s": 0,
+      "last_error": null,
+      "last_disconnect_at": null,
+      "last_transport_detail": null,
+      "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+      "last_frame_age_ms": 91
+    }
+  },
+  "coverage": {
+    "duration_required_s": 600,
+    "duration_observed_s": 1799.4,
+    "duration_remaining_s": 0,
+    "total_samples_required": 480,
+    "total_samples": 1657,
+    "window_s": 600,
+    "recent_samples_required": 480,
+    "recent_samples": 578,
+    "max_sample_gap_s": 2.966,
+    "allowed_gap_s": 5,
+    "long_gap_count": 0,
+    "gap_wait_remaining_s": 0,
+    "last_sample_age_s": 0.1,
+    "warmup_complete": true,
+    "coverage_complete": true,
+    "ready": true,
+    "buffer_started_at": 1791252744.1770086,
+    "buffer_reset_reason": "engine_start",
+    "last_interruption": null
+  }
+}

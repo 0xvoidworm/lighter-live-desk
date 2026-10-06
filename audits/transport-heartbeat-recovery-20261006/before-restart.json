@@ -1,0 +1,168 @@
+{
+  "captured_at": 1791252734.130606,
+  "code_commit": "1205d35f3432958b79061d978c9fccb620bcbb6b",
+  "verified_config_account_index": 751745,
+  "runtime_code_before": "818b508",
+  "engine_pid": 301678,
+  "state": "IDLE",
+  "allow_live_orders": false,
+  "entries_stopped": true,
+  "account": {
+    "equity": "49.430756",
+    "available": "49.430756",
+    "position_qty": "0.00000",
+    "exchange_active_order_count": 0,
+    "other_exchange_position_count": 0,
+    "position_price": "0.0",
+    "unrealized_pnl": "0.000000",
+    "realized_pnl": "0.000000",
+    "funding": "0",
+    "account_type_code": 0,
+    "account_trading_mode": 1,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "age_s": 9.0,
+    "component_ages_s": {
+      "account": 8.9934710500238,
+      "active_orders": 9.1154418560036
+    },
+    "components_complete": true,
+    "exchange_order_count": 0,
+    "exchange_pending_count": 0,
+    "collateral": "49.430756",
+    "funding_audit_age_s": 108.0,
+    "daily_loss": "0",
+    "total_loss": "0",
+    "source_funding_spent_usd": "50",
+    "source_funding_budget_remaining": "0",
+    "gross_history_inflow": "49.430000",
+    "effective_exposure_usd": "0E-7",
+    "recorded_fees": null,
+    "known_fees": "0",
+    "pending_fee_count": 4,
+    "fee_audit_complete": false,
+    "position_read_age_s": 9.0
+  },
+  "strategy_session": {
+    "id": "9ce8b029-1f0b-4b1e-afb7-f6c1732e7b3a",
+    "status": "closed",
+    "authorized_at": 1791207392.6000223,
+    "authorization_expires_epoch": 1791208592.6000223,
+    "revoked_at": 1791207849.3770242,
+    "started_at": null,
+    "deadline_epoch": null,
+    "ended_at": 1791207849.3770242,
+    "max_seconds": 1800,
+    "max_attempts": 3,
+    "attempts": [],
+    "completed_positions": [],
+    "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+    "account_index": 751745,
+    "equity_before": "49.430756",
+    "initial_fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "audited_fingerprint": {
+      "fills": [
+        [
+          "33141524453",
+          2,
+          "0.00012",
+          "84539.0",
+          null
+        ],
+        [
+          "33141644233",
+          3,
+          "0.00012",
+          "84543.8",
+          null
+        ],
+        [
+          "33170714739",
+          4,
+          "0.00012",
+          "84794.7",
+          null
+        ],
+        [
+          "33170717917",
+          6,
+          "0.00012",
+          "84796.2",
+          null
+        ]
+      ],
+      "flows": [
+        [
+          "deposit:130682965109",
+          "49.430000"
+        ]
+      ]
+    },
+    "audited_equity": "49.430756",
+    "stop_reason": "entry dihentikan melalui perintah",
+    "fee_policy": "official_export_reported_precision_one_session"
+  },
+  "pending_orders": [],
+  "history_audit": {
+    "complete": true,
+    "required": false,
+    "reason": "complete audit verified; idle periodic deadline 120s",
+    "idle_interval_seconds": 120.0,
+    "age_seconds": 107.9393222249928
+  },
+  "net_cash_audit": {
+    "status": "matched",
+    "net_difference_usdc": "0.000000",
+    "cash_change_usdc": "0.000000",
+    "individual_fees_known": false
+  },
+  "request_budget": {
+    "used_last_60s": 10,
+    "reserved_unconsumed": 0,
+    "normal_cap": 40,
+    "urgent_read_cap": 47,
+    "transaction_cap": 55,
+    "transaction_slots_remaining": 45
+  },
+  "probe_active": false,
+  "manual_exposure": false,
+  "journal_ok": true,
+  "updated_at": 1791252734.0436473
+}

@@ -1,0 +1,409 @@
+{
+  "restarted_at_wib": "2026-10-06T09:12:22+07:00",
+  "new_pid": 341351,
+  "old_pid": 301678,
+  "loaded_code_commit": "1205d35f3432958b79061d978c9fccb620bcbb6b",
+  "captured_at": 1791252761.9576795,
+  "initial_telemetry": {
+    "events_emitted": 22,
+    "events_written": 22,
+    "events_dropped": 0,
+    "write_errors": 0,
+    "queue_size": 0,
+    "queue_capacity": 512,
+    "peak_queue_size": 3,
+    "bytes_written": 36256,
+    "hook_total_ms": 16.744995,
+    "max_write_ms": 2.243817,
+    "max_queue_age_ms": 12.432803,
+    "max_loop_lag_ms": 33.265849,
+    "connections": [
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "first_close": null,
+        "frames": {
+          "library_protocol:TEXT": 790,
+          "library_protocol:bytes": 712232,
+          "application:TEXT": 790,
+          "application:bytes": 712232
+        },
+        "last_frames": {
+          "library_protocol": {
+            "kind": "TEXT",
+            "monotonic_ns": 138444013065848,
+            "wall_ns": 1791252761774137586
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 138444013129611,
+            "wall_ns": 1791252761774197099
+          }
+        },
+        "heartbeat_scheduled_ns": null,
+        "heartbeat_resets": 0,
+        "handshake_completed_ns": 138427901535361
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:2",
+        "channel": "lighter_account",
+        "first_close": null,
+        "frames": {
+          "library_protocol:TEXT": 2,
+          "library_protocol:bytes": 620,
+          "application:TEXT": 2,
+          "application:bytes": 620
+        },
+        "last_frames": {
+          "library_protocol": {
+            "kind": "TEXT",
+            "monotonic_ns": 138428041651114,
+            "wall_ns": 1791252745802722116
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 138428042591751,
+            "wall_ns": 1791252745803661977
+          }
+        },
+        "heartbeat_scheduled_ns": null,
+        "heartbeat_resets": 0,
+        "handshake_completed_ns": 138427897589074
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+        "channel": "binance_public",
+        "first_close": null,
+        "frames": {
+          "library_transport:CHUNK": 148,
+          "library_dequeue:TEXT": 156,
+          "library_dequeue:bytes": 507773,
+          "application:TEXT": 156,
+          "application:bytes": 507773
+        },
+        "last_frames": {
+          "library_transport": {
+            "kind": "CHUNK",
+            "monotonic_ns": 138444050502899,
+            "wall_ns": 1791252761811576735
+          },
+          "library_dequeue": {
+            "kind": "TEXT",
+            "monotonic_ns": 138444050612835,
+            "wall_ns": 1791252761811680976
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 138444050686896,
+            "wall_ns": 1791252761811754887
+          }
+        },
+        "heartbeat_scheduled_ns": 138465000000000,
+        "heartbeat_resets": 149,
+        "handshake_completed_ns": 138428213930366
+      },
+      {
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:4",
+        "channel": "binance_market",
+        "first_close": null,
+        "frames": {
+          "library_transport:CHUNK": 61,
+          "library_dequeue:TEXT": 213,
+          "library_dequeue:bytes": 43478,
+          "application:TEXT": 213,
+          "application:bytes": 43478
+        },
+        "last_frames": {
+          "library_transport": {
+            "kind": "CHUNK",
+            "monotonic_ns": 138443547173764,
+            "wall_ns": 1791252761308248302
+          },
+          "library_dequeue": {
+            "kind": "TEXT",
+            "monotonic_ns": 138443547307272,
+            "wall_ns": 1791252761308377381
+          },
+          "application": {
+            "kind": "TEXT",
+            "monotonic_ns": 138443547370058,
+            "wall_ns": 1791252761308440291
+          }
+        },
+        "heartbeat_scheduled_ns": 138464000000000,
+        "heartbeat_resets": 62,
+        "handshake_completed_ns": 138428216577430
+      }
+    ],
+    "recent": [
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:1",
+        "kind": "handshake_started",
+        "wall_ns": 1791252745147971884,
+        "monotonic_ns": 138427386902820,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "url": "wss://mainnet.zklighter.elliot.ai/stream",
+        "previous_connection_id": null
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:2",
+        "kind": "handshake_started",
+        "wall_ns": 1791252745159477188,
+        "monotonic_ns": 138427398409413,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:2",
+        "channel": "lighter_account",
+        "url": "wss://mainnet.zklighter.elliot.ai/stream",
+        "previous_connection_id": null
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:3",
+        "kind": "handshake_started",
+        "wall_ns": 1791252745160692496,
+        "monotonic_ns": 138427399625299,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+        "channel": "binance_public",
+        "url": "wss://fstream.binance.com/public/stream?streams=btcusdt@depth@100ms",
+        "previous_connection_id": null
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:4",
+        "kind": "handshake_started",
+        "wall_ns": 1791252745161814294,
+        "monotonic_ns": 138427400747198,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:4",
+        "channel": "binance_market",
+        "url": "wss://fstream.binance.com/market/stream?streams=btcusdt@aggTrade",
+        "previous_connection_id": null
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:5",
+        "kind": "coverage_observed",
+        "wall_ns": 1791252745199274566,
+        "monotonic_ns": 138427438206947,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "coverage": {
+          "duration_required_s": 600,
+          "duration_observed_s": 0.0,
+          "duration_remaining_s": 600.0,
+          "total_samples_required": 480,
+          "total_samples": 0,
+          "window_s": 600,
+          "recent_samples_required": 480,
+          "recent_samples": 0,
+          "max_sample_gap_s": 0,
+          "allowed_gap_s": 5,
+          "long_gap_count": 0,
+          "gap_wait_remaining_s": 0,
+          "last_sample_age_s": null,
+          "warmup_complete": false,
+          "coverage_complete": false,
+          "ready": false,
+          "buffer_started_at": 1791252744.1770086,
+          "buffer_reset_reason": "engine_start",
+          "last_interruption": null
+        }
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:6",
+        "kind": "handshake_completed",
+        "wall_ns": 1791252745658658651,
+        "monotonic_ns": 138427897591295,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:2",
+        "channel": "lighter_account"
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:7",
+        "kind": "subscriptions_sent",
+        "wall_ns": 1791252745661136014,
+        "monotonic_ns": 138427900068282,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:2",
+        "channel": "lighter_account",
+        "subscription_count": 1
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:8",
+        "kind": "heartbeat_schedule",
+        "wall_ns": 1791252745661299652,
+        "monotonic_ns": 138427900232605,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:2",
+        "channel": "lighter_account",
+        "scheduled_ns": 138457900225672
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:9",
+        "kind": "handshake_completed",
+        "wall_ns": 1791252745662605990,
+        "monotonic_ns": 138427901538305,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter"
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:10",
+        "kind": "subscriptions_sent",
+        "wall_ns": 1791252745662930114,
+        "monotonic_ns": 138427901862978,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "subscription_count": 3
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:11",
+        "kind": "heartbeat_schedule",
+        "wall_ns": 1791252745663017233,
+        "monotonic_ns": 138427901950332,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "channel": "lighter",
+        "scheduled_ns": 138457901944487
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:12",
+        "kind": "heartbeat_schedule",
+        "wall_ns": 1791252745974917342,
+        "monotonic_ns": 138428213849169,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+        "channel": "binance_public",
+        "scheduled_ns": 138449000000000
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:13",
+        "kind": "handshake_completed",
+        "wall_ns": 1791252745974998217,
+        "monotonic_ns": 138428213931539,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+        "channel": "binance_public"
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:14",
+        "kind": "heartbeat_schedule",
+        "wall_ns": 1791252745977611649,
+        "monotonic_ns": 138428216544680,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:4",
+        "channel": "binance_market",
+        "scheduled_ns": 138449000000000
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:15",
+        "kind": "handshake_completed",
+        "wall_ns": 1791252745977644884,
+        "monotonic_ns": 138428216578402,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:4",
+        "channel": "binance_market"
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:16",
+        "kind": "snapshot_applied",
+        "wall_ns": 1791252745992949123,
+        "monotonic_ns": 138428231880340,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:1",
+        "venue": "lighter",
+        "receipt_monotonic_ns": 138428210471027,
+        "source_ms": 1791252745695,
+        "sequence": 23887589661,
+        "U": null,
+        "u": null,
+        "pu": null
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:17",
+        "kind": "snapshot_applied",
+        "wall_ns": 1791252746289516877,
+        "monotonic_ns": 138428528446957,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+        "venue": "binance",
+        "receipt_monotonic_ns": 138428503652098,
+        "source_ms": 1791252746053,
+        "sequence": 11744383895716,
+        "U": null,
+        "u": null,
+        "pu": null
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:18",
+        "kind": "depth_bridged",
+        "wall_ns": 1791252746290421443,
+        "monotonic_ns": 138428529353696,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "connection_id": "af6a07219b1848829f66f31f19c5edc6:3",
+        "venue": "binance",
+        "receipt_monotonic_ns": 138428503545483,
+        "source_ms": 1791252746141,
+        "sequence": 11744383901911,
+        "U": 11744383895080,
+        "u": 11744383901911,
+        "pu": 11744383894938
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:19",
+        "kind": "pulse",
+        "wall_ns": 1791252750160124105,
+        "monotonic_ns": 138432399053956,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:20",
+        "kind": "pulse",
+        "wall_ns": 1791252755161566935,
+        "monotonic_ns": 138437400498091,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:21",
+        "kind": "loop_timer_lag",
+        "wall_ns": 1791252759692700521,
+        "monotonic_ns": 138441931631055,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351,
+        "scheduled_ns": 138441898336657,
+        "lag_ms": 33.265849
+      },
+      {
+        "event_id": "af6a07219b1848829f66f31f19c5edc6:event:22",
+        "kind": "pulse",
+        "wall_ns": 1791252760659799230,
+        "monotonic_ns": 138442898728604,
+        "run_id": "af6a07219b1848829f66f31f19c5edc6",
+        "pid": 341351
+      }
+    ]
+  },
+  "state": "IDLE",
+  "allow_live_orders": false,
+  "session_status": "closed"
+}
