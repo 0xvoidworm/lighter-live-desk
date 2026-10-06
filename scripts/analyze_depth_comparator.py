@@ -42,6 +42,7 @@ def quantiles(values: list[float]) -> dict:
         "min": values[0],
         "p50": at(0.5),
         "p95": at(0.95),
+        "p99": at(0.99),
         "max": values[-1],
     }
 
@@ -59,6 +60,74 @@ def depth(row: dict) -> dict | None:
     if row.get("venue") == "binance" and row.get("kind") == "depthUpdate":
         return row | {"receipt_monotonic_ns": row["monotonic_ns"]}
     return None
+
+
+def peer_epochs(
+    events: list[dict], target_ip: str, begin_ns: int, end_ns: int, *, pid: int, run_id: str
+) -> list[dict]:
+    """Actual handshake binding only, clipped by first close/next connection.
+
+    Every epoch retains its observed peer; consumers must filter `peer_matches`.
+    Unknown metadata is never inherited from a previous connection or DNS.
+    """
+    handshakes = sorted(
+        (
+            r
+            for r in events
+            if r.get("kind") == "handshake_completed"
+            and r.get("channel") == "binance_public"
+            and r.get("pid") == pid
+            and r.get("run_id") == run_id
+        ),
+        key=lambda r: r["monotonic_ns"],
+    )
+    result = []
+    for i, event in enumerate(handshakes):
+        identity = event["connection_id"]
+        closes = [
+            r["monotonic_ns"]
+            for r in events
+            if r.get("connection_id") == identity and r.get("kind") == "close_initiated"
+        ]
+        start = max(begin_ns, event["monotonic_ns"])
+        stop = min(
+            end_ns,
+            min(closes, default=end_ns),
+            handshakes[i + 1]["monotonic_ns"] if i + 1 < len(handshakes) else end_ns,
+        )
+        if start >= stop:
+            continue
+        metadata = event.get("socket_metadata") or {}
+        peer = metadata.get("remote")
+        result.append(
+            {
+                "connection_id": identity,
+                "start_monotonic_ns": start,
+                "end_monotonic_ns": stop,
+                "peer": peer,
+                "peer_matches": bool(
+                    metadata.get("status") == "available"
+                    and peer
+                    and peer.get("address") == target_ip
+                    and peer.get("port") == 443
+                ),
+            }
+        )
+    return result
+
+
+def controlled_depth(records: list[dict], epochs: list[dict], *, production: bool) -> list[dict]:
+    """Require receipt inside a matched lifetime; production also needs its connection ID."""
+    return [
+        r
+        for r in records
+        if any(
+            e["peer_matches"]
+            and e["start_monotonic_ns"] <= r["receipt_monotonic_ns"] < e["end_monotonic_ns"]
+            and (not production or r.get("connection_id") == e["connection_id"])
+            for e in epochs
+        )
+    ]
 
 
 class CausalClock:
@@ -164,8 +233,7 @@ def compare(
             grouped[key[:-1]].add(key[-1])
         payloads.append(grouped)
     payload_mismatches = sum(
-        not (payloads[0][key] & payloads[1][key])
-        for key in payloads[0].keys() & payloads[1].keys()
+        not (payloads[0][key] & payloads[1][key]) for key in payloads[0].keys() & payloads[1].keys()
     )
     ambiguous = sum(len(lookup[0][k]) != 1 or len(lookup[1][k]) != 1 for k in common)
     pairs, differences, outcomes = [], [], Counter()

@@ -9,22 +9,83 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import ipaddress
 import json
 import os
 import socket
+import ssl
 import struct
 import time
 import uuid
+from contextlib import asynccontextmanager
 from functools import partial
 from pathlib import Path
 
 import aiohttp
+from aiohttp.abc import AbstractResolver, ResolveResult
 
 from lldesk.models import Stamp
 from lldesk.network import binance_session
 from lldesk.websocket_trace import ObservedAiohttpSocket, WebsocketTrace
 
 PUBLIC_URL = "wss://fstream.binance.com/public/stream?streams=btcusdt@depth@100ms"
+PUBLIC_HOST = "fstream.binance.com"
+
+
+class PeerControlFailure(RuntimeError):
+    """The single comparison did not meet the actual peer/TLS control."""
+
+
+class PeerOverrideResolver(AbstractResolver):
+    """Diagnostic session only; preserve the requested hostname for TLS/SNI."""
+
+    def __init__(self, original, target_ip: str):
+        self.original = original
+        self.target_ip = str(ipaddress.IPv4Address(target_ip))
+
+    async def resolve(self, host: str, port: int = 0, family: int = socket.AF_INET):
+        if host != PUBLIC_HOST:
+            return await self.original.resolve(host, port, family)
+        if family not in {socket.AF_INET, socket.AF_UNSPEC}:
+            raise OSError("same-peer control requires production IPv4")
+        return [
+            ResolveResult(
+                hostname=host,
+                host=self.target_ip,
+                port=port,
+                family=socket.AF_INET,
+                proto=socket.IPPROTO_TCP,
+                flags=socket.AI_NUMERICHOST,
+            )
+        ]
+
+    async def close(self):
+        # The original factory owns its resolver. This wrapper has no network resources.
+        pass
+
+
+@asynccontextmanager
+async def same_peer_session(mode, *, target_ip: str, session_factory=binance_session, **kwargs):
+    async with session_factory(mode, **kwargs) as client:
+        # Installed aiohttp3.14.3 has no per-request resolver override. Only this
+        # fresh diagnostic connector is changed, then restored before factory cleanup.
+        original = client.connector._resolver
+        client.connector._resolver = PeerOverrideResolver(original, target_ip)
+        try:
+            yield client
+        finally:
+            client.connector._resolver = original
+
+
+def tls_state(transport):
+    obj = transport.get_extra_info("ssl_object")
+    if obj is None:
+        return {"sni": None, "check_hostname": None, "verify_mode": None}
+    return {
+        "sni": obj.server_hostname,
+        "check_hostname": obj.context.check_hostname,
+        "verify_mode": int(obj.context.verify_mode),
+    }
 
 
 def tcp_state(transport) -> dict:
@@ -51,7 +112,15 @@ def tcp_state(transport) -> dict:
     return result
 
 
-async def consume(trace, connection, url: str, mode: str, stats: dict, session_factory):
+async def consume(
+    trace,
+    connection,
+    url: str,
+    mode: str,
+    stats: dict,
+    session_factory,
+    expected_peer: str | None = None,
+):
     async with (
         session_factory(
             mode, ws_response_class=partial(ObservedAiohttpSocket, evidence=connection)
@@ -64,6 +133,24 @@ async def consume(trace, connection, url: str, mode: str, stats: dict, session_f
         stats["peer"] = tcp_state(transport)["peer"]
         stats["transport"] = transport
         trace.event("comparison_peer", **tcp_state(transport), tls_hostname_validation=True)
+        if expected_peer is not None:
+            stats["tls"] = tls_state(transport)
+            peer = stats["peer"]
+            matched = peer is not None and peer[0] == expected_peer and peer[1] == 443
+            tls_ok = stats["tls"] == {
+                "sni": PUBLIC_HOST,
+                "check_hostname": True,
+                "verify_mode": int(ssl.CERT_REQUIRED),
+            }
+            stats["peer_control"] = "matched" if matched and tls_ok else "failed"
+            trace.event(
+                "comparison_peer_control",
+                result=stats["peer_control"],
+                expected_peer=expected_peer,
+                tls=stats["tls"],
+            )
+            if not matched or not tls_ok:
+                raise PeerControlFailure("actual peer or TLS control unavailable/mismatched")
         previous = None
         async for frame in ws:
             stamp = Stamp()
@@ -99,9 +186,17 @@ async def record(
     *,
     url: str = PUBLIC_URL,
     session_factory=binance_session,
+    target_ip: str | None = None,
 ) -> dict:
     if not 0 < duration <= 900:
         raise ValueError("one observation must be in (0, 900] seconds")
+    if target_ip is not None:
+        target_ip = str(ipaddress.IPv4Address(target_ip))
+        if url != PUBLIC_URL:
+            raise ValueError("peer override is limited to the official public depth URL")
+        session_factory = partial(
+            same_peer_session, target_ip=target_ip, session_factory=session_factory
+        )
     directory.mkdir(mode=0o700, parents=True, exist_ok=False)
     os.chmod(directory, 0o700)
     run_id = uuid.uuid4().hex
@@ -121,6 +216,8 @@ async def record(
         "autoping": True,
         "rest_snapshots": 0,
         "connection_attempt_limit": 1,
+        "target_ip": target_ip,
+        "override_hostname": PUBLIC_HOST if target_ip is not None else None,
     }
     (directory / "started.json").write_text(json.dumps(marker, indent=2) + "\n")
     trace = WebsocketTrace(directory, run_id)
@@ -131,6 +228,8 @@ async def record(
         "processing_ns": 0,
         "peer": None,
         "transport": None,
+        "peer_control": "not_requested" if target_ip is None else "not_verified",
+        "tls": None,
     }
     recorder = asyncio.create_task(trace.run(lambda: tcp_state(stats["transport"])))
     await asyncio.sleep(0)
@@ -138,8 +237,11 @@ async def record(
     outcome = "window_complete"
     try:
         async with asyncio.timeout_at(marker["deadline_monotonic_ns"] / 1e9):
-            await consume(trace, connection, url, mode, stats, session_factory)
+            await consume(trace, connection, url, mode, stats, session_factory, target_ip)
         outcome = "remote_end_before_deadline"
+    except PeerControlFailure as exc:
+        outcome = "peer_control_failed"
+        trace.event("comparison_failure", exception_type=type(exc).__name__, error=str(exc))
     except TimeoutError as exc:
         if time.monotonic_ns() >= marker["deadline_monotonic_ns"]:
             trace.event("comparison_window_deadline")
@@ -165,7 +267,7 @@ async def record(
                 "finished_monotonic_ns": time.monotonic_ns(),
                 "outcome": outcome,
                 "telemetry": trace.status(),
-            "connection_closed": transport is None or transport.is_closing(),
+                "connection_closed": transport is None or transport.is_closing(),
             }
         )
         (directory / "finished.json").write_text(json.dumps(final, indent=2) + "\n")
@@ -179,8 +281,11 @@ def main() -> None:
     parser.add_argument("directory", type=Path)
     parser.add_argument("--duration", type=float, default=900)
     parser.add_argument("--resolver-mode", choices=["doh", "system"], required=True)
+    parser.add_argument("--target-ip", help="one verified production IPv4; comparator only")
     args = parser.parse_args()
-    result = asyncio.run(record(args.directory, args.duration, args.resolver_mode))
+    result = asyncio.run(
+        record(args.directory, args.duration, args.resolver_mode, target_ip=args.target_ip)
+    )
     print(json.dumps({k: result[k] for k in ["outcome", "messages", "peer", "connection_closed"]}))
 
 
