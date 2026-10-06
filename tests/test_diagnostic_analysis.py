@@ -155,6 +155,94 @@ def test_depth_fee_and_buffer_can_eliminate_positive_mid_reversion():
     assert result["fee_exact"] is None
 
 
+def test_clock_replay_never_uses_proof_first_recorded_after_evaluation():
+    scripts = str(Path(__file__).parents[1] / "scripts")
+    sys.path.insert(0, scripts)
+    try:
+        from analyze_control_feed_observation import clock_replay
+    finally:
+        sys.path.remove(scripts)
+    wall, mono = 1_791_213_410_000_000_000, 99_000_000_000_000
+    proof = {
+        "received_ns": wall,
+        "received_monotonic_ns": mono,
+        "offset_low_ms": -50,
+        "offset_high_ms": 50,
+        "server_ms": wall // 1_000_000,
+        "rtt_ms": 80,
+        "host": {"synchronized": True},
+    }
+    source = {
+        "evaluated_monotonic_ns": mono,
+        "reason": "SOURCE_CLOCK_NOT_VERIFIED",
+        "passed": False,
+    }
+    row = {
+        "elapsed_s": 1,
+        "status": {
+            "decision_inputs": {
+                "source_freshness": source,
+                "monotonic_ns": mono,
+                "evaluated_at": wall / 1e9,
+                "data_valid": False,
+                "quotes": {
+                    "binance": {
+                        "receipt_ns": wall,
+                        "monotonic_ns": mono,
+                        "exchange_ms": wall // 1_000_000 - 200,
+                        "exchange_event_ms": None,
+                    }
+                },
+            },
+            "diagnostic_observation": {
+                "source_freshness": source,
+                "checks": {"basis_scale": False},
+            },
+        },
+    }
+    later = [{"recorded_monotonic_ns": mono + 1, "payload": {"clock": proof}}]
+    result = clock_replay([row], later)
+    assert result["proof_unavailable"] == 1
+    assert result["matching_recorded_second_assessment_reasons"] == 0
+    earlier = [{"recorded_monotonic_ns": mono - 1, "payload": {"clock": proof}}]
+    result = clock_replay([row], earlier)
+    assert result["second_assessment_reasons"] == {"SOURCE_FRESH_WITH_CLOCK_BOUND": 1}
+    assert result["matching_recorded_second_assessment_reasons"] == 0  # No historical rewrite.
+
+
+def test_existing_account_diagnostics_export_excludes_secrets_and_preserves_timeout(tmp_path):
+    scripts = str(Path(__file__).parents[1] / "scripts")
+    sys.path.insert(0, scripts)
+    try:
+        from analyze_control_feed_observation import persistent_diagnostics
+    finally:
+        sys.path.remove(scripts)
+    path = tmp_path / "audit.db"
+    with sqlite3.connect(path) as db:
+        db.execute("CREATE TABLE events(at REAL,kind TEXT,body TEXT)")
+        body = {
+            "outcome": "error",
+            "lock_wait_ms": 0.004,
+            "request_used_60s": 9,
+            "requests": [
+                {
+                    "id": 1,
+                    "path": "/api/v1/accountActiveOrders",
+                    "outcome": "error",
+                    "last_phase": "waiting_headers",
+                    "error": "CancelledError",
+                    "token": "fixture-secret",
+                }
+            ],
+        }
+        db.execute("INSERT INTO events VALUES(1,'ACCOUNT_STATE_DIAGNOSTIC',?)", (json.dumps(body),))
+        db.execute("INSERT INTO events VALUES(3,'ACCOUNT_STATE_DIAGNOSTIC',?)", (json.dumps(body),))
+    exported = persistent_diagnostics(path, 0, 2)
+    assert len(exported["records"]) == 1
+    assert "fixture-secret" not in json.dumps(exported)
+    assert exported["request_failure_phases"] == {"waiting_headers": 1}
+
+
 def test_reconnect_analysis_uses_interval_delta_and_keeps_unknown_ownership(tmp_path):
     spec = importlib.util.spec_from_file_location(
         "bounded_analysis", Path(__file__).parents[1] / "scripts/analyze_bounded_preparation.py"

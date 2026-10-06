@@ -128,6 +128,8 @@ class BinanceSourceClock:
             "max_source_age_ms": self.max_age_ms,
             "max_clock_uncertainty_ms": MAX_UNCERTAINTY_MS,
             "evaluated_monotonic_ns": now_ns,
+            "evaluated_wall_ns": wall_ns,
+            "clock_ttl_seconds": CLOCK_TTL_S,
         }
         if indicator_ms is None:
             return result
@@ -136,7 +138,14 @@ class BinanceSourceClock:
             result["reason"] = "SOURCE_CLOCK_NOT_VERIFIED"
             return result
         age_s = (now_ns - evidence.received.monotonic_ns) / 1e9
-        result["clock_evidence_age_s"] = age_s
+        result.update(
+            clock_proof_id=f"{evidence.server_ms}:{evidence.received.monotonic_ns}",
+            clock_received_monotonic_ns=evidence.received.monotonic_ns,
+            clock_received_wall_ns=evidence.received.receipt_ns,
+            clock_base_offset_low_ms=evidence.offset_low_ms,
+            clock_base_offset_high_ms=evidence.offset_high_ms,
+            clock_evidence_age_s=age_s,
+        )
         if not 0 <= age_s <= CLOCK_TTL_S:
             result["reason"] = "SOURCE_CLOCK_EVIDENCE_EXPIRED"
             return result
@@ -154,6 +163,7 @@ class BinanceSourceClock:
         low, high = evidence.offset_low_ms - drift_ms, evidence.offset_high_ms + drift_ms
         uncertainty_ms = (high - low) / 2
         result.update(
+            clock_drift_allowance_ms=drift_ms,
             clock_offset_low_ms=low,
             clock_offset_high_ms=high,
             clock_uncertainty_ms=uncertainty_ms,

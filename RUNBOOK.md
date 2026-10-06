@@ -8,6 +8,14 @@ Diagnostic observation memakai satu assessment sumber per snapshot; jalur entry
 selalu menilai ulang sumber melalui data_valid dan tidak memakai hasil cache
 diagnostik sebagai izin. Lihat AUDIT_DEPTH_ONLY_PRODUCTION_2026-10-06.md.
 
+`decision_inputs.data_guard` mencatat pemeriksaan receipt/transport dan assessment
+sumber yang benar-benar menentukan `data_valid` untuk evaluasi itu, beserta bracket
+wall/monotonic. Jika receipt/transport gagal, sumber ditandai belum diperiksa (`null`),
+bukan dinilai ulang sebagai alasan keputusan lama. Assessment menyimpan identitas
+proof, anchor, offset dasar, drift dan TTL. Entry/preflight/dispatch tetap melakukan
+pemeriksaan baru; rekaman keputusan tidak memberi izin. Penilaian diagnostik yang
+lebih baru dapat berbeda secara sah. Lihat AUDIT_CLOCK_DECISION_RECONNECT_2026-10-06.md.
+
 ## Kesegaran sumber Binance untuk entry dan sampel
 
 Receipt monotonic tetap memakai guard lama 1500ms. Entry/sampel juga wajib

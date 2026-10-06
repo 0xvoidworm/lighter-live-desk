@@ -3,12 +3,353 @@
 import argparse
 import gzip
 import json
+from bisect import bisect_right
 from collections import Counter, defaultdict
 from decimal import Decimal
 from itertools import chain
 from pathlib import Path
 
 from analyze_split_audit import describe
+
+
+def frozen_records(directory: Path):
+    """Read archived gzip prefixes, retaining an explicit incomplete-tail limitation."""
+    for path in sorted(directory.glob("market-*.jsonl.gz")):
+        with gzip.open(path, "rt") as stream:
+            try:
+                for line in stream:
+                    yield json.loads(line)
+            except EOFError:
+                # Runtime copies of an open member have no trailer. Never synthesize rows.
+                pass
+
+
+def clock_replay(rows: list[dict], clock_records: list[dict]) -> dict:
+    """Replay the production guard with only proof records available before evaluation.
+
+    Wall time is reconstructed within the recorded evaluation bracket, not measured
+    at the original source check. The historical first data_valid check is unrecorded.
+    """
+    from lldesk.models import Stamp
+    from lldesk.source_time import BinanceSourceClock, ClockEvidence
+
+    records = sorted(clock_records, key=lambda r: r["recorded_monotonic_ns"])
+    available = [r["recorded_monotonic_ns"] for r in records]
+    outcomes, lower, drift, differences = Counter(), [], [], []
+    timing_ms, mismatches = [], []
+    replay_match = proof_unavailable = 0
+    basis_context = Counter()
+    post_basis_seconds, ready_endings = Counter(), Counter()
+    for i, row in enumerate(rows):
+        status = row["status"]
+        inputs = status["decision_inputs"]
+        original = inputs["source_freshness"]
+        now = original["evaluated_monotonic_ns"]
+        index = bisect_right(available, now) - 1
+        if index < 0:
+            proof_unavailable += 1
+            continue
+        proof = records[index]["payload"]["clock"]
+        clock = BinanceSourceClock(1500)
+        if proof is not None:
+            clock.evidence = ClockEvidence(
+                Stamp(receipt_ns=proof["received_ns"], monotonic_ns=proof["received_monotonic_ns"]),
+                proof["offset_low_ms"],
+                proof["offset_high_ms"],
+                proof["server_ms"],
+                proof["rtt_ms"],
+                proof["host"],
+            )
+        q = inputs["quotes"]["binance"]
+        stamp = Stamp(
+            receipt_ns=q["receipt_ns"],
+            monotonic_ns=q["monotonic_ns"],
+            exchange_ms=q["exchange_ms"],
+            exchange_event_ms=q["exchange_event_ms"],
+        )
+        wall = round(inputs["evaluated_at"] * 1e9) + now - inputs["monotonic_ns"]
+        result = clock.assess(stamp, now_ns=now, wall_ns=wall)
+        replay_match += result["reason"] == original["reason"]
+        outcomes[result["reason"]] += 1
+        lower.append(result.get("source_age_low_ms"))
+        drift.append(result.get("clock_drift_allowance_ms"))
+        timing_ms.append((now - inputs["monotonic_ns"]) / 1e6)
+        diagnostic = status["diagnostic_observation"]["source_freshness"]
+        if inputs["data_valid"] is False and diagnostic["passed"]:
+            differences.append(
+                {
+                    "elapsed_s": row["elapsed_s"],
+                    "decision_source_reason": result["reason"],
+                    "diagnostic_delay_ms": (diagnostic["evaluated_monotonic_ns"] - now) / 1e6,
+                }
+            )
+        if not status["diagnostic_observation"]["checks"]["basis_scale"]:
+            basis_context["invalid_input" if not inputs["data_valid"] else "valid_input"] += 1
+            if status.get("coverage", {}).get("warmup_complete"):
+                end = min(1200, rows[i + 1]["elapsed_s"] if i + 1 < len(rows) else 1200)
+                key = f"decision:{result['reason']};diagnostic:{diagnostic['reason']}"
+                post_basis_seconds[key] += max(0, end - row["elapsed_s"])
+        if status.get("coverage", {}).get("warmup_complete") and i:
+            observation = status["diagnostic_observation"]
+            if (
+                rows[i - 1]["status"]["diagnostic_observation"]["technical_ready"]
+                and not observation["technical_ready"]
+            ):
+                ready_endings["+".join(observation["blockers"])] += 1
+        if inputs["data_valid"] is False and original["passed"]:
+            mismatches.append(
+                {
+                    "elapsed_s": row["elapsed_s"],
+                    "decision_monotonic_ns": inputs["monotonic_ns"],
+                    "second_assessment": result,
+                    "quotes": inputs["quotes"],
+                    "fx_age_s": inputs["fx_age_s"],
+                    "queue_backlog": inputs["queue_backlog"],
+                    "diagnostic_delay_ms": (diagnostic["evaluated_monotonic_ns"] - now) / 1e6,
+                    "lower_bound_margin_to_future_boundary_us": (result["source_age_low_ms"] + 1)
+                    * 1000,
+                    "first_assessment": "not recorded; boundary crossing is plausible, not proven",
+                }
+            )
+    return {
+        "samples": len(rows),
+        "matching_recorded_second_assessment_reasons": replay_match,
+        "proof_unavailable": proof_unavailable,
+        "second_assessment_reasons": dict(outcomes),
+        "source_lower_ms": describe(lower),
+        "drift_allowance_ms": describe(drift),
+        "second_assessment_after_decision_stamp_ms": describe(timing_ms),
+        "basis_scale_sample_context": dict(basis_context),
+        "post_warmup_basis_context_seconds": dict(post_basis_seconds),
+        "sampled_post_warmup_ready_endings": dict(ready_endings),
+        "decision_invalid_diagnostic_source_passed": len(differences),
+        "diagnostic_delay_for_invalid_decision_ms": describe(
+            [d["diagnostic_delay_ms"] for d in differences]
+        ),
+        "two_ambiguous_decisions": mismatches,
+        "limits": "First guard time/result absent. Replay checks recorded SECOND assessment "
+        "using already available proof and bracketed wall time; no retroactive approval.",
+    }
+
+
+def reconnect_evidence(directory: Path, begin: float, end: float) -> tuple[dict, list[dict]]:
+    """Existing runtime receipts + deterministic Book replay, not a new observation."""
+    from lldesk.market import Book, GapError
+    from lldesk.models import Stamp
+
+    book = Book("binance")
+    last, events, clocks = {}, [], []
+    counters, gaps, queue_ms = Counter(), [], []
+    wall_steps, prior_stamp = [], None
+    sequence_errors = 0
+    for r in frozen_records(directory):
+        at = r["recorded_ns"] / 1e9
+        if at > end:
+            continue
+        brief = {
+            k: r[k]
+            for k in (
+                "kind",
+                "receipt_ns",
+                "monotonic_ns",
+                "recorded_ns",
+                "recorded_monotonic_ns",
+                "exchange_ms",
+            )
+        }
+        brief["update_id"] = r["payload"].get("u", r["payload"].get("lastUpdateId"))
+        if r["kind"] == "source_clock":
+            clocks.append(r)
+        if r["kind"] == "disconnect":
+            p = r["payload"]
+            channel = "lighter" if r["venue"] == "lighter" else "binance_" + p["channel"]
+            if channel == "binance_public":
+                book.invalidate()
+            if begin <= at <= end:
+                events.append(
+                    {
+                        "channel": channel,
+                        "disconnect": brief,
+                        "payload": p,
+                        "last_messages": dict(last),
+                    }
+                )
+        stamp = Stamp(
+            receipt_ns=r["receipt_ns"],
+            monotonic_ns=r["monotonic_ns"],
+            exchange_ms=r.get("exchange_ms"),
+        )
+        try:
+            if r["kind"] == "snapshot" and r["venue"] == "binance":
+                book.binance_snapshot(r["payload"], stamp)
+            elif r["kind"] == "depthUpdate":
+                book.binance_delta(r["payload"], stamp)
+        except GapError:
+            sequence_errors += int(begin <= at <= end)
+        key = {
+            ("binance", "depthUpdate"): "binance_public",
+            ("binance", "aggTrade"): "binance_market",
+            ("lighter", "order_book"): "lighter",
+            ("binance_spot", "fx"): "fx",
+        }.get((r["venue"], r["kind"]))
+        if r["kind"] == "fx":
+            key = "fx"
+        if begin <= at <= end:
+            counters[r["venue"] + ":" + r["kind"]] += 1
+            delta_ms = (r["recorded_monotonic_ns"] - r["monotonic_ns"]) / 1e6
+            if key:
+                queue_ms.append(delta_ms)
+                if key in last:
+                    gap = (r["monotonic_ns"] - last[key]["monotonic_ns"]) / 1e9
+                    if gap > 5:
+                        gaps.append(
+                            {"channel": key, "gap_s": gap, "before": last[key], "after": brief}
+                        )
+            # Recorder wall/monotonic pair, unaffected by buffered receipt order.
+            current = (r["recorded_ns"], r["recorded_monotonic_ns"])
+            if prior_stamp:
+                discrepancy_ms = (
+                    (current[0] - prior_stamp[0]) - (current[1] - prior_stamp[1])
+                ) / 1e6
+                if abs(discrepancy_ms) > 25:
+                    wall_steps.append({"at": at, "wall_minus_monotonic_change_ms": discrepancy_ms})
+            prior_stamp = current
+        for event in events:
+            if at < event["disconnect"]["recorded_ns"] / 1e9:
+                continue
+            if key == event["channel"]:
+                event.setdefault("first_following_message", brief)
+            if event["channel"] == "binance_public":
+                if r["kind"] == "snapshot" and r["venue"] == "binance":
+                    event.setdefault("following_snapshot", brief)
+                if r["kind"] == "depthUpdate" and book.valid and book.bridged:
+                    event.setdefault("following_valid_depth", brief)
+        if key:
+            last[key] = brief
+    for event in events:
+        prev = event["last_messages"].get(event["channel"])
+        after = event.get("first_following_message")
+        if prev and after:
+            event["receipt_gap_s"] = (after["monotonic_ns"] - prev["monotonic_ns"]) / 1e9
+            event["last_receipt_to_disconnect_s"] = (
+                event["disconnect"]["monotonic_ns"] - prev["monotonic_ns"]
+            ) / 1e9
+            event["disconnect_to_receipt_s"] = (
+                after["monotonic_ns"] - event["disconnect"]["monotonic_ns"]
+            ) / 1e9
+    return {
+        "begin_epoch": begin,
+        "end_epoch": end,
+        "reconnects": events,
+        "raw_event_counts": dict(counters),
+        "receipt_gaps_over_5s": gaps,
+        "receipt_to_record_ms": describe(queue_ms),
+        "recorder_wall_step_over_25ms": wall_steps,
+        "offline_sequence_errors": sequence_errors,
+        "limits": "No continuous post-window status, ping/pong wire stamps, connection IDs, "
+        "handshake phases, event-loop scheduling delay or complete recovery coverage timeline. "
+        "Gzip prefixes may lack trailers. Raw stamps precede book application.",
+    }, clocks
+
+
+def clock_reconnect_analysis(source: Path, market: Path, end: float, journal: Path) -> dict:
+    manifest = json.loads((source / "started.json").read_text())
+    with gzip.open(source / "snapshots.jsonl.gz", "rt") as stream:
+        rows = [json.loads(line) for line in stream]
+    post, clocks = reconnect_evidence(market, manifest["deadline_epoch"], end)
+    warnings = [
+        {"at_epoch": int(r["__REALTIME_TIMESTAMP"]) / 1e6, "message": r["MESSAGE"]}
+        for line in journal.read_text().splitlines()
+        if "reconciliation blocked" in (r := json.loads(line)).get("MESSAGE", "")
+        and int(r["__REALTIME_TIMESTAMP"]) / 1e6 <= end
+    ]
+    return {
+        "historical_window": {
+            k: manifest[k] for k in ("start_epoch", "deadline_epoch", "duration_seconds")
+        },
+        "clock_replay": clock_replay(rows, clocks),
+        "post_window": post,
+        "account_timeout_warnings": warnings,
+        "clock_attempts": [r["payload"] for r in clocks],
+        "no_runtime_recording": True,
+    }
+
+
+def persistent_diagnostics(database: Path, begin: float, end: float) -> dict:
+    """Export existing read-only audit rows; omit task IDs and unknown request fields."""
+    import sqlite3
+
+    fields = {
+        "id",
+        "host",
+        "path",
+        "started_at",
+        "finished_at",
+        "elapsed_ms",
+        "phase_ms",
+        "reason",
+        "quota_priority",
+        "local_quota_weight",
+        "http_attempts",
+        "outcome",
+        "last_phase",
+        "error",
+        "status",
+        "pagination",
+    }
+    with sqlite3.connect(database.as_uri() + "?mode=ro", uri=True) as db:
+        rows = db.execute(
+            "SELECT at,kind,body FROM events WHERE at BETWEEN ? AND ? AND kind IN "
+            "('ACCOUNT_RECONCILE_DIAGNOSTIC','ACCOUNT_STATE_DIAGNOSTIC','BOOK_GAP') ORDER BY at",
+            (begin, end),
+        ).fetchall()
+    records = []
+    for at, kind, body in rows:
+        value = json.loads(body)
+        if kind == "BOOK_GAP":
+            value = {"sequence_gap_recorded": True}
+        else:
+            value = {
+                k: v
+                for k, v in value.items()
+                if k
+                in {
+                    "finished_at",
+                    "elapsed_ms",
+                    "lock_wait_ms",
+                    "request_deadline_s",
+                    "outcome",
+                    "error",
+                    "requests",
+                    "request_used_60s",
+                }
+            }
+            value["requests"] = [
+                {k: v for k, v in r.items() if k in fields} for r in value.get("requests", [])
+            ]
+        records.append({"at_epoch": at, "kind": kind, "body": value})
+    errors = [r for r in records if r["body"].get("outcome") == "error"]
+    requests = {q["id"]: q for r in records for q in r["body"].get("requests", [])}
+    return {
+        "begin_epoch": begin,
+        "end_epoch": end,
+        "records": records,
+        "outcomes": dict(
+            Counter(r["kind"] + ":" + r["body"].get("outcome", "event") for r in records)
+        ),
+        "request_failure_phases": dict(
+            Counter(
+                q.get("last_phase", "unknown")
+                for q in requests.values()
+                if q.get("outcome") == "error"
+            )
+        ),
+        "failed_reconcile_lock_wait_ms": describe([r["body"].get("lock_wait_ms") for r in errors]),
+        "failed_reconcile_quota_used": describe(
+            [r["body"].get("request_used_60s") for r in errors]
+        ),
+        "no_exchange_request": True,
+    }
 
 
 def production_metrics(rows: list[dict], manifest: dict) -> dict:
@@ -366,10 +707,18 @@ if __name__ == "__main__":
     parser.add_argument("--market", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--without-permission-reload", action="store_true")
+    parser.add_argument("--clock-reconnect-cutoff", type=float)
+    parser.add_argument("--journal", type=Path)
     args = parser.parse_args()
+    if args.clock_reconnect_cutoff is not None and args.journal is None:
+        parser.error("--clock-reconnect-cutoff requires --journal")
     args.output.write_text(
         json.dumps(
-            analyze(
+            clock_reconnect_analysis(
+                args.source, args.market, args.clock_reconnect_cutoff, args.journal
+            )
+            if args.clock_reconnect_cutoff is not None
+            else analyze(
                 args.source,
                 args.market,
                 permission_reload_required=not args.without_permission_reload,

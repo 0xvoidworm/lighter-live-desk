@@ -88,6 +88,7 @@ class Engine:
         self.reconcile_failed = True
         self.last_reconcile_diagnostic: dict = {}
         self.last_decision_inputs: dict = {}
+        self._last_data_guard: dict | None = None
         self.market_processing: dict[str, dict] = {}
         self.session_end = 0.0
         self.session_positions = 0
@@ -601,7 +602,23 @@ class Engine:
 
     def data_valid(self) -> bool:
         """Entry and strategy sampling: source age is an additional guard."""
-        return self.market_data_valid() and self.source_freshness()["passed"]
+        started_ns, started_wall_ns = time.monotonic_ns(), time.time_ns()
+        market_valid = self.market_data_valid()
+        source = self.source_freshness() if market_valid else None
+        valid = market_valid and source is not None and source["passed"]
+        # Output-only evidence. Every entry/dispatch call performs new checks; nothing
+        # reads this record to grant permission. Replace rather than mutate old decisions.
+        self._last_data_guard = {
+            "started_monotonic_ns": started_ns,
+            "started_wall_ns": started_wall_ns,
+            "finished_monotonic_ns": time.monotonic_ns(),
+            "finished_wall_ns": time.time_ns(),
+            "market_data_valid": market_valid,
+            "source_checked": source is not None,
+            "source_freshness": source,
+            "passed": valid,
+        }
+        return valid
 
     def record_source_clock(self, proof: dict) -> None:
         try:
@@ -664,12 +681,15 @@ class Engine:
 
     def decide(self) -> None:
         lighter, binance = self.books["lighter"].quote(), self.books["binance"].quote()
+        self._last_data_guard = None
         valid = self.data_valid()
+        guard = self._last_data_guard
         self.last_decision_inputs = {
             "evaluated_at": time.time(),
             "monotonic_ns": time.monotonic_ns(),
             "data_valid": valid,
-            "source_freshness": self.source_freshness(),
+            "data_guard": guard,
+            "source_freshness": guard["source_freshness"] if guard is not None else None,
             "fx": str(self.fx) if self.fx is not None else None,
             "fx_age_s": time.monotonic() - self.fx_at if self.fx is not None else None,
             "fx_observation": self.fx_monitor.status()["observation"],

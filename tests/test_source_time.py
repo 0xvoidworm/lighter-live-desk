@@ -12,7 +12,7 @@ import pytest
 from test_probe_only import engine as engine_fixture
 
 from lldesk.market import Feeds
-from lldesk.models import Stamp
+from lldesk.models import EngineState, Stamp
 from lldesk.source_time import BinanceSourceClock, ClockEvidence
 from lldesk.strategy import Decision, DeviationStrategy
 
@@ -84,6 +84,55 @@ def test_normal_and_nonzero_offset():
     assert r["passed"] and r["source_age_low_ms"] == pytest.approx(150, abs=0.001)
 
 
+@pytest.mark.parametrize(
+    "receipt,quote_mono,T,anchor_wall,anchor_mono,low,high,server,now,wall",
+    [
+        (
+            1791224747657173183,
+            110429896109037,
+            1791224747589,
+            1791224723792929977,
+            110406031864672,
+            -68.977709640625,
+            130.312670578125,
+            1791224723736,
+            110429898307950,
+            1791224747659373635,
+        ),
+        (
+            1791225492377586803,
+            111174616521244,
+            1791225492301,
+            1791225443825534797,
+            111126064469898,
+            -113.10077646875,
+            128.667426859375,
+            1791225443725,
+            111174656899302,
+            1791225492417965251,
+        ),
+    ],
+)
+def test_recorded_second_assessments_are_within_ten_microseconds_of_boundary(
+    receipt, quote_mono, T, anchor_wall, anchor_mono, low, high, server, now, wall
+):
+    clock = BinanceSourceClock(1500)
+    clock.evidence = ClockEvidence(
+        Stamp(receipt_ns=anchor_wall, monotonic_ns=anchor_mono),
+        low,
+        high,
+        server,
+        0,
+        {"synchronized": True},
+    )
+    stamp = Stamp(receipt_ns=receipt, monotonic_ns=quote_mono, exchange_ms=T)
+    recorded = clock.assess(stamp, now_ns=now, wall_ns=wall)
+    earlier_model = clock.assess(stamp, now_ns=now - 10_000, wall_ns=wall - 10_000)
+    assert recorded["passed"] and -1 <= recorded["source_age_low_ms"] < -0.99
+    assert earlier_model["reason"] == "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN"
+    # Earlier evaluation is a counterfactual boundary regression, not proof of its real time.
+
+
 def test_rest_interval_bound_and_unsync_revokes_old_proof():
     c = BinanceSourceClock(1500)
     start = Stamp(receipt_ns=WALL, monotonic_ns=MONO)
@@ -125,6 +174,62 @@ def restore_real_guards(engine):
         Stamp(), -30, 30, time.time_ns() // 1_000_000, 40, {"synchronized": True}
     )
     engine.strategy = DeviationStrategy()
+
+
+@pytest.mark.parametrize("initial_passed", [False, True])
+def test_decision_records_actual_guard_at_future_boundary(engine, monkeypatch, initial_passed):
+    restore_real_guards(engine)
+    engine.config.allow_live_orders = False
+    engine.state = EngineState.HALTED  # Isolate sampling from IDLE's separate fresh check.
+    anchor = Stamp()
+    stamp = replace(anchor, exchange_ms=anchor.receipt_ns // 1_000_000)
+    indicator = stamp.receipt_ns / 1e6 - stamp.exchange_ms
+    engine.books["binance"].stamp = stamp
+    engine.source_clock.evidence = ClockEvidence(
+        anchor, -indicator - 1.005, 100, stamp.exchange_ms, 80, {"synchronized": True}
+    )
+    real_assess = engine.source_clock.assess
+    shifts = [10_000, 0] if initial_passed else [0, 10_000]
+    calls = []
+
+    def boundary_assess(stamp):
+        shift = shifts[len(calls)]
+        result = real_assess(
+            stamp,
+            now_ns=anchor.monotonic_ns + shift,
+            wall_ns=anchor.receipt_ns + shift,
+        )
+        calls.append(result)
+        return result
+
+    monkeypatch.setattr(engine.source_clock, "assess", boundary_assess)
+    engine.decide()  # Real Engine.data_valid/market_data_valid and real clock assessment.
+    inputs = engine.last_decision_inputs
+    assert len(calls) == 1
+    assert inputs["data_valid"] is initial_passed
+    assert inputs["source_freshness"] is calls[0]
+    guard = inputs["data_guard"]
+    assert guard["passed"] is initial_passed and guard["market_data_valid"]
+    assert guard["source_checked"]
+    assert guard["started_monotonic_ns"] <= guard["finished_monotonic_ns"]
+    assert calls[0]["clock_proof_id"].endswith(str(anchor.monotonic_ns))
+    assert calls[0]["evaluated_wall_ns"] == anchor.receipt_ns + shifts[0]
+    assert engine.data_valid() is not initial_passed  # Fresh dispatch check, no cached grant.
+    assert len(calls) == 2
+    assert inputs["source_freshness"]["passed"] is initial_passed  # Record is immutable by reuse.
+    assert engine.account.sent == []  # Isolated fake transport; no signing/network.
+
+
+def test_decision_records_market_failure_without_inventing_source_assessment(engine):
+    restore_real_guards(engine)
+    engine.config.allow_live_orders = False
+    engine.books["lighter"].updated_ns = time.monotonic_ns() - 2_000_000_000
+    engine.decide()
+    guard = engine.last_decision_inputs["data_guard"]
+    assert not guard["passed"] and not guard["market_data_valid"]
+    assert not guard["source_checked"] and guard["source_freshness"] is None
+    assert engine.last_decision_inputs["source_freshness"] is None
+    assert engine.account.sent == []
 
 
 @pytest.mark.parametrize("condition", ["late", "missing", "future", "uncertain"])
