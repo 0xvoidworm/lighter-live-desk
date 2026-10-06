@@ -1,0 +1,94 @@
+{
+  "session_id": "a269dd7f-a216-4f21-b641-5bc909d5ba39",
+  "private_root": "/home/yuri/Workspace/outputs/lighter-strategy-session-20261006/a269dd7f-a216-4f21-b641-5bc909d5ba39",
+  "created_at_utc": "2026-10-06T09:28:31Z",
+  "runtime_commit": "24455ffc5a7f0e24cddb2213c9c333499b966061",
+  "runtime_pid": 363683,
+  "files": [
+    {
+      "path": "activation-rejected-stop-request.json",
+      "size_bytes": 342888,
+      "sha256": "851e32dd5427fc99ad17c873c4f5c2a0c2615c3ad465676b17df04fc66a88534"
+    },
+    {
+      "path": "analysis-output.txt",
+      "size_bytes": 4308,
+      "sha256": "5677fe6af5ba75568acabc51465b76bd6cc0fdab1301a7b9f09fd415729263ec"
+    },
+    {
+      "path": "authorization.json",
+      "size_bytes": 1719,
+      "sha256": "89cda86e1c503087fb9f84aed03a0ba512250bc5152aa92e38d0d38fadb7778d"
+    },
+    {
+      "path": "before-authorization.json",
+      "size_bytes": 357275,
+      "sha256": "6b08d0dbe058587af78f2fb972b8fef4ebb612273e5318fb3d0084df17c36683"
+    },
+    {
+      "path": "derive_preparation.py",
+      "size_bytes": 17057,
+      "sha256": "adacdcf3ca410d58d568425f0611c4d5c427634d5548787e45c787fbb58856b4"
+    },
+    {
+      "path": "final-latest.json",
+      "size_bytes": 341629,
+      "sha256": "850298d249cd3554c11a4ddc7f4a58d84132edecfc715b8f37a25adaa8e00f1f"
+    },
+    {
+      "path": "final-verification.json",
+      "size_bytes": 347122,
+      "sha256": "348437e7637a468d88ee2998424009cbb1e550433e5f6d9ea122d9cedc32b38b"
+    },
+    {
+      "path": "finished.json",
+      "size_bytes": 343520,
+      "sha256": "ada785b42a13627a810ce0715532144d7b9fa9551f4d093bc97d4084aae14bdb"
+    },
+    {
+      "path": "ledger.sqlite3",
+      "size_bytes": 39735296,
+      "sha256": "8e619ee307e2bdb8a7e32cf1f8bd54a40b46cc087ed89f163c317d0301e9fcd0"
+    },
+    {
+      "path": "ledger.sqlite3-shm",
+      "size_bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    },
+    {
+      "path": "ledger.sqlite3-wal",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/market-20261006-09-256d37ff798f4dc8a7d81959f8b7e6f1-0003.jsonl.gz",
+      "size_bytes": 13669546,
+      "sha256": "170ac8e9e4f6a562341e11a66c5200707fbba1ecef513f3cd88654bf64b71af5"
+    },
+    {
+      "path": "raw/transport-256d37ff798f4dc8a7d81959f8b7e6f1.jsonl.gz",
+      "size_bytes": 1099943,
+      "sha256": "042e4d5487f584ab578bc454d79c8b515608cd39d5eea67e33e45cc3331b4867"
+    },
+    {
+      "path": "snapshots.jsonl.gz",
+      "size_bytes": 27170362,
+      "sha256": "dc58b14c56114886e67cd3d9309173f3db8f16cbfd4cd4c6c8cd3a9e98c3a2f4"
+    },
+    {
+      "path": "started.json",
+      "size_bytes": 5418,
+      "sha256": "aa6c5ea4da513ff008ff37ead8de1ac72b5ad362f63087d7dae4877ca8e8077b"
+    },
+    {
+      "path": "summary.json",
+      "size_bytes": 23899,
+      "sha256": "d10ea925a1dbf6f48c72c49edbdad910c6347b154268393fcdcf83a70550d985"
+    },
+    {
+      "path": "supervisor.log",
+      "size_bytes": 1358,
+      "sha256": "32bccb02c5718e39fc40b06678732cbbbf11a7a99521863e1ad7ac98822e3914"
+    }
+  ]
+}

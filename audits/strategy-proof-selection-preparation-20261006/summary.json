@@ -1,0 +1,741 @@
+{
+  "session_id": "a269dd7f-a216-4f21-b641-5bc909d5ba39",
+  "outcome": "activation_rejected_no_active_session",
+  "runtime_commit": "24455ffc5a7f0e24cddb2213c9c333499b966061",
+  "runtime_pid": 363683,
+  "times": {
+    "authorized_at": 1791278098.1943963,
+    "preparation_deadline": 1791279298.1943963,
+    "closed_at": 1791278316.2473075,
+    "preparation_seconds": 218.0529112815857,
+    "activated_at": null,
+    "active_seconds": 0,
+    "finished_at_utc": "2026-10-06T09:18:36.683821+00:00"
+  },
+  "capture": {
+    "samples": 757,
+    "local_errors": 0,
+    "first_epoch": 1791278098.5930395,
+    "last_epoch": 1791278316.627588,
+    "integrated_seconds": 217.65426802635193,
+    "unknown_seconds": 0.39864325523376465,
+    "max_interval_seconds": 0.32930779457092285,
+    "max_wall_monotonic_difference_seconds": 0.045758043570922835
+  },
+  "preparation_readiness": {
+    "denominator_seconds": 218.0529112815857,
+    "ready_seconds": 160.9238121509552,
+    "ready_percent_total": 73.80035020176547,
+    "longest_ready_interval_seconds": 5.709576606750488,
+    "blocker_seconds_overlapping": {
+      "entry_request_reserve": 1.1426563262939453,
+      "basis_scale": 54.4257652759552,
+      "reconciliation_idle": 1.162034273147583
+    },
+    "mutually_exclusive_overlap_seconds": [
+      {
+        "blockers": [],
+        "seconds": 160.9238121509552
+      },
+      {
+        "blockers": [
+          "entry_request_reserve"
+        ],
+        "seconds": 1.1426563262939453
+      },
+      {
+        "blockers": [
+          "basis_scale"
+        ],
+        "seconds": 54.4257652759552
+      },
+      {
+        "blockers": [
+          "reconciliation_idle"
+        ],
+        "seconds": 1.162034273147583
+      }
+    ],
+    "source_rejection_seconds": {},
+    "basis_blocker_context_seconds": {
+      "preceding_data_guard_rejected": 54.4257652759552
+    },
+    "assessment_inconsistencies": 0
+  },
+  "active_readiness": {
+    "denominator_seconds": 0,
+    "ready_seconds": 0,
+    "percentage": null
+  },
+  "control_journal": [
+    {
+      "id": 16,
+      "kind": "LOAD_SESSION_PERMISSION",
+      "state": "DONE",
+      "requested_at": 1791278098.6220858,
+      "result": "permission dimuat; belum aktif, START_LIVE dan preflight tetap wajib"
+    },
+    {
+      "id": 17,
+      "kind": "DIAGNOSE_PREFLIGHT",
+      "state": "DONE",
+      "requested_at": 1791278098.9157355,
+      "result": "preflight diagnostik dijadwalkan; tanpa intent/signing/broadcast"
+    },
+    {
+      "id": 18,
+      "kind": "START_LIVE",
+      "state": "DONE",
+      "requested_at": 1791278100.3593273,
+      "result": "live diblok: data atau warm-up belum valid, kesegaran sumber Binance: SOURCE_TIMESTAMP_FUTURE_UNCERTAIN"
+    },
+    {
+      "id": 19,
+      "kind": "STOP_ENTRIES",
+      "state": "DONE",
+      "requested_at": 1791278316.2174013,
+      "result": "entry dihentikan"
+    }
+  ],
+  "processed_control_events": [
+    {
+      "id": 14914,
+      "at": 1791278098.643791,
+      "kind": "SESSION_PERMISSION_LOADED",
+      "body": {
+        "session_id": "a269dd7f-a216-4f21-b641-5bc909d5ba39",
+        "parameter_hash": "e998b3743ca8decd904b7a81d076a865e0b98c7bb46f02e39036023890b97842",
+        "authorization_expires_epoch": 1791279298.1943963,
+        "activated": false,
+        "entries_stopped": true,
+        "coverage_samples_preserved": 1721
+      }
+    },
+    {
+      "id": 14915,
+      "at": 1791278098.64699,
+      "kind": "COMMAND",
+      "body": {
+        "kind": "LOAD_SESSION_PERMISSION",
+        "result": "permission dimuat; belum aktif, START_LIVE dan preflight tetap wajib"
+      }
+    },
+    {
+      "id": 14916,
+      "at": 1791278098.9342175,
+      "kind": "COMMAND",
+      "body": {
+        "kind": "DIAGNOSE_PREFLIGHT",
+        "result": "preflight diagnostik dijadwalkan; tanpa intent/signing/broadcast"
+      }
+    },
+    {
+      "id": 14919,
+      "at": 1791278100.429376,
+      "kind": "COMMAND",
+      "body": {
+        "kind": "START_LIVE",
+        "result": "live diblok: data atau warm-up belum valid, kesegaran sumber Binance: SOURCE_TIMESTAMP_FUTURE_UNCERTAIN"
+      }
+    },
+    {
+      "id": 14938,
+      "at": 1791278316.25113,
+      "kind": "COMMAND",
+      "body": {
+        "kind": "STOP_ENTRIES",
+        "result": "entry dihentikan"
+      }
+    }
+  ],
+  "activation_diagnostic": {
+    "finished_at": 1791278100.1170166,
+    "elapsed_ms": 1176.5690359752625,
+    "attempt": "diagnostic:0c60a1c684894174bf2e95e3d0f04445",
+    "sendable": false,
+    "planned_read_cost": 8,
+    "actual_read_cost": 8,
+    "reserved_send_cost": 2,
+    "broadcast": false,
+    "ttl_seconds": 5.0,
+    "blockers": [],
+    "outcome": "complete_no_send",
+    "binding": "a9d7e3a1df5d096ef3cdef160f11b0d140af7d61eeb9814b8e5e5ca050f05a41",
+    "generation": 9
+  },
+  "decisions": {
+    "captured_unique_preparation_evaluations": 667,
+    "captured_valid_strategy_signals": 0,
+    "strategy_observations_in_active_session": 0,
+    "reason_counts_nonexclusive": {
+      "DEVIASI_KURANG": 499,
+      "BIAYA_DAN_BUFFER_MELEBIHI_PELUANG": 499,
+      "DATA_TIDAK_VALID": 168
+    },
+    "preparation_eligible_decisions": 491,
+    "data_guard_pass_counts": {
+      "True": 499,
+      "False": 168
+    },
+    "rejected_decision_source_reasons": {
+      "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 168
+    },
+    "all_preparation_residual_signed_bps": {
+      "count": 499,
+      "min": -1.0455745737920297,
+      "p05": 0.08505207128540195,
+      "p50": 0.7550674382901961,
+      "p95": 1.2265611961054685,
+      "p99": 1.2781882013924581,
+      "max": 1.8134217297787736
+    },
+    "eligible_preparation_residual_signed_bps": {
+      "count": 491,
+      "min": -1.0455745737920297,
+      "p05": 0.08291192031123745,
+      "p50": 0.7550674382901961,
+      "p95": 1.2289750887298514,
+      "p99": 1.2782258660515189,
+      "max": 1.8134217297787736
+    },
+    "eligible_preparation_residual_absolute_bps": {
+      "count": 491,
+      "min": 0.013827872598604588,
+      "p05": 0.11965631980083333,
+      "p50": 0.7595764988181223,
+      "p95": 1.2289750887298514,
+      "p99": 1.2782258660515189,
+      "max": 1.8134217297787736
+    },
+    "eligible_model_edge_bps": {
+      "count": 491,
+      "min": -5.717582971066048,
+      "p05": -5.25858999604981,
+      "p50": -4.396096974799742,
+      "p95": -3.8070313190177067,
+      "p99": -3.7334516439293273,
+      "max": -3.19820806365865
+    },
+    "estimated_spread_bps": {
+      "count": 491,
+      "min": 0.011629117216268437,
+      "p05": 0.011630118052787481,
+      "p50": 0.034903506348075215,
+      "p95": 0.7677623566210059,
+      "p99": 0.8748835716611919,
+      "max": 1.1634644247482844
+    },
+    "estimated_minimum_size_impact_bps": {
+      "count": 491,
+      "min": 0.0,
+      "p05": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.009791187399084175,
+      "max": 0.14737558979323204
+    },
+    "threshold_bps": {
+      "count": 491,
+      "min": 8.0,
+      "p05": 8.0,
+      "p50": 8.0,
+      "p95": 8.0,
+      "p99": 8.0,
+      "max": 8.0
+    },
+    "assumed_buffer_bps": 5,
+    "positive_estimated_model_edges": 0
+  },
+  "execution": {
+    "activation_commands": 1,
+    "successful_activations": 0,
+    "candidate_entry_preflights": 0,
+    "attempts": 0,
+    "broadcasts": 0,
+    "new_intents": 0,
+    "fills": 0,
+    "completed_positions": 0,
+    "protections": 0,
+    "closes": 0,
+    "opportunities_lost_during_candidate_preflight": 0,
+    "slippage_fill_bps": null,
+    "new_trade_fee_exact": null
+  },
+  "operational": {
+    "component_age_max_seconds": {
+      "account": 12.640321649989346,
+      "active_orders": 12.74604321201332
+    },
+    "rolling_budget_used_peak": 24,
+    "unconsumed_reservation_peak": 9,
+    "transaction_capacity_min": 29,
+    "final_reserved": 0,
+    "queue_backlog_max": 1,
+    "loop_lag_ms": {
+      "count": 755,
+      "min": 0.0,
+      "p05": 0.0,
+      "p50": 0.0,
+      "p95": 10.5,
+      "p99": 12.192000000000007,
+      "max": 16.9
+    },
+    "source_age_high_ms": {
+      "count": 755,
+      "min": 261.0822488346,
+      "p05": 274.2225147768225,
+      "p50": 348.658585314325,
+      "p95": 442.00601444208996,
+      "p99": 470.78702867387204,
+      "max": 593.351980306175
+    },
+    "source_age_low_ms": {
+      "count": 755,
+      "min": 0.7290401913749918,
+      "p05": 7.896068330594999,
+      "p50": 58.3692682657,
+      "p95": 113.7687835531175,
+      "p99": 138.92893098653818,
+      "max": 254.72810485049996
+    },
+    "clock_uncertainty_ms": {
+      "count": 755,
+      "min": 126.4124675564625,
+      "p05": 127.52521043919249,
+      "p50": 139.943911350325,
+      "p95": 178.8383896706375,
+      "p99": 179.70986873867952,
+      "max": 179.92448304858752
+    },
+    "latest_proof_capture_counts": {
+      "1791278083078:163765380638161": 155,
+      "1791278142979:163825283184410": 208,
+      "1791278203012:163885315347542": 209,
+      "1791278262996:163945299574858": 183
+    },
+    "selected_proof_capture_counts": {
+      "1791278083078:163765380638161": 155,
+      "1791278142979:163825283184410": 208,
+      "1791278203012:163885315347542": 209,
+      "1791278262996:163945299574858": 183
+    },
+    "selection_capture_counts": {
+      "latest_fallback": 755
+    },
+    "request_counts": [
+      {
+        "path": "/api/v1/deposit/history",
+        "reason": "account_reconciliation",
+        "outcome": "ok",
+        "count": 4
+      },
+      {
+        "path": "/api/v1/withdraw/history",
+        "reason": "account_reconciliation",
+        "outcome": "ok",
+        "count": 4
+      },
+      {
+        "path": "/api/v1/transfer/history",
+        "reason": "account_reconciliation",
+        "outcome": "ok",
+        "count": 2
+      },
+      {
+        "path": "/api/v1/accountActiveOrders",
+        "reason": "account_reconciliation",
+        "outcome": "ok",
+        "count": 2
+      },
+      {
+        "path": "/api/v1/account",
+        "reason": "account_reconciliation",
+        "outcome": "ok",
+        "count": 2
+      },
+      {
+        "path": "/api/v1/trades",
+        "reason": "account_reconciliation",
+        "outcome": "ok",
+        "count": 2
+      },
+      {
+        "path": "/api/v1/accountActiveOrders",
+        "reason": "account_state_refresh",
+        "outcome": "ok",
+        "count": 16
+      },
+      {
+        "path": "/api/v1/account",
+        "reason": "account_state_refresh",
+        "outcome": "ok",
+        "count": 16
+      }
+    ],
+    "raw_feed_counts": {
+      "lighter:order_book": 3580,
+      "binance:depthUpdate": 2137,
+      "lighter:ticker": 4608,
+      "lighter:trade": 780,
+      "binance:aggTrade": 1547,
+      "binance:fx": 109
+    },
+    "transport_event_counts": [
+      {
+        "channel": "global",
+        "event": "pulse",
+        "count": 41
+      },
+      {
+        "channel": "binance_market",
+        "event": "heartbeat_callback",
+        "count": 11
+      },
+      {
+        "channel": "binance_public",
+        "event": "heartbeat_callback",
+        "count": 11
+      },
+      {
+        "channel": "lighter_account",
+        "event": "heartbeat_callback",
+        "count": 7
+      },
+      {
+        "channel": "lighter_account",
+        "event": "control_send_started",
+        "count": 7
+      },
+      {
+        "channel": "lighter_account",
+        "event": "control_send_completed",
+        "count": 7
+      },
+      {
+        "channel": "lighter_account",
+        "event": "pong_deadline",
+        "count": 7
+      },
+      {
+        "channel": "lighter_account",
+        "event": "control_frame",
+        "count": 8
+      },
+      {
+        "channel": "lighter_account",
+        "event": "pong_observed",
+        "count": 7
+      },
+      {
+        "channel": "lighter_account",
+        "event": "heartbeat_schedule",
+        "count": 8
+      },
+      {
+        "channel": "global",
+        "event": "loop_timer_lag",
+        "count": 48
+      },
+      {
+        "channel": "lighter",
+        "event": "heartbeat_callback",
+        "count": 7
+      },
+      {
+        "channel": "lighter",
+        "event": "control_send_started",
+        "count": 7
+      },
+      {
+        "channel": "lighter",
+        "event": "control_send_completed",
+        "count": 7
+      },
+      {
+        "channel": "lighter",
+        "event": "pong_deadline",
+        "count": 7
+      },
+      {
+        "channel": "lighter",
+        "event": "control_frame",
+        "count": 7
+      },
+      {
+        "channel": "lighter",
+        "event": "pong_observed",
+        "count": 7
+      },
+      {
+        "channel": "lighter",
+        "event": "heartbeat_schedule",
+        "count": 7
+      },
+      {
+        "channel": "global",
+        "event": "source_clock",
+        "count": 3
+      },
+      {
+        "channel": "binance_market",
+        "event": "control_frame",
+        "count": 1
+      },
+      {
+        "channel": "binance_market",
+        "event": "control_send_started",
+        "count": 1
+      },
+      {
+        "channel": "binance_market",
+        "event": "control_send_completed",
+        "count": 1
+      },
+      {
+        "channel": "lighter_account",
+        "event": "close_initiated",
+        "count": 1
+      },
+      {
+        "channel": "lighter_account",
+        "event": "close_followup",
+        "count": 5
+      },
+      {
+        "channel": "lighter_account",
+        "event": "handshake_started",
+        "count": 1
+      },
+      {
+        "channel": "lighter_account",
+        "event": "handshake_completed",
+        "count": 1
+      },
+      {
+        "channel": "lighter_account",
+        "event": "subscriptions_sent",
+        "count": 1
+      },
+      {
+        "channel": "binance_public",
+        "event": "control_frame",
+        "count": 1
+      },
+      {
+        "channel": "binance_public",
+        "event": "control_send_started",
+        "count": 1
+      },
+      {
+        "channel": "binance_public",
+        "event": "control_send_completed",
+        "count": 1
+      }
+    ],
+    "frozen_raw_ranges": {
+      "market-20261006-09-256d37ff798f4dc8a7d81959f8b7e6f1-0003.jsonl.gz": {
+        "first_epoch": 1791277200.0233777,
+        "last_epoch": 1791278442.6300552,
+        "contains_record_after_window": true
+      },
+      "transport-256d37ff798f4dc8a7d81959f8b7e6f1.jsonl.gz": {
+        "first_epoch": 1791270822.8039994,
+        "last_epoch": 1791278442.829891,
+        "contains_record_after_window": true
+      }
+    },
+    "gzip_notes": {
+      "market-20261006-09-256d37ff798f4dc8a7d81959f8b7e6f1-0003.jsonl.gz": "live-file frozen byte prefix; final gzip trailer absent; complete JSON lines only",
+      "transport-256d37ff798f4dc8a7d81959f8b7e6f1.jsonl.gz": "live-file frozen byte prefix; final gzip trailer absent; complete JSON lines only"
+    }
+  },
+  "final": {
+    "state": "IDLE",
+    "allow_live_orders": false,
+    "entries_stopped": true,
+    "loaded_uuid": null,
+    "session_status": "closed",
+    "equity_usdc": "49.430756",
+    "collateral_usdc": "49.430756",
+    "position_quantity": "0.00000",
+    "other_positions": 0,
+    "active_orders": 0,
+    "pending_orders": 0,
+    "unresolved_intents": 0,
+    "cash": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "history_audit": {
+      "complete": true,
+      "required": false,
+      "reason": "complete audit verified; idle periodic deadline 120s",
+      "idle_interval_seconds": 120.0,
+      "age_seconds": 95.15563380299136
+    },
+    "historical_exact_null_fills": 4,
+    "fee_reports": {
+      "covered_unknown_fills": 4,
+      "all_unknown_fills_covered": true,
+      "reported_fee_total_usdc": "0.0000",
+      "reports": [
+        {
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "captured_at_utc": "2026-10-04T14:06:12.750138+00:00",
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663"
+        },
+        {
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "captured_at_utc": "2026-10-04T14:06:12.750084+00:00",
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663"
+        },
+        {
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "captured_at_utc": "2026-10-04T14:06:12.750004+00:00",
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663"
+        },
+        {
+          "reported_fee_usdc": "0.0000",
+          "precision_decimals": 4,
+          "source": "official_account_export",
+          "captured_at_utc": "2026-10-04T14:06:12.749855+00:00",
+          "evidence_sha256": "f786875c5e15705556b3d2b2ba10f9344e3f1c8aeb4c206692d01c8c1226d663"
+        }
+      ],
+      "exact_fee_established": false
+    }
+  },
+  "source_hashes_unchanged": true,
+  "source_hashes": {
+    "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+    "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+    "src/lldesk/models.py": "605e3ceb2a3c7f93dc857b5b9639b418a4eb0b1ca6afc1aad722425074d60ea5",
+    "src/lldesk/db.py": "7af9e68fc32dc4628a65eab24e1e0a5d812d3b62c19356744187999e623814df",
+    "src/lldesk/market.py": "e922d6c202c5652eda7645cf81a1525432dad23838b0b13c0f6178ca6de1d963",
+    "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+    "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c",
+    "src/lldesk/account.py": "7885d0f98fdcd02c61121f215d998705c8efa725c073893cba420c9ada41e1a9",
+    "src/lldesk/engine.py": "d453de43b180ac44160ae1274675713f65c0e5e42d055896f16d304fd20bfe77",
+    "src/lldesk/api.py": "0b889f54fd750ece866738181a2b5dfbe924ab7895d8390632f948d67bf4148b",
+    "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+    "src/lldesk/network.py": "23e9bcb29bcf11c798e024564824de60751eca7b1793672ceb6494f4f3b4dc67",
+    "src/lldesk/session.py": "d8a2f232e4c17f6c19d96c7d63d9e7861dea49346f632b51c5bf59d3efc5bbf2",
+    "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+    "src/lldesk/transport_trace.py": "642b82548b32556096ce1b4aedbe23b1375ab3aef539f9ab84172df1ba645978",
+    "src/lldesk/diagnostics.py": "82c76d515e542d9f05c8033879e3c8d2efbb2d424136e3af196c18abf2bfd3f3",
+    "src/lldesk/audit_scheduler.py": "95e073a99eac38fb028d496bbb9efffba5121aeb3b36ee7eed3795b02c8638f4",
+    "src/lldesk/preflight.py": "4bbf6c05655fb0e8bebf45475c3847bd13863f0faf22eaec5d066e60b8f6a2e3",
+    "src/lldesk/fx.py": "e477e46b38f097284b6b4091862ff6e5b7f8b4b1ba9ecc1d5fdeadb04ae6822e",
+    "src/lldesk/source_time.py": "d30f6fb1ff5a9c07f82683234c99918fab48ec4d1ceb862bfa0e396445a9ba02",
+    "src/lldesk/websocket_trace.py": "1789359a66098374652e26ebb80d80d2d381714b3940b48e11e2cb2bda12d6dd",
+    "src/lldesk/clock_trace.py": "fbf398f8cc5748b9302a63aa1dd298c793f429b4c46fa144036e5eb769f0439c"
+  },
+  "frozen_config": {
+    "schema_version": 1,
+    "mode": "live_capable",
+    "binance_dns_mode": "doh",
+    "account_index": 751745,
+    "expected_account_type_code": 0,
+    "expected_account_trading_mode": 1,
+    "expected_margin_mode": 0,
+    "expected_initial_margin_fraction": "100.00",
+    "account_type": "standard",
+    "market_symbol": "BTC",
+    "max_funding_usd": "50",
+    "max_entry_notional_usd": "25",
+    "max_trade_risk_usd": "0.50",
+    "daily_loss_limit_usd": "5",
+    "max_total_loss_usd": "50",
+    "max_effective_leverage": "1",
+    "exit_reserve_usd": "2",
+    "max_quote_basis_bps": "10",
+    "max_data_age_ms": 1500,
+    "warmup_seconds": 600,
+    "max_hold_seconds": 180,
+    "session_seconds": 1800,
+    "max_session_positions": 3,
+    "allow_live_orders": true,
+    "live_entry_scope": "strategy",
+    "probe_accept_reported_fees": false,
+    "session_accept_reported_fees": true,
+    "source_funding_spent_usd": "50"
+  },
+  "market_rules": {
+    "min_base_amount": "0.00007",
+    "min_quote_amount": "10.000000",
+    "size_decimals": 5,
+    "price_decimals": 1,
+    "taker_fee": "0.0000"
+  },
+  "final_minimum_size_preview": {
+    "buy": {
+      "quantity": "0.00012",
+      "reference_price": "85954.3",
+      "limit_price": "85971.5",
+      "notional": "10.316580",
+      "planned_risk": "0.0381713460",
+      "local_vwap": "85954.3",
+      "binance_comparator_vwap": "85929.90",
+      "binance_comparator_vwap_usdc": "85917.01244813278008298755187",
+      "fx_conversion_side": "buy_USDC_at_ask",
+      "impact_bps": "0",
+      "within_ioc_limit_qty": "22.15995",
+      "fillable_within_limit": true,
+      "metadata_fee_bps": "0.0000",
+      "individual_fee_exact": null
+    },
+    "sell": {
+      "quantity": "0.00012",
+      "reference_price": "85954.2",
+      "limit_price": "85937.0",
+      "notional": "10.312440",
+      "planned_risk": "0.0381560280",
+      "local_vwap": "85954.2",
+      "binance_comparator_vwap": "85930.00",
+      "binance_comparator_vwap_usdc": "85917.97148399224108624792529",
+      "fx_conversion_side": "sell_USDC_at_bid",
+      "impact_bps": "0",
+      "within_ioc_limit_qty": "10.31026",
+      "fillable_within_limit": true,
+      "metadata_fee_bps": "0.0000",
+      "individual_fee_exact": null
+    }
+  },
+  "method": "Offline derivation from existing 4Hz local status capture and SQLite journal. Preparation clipped to persistent authorization/closure; active denominator zero. Left-hold intervals <=2s, unknown edges/gaps excluded from ready time. Unique decisions keyed by recorded monotonic evaluation ID. Eligible preparation residual requires real recorded data guard passed, technical diagnostic ready, and matching quote snapshot. Diagnostic readiness never authorizes entry; no future proof/recomputed historical guards. Model abs(residual)-Lighter spread-minimum size estimated impact-5bps includes spread once; not realized profit. Frozen raw live prefixes retain full complete JSON records without inventing missing trailer/data.",
+  "latest_verification": {
+    "at": 1791278911.1973712,
+    "engine_pid": 363683,
+    "state": "IDLE",
+    "equity_usdc": "49.430756",
+    "account_component_ages_seconds": {
+      "account": 8.385248772014165,
+      "active_orders": 8.496986568003194
+    },
+    "account_identity_index": 751745,
+    "margin_mode": 0,
+    "initial_margin_fraction": "100.00",
+    "history_audit_complete": true,
+    "cash_audit": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "global_positions": 0,
+    "global_orders": 0,
+    "unresolved_intents": 0,
+    "order_permission": false,
+    "loaded_permission": null,
+    "session_status": "closed",
+    "source_hashes_match_baseline": true,
+    "config_disarmed_otherwise_unchanged": true
+  }
+}
