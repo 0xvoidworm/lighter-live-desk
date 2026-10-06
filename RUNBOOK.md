@@ -63,6 +63,29 @@ HTTP429/418 mematuhi Retry-After. Request clock terpisah dari bucket Lighter40/5
 actual Binance X-MBX-USED-WEIGHT-1M dicatat termasuk traffic futures lain.
 Guard gap5s, coverage600s/480, FX, threshold8bps, buffer5bps dan risiko tidak berubah.
 
+## Pemilihan proof dan pencatatan clock
+
+Kebijakan proof clock (disetujui 6 Oktober): latest accepted selalu menjadi
+fallback. Cache maksimal tiga proof accepted hanya dalam RAM; restart unverified.
+Satu assessment memakai satu pasangan wall/monotonic. Proof lama dipilih hanya
+ketika masih valid dengan anchor/TTL/drift asli dan interval setelah drift
+tercakup seluruhnya dalam latest yang valid. Interval sama memakai latest;
+interval sempit tetapi bergeser tidak cukup. Pemilihan tidak melihat harga,
+sinyal atau hasil source guard. Latest invalid tidak dapat dilewati melalui cache.
+Unsynced host, HTTP418/429, global wall-step dan kegagalan evidence mengosongkan
+seluruh cache. Timestamp quote invalid hanya menolak quote; exit tetap independen.
+
+Request kalibrasi tetap60s/timeout2s/keepalive default15s. Trace pasif merekam
+queue/reuse/DNS/create/header/body/decode serta serverTime yang berhasil dibaca,
+termasuk proof ditolak. Connection-create mencakup TCP+TLS; fase TLS tersendiri
+tetap unknown. Invokasi request dan hook header bukan bukti waktu wire/fill.
+Clock evidence baru berada sebagai event `source_clock` dalam
+`state/transport/transport-<run_id>.jsonl.gz`, melalui antrean512/writer thread
+yang sudah digunakan telemetry. Overflow/write failure membatalkan proof dan
+preflight; tidak melakukan disk I/O clock pada loop feed/risk. Assessment actual
+menyimpan latest/selected ID, bounds, drift, usia dan alasan; dispatch menilai
+ulang, tidak menggunakan cache hasil diagnostik sebagai izin.
+
 ## Pemuatan izin sesi tanpa restart
 
 `LOAD_SESSION_PERMISSION` melalui command API/CSRF lokal memuat izin yang

@@ -80,6 +80,7 @@ class Engine:
         self.market_record_max_ns = 0
         self.strategy = DeviationStrategy(config.warmup_seconds)
         self.source_clock = BinanceSourceClock(config.max_data_age_ms)
+        self.ws_telemetry.clock_failure = self.clock_recording_failed
         self.exit_basis_bps: Decimal | None = None
         self.account: LighterAccount | None = None
         self.account_snapshot: AccountSnapshot | None = None
@@ -672,12 +673,16 @@ class Engine:
 
     def record_source_clock(self, proof: dict) -> None:
         try:
-            self.recorder.write(MarketEvent("binance", "source_clock", proof, Stamp()))
+            # Bounded queue, existing writer thread; no disk I/O on feed/risk loop.
+            self.ws_telemetry.event("source_clock", payload=proof)
         except Exception:
-            self.journal_ok = False
-            self.source_clock.evidence = None
-            self.invalidate_preflight("bukti clock tidak dapat disimpan")
+            self.clock_recording_failed()
             raise
+
+    def clock_recording_failed(self) -> None:
+        self.journal_ok = False
+        self.source_clock.invalidate("evidence_record_failed")
+        self.invalidate_preflight("bukti clock tidak dapat disimpan")
 
     def idle_valid(self) -> bool:
         """Flat monitoring; closed/disarmed sessions display feed readiness separately."""

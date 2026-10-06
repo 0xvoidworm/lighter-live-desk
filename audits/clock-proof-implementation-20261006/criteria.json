@@ -1,0 +1,26 @@
+{
+  "authorization": "one controlled load and one no-order 1200-second observation",
+  "window_seconds": 1200,
+  "includes": ["bootstrap", "warm-up", "blocked intervals", "transport interruptions"],
+  "source": "existing engine telemetry, routine clock and account requests only",
+  "additional_exchange_requests": 0,
+  "must_hold": [
+    "latest fallback retained; selected older interval valid and fully contained",
+    "latest invalid is never bypassed by cache",
+    "decision evidence uses the assessment that actually determined its guard",
+    "order OFF, session closed, no new session permission or entry attempts",
+    "position, all orders and intent remain zero",
+    "clock record queue bounded; dropped/write-error counts observable"
+  ],
+  "metrics": [
+    "latest and selected proof identity, age, drift-expanded bounds and selection reason",
+    "source rejection reason durations and expiry",
+    "coverage/warm-up and technical readiness with blocker overlap",
+    "transport disconnect, bootstrap and recovery stages",
+    "pool/reuse/DNS/create/headers/body/decode timing and calibration validation",
+    "account component ages, quota and recorder overhead"
+  ],
+  "abort_and_controlled_rollback": "proven safety regression; do not extend or repeat recording",
+  "success_not_required": ["100 percent readiness", "no reconnect ever", "same recovery as historical offline 37.43 seconds"],
+  "historical_replay": "counterfactual only; does not recreate coverage or prove live eligibility"
+}

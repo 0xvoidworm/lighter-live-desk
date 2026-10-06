@@ -1,0 +1,23 @@
+{
+  "scope": "offline counterfactual, not runtime/coverage/live readiness",
+  "baseline_validator_sha256": "5eb035308042dd7e71567b9c41cc6f5daf7bcd1069e784c09d1fbf6ef79a97b7",
+  "historical_analyzer_sha256": "bb8aca03ae2a671b26b39f3d5c565600c5941daf1caeb1d49da392226b2eb236",
+  "historical_files_verified": 16,
+  "baseline_replay_mismatches": 0,
+  "new_replay_baseline_mismatches": 0,
+  "samples": 6666,
+  "selected_old_samples": 1107,
+  "latest_pass_selection_reject_samples": 0,
+  "baseline_reject_selection_pass_seconds": 37.432249307632446,
+  "baseline_pass_selection_reject_seconds": 0,
+  "source_reason_seconds": {
+    "baseline:SOURCE_FRESH_WITH_CLOCK_BOUND": 1513.0228192806244,
+    "production_policy_offline:SOURCE_FRESH_WITH_CLOCK_BOUND": 1550.4550685882568,
+    "baseline:SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 226.83714962005615,
+    "production_policy_offline:SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 189.4049003124237,
+    "baseline:SOURCE_CLOCK_EVIDENCE_EXPIRED": 60.14003109931946,
+    "production_policy_offline:SOURCE_CLOCK_EVIDENCE_EXPIRED": 60.14003109931946
+  },
+  "coverage_alternative": null,
+  "limits": "Original TTL, drift, anchors and timestamp pairs; only already available evidence, max three accepted proofs. No synthesized strategy samples/gap removal."
+}

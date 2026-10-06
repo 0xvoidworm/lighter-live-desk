@@ -1,0 +1,11 @@
+{
+  "production_suite": {"command": ".venv/bin/pytest -q", "passed": 458, "warnings": 3, "duration_seconds": 35.74},
+  "ruff": {"command": ".venv/bin/ruff check src tests scripts", "result": "all checks passed"},
+  "mypy": {"command": ".venv/bin/mypy", "result": "no issues in 22 source files"},
+  "transport_tests": "aiohttp 3.14.3 localhost HTTP only; no exchange, signer or broadcast",
+  "baseline_validator_sha256": "5eb035308042dd7e71567b9c41cc6f5daf7bcd1069e784c09d1fbf6ef79a97b7",
+  "replay": "16 original private files hash-verified, 6666 assessment comparisons, zero baseline mismatches",
+  "policy_invariant": "same input latest-pass remains pass under valid contained candidate selection",
+  "risk_independence": "production regressions retain stop, deadline and close when entry source guard fails",
+  "known_warnings": "existing SDK websockets legacy and Starlette testclient deprecations"
+}

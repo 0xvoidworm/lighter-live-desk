@@ -110,6 +110,8 @@ class WebsocketTrace:
         self.stop_event = threading.Event()
         self.thread: threading.Thread | None = None
         self.context_provider: Any = None
+        self.clock_failure: Any = None
+        self.writer_loop: asyncio.AbstractEventLoop | None = None
 
     def connect(self, channel: str, url: str) -> ConnectionEvidence:
         self.connection_sequence += 1
@@ -152,6 +154,8 @@ class WebsocketTrace:
             self.peak_queue = max(self.peak_queue, self.queue.qsize())
         except queue.Full:
             self.dropped += 1
+            if kind == "source_clock":
+                raise RuntimeError("bounded clock evidence queue overflow") from None
         self.hook_ns += time.monotonic_ns() - started
 
     def status(self) -> dict:
@@ -199,12 +203,20 @@ class WebsocketTrace:
                     except Exception:
                         self.write_errors += 1
                         self.dropped += 1
+                        if row["kind"] == "source_clock":
+                            self._clock_write_failed()
                     finally:
                         self.queue.task_done()
         except Exception:
             self.write_errors += 1
+            self._clock_write_failed()
+
+    def _clock_write_failed(self) -> None:
+        if self.clock_failure is not None and self.writer_loop is not None:
+            self.writer_loop.call_soon_threadsafe(self.clock_failure)
 
     async def run(self, context) -> None:
+        self.writer_loop = asyncio.get_running_loop()
         self.thread = threading.Thread(target=self._writer, name="ws-telemetry", daemon=True)
         self.thread.start()
         due, pulse = time.monotonic() + 0.5, time.monotonic() + 5
