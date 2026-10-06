@@ -1,0 +1,450 @@
+{
+  "production_count": 8823,
+  "comparator_count": 8820,
+  "pairs": 8820,
+  "ambiguous_common_keys": 0,
+  "identity_payload_mismatch_keys": 0,
+  "production_unmatched_keys": 3,
+  "comparator_unmatched_keys": 0,
+  "production_minus_comparator_ms": {
+    "count": 8820,
+    "min": -783.184915,
+    "p50": 0.0235165,
+    "p95": 86.56033549999981,
+    "max": 1326.202507
+  },
+  "absolute_receipt_difference_ms": {
+    "count": 8820,
+    "min": 1e-06,
+    "p50": 1.248104,
+    "p95": 158.21922119999934,
+    "max": 1326.202507
+  },
+  "categories": {
+    "uncertain_or_guard_rejected": 8036,
+    "both_source_valid": 777,
+    "comparator_only_certain_late": 7
+  },
+  "production": {
+    "raw_receipt_minus_E_ms": {
+      "count": 8823,
+      "min": 64.825927734375,
+      "p50": 69.158935546875,
+      "p95": 208.3734130859375,
+      "max": 1543.296630859375
+    },
+    "corrected_source_age_lower_ms": {
+      "count": 8823,
+      "min": -86.93567654415,
+      "p50": -18.129354215450007,
+      "p95": 112.53588071552728,
+      "max": 1455.96229889595
+    },
+    "corrected_source_age_upper_ms": {
+      "count": 8823,
+      "min": 104.72503115377499,
+      "p50": 114.498278307875,
+      "p95": 253.53715499179992,
+      "max": 1594.0118221978
+    },
+    "source_reasons": {
+      "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 6875,
+      "SOURCE_FRESH_WITH_CLOCK_BOUND": 1945,
+      "SOURCE_DATA_LATE": 3
+    },
+    "certain_late_runs": []
+  },
+  "comparator": {
+    "raw_receipt_minus_E_ms": {
+      "count": 8820,
+      "min": 65.540771484375,
+      "p50": 67.7532958984375,
+      "p95": 198.88234863281247,
+      "max": 1895.552490234375
+    },
+    "corrected_source_age_lower_ms": {
+      "count": 8820,
+      "min": -87.26676334620001,
+      "p50": -20.2562484540625,
+      "p95": 100.87815277796236,
+      "max": 1813.162729984575
+    },
+    "corrected_source_age_upper_ms": {
+      "count": 8820,
+      "min": 105.30166353995,
+      "p50": 112.6753689885375,
+      "p95": 243.40898589611587,
+      "max": 1938.9512836873
+    },
+    "source_reasons": {
+      "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 7640,
+      "SOURCE_FRESH_WITH_CLOCK_BOUND": 1169,
+      "SOURCE_DATA_LATE": 11
+    },
+    "certain_late_runs": [
+      {
+        "count": 2,
+        "start_receipt_monotonic_ns": 185966407047880,
+        "end_receipt_monotonic_ns": 185966586858557,
+        "receipt_span_s": 0.179810677,
+        "max_source_age_lower_ms": 1587.587474854925,
+        "max_source_age_upper_ms": 1713.26970287945
+      },
+      {
+        "count": 5,
+        "start_receipt_monotonic_ns": 185966851108705,
+        "end_receipt_monotonic_ns": 185967207813282,
+        "receipt_span_s": 0.356704577,
+        "max_source_age_lower_ms": 1813.162729984575,
+        "max_source_age_upper_ms": 1938.9512836873
+      }
+    ]
+  },
+  "stages": {
+    "production_receipt_to_enqueue_ms": {
+      "count": 8823,
+      "min": 0.012181,
+      "p50": 0.083524,
+      "p95": 0.2879737999999998,
+      "max": 34.276096
+    },
+    "production_enqueue_to_record_ms": {
+      "count": 8823,
+      "min": 0.023348,
+      "p50": 0.090791,
+      "p95": 1.011860199999998,
+      "max": 62.354418
+    },
+    "comparator_library_dequeue_to_receipt_ms": {
+      "count": 8820,
+      "min": 0.00219,
+      "p50": 0.01155,
+      "p95": 0.026097949999999984,
+      "max": 0.808257
+    },
+    "comparator_last_transport_to_receipt_ms": {
+      "count": 8820,
+      "min": 0.023639,
+      "p50": 0.0926025,
+      "p95": 0.20377384999999998,
+      "max": 15.275657
+    },
+    "production_pulse_count": 170,
+    "production_pulse_queue_max": 46,
+    "production_feed_handshake_events": [],
+    "production_sequence_pu_mismatches": 0,
+    "production_recorder_start": {
+      "events_emitted": 3822,
+      "events_written": 3821,
+      "events_dropped": 0,
+      "write_errors": 0,
+      "queue_size": 1,
+      "queue_capacity": 512,
+      "peak_queue_size": 7,
+      "bytes_written": 12495533,
+      "hook_total_ms": 3310.820113,
+      "max_write_ms": 13.02625,
+      "max_queue_age_ms": 11.107728,
+      "max_loop_lag_ms": 111.336294
+    },
+    "production_recorder_end": {
+      "events_emitted": 4779,
+      "events_written": 4779,
+      "events_dropped": 0,
+      "write_errors": 0,
+      "queue_size": 0,
+      "queue_capacity": 512,
+      "peak_queue_size": 7,
+      "bytes_written": 16112635,
+      "hook_total_ms": 4054.655527,
+      "max_write_ms": 13.02625,
+      "max_queue_age_ms": 11.107728,
+      "max_loop_lag_ms": 112.627618
+    },
+    "comparator_recorder": {
+      "events_emitted": 9059,
+      "events_written": 9059,
+      "events_dropped": 0,
+      "write_errors": 0,
+      "queue_size": 0,
+      "queue_capacity": 512,
+      "peak_queue_size": 5,
+      "bytes_written": 60113515,
+      "hook_total_ms": 560.412271,
+      "max_write_ms": 73.35897,
+      "max_queue_age_ms": 46.574113,
+      "max_loop_lag_ms": 3.550562
+    },
+    "comparator_processing_average_ms": 0.15623019954648526,
+    "comparator_tcp_info_rtt_us": {
+      "count": 169,
+      "min": 87316,
+      "p50": 92344.0,
+      "p95": 96088.0,
+      "max": 96088
+    },
+    "comparator_tcp_info_total_retrans_range": [
+      0,
+      0
+    ],
+    "production_loop_timer_lag_over_25ms_count": 228,
+    "production_loop_timer_lag_max_in_recorded_events_ms": 112.627618
+  },
+  "window": {
+    "started_utc": "2026-10-06T15:16:55.181180+00:00",
+    "ended_utc": "2026-10-06T15:31:55.181180+00:00",
+    "duration_s": 900,
+    "cleanup_finished_s": 900.001506063,
+    "data_connection_closed": true,
+    "only_one_attempt": true,
+    "public_url": "wss://fstream.binance.com/public/stream?streams=btcusdt@depth@100ms",
+    "library": "3.14.3",
+    "resolver": "doh"
+  },
+  "peer": {
+    "comparator": [
+      "18.176.246.42",
+      443
+    ],
+    "production_public_exact": null,
+    "production_public_mapping": "unknown: no channel-to-socket mapping in existing trace",
+    "production_socket_destinations_observed": [
+      "13.35.36.9:443",
+      "3.168.203.20:443",
+      "3.168.203.52:443",
+      "3.168.203.77:443",
+      "52.192.203.173:443",
+      "52.69.173.204:443",
+      "57.182.106.185:443"
+    ],
+    "comparator_peer_absent_from_observed_production_destinations": true,
+    "passive_sample_count": 157,
+    "passive_first_sample_elapsed_s": 116.054851394,
+    "passive_last_sample_elapsed_s": 899.591027752
+  },
+  "old_episode": {
+    "window_relative_seconds": [
+      550,
+      578
+    ],
+    "depth_count": 278,
+    "sequence_pu_mismatch_count": 0,
+    "raw_receipt_minus_E_ms": {
+      "count": 278,
+      "min": 72.097900390625,
+      "p50": 1701.62890625,
+      "p95": 4701.131005859374,
+      "max": 5146.802001953125
+    },
+    "E_minus_T_ms": {
+      "count": 278,
+      "min": 1,
+      "p50": 1.0,
+      "p95": 3.0,
+      "max": 3
+    },
+    "receipt_to_enqueue_ms": {
+      "count": 278,
+      "min": 0.01294,
+      "p50": 0.09309100000000001,
+      "p95": 0.5309106499999995,
+      "max": 1.473354
+    },
+    "enqueue_to_record_ms": {
+      "count": 278,
+      "min": 0.027374,
+      "p50": 0.1713285,
+      "p95": 6.046383349999998,
+      "max": 49.372633
+    },
+    "source_reasons_at_receipt": {
+      "SOURCE_FRESH_WITH_CLOCK_BOUND": 81,
+      "SOURCE_DATA_LATE": 153,
+      "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 44
+    },
+    "certain_late_runs": [
+      {
+        "count": 14,
+        "start_receipt_monotonic_ns": 182475207961636,
+        "end_receipt_monotonic_ns": 182476119541880,
+        "receipt_span_s": 0.911580244,
+        "max_source_age_lower_ms": 1927.879820043825,
+        "max_source_age_upper_ms": 2056.5735490968
+      },
+      {
+        "count": 6,
+        "start_receipt_monotonic_ns": 182476390023493,
+        "end_receipt_monotonic_ns": 182476833073278,
+        "receipt_span_s": 0.443049785,
+        "max_source_age_lower_ms": 1818.80284613985,
+        "max_source_age_upper_ms": 1947.760386282025
+      },
+      {
+        "count": 11,
+        "start_receipt_monotonic_ns": 182477958997568,
+        "end_receipt_monotonic_ns": 182478991083651,
+        "receipt_span_s": 1.032086083,
+        "max_source_age_lower_ms": 1833.921182635225,
+        "max_source_age_upper_ms": 1963.2489833804
+      },
+      {
+        "count": 116,
+        "start_receipt_monotonic_ns": 182481667235549,
+        "end_receipt_monotonic_ns": 182492976514831,
+        "receipt_span_s": 11.309279282,
+        "max_source_age_lower_ms": 5054.024927898525,
+        "max_source_age_upper_ms": 5185.7721912421
+      }
+    ],
+    "other_sources": {
+      "binance:aggTrade": {
+        "count": 1262,
+        "raw_receipt_minus_source_ms": {
+          "count": 1262,
+          "min": 73.275146484375,
+          "p50": 236.4498291015625,
+          "p95": 492.68553466796874,
+          "max": 646.43408203125
+        },
+        "corrected_T_age_lower_ms": {
+          "count": 1262,
+          "min": -20.366061070475,
+          "p50": 142.3230402020625,
+          "p95": 399.95997224265875,
+          "max": 552.26624475425
+        },
+        "corrected_T_age_upper_ms": {
+          "count": 1262,
+          "min": 110.78058310415,
+          "p50": 274.71955732105,
+          "p95": 529.6042123276537,
+          "max": 684.795034542625
+        }
+      },
+      "lighter:order_book": {
+        "count": 555,
+        "raw_receipt_minus_source_ms": {
+          "count": 555,
+          "min": 71.239501953125,
+          "p50": 73.754150390625,
+          "p95": 138.61701660156248,
+          "max": 484.462158203125
+        }
+      }
+    },
+    "snapshot_loop_lag_ms": {
+      "count": 112,
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 4.7499999999999885,
+      "max": 8.3
+    },
+    "snapshot_queue_backlog": {
+      "count": 112,
+      "min": 0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "max": 1
+    },
+    "pulse_count": 6,
+    "snapshot_count": 112,
+    "timing_limitations": [
+      "pulse last-frame is not per-frame timing",
+      "recorded_monotonic is before book apply completion",
+      "sampled lag/backlog may miss intersample stalls",
+      "age bounds use only proof recorded before receipt"
+    ]
+  },
+  "final": {
+    "checked_epoch": 1791300726.4094665,
+    "engine_pid": 391484,
+    "production_code_commit": "8d785cbea81a2d257cb43353c99f0729bb85f68a",
+    "production_source_unchanged": true,
+    "config_unchanged": true,
+    "state": "IDLE",
+    "order_permission": false,
+    "session_status": "closed",
+    "pending_activation": 0,
+    "unresolved_intents": 0,
+    "equity": "49.430756",
+    "collateral": "49.430756",
+    "position_qty": "0.00000",
+    "active_order_count": 0,
+    "exchange_pending_count": 0,
+    "other_position_count": 0,
+    "component_ages_s": {
+      "account": 2.2250164080178365,
+      "active_orders": 2.3891017810092308
+    },
+    "cash": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "persistent_counts": {
+      "intents": 6,
+      "fills": 4,
+      "commands": 21,
+      "activation_requests": 1
+    },
+    "fee_exact_null": 4,
+    "comparator_closed": true
+  },
+  "classification": "comparator-only certain-late reproduced on seven identical updates; production also has three upper-bound-only lateness rejections; old five-second depth episode not reproduced",
+  "limits": [
+    "same official endpoint/library/resolver, but different observed peer destination sets",
+    "no exact production public peer-to-channel mapping",
+    "snapshot latest-frame does not bind every production frame to transport callback",
+    "TCP outgoing SRTT/retrans does not measure inbound WebSocket latency or exclude inbound loss",
+    "source age is clock-model indicator, not proven wire latency",
+    "all clocks replayed at receipt with evidence available then; not historical entry permission",
+    "large future-uncertainty population retained as rejected/uncertain; relative receipt difference remains measurable",
+    "late burst span is first-to-last observed delayed receipt, not continuous blocked-time estimate"
+  ],
+  "terminal": {
+    "checked_at_utc": "2026-10-06T15:48:06.572973+00:00",
+    "engine_pid": 391484,
+    "production_code_commit": "8d785cbea81a2d257cb43353c99f0729bb85f68a",
+    "production_source_unchanged": true,
+    "config_unchanged": true,
+    "equity": "49.430756",
+    "collateral": "49.430756",
+    "position_qty": "0.00000",
+    "active_orders": 0,
+    "pending_exchange_orders": 0,
+    "other_positions": 0,
+    "unresolved_intents": 0,
+    "pending_activation": 0,
+    "cash": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "state": "IDLE",
+    "entries_stopped": true,
+    "order_permission": false,
+    "session_status": "closed",
+    "loaded_session_permission": null,
+    "component_ages_s": {
+      "account": 0.7017739689908922,
+      "active_orders": 0.81908434201614
+    },
+    "persistent_counts": {
+      "intents": 6,
+      "fills": 4,
+      "commands": 21,
+      "activation_requests": 1
+    },
+    "comparator_closed": true
+  },
+  "historical_manifest_sha256": "708c54a269b5b439874587a264610fab4a3ba4bf3191b4107b9e328d189395a4",
+  "test_results": {
+    "offline_tests_passed": 10,
+    "ruff": "passed",
+    "production_tests_rerun": false,
+    "reason": "production source unchanged; offline helper tests use actual production clock validator and fake order-free transport"
+  },
+  "recommendation": "Add passive peer IP and socket identity bound to production public connection ID on a separately authorized rollout; do not change reconnect policy from this result."
+}

@@ -50,7 +50,7 @@ def identity(payload: dict) -> tuple:
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
-    return tuple(payload[k] for k in ["U", "u", "pu", "E", "T"]) + (digest,)
+    return tuple(payload.get(k) for k in ["U", "u", "pu", "E", "T"]) + (digest,)
 
 
 def depth(row: dict) -> dict | None:
@@ -157,6 +157,16 @@ def compare(
             table[identity(row["payload"])].append(row)
         lookup.append(table)
     common = lookup[0].keys() & lookup[1].keys()
+    payloads = []
+    for table in lookup:
+        grouped = defaultdict(set)
+        for key in table:
+            grouped[key[:-1]].add(key[-1])
+        payloads.append(grouped)
+    payload_mismatches = sum(
+        not (payloads[0][key] & payloads[1][key])
+        for key in payloads[0].keys() & payloads[1].keys()
+    )
     ambiguous = sum(len(lookup[0][k]) != 1 or len(lookup[1][k]) != 1 for k in common)
     pairs, differences, outcomes = [], [], Counter()
     for key in common:
@@ -191,6 +201,7 @@ def compare(
         "comparator_count": len(comp),
         "pairs": len(pairs),
         "ambiguous_common_keys": ambiguous,
+        "identity_payload_mismatch_keys": payload_mismatches,
         "production_unmatched_keys": len(lookup[0].keys() - lookup[1].keys()),
         "comparator_unmatched_keys": len(lookup[1].keys() - lookup[0].keys()),
         "production_minus_comparator_ms": quantiles(differences),
@@ -200,13 +211,18 @@ def compare(
     for name, records in [("production", prod), ("comparator", comp)]:
         summary[name] = {
             "raw_receipt_minus_E_ms": quantiles(
-                [r["receipt_ns"] / 1e6 - r["payload"]["E"] for r in records]
+                [
+                    r["receipt_ns"] / 1e6 - r["payload"]["E"]
+                    for r in records
+                    if type(r["payload"].get("E")) is int
+                ]
             ),
             "corrected_source_age_lower_ms": quantiles(
                 [
                     r["assessment"]["source_age_low_ms"]
                     for r in records
                     if "source_age_low_ms" in r["assessment"]
+                    and r["assessment"].get("latest_proof", {}).get("valid", False)
                 ]
             ),
             "corrected_source_age_upper_ms": quantiles(
@@ -214,6 +230,7 @@ def compare(
                     r["assessment"]["source_age_high_ms"]
                     for r in records
                     if "source_age_high_ms" in r["assessment"]
+                    and r["assessment"].get("latest_proof", {}).get("valid", False)
                 ]
             ),
             "source_reasons": dict(Counter(r["assessment"]["reason"] for r in records)),

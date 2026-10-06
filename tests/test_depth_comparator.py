@@ -70,6 +70,8 @@ def test_global_invalidation_missing_and_future_remain_unknown():
     missing = update(1)
     del missing["payload"]["T"]
     assert not annotate([missing], [proof_event()])[0]["certain_late"]
+    unknown, _ = compare([missing], [missing], [proof_event()])
+    assert unknown["categories"] == {"uncertain_or_guard_rejected": 1}
     assert not annotate([update(1, -100)], [proof_event()])[0]["assessment"]["passed"]
 
 
@@ -98,7 +100,8 @@ def test_payload_mismatch_and_duplicate_never_arbitrarily_pair():
     a = update(1)
     b = a | {"payload": a["payload"] | {"b": [["100", "2"]]}}
     assert identity(a["payload"]) != identity(b["payload"])
-    assert compare([a], [b], [proof_event()])[0]["pairs"] == 0
+    mismatch, _ = compare([a], [b], [proof_event()])
+    assert mismatch["pairs"] == 0 and mismatch["identity_payload_mismatch_keys"] == 1
     summary, _ = compare([a, a], [a], [proof_event()])
     assert summary["pairs"] == 0 and summary["ambiguous_common_keys"] == 1
 
@@ -149,13 +152,14 @@ async def test_one_connection_deadline_closes_and_no_rest(tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_failure_never_reconnects(tmp_path):
+@pytest.mark.parametrize("failure", [OSError, TimeoutError])
+async def test_failure_never_reconnects(tmp_path, failure):
     calls = []
 
     @asynccontextmanager
     async def factory(mode, **kwargs):
         calls.append(mode)
-        raise OSError("controlled connection failure")
+        raise failure("controlled connection failure")
         yield  # pragma: no cover
 
     result = await record(tmp_path / "failed", 0.03, "doh", session_factory=factory)
