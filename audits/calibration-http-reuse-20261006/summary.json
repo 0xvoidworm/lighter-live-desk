@@ -1,0 +1,638 @@
+{
+  "baseline_code": "777f68e",
+  "loaded_code": "8d785cbea81a2d257cb43353c99f0729bb85f68a",
+  "pid": 391484,
+  "historical": {
+    "calibration_count": 19,
+    "accepted": 11,
+    "reused": 0,
+    "rtt_ms": {
+      "count": 19,
+      "min": 193.792833,
+      "median": 349.937257,
+      "p95": 753.696156,
+      "max": 753.696156,
+      "mean": 417.54311994736844
+    },
+    "readiness": {
+      "preparation": {
+        "denominator_s": 2.6640193462371826,
+        "observed_s": 2.486358404159546,
+        "unknown_s": 0.17766094207763672,
+        "technical_ready_s": 2.216397762298584,
+        "longest_ready_interval_s": 2.216397762298584,
+        "blocker_s": {
+          "basis_scale": 0.2699606418609619
+        },
+        "source_reason_blocker_s": {},
+        "exclusive_overlap_s": [
+          {
+            "blockers": [],
+            "seconds": 2.216397762298584
+          },
+          {
+            "blockers": [
+              "basis_scale"
+            ],
+            "seconds": 0.2699606418609619
+          }
+        ],
+        "expiry_intervals": []
+      },
+      "active": {
+        "denominator_s": 1108.3918204307556,
+        "observed_s": 1108.3918204307556,
+        "unknown_s": 0,
+        "technical_ready_s": 71.5129783153534,
+        "longest_ready_interval_s": 7.389322280883789,
+        "blocker_s": {
+          "basis_scale": 1034.8569960594177,
+          "market_data": 297.484988451004,
+          "source_freshness": 297.484988451004,
+          "coverage": 954.8983128070831,
+          "reconciliation_idle": 14.314380645751953,
+          "fx_normalization": 1.9667675495147705
+        },
+        "source_reason_blocker_s": {
+          "SOURCE_DATA_LATE": 20.747652292251587,
+          "SOURCE_CLOCK_EVIDENCE_EXPIRED": 180.21233367919922,
+          "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 96.52500247955322
+        },
+        "exclusive_overlap_s": [
+          {
+            "blockers": [
+              "basis_scale"
+            ],
+            "seconds": 13.885661602020264
+          },
+          {
+            "blockers": [],
+            "seconds": 71.5129783153534
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 64.10625410079956
+          },
+          {
+            "blockers": [
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 0.32560181617736816
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage"
+            ],
+            "seconds": 714.2489490509033
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage",
+              "reconciliation_idle"
+            ],
+            "seconds": 9.56299877166748
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage",
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 228.03122735023499
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage",
+              "market_data",
+              "reconciliation_idle",
+              "source_freshness"
+            ],
+            "seconds": 3.0551376342773438
+          },
+          {
+            "blockers": [
+              "reconciliation_idle"
+            ],
+            "seconds": 1.696244239807129
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "fx_normalization",
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 1.9667675495147705
+          }
+        ],
+        "expiry_intervals": [
+          {
+            "start_epoch": 1791287486.522208,
+            "end_epoch": 1791287546.5746446
+          },
+          {
+            "start_epoch": 1791287846.8011186,
+            "end_epoch": 1791287966.9610157
+          }
+        ]
+      },
+      "cleanup": {
+        "denominator_s": 11.55199933052063,
+        "observed_s": 11.55199933052063,
+        "unknown_s": 0,
+        "technical_ready_s": 0.0,
+        "longest_ready_interval_s": 0.0,
+        "blocker_s": {
+          "market_data": 11.55199933052063,
+          "source_freshness": 11.55199933052063,
+          "fx_normalization": 10.474713325500488,
+          "basis_scale": 11.55199933052063,
+          "account_fresh": 11.430572986602783,
+          "reconciliation_fresh": 11.430572986602783,
+          "reconciliation_idle": 1.4007515907287598,
+          "entry_request_reserve": 1.0772860050201416
+        },
+        "source_reason_blocker_s": {
+          "SOURCE_DATA_LATE": 11.55199933052063
+        },
+        "exclusive_overlap_s": [
+          {
+            "blockers": [
+              "basis_scale",
+              "fx_normalization",
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 0.12142634391784668
+          },
+          {
+            "blockers": [
+              "account_fresh",
+              "basis_scale",
+              "fx_normalization",
+              "market_data",
+              "reconciliation_fresh",
+              "source_freshness"
+            ],
+            "seconds": 10.029821395874023
+          },
+          {
+            "blockers": [
+              "account_fresh",
+              "basis_scale",
+              "fx_normalization",
+              "market_data",
+              "reconciliation_fresh",
+              "reconciliation_idle",
+              "source_freshness"
+            ],
+            "seconds": 0.32346558570861816
+          },
+          {
+            "blockers": [
+              "account_fresh",
+              "basis_scale",
+              "entry_request_reserve",
+              "market_data",
+              "reconciliation_fresh",
+              "reconciliation_idle",
+              "source_freshness"
+            ],
+            "seconds": 1.0772860050201416
+          }
+        ],
+        "expiry_intervals": []
+      }
+    }
+  },
+  "observation": {
+    "window_start_epoch": 1791296240.998706,
+    "window_end_epoch": 1791297440.998706,
+    "status_records": 4798,
+    "first_warmup_complete_epoch": 1791296901.264808,
+    "readiness": {
+      "observation": {
+        "denominator_s": 1200.0,
+        "observed_s": 1200.0,
+        "unknown_s": 0,
+        "technical_ready_s": 33.349998235702515,
+        "longest_ready_interval_s": 5.2728049755096436,
+        "blocker_s": {
+          "market_data": 182.80554103851318,
+          "source_freshness": 182.80554103851318,
+          "fx_normalization": 0.5039980411529541,
+          "coverage": 1157.1784310340881,
+          "basis_scale": 1166.6500017642975,
+          "account_identity": 1.1003262996673584,
+          "margin_settings": 1.1003262996673584,
+          "account_fresh": 1.1003262996673584,
+          "reconciliation_fresh": 1.1003262996673584,
+          "reconciliation_idle": 10.25522756576538,
+          "flat_clean": 1.1003262996673584,
+          "cash_audit": 1.1003262996673584,
+          "loss_limits": 1.1003262996673584,
+          "minimum_sizing_depth": 1.1003262996673584
+        },
+        "source_reason_blocker_s": {
+          "SOURCE_TIMESTAMP_MISSING_OR_INVALID": 0.7991456985473633,
+          "SOURCE_CLOCK_NOT_VERIFIED": 59.255794286727905,
+          "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 95.9379653930664,
+          "SOURCE_DATA_LATE": 26.81263566017151
+        },
+        "exclusive_overlap_s": [
+          {
+            "blockers": [
+              "account_fresh",
+              "account_identity",
+              "basis_scale",
+              "cash_audit",
+              "coverage",
+              "flat_clean",
+              "fx_normalization",
+              "loss_limits",
+              "margin_settings",
+              "market_data",
+              "minimum_sizing_depth",
+              "reconciliation_fresh",
+              "reconciliation_idle",
+              "source_freshness"
+            ],
+            "seconds": 0.5039980411529541
+          },
+          {
+            "blockers": [
+              "account_fresh",
+              "account_identity",
+              "basis_scale",
+              "cash_audit",
+              "coverage",
+              "flat_clean",
+              "loss_limits",
+              "margin_settings",
+              "market_data",
+              "minimum_sizing_depth",
+              "reconciliation_fresh",
+              "reconciliation_idle",
+              "source_freshness"
+            ],
+            "seconds": 0.5963282585144043
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage",
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 177.72290325164795
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage"
+            ],
+            "seconds": 969.2003002166748
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage",
+              "reconciliation_idle"
+            ],
+            "seconds": 9.154901266098022
+          },
+          {
+            "blockers": [],
+            "seconds": 33.349998235702515
+          },
+          {
+            "blockers": [
+              "basis_scale"
+            ],
+            "seconds": 5.489259243011475
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 3.982311487197876
+          }
+        ],
+        "expiry_intervals": []
+      },
+      "after_warmup": {
+        "denominator_s": 539.7338981628418,
+        "observed_s": 539.7338981628418,
+        "unknown_s": 0,
+        "technical_ready_s": 33.349998235702515,
+        "longest_ready_interval_s": 5.2728049755096436,
+        "blocker_s": {
+          "coverage": 496.91232919692993,
+          "basis_scale": 506.3838999271393,
+          "market_data": 58.96922826766968,
+          "source_freshness": 58.96922826766968,
+          "reconciliation_idle": 3.99471378326416
+        },
+        "source_reason_blocker_s": {
+          "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 55.17560124397278,
+          "SOURCE_DATA_LATE": 3.7936270236968994
+        },
+        "exclusive_overlap_s": [
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage"
+            ],
+            "seconds": 437.93069863319397
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage",
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 54.9869167804718
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "coverage",
+              "reconciliation_idle"
+            ],
+            "seconds": 3.99471378326416
+          },
+          {
+            "blockers": [],
+            "seconds": 33.349998235702515
+          },
+          {
+            "blockers": [
+              "basis_scale"
+            ],
+            "seconds": 5.489259243011475
+          },
+          {
+            "blockers": [
+              "basis_scale",
+              "market_data",
+              "source_freshness"
+            ],
+            "seconds": 3.982311487197876
+          }
+        ],
+        "expiry_intervals": []
+      }
+    },
+    "source_reason_s": {
+      "SOURCE_TIMESTAMP_MISSING_OR_INVALID": 0.5808558464050293,
+      "SOURCE_CLOCK_NOT_VERIFIED": 59.255794286727905,
+      "SOURCE_FRESH_WITH_CLOCK_BOUND": 1017.1944589614868,
+      "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 95.9379653930664,
+      "SOURCE_DATA_LATE": 26.81263566017151
+    },
+    "account_components_age_s": {
+      "account": {
+        "count": 4793,
+        "min": 0.028168735996587202,
+        "median": 6.091407317988342,
+        "p95": 12.012700349005172,
+        "max": 12.869997647998389,
+        "mean": 6.200202503607664
+      },
+      "active_orders": {
+        "count": 4793,
+        "min": 0.14801320701371878,
+        "median": 6.218392386974301,
+        "p95": 12.123129719024291,
+        "max": 12.979338914999971,
+        "mean": 6.32095108126505
+      }
+    },
+    "lighter_request_rolling_used": {
+      "count": 4797,
+      "min": 2,
+      "median": 10,
+      "p95": 18,
+      "max": 18,
+      "mean": 12.678757556806337
+    },
+    "event_loop_lag_ms": {
+      "count": 4797,
+      "min": 0.0,
+      "median": 0.0,
+      "p95": 4.1,
+      "max": 17.6,
+      "mean": 0.508609547633938
+    },
+    "market_queue_backlog": {
+      "count": 4797,
+      "min": 0,
+      "median": 0,
+      "p95": 0,
+      "max": 19,
+      "mean": 0.01521784448613717
+    },
+    "request_errors_by_class": {},
+    "decision_assessment_violations": [],
+    "collector_delay_ms": {
+      "count": 4797,
+      "min": 8.137509983498603,
+      "median": 17.05461399978958,
+      "p95": 28.408810001565143,
+      "max": 72.02201298787259,
+      "mean": 18.29348789498138
+    },
+    "finished": {
+      "ended_at_utc": "2026-10-06T14:37:20.998967+00:00",
+      "analysis_window_seconds": 1200,
+      "elapsed_wall_monotonic_seconds": 1200.000280275999,
+      "records": 4798,
+      "collector_errors": 0,
+      "configuration_unchanged": true,
+      "source_hashes_unchanged": true,
+      "snapshot_sha256": "79391d8a79dd8e68939e98d4a7c4cba3fcf9b806537ce833b8be76720d75cfef",
+      "order_authorization": false
+    }
+  },
+  "runtime_clock": {
+    "window_attempts": 20,
+    "accepted": 20,
+    "reused": 20,
+    "rtt_ms": {
+      "count": 20,
+      "min": 91.679402,
+      "median": 94.758188,
+      "p95": 133.996971,
+      "max": 133.996971,
+      "mean": 98.23049595
+    },
+    "phase_statistics_ms": {
+      "resolver": {
+        "count": 0
+      },
+      "connection_create_including_resolver": {
+        "count": 0
+      },
+      "pool_queue": {
+        "count": 0
+      },
+      "waiting_headers": {
+        "count": 20,
+        "min": 91.482389,
+        "median": 94.532198,
+        "p95": 133.803751,
+        "max": 133.803751,
+        "mean": 97.9783443
+      },
+      "body": {
+        "count": 20,
+        "min": 0.012967,
+        "median": 0.023492,
+        "p95": 0.037907,
+        "max": 0.037907,
+        "mean": 0.0230238
+      },
+      "decode": {
+        "count": 20,
+        "min": 0.011401,
+        "median": 0.020679,
+        "p95": 0.037475,
+        "max": 0.037475,
+        "mean": 0.02244185
+      }
+    },
+    "bootstrap_started_before_marker": {
+      "count": 1,
+      "accepted": 0,
+      "rtt_ms": 402.592269,
+      "start_before_marker_s": 0.09785,
+      "finish_after_marker_s": 0.304743
+    },
+    "clock_callback_cpu_ms": 0.140797,
+    "tail_attempt_id_missing_from_status_snapshots": 21,
+    "tail_attempt_recorded_before_deadline": true,
+    "http_header_sends_in_window": 20,
+    "http_retries": 0,
+    "evidence_expired_s": 0
+  },
+  "transport": {
+    "market_feed_reconnects": 0,
+    "account_socket_auth_rotations": 2,
+    "account_rotation_times_from_start_s": [
+      490.336,
+      980.972
+    ],
+    "trace_events_dropped": 0,
+    "trace_write_errors": 0,
+    "peak_queue_size": 7,
+    "max_queue_age_ms": 6.994367,
+    "websocket_hook_total_ms": 1132.942338,
+    "open_gzip_prefix_no_trailer": true
+  },
+  "final": {
+    "verified_epoch": 1791297611.1985605,
+    "pid": 391484,
+    "state": "IDLE",
+    "order_permission": false,
+    "session_status": "closed",
+    "loaded_permission": null,
+    "equity": "49.430756",
+    "collateral": "49.430756",
+    "position": "0.00000",
+    "global_positions_other": 0,
+    "active_orders": 0,
+    "orders": 0,
+    "pending_orders": 0,
+    "unresolved_intents": 0,
+    "pending_activation": 0,
+    "component_ages_s": {
+      "account": 11.811160192999523,
+      "active_orders": 11.919604898022953
+    },
+    "history": {
+      "complete": true,
+      "required": false,
+      "reason": "complete audit verified; idle periodic deadline 120s",
+      "idle_interval_seconds": 120.0,
+      "age_seconds": 36.83810030398308
+    },
+    "cash": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "pending_exact_fees": 4,
+    "journal_ok": true
+  },
+  "fee": {
+    "historical_exact_null_count": 4,
+    "all_official_reports_match": true,
+    "reported_fee_each_usdc": "0.0000",
+    "reported_precision_decimals": 4,
+    "cash_change_usdc": "0.000000",
+    "exact_zero_established": false
+  },
+  "policy_changes": {
+    "calibration_and_its_doh_keepalive_seconds": 75,
+    "other_transports_changed": false,
+    "guards_strategy_risk_fee_changed": false
+  },
+  "decision": "accept scoped keepalive; source lateness/clock future uncertainty remain; no trading authorization",
+  "request_reservations": {
+    "max_held_unconsumed": 7,
+    "peak_used_plus_held": 18,
+    "minimum_total_slots_remaining": 37,
+    "exit_reserve_minimum": 15,
+    "normal_cap": 40,
+    "total_cap": 55
+  },
+  "persistent_counts_unchanged": {
+    "intents": 6,
+    "fills": 4,
+    "commands": 21,
+    "activation_requests": 1
+  },
+  "terminal_check": {
+    "verified_epoch": 1791298230.279996,
+    "pid": 391484,
+    "state": "IDLE",
+    "order_permission": false,
+    "entries_stopped": true,
+    "session_status": "closed",
+    "loaded_permission": null,
+    "equity": "49.430756",
+    "collateral": "49.430756",
+    "position": "0.00000",
+    "orders": 0,
+    "active_orders": 0,
+    "pending_orders": 0,
+    "other_positions": 0,
+    "unresolved_intents": 0,
+    "pending_activation": 0,
+    "cash": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "history_complete": true,
+    "component_ages_s": {
+      "account": 12.477958363015205,
+      "active_orders": 12.675543793011457
+    },
+    "fee_exact_null": 4
+  }
+}

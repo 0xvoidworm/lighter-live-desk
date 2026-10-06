@@ -1,0 +1,206 @@
+{
+  "created_at_utc": "2026-10-06T14:50:30.487241+00:00",
+  "private_root": "/home/yuri/Workspace/outputs/lighter-calibration-reuse-20261006",
+  "loaded_code_commit": "8d785cbea81a2d257cb43353c99f0729bb85f68a",
+  "observation_seconds": 1200,
+  "private_data_in_git": false,
+  "historic_manifest_sha256": "4b84f23432a6b5644470d6cc753c56a6f82fdacd000bdbb1cecea6b32c6b3682",
+  "open_prefix_limits": "market and transport copies contain complete JSON prefix plus absent gzip trailer; later events excluded by fixed timestamps",
+  "files": [
+    {
+      "name": "augment_raw_clock.py",
+      "bytes": 1562,
+      "sha256": "7a14189e44426289c6a7e87e10a94883b2c54e557e86f88b64e44b54c7a6e195"
+    },
+    {
+      "name": "final-account-check.json",
+      "bytes": 904,
+      "sha256": "e31a30976aed8f1aadaa51549c4e602aa23fc0a46f518fd9d30e66e961e6d8cf"
+    },
+    {
+      "name": "final-analysis.log",
+      "bytes": 4002,
+      "sha256": "2f9bd7eff53df151a202077d5770b03cf1026ff864dd37b6be4f07b1392fd67e"
+    },
+    {
+      "name": "final-db.sqlite",
+      "bytes": 43618304,
+      "sha256": "9e726e4ca58932cd4d0dffd617a382c530795f2bebb4bc3fabedb73a50439390"
+    },
+    {
+      "name": "final-db.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    },
+    {
+      "name": "final-db.sqlite-wal",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-gates.json",
+      "bytes": 2848,
+      "sha256": "ded4c37f55d3fb98bf212a220c24e539b0a8f4538eb133e2e22ce76a59b8da8e"
+    },
+    {
+      "name": "final-mypy.log",
+      "bytes": 44,
+      "sha256": "7f43e759c997a0af903a210f4a10fd709457c5a5125336929ab037d3ed6702ce"
+    },
+    {
+      "name": "final-ruff.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "final-service-check.txt",
+      "bytes": 27,
+      "sha256": "308fdbb959b4f6d247ea659af922527908fd4afab46612bb57ebae9e49203986"
+    },
+    {
+      "name": "final-status.json",
+      "bytes": 277314,
+      "sha256": "6f7a48e7761a1bc4b2fc8bd703674b37521e7f0aae31dfe5028c2d3e615c9123"
+    },
+    {
+      "name": "final-suite.log",
+      "bytes": 1724,
+      "sha256": "60eea5cbdcc0b8c28e32156e7ff20b4e970ee0da06c8e3efddf24a0ddc6a84e7"
+    },
+    {
+      "name": "finalize_analysis.py",
+      "bytes": 4181,
+      "sha256": "d1bbef4eade53f06c78305963a9ef78c550a87a8830eb808836892e74128d4b8"
+    },
+    {
+      "name": "gates.json",
+      "bytes": 475,
+      "sha256": "0a529fd99d690c1779057bed11d13ade8f26e3676f40ed512b3a57a837ffa341"
+    },
+    {
+      "name": "historical-summary.json",
+      "bytes": 41234,
+      "sha256": "1813d87676219c2c3de493231a7cf4c34e3947b0381d0bc52127deee479fe2c0"
+    },
+    {
+      "name": "installed-library.txt",
+      "bytes": 29063,
+      "sha256": "2ba4c53dcd8eed2fad3b61e09ca220c5a3c48cefaae19a7becb929fe2cb3b77a"
+    },
+    {
+      "name": "market/market-20261006-14-e7b8298aec61481bbb38bdf44895e15d-0001.jsonl.gz",
+      "bytes": 25318822,
+      "sha256": "70ad433457c775ab93599a651998e9c552bef63bdb348b45ad9c5317abcad30d"
+    },
+    {
+      "name": "mypy.log",
+      "bytes": 44,
+      "sha256": "7f43e759c997a0af903a210f4a10fd709457c5a5125336929ab037d3ed6702ce"
+    },
+    {
+      "name": "observation/finished.json",
+      "bytes": 382,
+      "sha256": "44242e9312c7305be5ec31ea09f496889d2d3a5b469c4e1c704b3164ea31975b"
+    },
+    {
+      "name": "observation/snapshots.jsonl.gz",
+      "bytes": 103555144,
+      "sha256": "79391d8a79dd8e68939e98d4a7c4cba3fcf9b806537ce833b8be76720d75cfef"
+    },
+    {
+      "name": "observation/started.json",
+      "bytes": 3600,
+      "sha256": "3fffe7c8307d463e3a4314f88980a9f4b0c823013964ee4d0dfdfbcaf75d7f40"
+    },
+    {
+      "name": "pre-restart-db.sqlite",
+      "bytes": 43503616,
+      "sha256": "e1180973b6fdebf2c3bfb22da6fcf0654a3cf226ca98ac6fc28199b3c9d0920b"
+    },
+    {
+      "name": "pre-restart-db.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+    },
+    {
+      "name": "pre-restart-db.sqlite-wal",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "pre-restart-status.json",
+      "bytes": 362668,
+      "sha256": "54bbe2f5bb5193ee1b2e0a527bbf70b5269c4981d0ed9d446b85397d6beb39a5"
+    },
+    {
+      "name": "pre-rollout-check.json",
+      "bytes": 2766,
+      "sha256": "11f45bc1d5a1a2151f7c99e7c3846dfffb4cbecb0904b44a8aba33b9759ca565"
+    },
+    {
+      "name": "prior-engine-journal.log",
+      "bytes": 2337,
+      "sha256": "88b02a27a882726b70a2248abb72e96db7bd8ee6bd29df1d331c74849481698a"
+    },
+    {
+      "name": "prior-system-journal.log",
+      "bytes": 17,
+      "sha256": "19c4e28b2f54ea8f217db4e622b0a5c758efa7b77ce2dc0394b6d159568c0b2e"
+    },
+    {
+      "name": "restart.json",
+      "bytes": 2656,
+      "sha256": "b373f9dd6055c7d7dbddd1ace62f299e82c5224f75f983ae955d6e1b356ea741"
+    },
+    {
+      "name": "rollout.log",
+      "bytes": 453,
+      "sha256": "e93825e40048681ce99e004928273ef0833d6567126dacf3d3957dfdef80f599"
+    },
+    {
+      "name": "rollout.py",
+      "bytes": 4151,
+      "sha256": "d56d91d91f85da4316f13eab81748fe7e959b37449cf9248eb1af74930018f1a"
+    },
+    {
+      "name": "ruff.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "runtime-phase-summary.json",
+      "bytes": 591,
+      "sha256": "4fe6d5e5b77190f738ecafb7ba4d38871a781ccd7a4f1c76e44a402080044689"
+    },
+    {
+      "name": "runtime-summary.json",
+      "bytes": 139144,
+      "sha256": "5ebbb530309c50f1f86c602fc4373feb30cd7bc00f813847ab76825390d77edb"
+    },
+    {
+      "name": "suite.log",
+      "bytes": 1724,
+      "sha256": "4d1618d7e0c00643fb8f8f7e6529f5cb80856dbfe2a2714d664344282b09dae6"
+    },
+    {
+      "name": "targeted-0.log",
+      "bytes": 909,
+      "sha256": "55b46e63645abeb5dc102151181c8a0c8925575393bf8a1ff258e4a31fb32467"
+    },
+    {
+      "name": "targeted-results.json",
+      "bytes": 328,
+      "sha256": "68d724c182b5880c79d629340e578b782d4a24fc9738ce29da24e2e9554ca169"
+    },
+    {
+      "name": "terminal-check.json",
+      "bytes": 717,
+      "sha256": "fdb509ca85aa26458a2f8d338346f264846e3f907118ba5db233c60344c2a23e"
+    },
+    {
+      "name": "transport/transport-e7b8298aec61481bbb38bdf44895e15d.jsonl.gz",
+      "bytes": 191947,
+      "sha256": "ea9da056df36a769b8a25005b5b940e3d622c86472384ec3a5d83ef885df8444"
+    }
+  ]
+}
