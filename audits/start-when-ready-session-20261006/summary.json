@@ -1,0 +1,809 @@
+{
+  "session_id": "713be53b-5d75-48c0-8b75-e5c0558afd1f",
+  "request_id": "3d86925e-4835-4f4c-8bf0-6e9402b0166f",
+  "command_id": 21,
+  "code_commit": "777f68e66fa1850cc1c21f7f82dfc20d03dc7ea5",
+  "engine_pid": 378689,
+  "engine_pid_final": 378689,
+  "times_wib": {
+    "authorization": "2026-10-06T18:50:25.974316+07:00",
+    "request": "2026-10-06T18:50:27.094282+07:00",
+    "activation": "2026-10-06T18:50:28.638336+07:00",
+    "entry_stopped": "2026-10-06T19:08:57.030156+07:00",
+    "operational_closed": "2026-10-06T19:09:08.582155+07:00",
+    "original_preparation_expiry": "2026-10-06T19:10:25.974316+07:00",
+    "original_active_deadline": "2026-10-06T19:20:28.638336+07:00"
+  },
+  "waiting_s": 1.544053316116333,
+  "preparation_s": 2.6640193462371826,
+  "active_s": 1108.3918204307556,
+  "cleanup_s": 11.55199933052063,
+  "stop_reason": "rekonsiliasi gagal: ClientConnectorDNSError",
+  "activation_count": 1,
+  "readiness": {
+    "preparation": {
+      "denominator_s": 2.6640193462371826,
+      "sampled_coverage_s": 2.486358404159546,
+      "technical_ready_s": 2.216397762298584,
+      "technical_ready_percent": 83.19751001167293,
+      "longest_ready_interval_s": 2.216397762298584,
+      "blocker_s": {
+        "basis_scale": 0.2699606418609619
+      },
+      "source_reason_blocker_s": {},
+      "overlap_s": [
+        {
+          "blockers": [],
+          "seconds": 2.216397762298584
+        },
+        {
+          "blockers": [
+            "basis_scale"
+          ],
+          "seconds": 0.2699606418609619
+        }
+      ],
+      "unobserved_s": 0.17766094207763672
+    },
+    "waiting": {
+      "denominator_s": 1.544053316116333,
+      "sampled_coverage_s": 1.544053316116333,
+      "technical_ready_s": 1.274092674255371,
+      "technical_ready_percent": 82.5161062093388,
+      "longest_ready_interval_s": 1.274092674255371,
+      "blocker_s": {
+        "basis_scale": 0.2699606418609619
+      },
+      "source_reason_blocker_s": {},
+      "overlap_s": [
+        {
+          "blockers": [],
+          "seconds": 1.274092674255371
+        },
+        {
+          "blockers": [
+            "basis_scale"
+          ],
+          "seconds": 0.2699606418609619
+        }
+      ],
+      "unobserved_s": 0.0
+    },
+    "active": {
+      "denominator_s": 1108.3918204307556,
+      "sampled_coverage_s": 1108.3918204307556,
+      "technical_ready_s": 71.5129783153534,
+      "technical_ready_percent": 6.451958323507045,
+      "longest_ready_interval_s": 7.389322280883789,
+      "blocker_s": {
+        "basis_scale": 1034.8569960594177,
+        "market_data": 297.484988451004,
+        "source_freshness": 297.484988451004,
+        "coverage": 954.8983128070831,
+        "reconciliation_idle": 14.314380645751953,
+        "fx_normalization": 1.9667675495147705
+      },
+      "source_reason_blocker_s": {
+        "SOURCE_DATA_LATE": 20.747652292251587,
+        "SOURCE_CLOCK_EVIDENCE_EXPIRED": 180.21233367919922,
+        "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 96.52500247955322
+      },
+      "overlap_s": [
+        {
+          "blockers": [
+            "coverage",
+            "basis_scale"
+          ],
+          "seconds": 714.2489490509033
+        },
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness",
+            "coverage",
+            "basis_scale"
+          ],
+          "seconds": 228.03122735023499
+        },
+        {
+          "blockers": [],
+          "seconds": 71.5129783153534
+        },
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness",
+            "basis_scale"
+          ],
+          "seconds": 64.10625410079956
+        },
+        {
+          "blockers": [
+            "basis_scale"
+          ],
+          "seconds": 13.885661602020264
+        },
+        {
+          "blockers": [
+            "coverage",
+            "basis_scale",
+            "reconciliation_idle"
+          ],
+          "seconds": 9.56299877166748
+        },
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness",
+            "coverage",
+            "basis_scale",
+            "reconciliation_idle"
+          ],
+          "seconds": 3.0551376342773438
+        },
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness",
+            "fx_normalization",
+            "basis_scale"
+          ],
+          "seconds": 1.9667675495147705
+        },
+        {
+          "blockers": [
+            "reconciliation_idle"
+          ],
+          "seconds": 1.696244239807129
+        },
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness"
+          ],
+          "seconds": 0.32560181617736816
+        }
+      ],
+      "unobserved_s": 0.0
+    },
+    "cleanup": {
+      "denominator_s": 11.55199933052063,
+      "sampled_coverage_s": 11.55199933052063,
+      "technical_ready_s": 0.0,
+      "technical_ready_percent": 0.0,
+      "longest_ready_interval_s": 0.0,
+      "blocker_s": {
+        "market_data": 11.55199933052063,
+        "source_freshness": 11.55199933052063,
+        "fx_normalization": 10.474713325500488,
+        "basis_scale": 11.55199933052063,
+        "account_fresh": 11.430572986602783,
+        "reconciliation_fresh": 11.430572986602783,
+        "reconciliation_idle": 1.4007515907287598,
+        "entry_request_reserve": 1.0772860050201416
+      },
+      "source_reason_blocker_s": {
+        "SOURCE_DATA_LATE": 11.55199933052063
+      },
+      "overlap_s": [
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness",
+            "fx_normalization",
+            "basis_scale",
+            "account_fresh",
+            "reconciliation_fresh"
+          ],
+          "seconds": 10.029821395874023
+        },
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness",
+            "basis_scale",
+            "account_fresh",
+            "reconciliation_fresh",
+            "reconciliation_idle",
+            "entry_request_reserve"
+          ],
+          "seconds": 1.0772860050201416
+        },
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness",
+            "fx_normalization",
+            "basis_scale",
+            "account_fresh",
+            "reconciliation_fresh",
+            "reconciliation_idle"
+          ],
+          "seconds": 0.32346558570861816
+        },
+        {
+          "blockers": [
+            "market_data",
+            "source_freshness",
+            "fx_normalization",
+            "basis_scale"
+          ],
+          "seconds": 0.12142634391784668
+        }
+      ],
+      "unobserved_s": 0.0
+    }
+  },
+  "active_observation_count": 3862,
+  "maximum_active_observation_gap_s": 0.4204838275909424,
+  "captured_unique_decisions": 3335,
+  "data_valid_decisions": 1905,
+  "basis_residual_available_decisions": 222,
+  "eligible_matching_decisions": 216,
+  "signal_count": 0,
+  "decision_filters": {
+    "DATA_TIDAK_VALID": 1430,
+    "DEVIASI_KURANG": 222,
+    "BIAYA_DAN_BUFFER_MELEBIHI_PELUANG": 222,
+    "COVERAGE_DATA_KURANG": 1683
+  },
+  "actual_invalid_data_source_reasons": {
+    "SOURCE_TIMESTAMP_FUTURE_UNCERTAIN": 831,
+    "SOURCE_DATA_LATE": 49,
+    "SOURCE_CLOCK_EVIDENCE_EXPIRED": 542,
+    "SOURCE_ASSESSMENT_NOT_RECORDED": 8
+  },
+  "residual_evaluable_signed_bps": {
+    "n": 222,
+    "min": "-1.089177302256415566150190000",
+    "p05": "-0.9082738638063667443522350000",
+    "median": "-0.006728596327770694286075000",
+    "p95": "0.7530726269735563469304085000",
+    "p99": "1.329820611139002732848367700",
+    "max": "1.507155938182670794256275000"
+  },
+  "residual_eligible_signed_bps": {
+    "n": 216,
+    "min": "-1.089177302256415566150190000",
+    "p05": "-0.9129644385644712774074137500",
+    "median": "-0.065630088781878436143880000",
+    "p95": "0.7490148996984578529878475000",
+    "p99": "1.333999502256194036078135500",
+    "max": "1.507155938182670794256275000"
+  },
+  "residual_eligible_absolute_bps": {
+    "n": 216,
+    "min": "0.001863215738577600222870000",
+    "p05": "0.06352648316355481488581000000",
+    "median": "0.478290330951321598006432500",
+    "p95": "0.9451802038629773138042900000",
+    "p99": "1.333999502256194036078135500",
+    "max": "1.507155938182670794256275000"
+  },
+  "eligible_estimate_count": 216,
+  "estimated_edge_after_fee_and_buffer_bps": {
+    "n": 216,
+    "min": "-5.835067030994626428622485269",
+    "p05": "-5.441876746649525221677148832",
+    "median": "-4.849378728829436294182658480",
+    "p95": "-4.261283373015297373172458784",
+    "p99": "-3.683029217728069921751773822",
+    "max": "-3.516637099290805422714384875"
+  },
+  "positive_estimate_count": 0,
+  "spread_lighter_bps": {
+    "n": 216,
+    "min": "0.01158590806002658965899776102",
+    "p05": "0.01158783462798620772476539194",
+    "median": "0.05793967668501616227281128525",
+    "p95": "0.8142247687309216814307097884",
+    "p99": "0.9832703767867114908121103175",
+    "max": "1.054539997485327698304218566"
+  },
+  "minimum_order_notional_usdc": {
+    "n": 432,
+    "min": "10.350024",
+    "p05": "10.35086520",
+    "median": "10.354992",
+    "p95": "10.35786000",
+    "p99": "10.35932940",
+    "max": "10.359492"
+  },
+  "minimum_order_quantities": [
+    "0.00012"
+  ],
+  "impact_bps": {
+    "n": 432,
+    "min": "0",
+    "p05": "0.00",
+    "median": "0",
+    "p95": "0.00",
+    "p99": "0.01062426233814902169860700000",
+    "max": "0.5563204962378826441913190000"
+  },
+  "peak_observed_rolling_requests": 18,
+  "mean_observed_rolling_requests": 12.89280165717245,
+  "account_age_distribution_s": {
+    "n": 3862,
+    "min": 0.06329289899440482,
+    "p05": 0.6611668346973602,
+    "median": 6.151255321499775,
+    "p95": 12.07546398701379,
+    "p99": 12.619897904511308,
+    "max": 14.223152865975862
+  },
+  "order_age_distribution_s": {
+    "n": 3862,
+    "min": 0.17150561197195202,
+    "p05": 0.8373482825583778,
+    "median": 6.345346960515599,
+    "p95": 12.238270867262326,
+    "p99": 12.798262871996558,
+    "max": 14.38274063798599
+  },
+  "entry_preflight_candidates": 0,
+  "entry_attempts": 0,
+  "new_intents": 0,
+  "broadcast": 0,
+  "fills": 0,
+  "stops_sent": 0,
+  "closes_sent": 0,
+  "positions_completed": 0,
+  "source_hashes_unchanged": true,
+  "final": {
+    "equity_usdc": "49.430756",
+    "position_qty": "0.00000",
+    "active_orders": 0,
+    "pending_orders": 0,
+    "other_positions": 0,
+    "unresolved_intents": 0,
+    "pending_activation_requests": 0,
+    "activation_request_status": "ACTIVATED",
+    "state": "IDLE",
+    "order_permission": false,
+    "session_status": "closed",
+    "cash": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "fee_exact_unknown": 4,
+    "historical_reported_fee": "0.0000",
+    "fee_precision_decimals": [
+      4
+    ]
+  },
+  "limitations": [
+    "Readiness is piecewise sampled diagnostic state, not dispatch permission.",
+    "Duration blocker groups overlap; overlap groups partition the measured denominator.",
+    "Unique decisions are captured decisions, not a counter of every unrecorded engine invocation.",
+    "Eligible decisions have actual data_valid and at least one matching technical snapshot.",
+    "Mid residual does not imply executable profit. Both local VWAP legs include spread/impact.",
+    "Parallel future book shift to basis, metadata fee, and 5 bps buffer are assumptions.",
+    "No fills: execution latency/slippage and trade fees were not measured.",
+    "DNS exception and phase identify the failed stage, not ISP/router/upstream root cause."
+  ],
+  "observations_count_recording": 3911,
+  "local_status_errors": 0,
+  "control_commands": [
+    {
+      "id": 20,
+      "kind": "LOAD_SESSION_PERMISSION",
+      "state": "DONE",
+      "requested_at": 1791287426.492802,
+      "result": "permission dimuat; belum aktif, START_LIVE dan preflight tetap wajib"
+    },
+    {
+      "id": 21,
+      "kind": "START_WHEN_READY",
+      "state": "DONE",
+      "requested_at": 1791287427.0942507,
+      "result": "ACTIVATED: sesi live dimulai"
+    }
+  ],
+  "activation_assessment": {
+    "passed": true,
+    "started_wall_ns": 1791287428619053165,
+    "finished_wall_ns": 1791287428638329797,
+    "started_monotonic_ns": 173110857988362,
+    "finished_monotonic_ns": 173110877264630,
+    "checks": {
+      "authorization": {
+        "result": "passed",
+        "reason": null
+      },
+      "authorization_valid": {
+        "result": "passed",
+        "reason": null
+      },
+      "loaded_permission": {
+        "result": "passed",
+        "reason": null
+      },
+      "request_capacity": {
+        "result": "passed",
+        "reason": null
+      },
+      "lifecycle": {
+        "result": "passed",
+        "reason": null
+      },
+      "reconcile_busy": {
+        "result": "passed",
+        "reason": null
+      },
+      "scope": {
+        "result": "passed",
+        "reason": null
+      },
+      "order_permission": {
+        "result": "passed",
+        "reason": null
+      },
+      "probe": {
+        "result": "passed",
+        "reason": null
+      },
+      "account_connection": {
+        "result": "passed",
+        "reason": null
+      },
+      "metadata": {
+        "result": "passed",
+        "reason": null
+      },
+      "active_orders": {
+        "result": "passed",
+        "reason": null
+      },
+      "engine_ready": {
+        "result": "passed",
+        "reason": null
+      },
+      "history": {
+        "result": "passed",
+        "reason": null
+      },
+      "account_state": {
+        "result": "passed",
+        "reason": null
+      },
+      "reconcile_ok": {
+        "result": "passed",
+        "reason": null
+      },
+      "market_basis": {
+        "result": "passed",
+        "reason": null
+      },
+      "source": {
+        "result": "passed",
+        "reason": null
+      },
+      "unresolved": {
+        "result": "passed",
+        "reason": null
+      },
+      "position": {
+        "result": "passed",
+        "reason": null
+      },
+      "account_age": {
+        "result": "passed",
+        "reason": null
+      },
+      "equity": {
+        "result": "passed",
+        "reason": null
+      },
+      "minimum_sizing": {
+        "result": "passed",
+        "reason": null
+      },
+      "funding_cap": {
+        "result": "passed",
+        "reason": null
+      },
+      "funding_known": {
+        "result": "passed",
+        "reason": null
+      },
+      "daily_loss": {
+        "result": "passed",
+        "reason": null
+      },
+      "total_loss": {
+        "result": "passed",
+        "reason": null
+      },
+      "funding_incident": {
+        "result": "passed",
+        "reason": null
+      },
+      "account_incident": {
+        "result": "passed",
+        "reason": null
+      },
+      "tier": {
+        "result": "passed",
+        "reason": null
+      },
+      "margin": {
+        "result": "passed",
+        "reason": null
+      },
+      "other_exposure": {
+        "result": "passed",
+        "reason": null
+      },
+      "journal": {
+        "result": "passed",
+        "reason": null
+      },
+      "fee_cash_binding": {
+        "result": "passed",
+        "reasons": []
+      },
+      "loss_risk": {
+        "result": "passed",
+        "reason": null
+      },
+      "coverage": {
+        "result": "passed"
+      },
+      "control_incident": {
+        "result": "passed"
+      },
+      "dispatch_permission_binding": {
+        "result": "passed"
+      }
+    }
+  },
+  "activation_clock_proofs": {
+    "data_valid": {
+      "passed": true,
+      "reason": "SOURCE_FRESH_WITH_CLOCK_BOUND",
+      "evaluated_wall_ns": 1791287428619227937,
+      "evaluated_monotonic_ns": 173110858161773,
+      "latest_proof_id": "1791287366412:173048721125026",
+      "selected_proof_id": "1791287366412:173048721125026",
+      "clock_evidence_age_s": 62.137036747,
+      "clock_offset_low_ms": -90.460995721575,
+      "clock_offset_high_ms": 130.24419884657502,
+      "clock_uncertainty_ms": 110.35259728407502,
+      "clock_drift_allowance_ms": 6.2137036747000005,
+      "source_age_low_ms": 57.76589684092498,
+      "source_age_high_ms": 278.47109140907503,
+      "receipt_age_ms": 68.304041,
+      "clock_ttl_seconds": 120,
+      "proof_selection_reason": "latest_fallback"
+    },
+    "direct_source": {
+      "passed": true,
+      "reason": "SOURCE_FRESH_WITH_CLOCK_BOUND",
+      "evaluated_wall_ns": 1791287428619351241,
+      "evaluated_monotonic_ns": 173110858285092,
+      "latest_proof_id": "1791287366412:173048721125026",
+      "selected_proof_id": "1791287366412:173048721125026",
+      "clock_evidence_age_s": 62.137160066,
+      "clock_offset_low_ms": -90.461008053475,
+      "clock_offset_high_ms": 130.244211178475,
+      "clock_uncertainty_ms": 110.35260961597501,
+      "clock_drift_allowance_ms": 6.2137160065999995,
+      "source_age_low_ms": 57.889203509024995,
+      "source_age_high_ms": 278.594422740975,
+      "receipt_age_ms": 68.42736,
+      "clock_ttl_seconds": 120,
+      "proof_selection_reason": "latest_fallback"
+    },
+    "preflight_recheck": {
+      "passed": true,
+      "reason": "SOURCE_FRESH_WITH_CLOCK_BOUND",
+      "evaluated_wall_ns": 1791287428637766513,
+      "evaluated_monotonic_ns": 173110876700352,
+      "latest_proof_id": "1791287366412:173048721125026",
+      "selected_proof_id": "1791287366412:173048721125026",
+      "clock_evidence_age_s": 62.155575326,
+      "clock_offset_low_ms": -90.462849579475,
+      "clock_offset_high_ms": 130.246052704475,
+      "clock_uncertainty_ms": 110.354451141975,
+      "clock_drift_allowance_ms": 6.2155575326,
+      "source_age_low_ms": 76.302621983025,
+      "source_age_high_ms": 297.011524266975,
+      "receipt_age_ms": 86.84262,
+      "clock_ttl_seconds": 120,
+      "proof_selection_reason": "latest_fallback"
+    }
+  },
+  "activation_preflight": {
+    "finished_at": 1791287428.4876726,
+    "elapsed_ms": 1351.5832429984584,
+    "attempt": "activation:3d86925e-4835-4f4c-8bf0-6e9402b0166f:4e5723b92efb4518b16f86851fb63fff",
+    "sendable": false,
+    "planned_read_cost": 8,
+    "actual_read_cost": 8,
+    "reserved_send_cost": 2,
+    "broadcast": false,
+    "ttl_seconds": 5.0,
+    "blockers": [],
+    "outcome": "complete_no_send",
+    "binding": "5c25dda5ce1abf2053437ecb55ea9c08805cf477c1e769f33cb4a0c5819da0b0",
+    "generation": 3
+  },
+  "activation_preflight_remaining_at_assessment_s": 4.842895755020436,
+  "failure_timeline": [
+    {
+      "at": 1791288537.0352328,
+      "wib": "2026-10-06T19:08:57.035233+07:00",
+      "error": "ClientConnectorDNSError",
+      "elapsed_ms": 16.564666002523154,
+      "requests": [
+        {
+          "reason": "account_reconciliation",
+          "path": "/api/v1/deposit/history",
+          "host": "mainnet.zklighter.elliot.ai",
+          "error": "ClientConnectorDNSError",
+          "last_phase": "dns",
+          "elapsed_ms": 6.115,
+          "phase_ms": {
+            "acquire_connection": 2.211353974416852,
+            "connect_or_tls": 0.06473300163634121,
+            "dns": 3.8239010027609766
+          },
+          "local_quota_weight": 1,
+          "http_attempts": 1
+        }
+      ]
+    },
+    {
+      "at": 1791288539.0749197,
+      "wib": "2026-10-06T19:08:59.074920+07:00",
+      "error": "ClientConnectorDNSError",
+      "elapsed_ms": 12.652283010538667,
+      "requests": [
+        {
+          "reason": "account_reconciliation",
+          "path": "/api/v1/deposit/history",
+          "host": "mainnet.zklighter.elliot.ai",
+          "error": "ClientConnectorDNSError",
+          "last_phase": "dns",
+          "elapsed_ms": 5.429,
+          "phase_ms": {
+            "acquire_connection": 1.6253450012300164,
+            "connect_or_tls": 0.07678198744542897,
+            "dns": 3.710029006469995
+          },
+          "local_quota_weight": 1,
+          "http_attempts": 1
+        }
+      ]
+    },
+    {
+      "at": 1791288541.0887556,
+      "wib": "2026-10-06T19:09:01.088756+07:00",
+      "error": "ClientConnectorDNSError",
+      "elapsed_ms": 10.364443005528301,
+      "requests": [
+        {
+          "reason": "account_reconciliation",
+          "path": "/api/v1/deposit/history",
+          "host": "mainnet.zklighter.elliot.ai",
+          "error": "ClientConnectorDNSError",
+          "last_phase": "dns",
+          "elapsed_ms": 5.081,
+          "phase_ms": {
+            "acquire_connection": 1.4002130192238837,
+            "connect_or_tls": 0.04682099097408354,
+            "dns": 3.619352006353438
+          },
+          "local_quota_weight": 1,
+          "http_attempts": 1
+        }
+      ]
+    },
+    {
+      "at": 1791288543.1710958,
+      "wib": "2026-10-06T19:09:03.171096+07:00",
+      "error": "ClientConnectorDNSError",
+      "elapsed_ms": 5.3150689927861094,
+      "requests": [
+        {
+          "reason": "account_reconciliation",
+          "path": "/api/v1/deposit/history",
+          "host": "mainnet.zklighter.elliot.ai",
+          "error": "ClientConnectorDNSError",
+          "last_phase": "dns",
+          "elapsed_ms": 3.741,
+          "phase_ms": {
+            "acquire_connection": 0.6047450006008148,
+            "connect_or_tls": 0.021374988136813045,
+            "dns": 3.108389995759353
+          },
+          "local_quota_weight": 1,
+          "http_attempts": 1
+        }
+      ]
+    },
+    {
+      "at": 1791288545.2359452,
+      "wib": "2026-10-06T19:09:05.235945+07:00",
+      "error": "ClientConnectorDNSError",
+      "elapsed_ms": 5.117613007314503,
+      "requests": [
+        {
+          "reason": "account_reconciliation",
+          "path": "/api/v1/deposit/history",
+          "host": "mainnet.zklighter.elliot.ai",
+          "error": "ClientConnectorDNSError",
+          "last_phase": "dns",
+          "elapsed_ms": 3.381,
+          "phase_ms": {
+            "acquire_connection": 0.6048640061635524,
+            "connect_or_tls": 0.02453400520607829,
+            "dns": 2.745645004324615
+          },
+          "local_quota_weight": 1,
+          "http_attempts": 1
+        }
+      ]
+    }
+  ],
+  "transport_reconnect_counts": {
+    "before": {
+      "binance": 0,
+      "lighter": 1
+    },
+    "last_active": {
+      "binance": 0,
+      "lighter": 1
+    },
+    "binance_channels": {}
+  },
+  "best_hypothetical_model": {
+    "evaluated_at": 1791287453.7249482,
+    "residual_bps": "1.507155938182670794256275000",
+    "model": {
+      "hypothetical_side": "sell",
+      "projected_exit_price_at_basis": "86282.69924568018496993558492",
+      "edge_after_two_local_book_legs_bps": "1.483362900709194577285615125",
+      "roundtrip_fee_assumption_bps": "0.0000",
+      "uncertainty_buffer_assumption_bps": "5",
+      "edge_after_fee_assumption_and_5bps_buffer": "-3.516637099290805422714384875",
+      "fee_exact": null
+    }
+  },
+  "model_assumptions": {
+    "parallel_future_local_book_shift_to_basis": true,
+    "roundtrip_metadata_fee_bps": "0.0000",
+    "uncertainty_buffer_bps": "5",
+    "individual_exact_fee": null,
+    "fill_latency_measured": false,
+    "spread_counted_once_in_VWAP_legs": true
+  },
+  "verification": {
+    "checked_at_epoch": 1791289954.0305102,
+    "checked_at_wib": "2026-10-06T19:32:34.030510+07:00",
+    "engine_pid": 378689,
+    "equity_usdc": "49.430756",
+    "account_component_ages_s": {
+      "account": 0.19594464299734682,
+      "active_orders": 0.30758429001434706
+    },
+    "history_complete": true,
+    "cash": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "state": "IDLE",
+    "order_permission": false,
+    "loaded_permission": null,
+    "session_status": "closed",
+    "activation_status": "ACTIVATED",
+    "pending_activation_count": 0,
+    "unresolved_intents": 0,
+    "source_hashes_unchanged": true
+  }
+}

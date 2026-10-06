@@ -1,0 +1,128 @@
+{
+  "created_at_utc": "2026-10-06T12:32:34.049283+00:00",
+  "private_root": "/home/yuri/Workspace/outputs/lighter-start-when-ready-session-20261006-185025",
+  "session_id": "713be53b-5d75-48c0-8b75-e5c0558afd1f",
+  "private_data_in_git": false,
+  "files": [
+    {
+      "name": "activation-binding.json",
+      "bytes": 283,
+      "sha256": "653bfdd334547ef2c6e88bca5afc0c3832d9d49e16aae135f13d1df69f704723"
+    },
+    {
+      "name": "activation-request.json",
+      "bytes": 12157,
+      "sha256": "1e9f79bd083e45e1844603cbadb4186316d3117d0dbd9ab8e9952483076825ad"
+    },
+    {
+      "name": "analysis-final.log",
+      "bytes": 3622,
+      "sha256": "c972d3db1f1facee817206557199238a3463f44556364a0aea5884399659997c"
+    },
+    {
+      "name": "analysis-first-pass.log",
+      "bytes": 337,
+      "sha256": "6e76ce4736590c5423f850b0408982a21a890b1c41c78c264bdef9d16899b1b7"
+    },
+    {
+      "name": "analysis-summary.json",
+      "bytes": 34373,
+      "sha256": "4e9469f72fe9e04ec928a1e6f167f4328a16ac45f2b161d63f461031dcf8b46c"
+    },
+    {
+      "name": "analysis_driver.py",
+      "bytes": 13204,
+      "sha256": "5f1e70ca4414d74bb706a49c4408c0aab7cda1578a6c57459842cfd8de557881"
+    },
+    {
+      "name": "authorization-id.json",
+      "bytes": 225,
+      "sha256": "1fb8fbe74765117f12ad420f67701d4d5e89f46536bd28de43f7713939ca12d5"
+    },
+    {
+      "name": "authorization.json",
+      "bytes": 1719,
+      "sha256": "b30537bb6de5ccf467310166b90cdfc0219248b5adde26992bac4ea83c7703ba"
+    },
+    {
+      "name": "before-authorization-config.json",
+      "bytes": 875,
+      "sha256": "166468b4267eea9b8ec58c133e9025be7d504feee71ca24f12e5894c8cbdb4c6"
+    },
+    {
+      "name": "before-authorization-db.sqlite",
+      "bytes": 41422848,
+      "sha256": "6ae14e35122262a338cc0e9f961870c145a734c7526219145332f0eaea91fe22"
+    },
+    {
+      "name": "before-authorization-status.json",
+      "bytes": 313538,
+      "sha256": "b4c2c117c99782678d10741fe5bf3d07eac6960f94aaffe17679c1a92a1d862b"
+    },
+    {
+      "name": "commands.json",
+      "bytes": 371,
+      "sha256": "40bc7a7ee009579f62629715d2ac74cba6b08156ce8c6af00cb3fd260cb181ad"
+    },
+    {
+      "name": "engine-events.json",
+      "bytes": 1016180,
+      "sha256": "1d28694164d8ff04adf5ba788559dd15819e14a3924fa2e71f316364f3ee10d9"
+    },
+    {
+      "name": "final-config.json",
+      "bytes": 875,
+      "sha256": "166468b4267eea9b8ec58c133e9025be7d504feee71ca24f12e5894c8cbdb4c6"
+    },
+    {
+      "name": "final-db.sqlite",
+      "bytes": 42229760,
+      "sha256": "a1f42e8b14361d01baa73e33fcd572a03f00a3c2c32fbfb21a1e6d3503846c4d"
+    },
+    {
+      "name": "final-status.json",
+      "bytes": 343389,
+      "sha256": "b963d867a391f88c35c919072b72fa1bc562b355bc42f5780a4c7a5b6f363e92"
+    },
+    {
+      "name": "final-verification-status.json",
+      "bytes": 349048,
+      "sha256": "6a447ebbe9255ca2c51aac57a0356d3bd5ba895f68d46a2a8054491b76905caa"
+    },
+    {
+      "name": "finished.json",
+      "bytes": 323202,
+      "sha256": "3c0430639d42e13974a43084db2142b9a34f2cc2c431a0016f35ba1971582b51"
+    },
+    {
+      "name": "launcher.json",
+      "bytes": 2599,
+      "sha256": "0796bdd7d303e11663ec8f0b45baca5e80d9a6a8d3ff5de78e6253824f01f876"
+    },
+    {
+      "name": "snapshots.jsonl.gz",
+      "bytes": 127515130,
+      "sha256": "2748b332d52c3f763897911807badd0eeacf43e6e67e17708d4832dca637e575"
+    },
+    {
+      "name": "staged-config.json",
+      "bytes": 873,
+      "sha256": "237c643df8effe1a2b707dd38cf48935422a98f3221bde060f3857dca6f560c6"
+    },
+    {
+      "name": "started.json",
+      "bytes": 5498,
+      "sha256": "c9c51c3e57aa844ab04f0add69e577a567d982fc9dd559f3ea8cc36790310e8c"
+    },
+    {
+      "name": "supervisor.log",
+      "bytes": 6680,
+      "sha256": "64eeceb539dd372615eb82e1ca4def18c70f537e894a5d68bb63556162127b32"
+    },
+    {
+      "name": "terminal-status-check.json",
+      "bytes": 374414,
+      "sha256": "6922d1e50ad641358d8875e1b19a4b9d8ada1013c46b625d3fd4f1c09024f71a"
+    }
+  ]
+}
