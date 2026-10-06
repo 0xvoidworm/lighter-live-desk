@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "private_root": "/home/yuri/Workspace/outputs/lighter-socket-peer-rollout-20261006",
+  "files": [
+    {
+      "file": "analysis.log",
+      "bytes": 7772,
+      "sha256": "80aacb3959d3c4b9bd20e56594c7cdf3cdb61e43ac63e35f3c80979786042c89"
+    },
+    {
+      "file": "analyze_smoke.py",
+      "bytes": 6449,
+      "sha256": "22179f509a1bee714ecf35fb2589a5598f236b01b2935c4c0e6b21cf2b540da7"
+    },
+    {
+      "file": "capture.json",
+      "bytes": 258,
+      "sha256": "1a218e038d64ec04f6acd27badf7df6e22f5b97163479382669140c226d76d16"
+    },
+    {
+      "file": "diff_check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "final-status.json",
+      "bytes": 181607,
+      "sha256": "bdb9c85d09f31192762fb4c7422359d31c1e77bff47d6c5c46b34ffe41c4fd39"
+    },
+    {
+      "file": "gates.json",
+      "bytes": 1194,
+      "sha256": "e0098da0da895b5993069be16e42932cbc4bb714c459827370c0acb20c320169"
+    },
+    {
+      "file": "library-hook-hashes.json",
+      "bytes": 465,
+      "sha256": "6c407c93c7d6c1969ffd136fb9178f976fb35229e0766428a7974066b897d315"
+    },
+    {
+      "file": "mypy.log",
+      "bytes": 44,
+      "sha256": "fa935e779fe5886f2480e415c7e46616bdedad407f9da1cca28e7d341d95f4d7"
+    },
+    {
+      "file": "os-sockets-150.json",
+      "bytes": 2648,
+      "sha256": "d1c1606a4dd3b1b030af841c6372b87918d73c27ed6d4ca3d4bee60885fc6d3b"
+    },
+    {
+      "file": "os-sockets-45.json",
+      "bytes": 2963,
+      "sha256": "689740cb871cc1d569b43835d1148878da074d0b15ec07de0e89450f2099314c"
+    },
+    {
+      "file": "pre-status.json",
+      "bytes": 338278,
+      "sha256": "3e5ae9b799267706d6bd08a986263295b867f1176cf24233395c9ad04193796f"
+    },
+    {
+      "file": "precheck.json",
+      "bytes": 3398,
+      "sha256": "78dbfe982848bd33406360ebd8c5a1a24e09d9aac6d7231604a0622dd368930a"
+    },
+    {
+      "file": "private-socket-joins.json",
+      "bytes": 7072,
+      "sha256": "e59729ae90b13f24e1ea3c9e146972764b160fe869b08a23cb4af9649729410a"
+    },
+    {
+      "file": "production-transport-prefix.jsonl.gz",
+      "bytes": 24604,
+      "sha256": "aa4b399a81add90d04acceb71651f93b07833d2f3757cb6a874a253d0ff56f6d"
+    },
+    {
+      "file": "production-transport-rows.json",
+      "bytes": 840603,
+      "sha256": "9af93981eb35521b01c22cf95d346589ccf4bc0e681154f4c0a0202d14b5cbb6"
+    },
+    {
+      "file": "production_suite.log",
+      "bytes": 1804,
+      "sha256": "7f2ab415c8bcf8537809bdd7cac210fd0bbaa43f1e17ab94c3f254d0fd309f54"
+    },
+    {
+      "file": "restart-request.json",
+      "bytes": 151,
+      "sha256": "7f8d1272b2d8f4f6ebc20bfc5ca8f92bbf2609e994c7c720cf40174aabf76be7"
+    },
+    {
+      "file": "restart-result.json",
+      "bytes": 2870,
+      "sha256": "6cda389e78617983a31dd8f17805ebf63c50936aba1d73a21e3d6144d2329c89"
+    },
+    {
+      "file": "rollout_smoke.py",
+      "bytes": 9548,
+      "sha256": "4cb0167ec369ecc4f11c68993139f953a478579b222b51855c90b8c8de4513a1"
+    },
+    {
+      "file": "ruff.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "file": "safe-summary.json",
+      "bytes": 18982,
+      "sha256": "d414a49ae8697faa46f254d221b8b839287f575fc058f31417510b124c975ed6"
+    },
+    {
+      "file": "smoke-end.json",
+      "bytes": 719,
+      "sha256": "89d3ced786ee105d659c6818e543bc29bd8821648e2324e0cea13638f0ea877f"
+    },
+    {
+      "file": "smoke-status.jsonl",
+      "bytes": 1557381,
+      "sha256": "32419ebcceb2150f3328262ec1ea3542c035cfd04d0d717d05c5591a9f0aac57"
+    },
+    {
+      "file": "source_hashes_before_commit.json",
+      "bytes": 2308,
+      "sha256": "1fc8d19e93342a03cd9ff3e2c72a5ec3d72f40cb8fb07ab56ad591f5a252cc21"
+    },
+    {
+      "file": "targeted.log",
+      "bytes": 898,
+      "sha256": "78315edad33b0f0ebc761aa9876be97ba0a5d02d7d28bd71037218993b1bd36f"
+    },
+    {
+      "file": "terminal-check.json",
+      "bytes": 1089,
+      "sha256": "9d52f9551ab2bf48f745b9cbc42ee41ad7bee3113412ef579f7b988214fb7375"
+    }
+  ],
+  "raw_in_git": false,
+  "local_addresses_in_git": false,
+  "prefix_note": "sealed prefix of active gzip; EOF expected; parsed JSON rows preserved and hashed",
+  "smoke_window": {
+    "start_epoch": 1791306269.8295357,
+    "end_epoch": 1791306449.8296947,
+    "start_wib": "2026-10-07T00:04:29.829536+07:00",
+    "end_wib": "2026-10-07T00:07:29.829695+07:00",
+    "duration_seconds": 180.000158961,
+    "includes_startup": true,
+    "one_restart": true
+  }
+}

@@ -1,0 +1,577 @@
+{
+  "purpose": "passive actual socket identity rollout; no trading authorization",
+  "code_commit": "776bec4a6b476d7cd8bd49ffbb71a1b7611fffc5",
+  "prior_loaded_code": "8d785cbea81a2d257cb43353c99f0729bb85f68a",
+  "engine_pid": 405247,
+  "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+  "source_sha256": {
+    "src/lldesk/__init__.py": "6e0bea5445d4082f629dd11a5620d8186290e292368349663ec0ca31ecbfc86d",
+    "src/lldesk/account.py": "7f1abffd6998197e5179eb23619279bf3665dd286662a9f120ab5cb0e8ba508d",
+    "src/lldesk/activation.py": "61fdd51192c1293a9feab1563cb6b851457d0d8952b18957c07657ef46b77b8a",
+    "src/lldesk/api.py": "830dc22aa93c22f95e56cfe729258c49422c9cd6fed715d5b6d90c6f9a0d55c4",
+    "src/lldesk/audit_scheduler.py": "95e073a99eac38fb028d496bbb9efffba5121aeb3b36ee7eed3795b02c8638f4",
+    "src/lldesk/cli.py": "fef3f236e9c71607783971aed2d27768af7583fdd0b6fe1a813f50ec3da35bc7",
+    "src/lldesk/clock_trace.py": "e7849605819526e12711ccf1ed212b8a840e611941223f77491b4b09d5a83312",
+    "src/lldesk/config.py": "d5cf81e6e5b45b65e091045251e007533f86a69e86222e637c969ed4dfc7fe00",
+    "src/lldesk/db.py": "8cefd5c365c41fe044895d11fb49223ef6f4684fbc2c63f7a55b1182985e6a6a",
+    "src/lldesk/diagnostics.py": "82c76d515e542d9f05c8033879e3c8d2efbb2d424136e3af196c18abf2bfd3f3",
+    "src/lldesk/engine.py": "7a5e2ac8a48a6a7376cd18bb8e6e696cb86759c2dcaf1e4f9cd6308265bced42",
+    "src/lldesk/fee_audit.py": "adb5155a4afc705b5dbbdfcf5a4eb12ed955f50df90dc1cbfa3cd16a16083cd4",
+    "src/lldesk/fx.py": "e477e46b38f097284b6b4091862ff6e5b7f8b4b1ba9ecc1d5fdeadb04ae6822e",
+    "src/lldesk/market.py": "a8274889b77fa87eeb5b1864b36d45f3942034b46a5c0beb5b5ac449a01a8a3a",
+    "src/lldesk/models.py": "605e3ceb2a3c7f93dc857b5b9639b418a4eb0b1ca6afc1aad722425074d60ea5",
+    "src/lldesk/network.py": "cc8e4e46de27e5baceef232dd077ccfa05619c56845a31c989763638385a7f5e",
+    "src/lldesk/preflight.py": "4bbf6c05655fb0e8bebf45475c3847bd13863f0faf22eaec5d066e60b8f6a2e3",
+    "src/lldesk/risk.py": "1fea5e56911ce5e17b69baa2761b3b22910718b8c39e2182afc7113decfc183e",
+    "src/lldesk/session.py": "f52288a062717fc59e744c17f89bc8d14c255c802db65c581639fc7494189458",
+    "src/lldesk/socket_trace.py": "1a57c6390c33dd3100d05c47e229334bee7e8185b76f24a7f3b655429bd5cfac",
+    "src/lldesk/source_time.py": "c0bea20a5970fabe0c2d28d666d5e4f1d44e4fdbb4a8fd2e0cc63fbd2db6c6e5",
+    "src/lldesk/strategy.py": "5197500531876b6540dc93cf52623c315c8bc38cebd165fab90fa1fe1b1f5e0c",
+    "src/lldesk/transport_trace.py": "642b82548b32556096ce1b4aedbe23b1375ab3aef539f9ab84172df1ba645978",
+    "src/lldesk/websocket_trace.py": "c499e1fc4db8dc00f049a9e5a24c68691655cc11cc5a674c19468dab292ccd4d"
+  },
+  "config_sha256": "166468b4267eea9b8ec58c133e9025be7d504feee71ca24f12e5894c8cbdb4c6",
+  "libraries": {
+    "aiohttp": "3.14.3",
+    "websockets": "16.1.1"
+  },
+  "window": {
+    "start_epoch": 1791306269.8295357,
+    "end_epoch": 1791306449.8296947,
+    "start_wib": "2026-10-07T00:04:29.829536+07:00",
+    "end_wib": "2026-10-07T00:07:29.829695+07:00",
+    "duration_seconds": 180.000158961,
+    "includes_startup": true,
+    "one_restart": true
+  },
+  "channel_mapping": [
+    {
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247,
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:1",
+      "channel": "lighter",
+      "library": "websockets",
+      "wall_ns": 1791306271228703667,
+      "monotonic_ns": 191953467638313,
+      "peer": {
+        "address": "3.168.203.20",
+        "port": 443
+      },
+      "address_family": {
+        "number": 2,
+        "name": "AF_INET"
+      },
+      "fd": 22,
+      "inode": 1778353,
+      "cookie": null,
+      "cookie_unavailable_reason": "SO_COOKIE_not_exposed_by_installed_python",
+      "metadata_status": "available",
+      "socket_capture_ms": 0.138769,
+      "OS_joins": [
+        {
+          "observation_monotonic_ns": 191997128530596,
+          "status": "matched",
+          "reason": "unique_PID_tuple_with_verified_lifetime",
+          "checks": [
+            "pid",
+            "tuple",
+            "address_family",
+            "lifetime",
+            "inode",
+            "fd"
+          ],
+          "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:1",
+          "inode": 1778353
+        },
+        {
+          "observation_monotonic_ns": 192102119280154,
+          "status": "matched",
+          "reason": "unique_PID_tuple_with_verified_lifetime",
+          "checks": [
+            "pid",
+            "tuple",
+            "address_family",
+            "lifetime",
+            "inode",
+            "fd"
+          ],
+          "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:1",
+          "inode": 1778353
+        }
+      ]
+    },
+    {
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247,
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:2",
+      "channel": "lighter_account",
+      "library": "websockets",
+      "wall_ns": 1791306271239817792,
+      "monotonic_ns": 191953478752654,
+      "peer": {
+        "address": "3.168.203.15",
+        "port": 443
+      },
+      "address_family": {
+        "number": 2,
+        "name": "AF_INET"
+      },
+      "fd": 14,
+      "inode": 1778354,
+      "cookie": null,
+      "cookie_unavailable_reason": "SO_COOKIE_not_exposed_by_installed_python",
+      "metadata_status": "available",
+      "socket_capture_ms": 0.10203,
+      "OS_joins": [
+        {
+          "observation_monotonic_ns": 191997128530596,
+          "status": "matched",
+          "reason": "unique_PID_tuple_with_verified_lifetime",
+          "checks": [
+            "pid",
+            "tuple",
+            "address_family",
+            "lifetime",
+            "inode",
+            "fd"
+          ],
+          "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:2",
+          "inode": 1778354
+        },
+        {
+          "observation_monotonic_ns": 192102119280154,
+          "status": "matched",
+          "reason": "unique_PID_tuple_with_verified_lifetime",
+          "checks": [
+            "pid",
+            "tuple",
+            "address_family",
+            "lifetime",
+            "inode",
+            "fd"
+          ],
+          "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:2",
+          "inode": 1778354
+        }
+      ]
+    },
+    {
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247,
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:4",
+      "channel": "binance_market",
+      "library": "aiohttp",
+      "wall_ns": 1791306271261610560,
+      "monotonic_ns": 191953500545056,
+      "peer": {
+        "address": "18.179.166.158",
+        "port": 443
+      },
+      "address_family": {
+        "number": 2,
+        "name": "AF_INET"
+      },
+      "fd": 21,
+      "inode": 1778360,
+      "cookie": null,
+      "cookie_unavailable_reason": "SO_COOKIE_not_exposed_by_installed_python",
+      "metadata_status": "available",
+      "socket_capture_ms": 0.114241,
+      "OS_joins": [
+        {
+          "observation_monotonic_ns": 191997128530596,
+          "status": "matched",
+          "reason": "unique_PID_tuple_with_verified_lifetime",
+          "checks": [
+            "pid",
+            "tuple",
+            "address_family",
+            "lifetime",
+            "inode",
+            "fd"
+          ],
+          "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:4",
+          "inode": 1778360
+        },
+        {
+          "observation_monotonic_ns": 192102119280154,
+          "status": "matched",
+          "reason": "unique_PID_tuple_with_verified_lifetime",
+          "checks": [
+            "pid",
+            "tuple",
+            "address_family",
+            "lifetime",
+            "inode",
+            "fd"
+          ],
+          "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:4",
+          "inode": 1778360
+        }
+      ]
+    },
+    {
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247,
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:3",
+      "channel": "binance_public",
+      "library": "aiohttp",
+      "wall_ns": 1791306271264113459,
+      "monotonic_ns": 191953503047780,
+      "peer": {
+        "address": "13.112.27.226",
+        "port": 443
+      },
+      "address_family": {
+        "number": 2,
+        "name": "AF_INET"
+      },
+      "fd": 20,
+      "inode": 1778359,
+      "cookie": null,
+      "cookie_unavailable_reason": "SO_COOKIE_not_exposed_by_installed_python",
+      "metadata_status": "available",
+      "socket_capture_ms": 0.094113,
+      "OS_joins": [
+        {
+          "observation_monotonic_ns": 191997128530596,
+          "status": "matched",
+          "reason": "unique_PID_tuple_with_verified_lifetime",
+          "checks": [
+            "pid",
+            "tuple",
+            "address_family",
+            "lifetime",
+            "inode",
+            "fd"
+          ],
+          "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:3",
+          "inode": 1778359
+        },
+        {
+          "observation_monotonic_ns": 192102119280154,
+          "status": "matched",
+          "reason": "unique_PID_tuple_with_verified_lifetime",
+          "checks": [
+            "pid",
+            "tuple",
+            "address_family",
+            "lifetime",
+            "inode",
+            "fd"
+          ],
+          "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:3",
+          "inode": 1778359
+        }
+      ]
+    }
+  ],
+  "OS_observation_count": 2,
+  "transport_event_counts": {
+    "handshake_started": 4,
+    "coverage_observed": 1,
+    "source_clock": 3,
+    "handshake_completed": 4,
+    "subscriptions_sent": 2,
+    "heartbeat_schedule": 14,
+    "snapshot_applied": 2,
+    "depth_bridged": 1,
+    "receipt_source_valid": 1,
+    "pulse": 34,
+    "heartbeat_callback": 26,
+    "loop_timer_lag": 9,
+    "control_send_started": 11,
+    "control_send_completed": 11,
+    "pong_deadline": 10,
+    "control_frame": 11,
+    "pong_observed": 10
+  },
+  "reconnects_in_window": 0,
+  "logger": {
+    "events_emitted": 154,
+    "events_written": 154,
+    "events_dropped": 0,
+    "write_errors": 0,
+    "queue_capacity": 512,
+    "peak_queue_size": 3,
+    "max_write_ms": 2.933467,
+    "max_queue_age_ms": 8.67184,
+    "max_loop_lag_ms": 36.861494,
+    "hook_total_ms": 164.926344,
+    "bytes_written": 569165
+  },
+  "frame_counts_by_connection": [
+    {
+      "channel": "lighter",
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:1",
+      "frames": {
+        "library_protocol:TEXT": 8324,
+        "library_protocol:bytes": 5225963,
+        "application:TEXT": 8324,
+        "application:bytes": 5225943,
+        "library_protocol:PONG": 5
+      },
+      "first_close": null
+    },
+    {
+      "channel": "lighter_account",
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:2",
+      "frames": {
+        "library_protocol:TEXT": 2,
+        "library_protocol:bytes": 640,
+        "application:TEXT": 2,
+        "application:bytes": 620,
+        "library_protocol:PONG": 5
+      },
+      "first_close": null
+    },
+    {
+      "channel": "binance_public",
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:3",
+      "frames": {
+        "library_transport:CHUNK": 1741,
+        "library_dequeue:TEXT": 1747,
+        "library_dequeue:bytes": 4879768,
+        "application:TEXT": 1747,
+        "application:bytes": 4879755,
+        "library_dequeue:PING": 1
+      },
+      "first_close": null
+    },
+    {
+      "channel": "binance_market",
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:4",
+      "frames": {
+        "library_transport:CHUNK": 1053,
+        "library_dequeue:TEXT": 2935,
+        "library_dequeue:bytes": 600249,
+        "application:TEXT": 2935,
+        "application:bytes": 600249
+      },
+      "first_close": null
+    }
+  ],
+  "bootstrap_events": [
+    {
+      "event_id": "6e870e45fd1a4a198f65eb06a9b684a5:event:5",
+      "kind": "coverage_observed",
+      "wall_ns": 1791306270980391706,
+      "monotonic_ns": 191953219324810,
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247
+    },
+    {
+      "event_id": "6e870e45fd1a4a198f65eb06a9b684a5:event:17",
+      "kind": "snapshot_applied",
+      "wall_ns": 1791306271441436765,
+      "monotonic_ns": 191953680369734,
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247,
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:1",
+      "U": null,
+      "u": null,
+      "pu": null
+    },
+    {
+      "event_id": "6e870e45fd1a4a198f65eb06a9b684a5:event:18",
+      "kind": "snapshot_applied",
+      "wall_ns": 1791306271469761345,
+      "monotonic_ns": 191953708694212,
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247,
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:3",
+      "U": null,
+      "u": null,
+      "pu": null
+    },
+    {
+      "event_id": "6e870e45fd1a4a198f65eb06a9b684a5:event:19",
+      "kind": "depth_bridged",
+      "wall_ns": 1791306271469954800,
+      "monotonic_ns": 191953708888491,
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247,
+      "connection_id": "6e870e45fd1a4a198f65eb06a9b684a5:3",
+      "U": 11749663315993,
+      "u": 11749663328070,
+      "pu": 11749663315435
+    },
+    {
+      "event_id": "6e870e45fd1a4a198f65eb06a9b684a5:event:20",
+      "kind": "receipt_source_valid",
+      "wall_ns": 1791306271618007870,
+      "monotonic_ns": 191953856939688,
+      "run_id": "6e870e45fd1a4a198f65eb06a9b684a5",
+      "pid": 405247
+    }
+  ],
+  "readiness": {
+    "state": "IDLE",
+    "technical_ready_at_end": false,
+    "checks_at_end": {
+      "market_data": true,
+      "source_freshness": true,
+      "fx_normalization": true,
+      "coverage": false,
+      "basis_scale": false,
+      "account_identity": true,
+      "margin_settings": true,
+      "account_fresh": true,
+      "reconciliation_fresh": true,
+      "reconciliation_idle": true,
+      "entry_request_reserve": true,
+      "flat_clean": true,
+      "lifecycle_idle": true,
+      "journal": true,
+      "incident_flags": true,
+      "funding_known": true,
+      "cash_audit": true,
+      "loss_limits": true,
+      "historical_fee_evidence": true,
+      "minimum_sizing_depth": true
+    },
+    "blocked_snapshot_counts": {
+      "basis_scale": 36,
+      "coverage": 35,
+      "market_data": 5,
+      "source_freshness": 5
+    },
+    "snapshots": 36,
+    "post_warmup_readiness_not_measured": true,
+    "reason": "smoke <=180s; production requires600s coverage; no waiting/repeated observation",
+    "coverage_at_end": {
+      "duration_required_s": 600,
+      "duration_observed_s": 178.1,
+      "duration_remaining_s": 421.9,
+      "total_samples_required": 480,
+      "total_samples": 175,
+      "window_s": 600,
+      "recent_samples_required": 480,
+      "recent_samples": 175,
+      "max_sample_gap_s": 1.074,
+      "allowed_gap_s": 5,
+      "long_gap_count": 0,
+      "gap_wait_remaining_s": 0,
+      "last_sample_age_s": 0.3,
+      "warmup_complete": false,
+      "coverage_complete": false,
+      "ready": false,
+      "buffer_started_at": 1791306270.595799,
+      "buffer_reset_reason": "engine_start",
+      "last_interruption": null
+    }
+  },
+  "final": {
+    "account_index": 751745,
+    "market_id": 1,
+    "equity": "49.430756",
+    "collateral": "49.430756",
+    "position_qty": "0.00000",
+    "active_orders": 0,
+    "pending_orders": 0,
+    "other_positions": 0,
+    "component_ages_s": {
+      "account": 6.252925659995526,
+      "active_orders": 6.384343411016744
+    },
+    "history_audit": {
+      "complete": true,
+      "required": false,
+      "reason": "complete audit verified; idle periodic deadline 120s",
+      "idle_interval_seconds": 120.0,
+      "age_seconds": 56.66322478899383
+    },
+    "cash_audit": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "persistent_counts": {
+      "intents": 6,
+      "fills": 4,
+      "commands": 21,
+      "activation_requests": 1,
+      "unresolved_intents": 0,
+      "pending_commands": 0,
+      "pending_activation": 0,
+      "fee_exact_unknown": 4
+    },
+    "state": "IDLE",
+    "entries_stopped": true,
+    "allow_live_orders": false,
+    "session_status": "closed",
+    "loaded_permission": null,
+    "historical_activation_row_status": "ACTIVATED",
+    "new_orders_or_commands_or_fills": false,
+    "fee_exact_NULL_count": 4
+  },
+  "limitations": [
+    "old comparator production public peer remains unknown; no retrospective mapping",
+    "no runtime reconnect or auth rotation forced; recovery/FD reuse/rotation are offline tests",
+    "SO_COOKIE unavailable if not exposed by installed Python; no hardcoded syscall",
+    "addresses local and full tuples remain private; public status exposes only availability/capture cost",
+    "OS matching requires verified lifetime; PID+FD alone are not sufficient",
+    "3-minute smoke does not assess historical delay/reconnect cause or live readiness after warmup"
+  ],
+  "decision": "accept passive handshake/socket mapping; keep trading authorization closed",
+  "next_step": "use existing mapped passive traces for next transport comparison, keeping actual peer as comparison factor; no automatic experiment",
+  "incremental_metadata_cost": {
+    "handshake_count": 4,
+    "capture_total_ms": 0.449153,
+    "metadata_JSON_bytes_uncompressed": 1071,
+    "no_added_network_requests_or_frames": true,
+    "existing_handshake_event_augmented_only": true,
+    "capture_excludes_async_disk_writer": true
+  },
+  "terminal_account_check": {
+    "observed_epoch": 1791306655.5153096,
+    "pid": 405247,
+    "state": "IDLE",
+    "equity": "49.430756",
+    "collateral": "49.430756",
+    "position_qty": "0.00000",
+    "active_orders": 0,
+    "pending_orders": 0,
+    "other_positions": 0,
+    "component_ages_s": {
+      "account": 7.653105395002058,
+      "active_orders": 7.781419036007719
+    },
+    "history_audit": {
+      "complete": true,
+      "required": false,
+      "reason": "complete audit verified; idle periodic deadline 120s",
+      "idle_interval_seconds": 120.0,
+      "age_seconds": 20.080598198022926
+    },
+    "cash_audit": {
+      "status": "matched",
+      "net_difference_usdc": "0.000000",
+      "cash_change_usdc": "0.000000",
+      "individual_fees_known": false
+    },
+    "persistent_counts": {
+      "intents": 6,
+      "fills": 4,
+      "commands": 21,
+      "activation_requests": 1,
+      "unresolved_intents": 0,
+      "pending_commands": 0,
+      "pending_activation": 0,
+      "fee_exact_unknown": 4
+    },
+    "order_off": true,
+    "entries_stopped": true,
+    "session_closed": true,
+    "loaded_permission": null,
+    "unit_properties": "MainPID=405247\nNRestarts=0\n"
+  },
+  "tests": {
+    "targeted": "38 passed, 2 pre-existing SDK deprecation warnings",
+    "production": "529 passed, 3 pre-existing deprecation warnings, 101.93s",
+    "ruff": "All checks passed",
+    "mypy": "Success, 24 source files",
+    "network_in_new_tests": "localhost/fake account only; no exchange or signer initialization"
+  }
+}
