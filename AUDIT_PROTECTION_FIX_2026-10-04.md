@@ -105,7 +105,7 @@ memeriksa entry IOC, stop, cancel dan close/partial size; nonce dan transport
 diganti, seluruh I/O jaringan diblokir. IOC expiry -1 gagal sebelum transport;
 expiry 0 dan stop helper resmi lolos. Ini bukti lokal, bukan penerimaan mainnet.
 
-Log pengujian: `/home/yuri/Workspace/outputs/lighter-protection-fix-20261004/`.
+Log pengujian: `~/Workspace/outputs/lighter-protection-fix-20261004/`.
 Bukti terstruktur serta pemeriksaan runtime akhir:
 `audits/protection-fix-20261004.json`.
 Output lengkap pengujian juga dicommit pada

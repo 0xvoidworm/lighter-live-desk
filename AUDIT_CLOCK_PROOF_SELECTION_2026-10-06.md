@@ -21,7 +21,7 @@ tidak membuktikan coverage/entry/live readiness, dan belum merupakan hasil runti
 Baca AGENTS.md, RUNBOOK.md, audit bounded session, summary dan kedua manifest.
 HEAD awal `0c998dc`; runtime **1205d35/PID341351**, sumber produksi tidak diubah.
 Seluruh **16 hash bukti privat cocok**. Input tetap berada di
-`/home/yuri/Workspace/outputs/lighter-strategy-session-20261006/00fa3c17-168e-4ee7-a757-ea6a474f0b22/`.
+`~/Workspace/outputs/lighter-strategy-session-20261006/00fa3c17-168e-4ee7-a757-ea6a474f0b22/`.
 Analisis tidak menyalin raw/private account recordings ke Git.
 
 Status engine aktual saat mulai: IDLE, orderOFF, sesi UUID tersebutclosed,

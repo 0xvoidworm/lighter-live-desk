@@ -1,6 +1,26 @@
-# Lighter Live Desk
+```text
+╭──────────────────────────────────────────────────────────────────────╮
+│   l i g h t e r - l i v e - d e s k                                  │
+│   [TRADING] BTC perpetual desk lokal — observe first                 │
+╰──────────────────────────────────────────────────────────────────────╯
+```
 
 Local BTC perpetual desk. The engine and dashboard API run as separate processes. The initial configuration is **observe only**; it can display public live data without any key or funds.
+
+**Ringkas**
+
+- Engine (Python, `uv`) + dashboard API + frontend (Vite) — dijalankan dengan `./dev.sh`, dibuka di `http://127.0.0.1:5173`. Engine adalah satu-satunya pengirim order.
+- `config.json`, `secrets.json`, `state/`, dan rekaman pasar **tidak pernah** ikut repo; key tidak dicatat dan tidak di-commit.
+- DNS Binance bisa dipaksa ke `doh` bila DNS router bermasalah (Cloudflare, fallback Google, hanya untuk `fapi`/`fstream` Binance).
+- Status & bukti: `PROGRESS.md`, `AUDIT_2026-09-30.md`, `RUNBOOK.md`. **Order mainnet belum pernah diuji.**
+
+## Disclaimer
+
+Riset pribadi — bukan nasihat finansial, bukan layanan sinyal, dan bukan jaminan
+profit. Engine hanya bisa mengirim order nyata setelah live preflight di
+`RUNBOOK.md` terpenuhi dan pengguna mengaktifkannya secara sadar; restart selalu
+dimulai dari RECONCILING dan tidak melanjutkan entri sendiri. Pemakaian
+sepenuhnya risiko pengguna; lisensi MIT berarti tanpa garansi apa pun.
 
 ## Quick start
 

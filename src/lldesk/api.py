@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 import secrets
+import sqlite3
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 from uuid import UUID
 
@@ -9,11 +12,12 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictBool
 
 from .activation import ActivationRequests
 from .config import repo_root
 from .db import Database
+from .operator_session import AdmissionError, OperatorSession, read_db, status_readonly
 
 ALLOWED_HOSTS = {"127.0.0.1", "localhost", "lighter.localhost"}
 ALLOWED_ORIGINS = {
@@ -44,9 +48,23 @@ class ActivationBinding(BaseModel):
     authorization_expires_epoch: float = Field(gt=0, allow_inf_nan=False)
 
 
+class OperatorStart(BaseModel):
+    request_id: UUID
+    proposal: str
+    consent: StrictBool
+
+
 def create_app(root: Path | None = None) -> FastAPI:
     root = root or repo_root()
-    app = FastAPI(title="Lighter Live Desk", docs_url=None, redoc_url=None)
+    operator = OperatorSession(root)
+
+    @asynccontextmanager
+    async def lifespan(app):
+        yield
+        operator.shutdown()
+
+    app = FastAPI(title="Lighter Live Desk", docs_url=None, redoc_url=None, lifespan=lifespan)
+    app.state.operator_session = operator
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(ALLOWED_ORIGINS),
@@ -69,28 +87,53 @@ def create_app(root: Path | None = None) -> FastAPI:
 
     @app.get("/api/status")
     def status():
-        db = Database(root / "state" / "desk.db")
+        result = status_readonly(root)
         try:
-            result = db.read_status()
-            result["connected"] = time.time() - result.get("updated_at", 0) < 3
-            if not result["connected"]:
-                result["state"] = "DISCONNECTED"
-                result["reason"] = "engine tidak mengirim heartbeat; data terakhir bukan live"
-            result["events"] = db.recent_events(15)
-            return result
-        finally:
-            db.close()
+            with read_db(root) as db:
+                rows = db.execute(
+                    "SELECT at,kind,body FROM events ORDER BY id DESC LIMIT 15"
+                ).fetchall()
+                control = db.execute(
+                    "SELECT value FROM flags WHERE key='strategy_session'"
+                ).fetchone()
+                activation = db.execute(
+                    "SELECT body FROM activation_requests ORDER BY command_id DESC LIMIT 1"
+                ).fetchone()
+                if control:
+                    result["strategy_session"] = json.loads(control[0])
+                if activation:
+                    result["activation_request"] = json.loads(activation[0])
+        except sqlite3.OperationalError:
+            rows = []
+        result["events"] = [{"at": x[0], "kind": x[1], "body": json.loads(x[2])} for x in rows]
+        return result
+
+    @app.get("/api/session/preview")
+    def session_preview():
+        return operator.preview()
+
+    @app.post("/api/session/start")
+    def session_start(request: Request, body: OperatorStart):
+        if not secrets.compare_digest(request.headers.get("x-csrf-token", ""), csrf):
+            raise HTTPException(403, "CSRF token required")
+        try:
+            return operator.begin(str(body.request_id), body.proposal, body.consent)
+        except AdmissionError as exc:
+            raise HTTPException(409, str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(
+                503, "Persiapan belum berhasil; periksa status sebelum mengulang"
+            ) from exc
 
     @app.get("/api/activation/{request_id}")
     def activation_status(request_id: UUID):
-        db = Database(root / "state" / "desk.db")
-        try:
-            record = ActivationRequests(db).read(str(request_id))
-            if record is None:
-                raise HTTPException(404, "activation request not found")
-            return record
-        finally:
-            db.close()
+        with read_db(root) as db:
+            row = db.execute(
+                "SELECT body FROM activation_requests WHERE request_id=?", (str(request_id),)
+            ).fetchone()
+        if not row:
+            raise HTTPException(404, "activation request not found")
+        return json.loads(row[0])
 
     @app.post("/api/command/{kind}")
     def command(kind: str, request: Request, binding: ActivationBinding | None = None):
@@ -128,24 +171,22 @@ def create_app(root: Path | None = None) -> FastAPI:
 
     @app.get("/api/report")
     def report():
-        db = Database(root / "state" / "desk.db")
-        try:
-            intents = db.conn.execute(
-                "SELECT client_id,kind,side,qty,limit_price,state,tx_hash,created_at,updated_at "
-                "FROM intents ORDER BY client_id"
+        with read_db(root) as db:
+            intents = db.execute(
+                "SELECT client_id,kind,side,qty,limit_price,state,tx_hash,created_at,updated_at FROM intents ORDER BY client_id"  # noqa: E501
             ).fetchall()
-            fills = db.conn.execute(
-                "SELECT fill_id,client_id,qty,price,fee,exchange_ms,received_at "
-                "FROM fills ORDER BY received_at"
+            fills = db.execute(
+                "SELECT fill_id,client_id,qty,price,fee,exchange_ms,received_at FROM fills ORDER BY received_at"  # noqa: E501
             ).fetchall()
-            return {
-                "generated_at": time.time(),
-                "intents": intents,
-                "fills": fills,
-                "events": db.recent_events(500),
-            }
-        finally:
-            db.close()
+            events = db.execute(
+                "SELECT at,kind,body FROM events ORDER BY id DESC LIMIT 500"
+            ).fetchall()
+        return {
+            "generated_at": time.time(),
+            "intents": intents,
+            "fills": fills,
+            "events": [{"at": x[0], "kind": x[1], "body": json.loads(x[2])} for x in events],
+        }
 
     dist = root / "frontend" / "dist"
     if dist.exists():

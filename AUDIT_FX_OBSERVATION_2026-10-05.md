@@ -174,12 +174,12 @@ tidak membuktikan profitabilitas atau eksekusi order.
 Bukti aman: `audits/fx-observation-runtime-20261005.json` dan
 `audits/fx-observation-final-account-20261005.json`. Manifest menyimpan
 SHA256 rekaman `34f89fb74cb368d40720fb144cd2fae8149550f5dc33bbff0d4b7a33af316199`.
-Raw private di `/home/yuri/Workspace/outputs/lighter-fx-observation-20261005/recording`,
+Raw private di `~/Workspace/outputs/lighter-fx-observation-20261005/recording`,
 tidak di-commit. Reproduksi offline, tanpa API/order:
 
 ```sh
 .venv/bin/python scripts/analyze_fx_observation.py \
-  /home/yuri/Workspace/outputs/lighter-fx-observation-20261005/recording \
+  ~/Workspace/outputs/lighter-fx-observation-20261005/recording \
   audits/fx-observation-runtime-20261005.json \
   --market-directory state/market \
   --baseline audits/split-account-history-runtime-20261005.json

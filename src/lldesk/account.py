@@ -39,6 +39,7 @@ class RateBudget:
         self.calls: deque[float] = deque()
         self.reservations: dict[int, tuple[str, int]] = {}
         self._reservation_sequence = 0
+        self._claimed_totals: dict[str, int] = {}
         self._reservation: ContextVar[int | None] = ContextVar("rate_reservation", default=None)
 
     def _held(self, priority: str | None = None, cost: int = 0) -> int:
@@ -91,6 +92,18 @@ class RateBudget:
             self._reservation.reset(token)
             self.reservations.pop(key, None)
 
+    def claimed_total(self, priority: str) -> int:
+        """Lifetime successful claims, never refunded/pruned with the rolling window."""
+        return self._claimed_totals.get(priority, 0)
+
+    def reservation_remaining(self, priority: str) -> tuple[int, int] | None:
+        """Current context's exact lease; unrelated task claims remain global only."""
+        key = self._reservation.get()
+        owner = self.reservations.get(key) if key is not None else None
+        if key is None or owner is None or owner[0] != priority:
+            return None
+        return key, owner[1]
+
     def claim(self, priority: str, cost: int = 1) -> None:
         if not self.can_claim(priority, cost):
             raise RuntimeError("local Standard API rate reserve exhausted")
@@ -106,6 +119,7 @@ class RateBudget:
             )
         ):
             self.reservations[key] = (owner[0], max(0, owner[1] - cost))
+        self._claimed_totals[priority] = self.claimed_total(priority) + cost
         self.calls.extend([now] * cost)
 
 

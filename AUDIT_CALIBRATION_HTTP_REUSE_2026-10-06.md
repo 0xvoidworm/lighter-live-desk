@@ -212,7 +212,7 @@ API tetap proses lama;kode engine yang benar-benar dimuat8d785cb,tidak ada
 perbaikan produksi yang belum dimuat.
 
 Raw/status/SQLite/trace/logs berada di
-`/home/yuri/Workspace/outputs/lighter-calibration-reuse-20261006` (0700/0600).
+`~/Workspace/outputs/lighter-calibration-reuse-20261006` (0700/0600).
 Prefix gzip market/transport yang masih terbuka disalin,setiap JSON lengkap
 sudah dipertahankan;tail tanpa trailer ditandai. Prefix mencakup sebagian data
 sesudah deadline;statistik dipotong pada timestamp window asli. Tidak ada reset

@@ -124,7 +124,7 @@ restart. Service tetap disabled untuk autostart.
 elapsed monotonic1200.000497s, 4798snapshot lokal/error0. Hash source19file
 dan konfigurasi tidak berubah. Data berasal dari recorder dan trace yang
 sudah dikonsumsi engine; statistik tidak menambah polling exchange.
-Raw private: `/home/yuri/Workspace/outputs/lighter-control-feed-observation-20261005`.
+Raw private: `~/Workspace/outputs/lighter-control-feed-observation-20261005`.
 SHA256snapshot: `932b15987132fac35ddc886257724a514a9048fbe9d9dd06679c5714163aeb48`.
 
 | Ukuran | Hasil |

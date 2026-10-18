@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "private_root": "/home/yuri/Workspace/outputs/lighter-socket-peer-rollout-20261006",
+  "private_root": "~/Workspace/outputs/lighter-socket-peer-rollout-20261006",
   "files": [
     {
       "file": "analysis.log",

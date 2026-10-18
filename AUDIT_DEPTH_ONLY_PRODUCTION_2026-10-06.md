@@ -219,7 +219,7 @@ pada FUTURE_UNCERTAIN dan evaluasi sebelumnya yang gagal, memakai proof dan
 timestamp yang direkam, untuk membedakan batas estimasi antarjam dari timing
 evaluasi. Pertahankan guard; tidak mengubah threshold atau membuka sesi trading.
 
-Raw tidak di-commit: `/home/yuri/Workspace/outputs/lighter-depth-production-20261006/`
+Raw tidak di-commit: `~/Workspace/outputs/lighter-depth-production-20261006/`
 berisi started/finished, snapshots.jsonl.gz, before/final account, restart.txt,
 summary dan satu copy immutable recording market PID301678. Copy gzip tersebut
 adalah prefix stream engine yang masih terbuka, sehingga tidak mempunyai trailer

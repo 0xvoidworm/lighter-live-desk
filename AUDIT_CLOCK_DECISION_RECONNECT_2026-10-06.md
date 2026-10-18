@@ -21,7 +21,7 @@ sudah ditulis engine. Tidak menambahkan polling/klien/socket. Counter 3 public,
 Counter saat pemeriksaan akhir lebih tinggi; itu dicatat terpisah, bukan
 dimasukkan secara diam-diam ke analisis historis ini.
 
-Raw tetap di `/home/yuri/Workspace/outputs/lighter-clock-reconnect-analysis-20261006/`:
+Raw tetap di `~/Workspace/outputs/lighter-clock-reconnect-analysis-20261006/`:
 salinan market, journal engine terfilter, ekspor diagnostik akun yang sudah
 persisten, analisis penuh, dan log tes termasuk kegagalan awal/baseline.
 Raw20menit tetap di `lighter-depth-production-20261006`. Gzip jam terakhir
@@ -38,10 +38,10 @@ produksi; tidak membuat implementasi clock kedua dalam bahasa lain):
 
 ```sh
 .venv/bin/python scripts/analyze_control_feed_observation.py \
-  --source /home/yuri/Workspace/outputs/lighter-depth-production-20261006 \
-  --market /home/yuri/Workspace/outputs/lighter-clock-reconnect-analysis-20261006/market \
+  --source ~/Workspace/outputs/lighter-depth-production-20261006 \
+  --market ~/Workspace/outputs/lighter-clock-reconnect-analysis-20261006/market \
   --clock-reconnect-cutoff 1791248764 \
-  --journal /home/yuri/Workspace/outputs/lighter-clock-reconnect-analysis-20261006/engine-journal.jsonl \
+  --journal ~/Workspace/outputs/lighter-clock-reconnect-analysis-20261006/engine-journal.jsonl \
   --output /tmp/lighter-clock-replay.json
 ```
 

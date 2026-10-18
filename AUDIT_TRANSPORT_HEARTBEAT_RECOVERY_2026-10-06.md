@@ -166,7 +166,7 @@ menjadi pemicu awal. Tidak ada klaim strategi menguntungkan.
 ## Bukti, keadaan akhir dan langkah berikutnya
 
 Raw immutable beserta seluruh log tes (termasuk kegagalan fixture/lint awal):
-`/home/yuri/Workspace/outputs/lighter-transport-observation-20261006/`.
+`~/Workspace/outputs/lighter-transport-observation-20261006/`.
 Market/transport gzip merupakan prefix file engine yang masih terbuka; EOF tanpa
 trailer disimpan sebagai batas salinan. Tidak mengisi baris akhir yang hilang.
 Record sesudah deadline membuktikan coverage salinan sampai cutoff tetapi tidak

@@ -124,7 +124,7 @@ Artefak tanpa rahasia:
   load/stop proof, identity/hash, semua penghitung dan batas pengukuran.
 - `audits/strategy-hotload-final-account-20261005.json`: final account,
   cash/fee dan pencabutan izin/kuota.
-- Raw private di `/home/yuri/Workspace/outputs/lighter-strategy-hotload-session-20261005`;
+- Raw private di `~/Workspace/outputs/lighter-strategy-hotload-session-20261005`;
   raw capture, config, key, token dan database tidak di-commit.
 
 Langkah berikut paling didukung bukti: diagnosis read-only siklus reconnect

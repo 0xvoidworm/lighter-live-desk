@@ -142,7 +142,7 @@ Verifikasi tersimpan **18:06:09,477 WIB**:
 Artefak aman: `audits/start-when-ready-control-20261006/checks.json`,
 `runtime.json`, `private-evidence-manifest.json`. Raw 18 file, termasuk log tes,
 status sebelum/sesudah/final dan backup DB, berada di
-`/home/yuri/Workspace/outputs/lighter-start-when-ready-20261006-1802` (direktori
+`~/Workspace/outputs/lighter-start-when-ready-20261006-1802` (direktori
 0700, file privat 0600). Manifest privat SHA-256
 `4a2ebcf711c4bee0e4633ca463008ff128d078435eff27310286d8f0c792ddf0`.
 Raw/state/config/secret tidak masuk Git. Bukti historis tidak diubah.

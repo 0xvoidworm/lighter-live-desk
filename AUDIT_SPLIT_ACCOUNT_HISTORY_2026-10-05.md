@@ -213,12 +213,12 @@ window ini.
 Bukti aman: `audits/split-account-history-runtime-20261005.json`,
 `audits/split-account-history-final-account-20261005.json`. Rekaman mentah
 private beserta SHA256 manifest berada di
-`/home/yuri/Workspace/outputs/lighter-split-audit-20261005/recording`;
+`~/Workspace/outputs/lighter-split-audit-20261005/recording`;
 tidak di-commit. Reproduksi agregat offline:
 
 ```sh
 .venv/bin/python scripts/analyze_split_audit.py \
-  /home/yuri/Workspace/outputs/lighter-split-audit-20261005/recording \
+  ~/Workspace/outputs/lighter-split-audit-20261005/recording \
   audits/split-account-history-runtime-20261005.json \
   --market-directory state/market \
   --baseline audits/audit-scheduler-after-20261005.json

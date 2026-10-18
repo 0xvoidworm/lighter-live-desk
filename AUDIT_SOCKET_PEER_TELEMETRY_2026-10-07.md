@@ -103,7 +103,7 @@ Row aktivasi lama berstatus terminalACTIVATED tetap dipertahankan, sesi kanonik
 closed; itu bukan permintaan pending atau otorisasi yang dapat dipakai kembali.
 
 Raw, tuple lokal, procfs, status privat dan log tes:
-`/home/yuri/Workspace/outputs/lighter-socket-peer-rollout-20261006` (nama folder
+`~/Workspace/outputs/lighter-socket-peer-rollout-20261006` (nama folder
 dibuat sebelum pergantian tanggal; waktu rollout WIB7Oktober).26file dihash;
 prefix gzip recorder aktif disegel, EOF yang diharapkan dinyatakan eksplisit,
 154row JSON lengkap juga disimpan/di-hash. Ringkasan aman:

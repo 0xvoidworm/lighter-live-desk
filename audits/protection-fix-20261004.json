@@ -87,7 +87,7 @@
     ],
     "invalid_ioc_expiry_minus_one_rejected_before_transport": true,
     "regression_file": "tests/test_protection_priority.py",
-    "artifact_directory": "/home/yuri/Workspace/outputs/lighter-protection-fix-20261004",
+    "artifact_directory": "~/Workspace/outputs/lighter-protection-fix-20261004",
     "tracked_output": "audits/protection-fix-20261004-tests.txt",
     "tracked_output_sha256": "3cf2b4d9f48b31e909dae664cade81c1bd9e4b79d4aab2b2140fc6b8b7187470"
   },

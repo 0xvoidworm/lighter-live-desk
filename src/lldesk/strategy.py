@@ -30,6 +30,7 @@ class DeviationStrategy:
         self.comparator_moves: deque[tuple[float, Decimal]] = deque()
         self.started_epoch = time.time()
         self.last_interruption: dict | None = None
+        self.last_evaluation_diagnostic: dict = {}
 
     def interrupted(self, venue: str, channel: str, reason: str) -> None:
         # Reconnects interrupt valid sampling; they do not reset historical samples.
@@ -82,6 +83,17 @@ class DeviationStrategy:
     ) -> Decision:
         now = time.monotonic()
         reasons: list[str] = []
+        try:
+            self.last_evaluation_diagnostic = {
+                "evaluated_monotonic": now,
+                "coverage_status": "not_evaluated",
+                "coverage": None,
+            }
+        except Exception:
+            self.last_evaluation_diagnostic = {
+                "coverage_status": "capture_failed",
+                "coverage": None,
+            }
         if not valid or lighter is None or binance is None:
             return Decision(None, None, None, None, ("DATA_TIDAK_VALID",))
         if fx is None or abs((fx - 1) * 10000) > 10:
@@ -101,6 +113,17 @@ class DeviationStrategy:
             self.samples.append((now, raw, lighter.bid_size, lighter.ask_size))
             self.last_sample_at = now
         coverage = self.coverage(now)
+        try:
+            self.last_evaluation_diagnostic = {
+                "evaluated_monotonic": now,
+                "coverage_status": "evaluated",
+                "coverage": dict(coverage),
+            }
+        except Exception:
+            self.last_evaluation_diagnostic = {
+                "coverage_status": "capture_failed",
+                "coverage": None,
+            }
         if not coverage["warmup_complete"]:
             return Decision(None, raw, None, None, ("WARMUP_BELUM_LENGKAP",))
         if not coverage["coverage_complete"]:

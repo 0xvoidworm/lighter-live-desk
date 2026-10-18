@@ -39,7 +39,7 @@
     "new_orders": "no trading dependencies or transaction transport",
     "observation_error": null
   },
-  "raw_directory": "/home/yuri/Workspace/outputs/lighter-depth-ab-20261006",
+  "raw_directory": "~/Workspace/outputs/lighter-depth-ab-20261006",
   "sha256": {
     "started.json": "0ae79b07835feb6a8c7370315cdc3a3e4542c3c2b5a57335a486b230a867e618",
     "finished.json": "dd67b419c0fa386e8cf3212838ca7b7f859b32f785bcb9bdaf705f8f32de6ece",

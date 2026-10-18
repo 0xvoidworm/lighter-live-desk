@@ -178,7 +178,7 @@ Pemeriksaan terminal22:48:06,572973 WIB kembali cocok; umur akun/order
 0,702/0,819s. Hash source produksi dan config tetap sama.
 
 Raw privat, helper proses agregasi dan hasil replay ada di
-`/home/yuri/Workspace/outputs/lighter-depth-comparator-20261006`.
+`~/Workspace/outputs/lighter-depth-comparator-20261006`.
 Hash di [manifest](audits/depth-comparator-20261006/manifest.json), hasil numerik
 di [summary](audits/depth-comparator-20261006/summary.json). Copy raw produksi
 adalah prefix gzip terbatas pada ukuran saat capture; trailer mungkin belum ada.

@@ -56,7 +56,7 @@
   "allow_live_orders": false,
   "strategy_session_status": "closed",
   "loaded_session_permission_id": null,
-  "raw_private_root": "/home/yuri/Workspace/outputs/lighter-clock-selection-20261006",
+  "raw_private_root": "~/Workspace/outputs/lighter-clock-selection-20261006",
   "raw_limit": "Frozen prefixes copied from open gzip members; original bytes/hash retained; filter exact window, preserve incomplete-tail limitations.",
   "closing_verified_epoch": 1791272609.6005452,
   "closing_account_component_ages_s": {

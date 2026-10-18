@@ -207,7 +207,7 @@ guard lolos pada akhir tugas. Ini pemeriksaan akun, bukan perpanjangan A/B.
 
 ## Artefak dan integritas
 
-Raw lengkap: `/home/yuri/Workspace/outputs/lighter-depth-ab-20261006/` (untracked).
+Raw lengkap: `~/Workspace/outputs/lighter-depth-ab-20261006/` (untracked).
 Ringkasan dapat diaudit: `audits/binance-source-depth-ab-20261006.json`;
 keadaan akhir: `audits/source-depth-ab-final-account-20261006.json`.
 SHA256 binary pengukuran:c840624f65f3f811f12e951de56ce077785111d06081b216737d6116d343abb2.

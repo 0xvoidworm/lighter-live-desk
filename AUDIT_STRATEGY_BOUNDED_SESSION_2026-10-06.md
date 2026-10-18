@@ -208,7 +208,7 @@ Statistik aman: `audits/strategy-bounded-session-20261006/summary.json`.
 Rekaman penuh, snapshot sebelum/akhir, ledger backup konsisten, authorization,
 log helper gagal/sukses, derivasi offline, dan prefix market/transport berada
 di folder privat700, file bukti600:
-`/home/yuri/Workspace/outputs/lighter-strategy-session-20261006/00fa3c17-168e-4ee7-a757-ea6a474f0b22/`.
+`~/Workspace/outputs/lighter-strategy-session-20261006/00fa3c17-168e-4ee7-a757-ea6a474f0b22/`.
 **Tidak dimasukkan Git.** RAW_SHA256SUMS memuat hash/path relatif saja.
 Prefix gzip dari writer aktif dapat tidak mempunyai trailer; analisis hanya
 baris lengkap dan hanya timestamp dalam window sesi. Status capture finalized

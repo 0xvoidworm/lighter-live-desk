@@ -33,11 +33,18 @@ type Status = {
 
 const money = (x?: string | null) => x == null ? '—' : Number(x).toLocaleString('id-ID', { maximumFractionDigits: 4 })
 const time = (x?: number) => x ? new Date(x * 1000).toLocaleTimeString('id-ID') : '—'
+const readinessLabels: Record<string, string> = { coverage: 'Menunggu cakupan riwayat harga lengkap', basis_scale: 'Menunggu pembanding harga yang valid', source_freshness: 'Waktu sumber harga belum dapat dipastikan', market_data: 'Data pasar belum memenuhi batas kesegaran', reconciliation_idle: 'Audit akun sedang berjalan' }
+const stateLabels: Record<string, string> = { WARMING_UP: 'Menunggu data', READY: 'Siap', IDLE: 'Pasif', LIVE: 'Sesi aktif', PAUSED: 'Entry dihentikan', RECONCILING: 'Memeriksa akun', HALTED: 'Perlu penanganan', DISCONNECTED: 'Terputus' }
 const channelLabels: Record<string, string> = { binance_public: 'Binance · book/depth', binance_market: 'Binance · transaksi', lighter: 'Lighter · book/trade/ticker' }
 
 function App() {
   const [data, setData] = useState<Status>({ state: 'DISCONNECTED', reason: 'Menghubungkan…' })
   const [notice, setNotice] = useState('')
+  const [sessionPreview, setSessionPreview] = useState<{ proposal: string; can_request: boolean; blockers: string[]; technical_ready: boolean; waiting_blockers?: string[]; request?: { state: string } | null } | null>(null)
+  const [startingSession, setStartingSession] = useState(false)
+  const [confirmSession, setConfirmSession] = useState(false)
+  const waitingActivation = data.activation_request?.status === 'WAITING'
+  const waitingLabel = data.activation_request?.reason?.includes('cadangan request') ? 'Menunggu jatah API' : 'Menunggu pemeriksaan sesi'
 
   useEffect(() => {
     let live = true
@@ -47,6 +54,9 @@ function App() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const value = await res.json()
         if (live) setData(value)
+        const preview = await fetch('/api/session/preview', { cache: 'no-store' })
+        if (preview.ok && live) setSessionPreview(await preview.json())
+        else if (live) setSessionPreview(null)
       } catch {
         if (live) setData(old => ({ ...old, connected: false, state: 'DISCONNECTED', reason: 'Dashboard terputus dari engine; data terakhir bukan live' }))
       }
@@ -55,6 +65,25 @@ function App() {
     const id = setInterval(poll, 1000)
     return () => { live = false; clearInterval(id) }
   }, [])
+
+  async function startBoundedSession() {
+    if (startingSession || !sessionPreview?.can_request || !data.connected) return
+    setStartingSession(true)
+    setConfirmSession(false)
+    const storageKey = `bounded-ui-request:${sessionPreview.proposal}`
+    const requestId = sessionStorage.getItem(storageKey) || crypto.randomUUID()
+    sessionStorage.setItem(storageKey, requestId)
+    try {
+      const tokenResponse = await fetch('/api/csrf', { cache: 'no-store' })
+      if (!tokenResponse.ok) throw new Error('Kontrol lokal tidak tersedia')
+      const { token } = await tokenResponse.json()
+      const response = await fetch('/api/session/start', { method: 'POST', headers: { 'X-CSRF-Token': token, 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: requestId, proposal: sessionPreview.proposal, consent: true }) })
+      const result = await response.json()
+      setNotice(response.ok ? result.message : result.detail || 'Permintaan ditolak; periksa status sesi')
+    } catch {
+      setNotice('Respons belum pasti. Permintaan yang sama tetap tersimpan; periksa status sesi, jangan membuat sesi pengganti.')
+    } finally { setStartingSession(false) }
+  }
 
   async function command(kind: string) {
     setNotice('Mengirim permintaan…')
@@ -92,9 +121,22 @@ function App() {
 
     <main>
       <section className="hero">
-        <div><div className="eyebrow">STATUS OPERASIONAL</div><h1>{data.state || 'DISCONNECTED'}</h1><p>{data.reason || 'Menunggu heartbeat engine'}</p></div>
+        <div><div className="eyebrow">STATUS OPERASIONAL</div><h1>{waitingActivation ? waitingLabel : stateLabels[data.state || 'DISCONNECTED'] || 'Memeriksa keadaan'}</h1><p>{data.reason || 'Menunggu heartbeat engine'}</p></div>
         <div className="heroMeta"><span className="tag">{data.mode || 'observe'}</span><span>Market ID: {data.market_id ?? '—'}</span><span>{data.entries_stopped ? 'Entry berhenti' : 'Entry diizinkan'}</span></div>
       </section>
+
+        <section className="card sessionControl"><div className="sectionHead"><h2>Kontrol sesi</h2><span className="subtle">{new Date(Math.max(0, data.session_remaining_s || 0) * 1000).toISOString().slice(11, 19)} tersisa · {data.strategy_session?.attempts.length || 0}/{data.strategy_session?.max_attempts || 3} percobaan entry · {data.strategy_session?.completed_positions.length || 0} posisi selesai</span></div>
+          <div className="sessionLimits"><strong>Satu sesi terbatas</strong><p>Maksimal 5 jam (300 menit) · 3 percobaan entry · ukuran minimum legal, nilai maksimal 25 USDC</p><p>Rencana risiko 0,50 USDC per entry · batas loss harian 5 USDC · exposure maksimal 1×equity · cadangan exit 2 USDC.</p><p>Bukti fee resmi hanya berlaku untuk sesi baru ini. Bot menjalankan entry, proteksi dan exit sendiri; tidak ada deposit atau sesi lanjutan otomatis.</p></div>
+          <p className="hint">{data.strategy_session?.status === 'active' ? 'Aktif: bot menjalankan strategi dan batas sesi.' : data.strategy_session?.status === 'ending' ? 'Mengakhiri sesi: pantau sampai posisi dan order bersih.' : data.activation_request && ['QUEUED', 'WAITING'].includes(data.activation_request.status) ? 'Menunggu kesiapan: belum aktif, entry berhenti. Persiapan berakhir maksimal 20 menit sejak persetujuan.' : data.strategy_session?.status === 'authorized' ? 'Izin disiapkan, belum aktif. Jika persiapan gagal, hentikan entry dan pantau sampai izin ditutup.' : sessionPreview?.request && sessionPreview.can_request ? 'Sesi sebelumnya selesai — siap membuat sesi baru. Aktivasi memerlukan persetujuan baru dari Anda.' : sessionPreview?.request ? 'Sesi sebelumnya belum dapat diganti. Periksa status dan tunggu pemeriksaan selesai.' : 'Belum aktif. Aktivasi hanya dimulai setelah persetujuan Anda dan pemeriksaan aktual lolos.'}</p>
+          <p className="hint">{sessionPreview?.technical_ready ? 'Kesiapan teknis saat ini lolos; bot tetap memeriksa ulang sebelum aktivasi dan setiap entry.' : 'Kesiapan teknis belum lengkap. Permintaan yang sah akan menunggu tanpa mengirim entry.'}</p>
+          {!sessionPreview?.technical_ready && !!sessionPreview?.waiting_blockers?.length && <ul className="reasons">{sessionPreview.waiting_blockers.map((reason, i) => <li key={i}>{readinessLabels[reason] || 'Pemeriksaan keselamatan belum lolos'}</li>)}</ul>}
+          {data.activation_request && ['QUEUED', 'WAITING'].includes(data.activation_request.status) && <p className="hint">Batas persiapan {time(data.activation_request.authorization_expires_epoch)} · {data.activation_request.status === 'WAITING' ? (data.activation_request.reason || 'Bot menunggu pemeriksaan aktual; sesi belum aktif.') : 'Permintaan diterima; belum aktif.'}</p>}
+          {!sessionPreview?.request && sessionPreview?.blockers.length ? <ul className="reasons">{sessionPreview.blockers.map((reason, i) => <li key={i}>{reason}</li>)}</ul> : null}
+          <div className="actions"><button disabled={!connected || !sessionPreview?.can_request || startingSession} onClick={() => setConfirmSession(true)}>{sessionPreview?.request && sessionPreview.can_request ? 'Aktifkan sesi baru' : 'Aktifkan satu sesi'}</button><button disabled={!connected} onClick={() => command('STOP_ENTRIES')}>Hentikan entry</button><button className="danger" disabled={!connected} onClick={() => command('CLOSE_POSITION')}>Minta tutup posisi</button></div>
+          {confirmSession && <div className="sessionConfirm" role="dialog" aria-label="Konfirmasi satu sesi terbatas"><strong>Aktifkan satu sesi dengan batas di atas?</strong><p>Anda mengizinkan satu sesi baru. Bot menunggu kesiapan paling lama 20 menit, lalu dapat trading otomatis selama maksimal 5 jam (300 menit) dan 3 percobaan entry. Hentikan entry tetap tersedia. Tidak ada jaminan hasil atau fill stop.</p><div className="actions"><button disabled={startingSession || !connected || !sessionPreview?.can_request} onClick={startBoundedSession}>Saya setuju, mulai satu sesi</button><button onClick={() => setConfirmSession(false)}>Batal</button></div></div>}
+          {notice && <div className="notice">{notice}</div>}
+          <a className="export" href="/api/report" download="lighter-live-desk-report.json">Ekspor laporan JSON ↗</a>
+        </section>
 
       <section className="card readiness"><div className="sectionHead"><h2>Pemanasan & kesiapan data</h2><span className={`pill ${coverage?.ready ? 'good' : 'bad'}`}>{coverage?.ready ? 'Riwayat cukup' : 'Riwayat belum cukup'}</span></div>
         <p className="hint">Koneksi tersambung, quote segar, dan riwayat yang cukup diperiksa terpisah. Probe dan strategi memakai persyaratan coverage yang sama.</p>
@@ -159,14 +201,7 @@ function App() {
           <ul className="reasons">{(data.live_blockers || []).length ? data.live_blockers?.map((v, i) => <li key={i}>{v}</li>) : <li>Tidak ada penghalang teknis yang terdeteksi</li>}</ul>
         </section>
 
-        <section className="card"><div className="sectionHead"><h2>Kontrol sesi</h2><span className="subtle">{data.session_remaining_s || 0} dtk tersisa · {data.strategy_session?.attempts.length || 0}/{data.strategy_session?.max_attempts || 3} percobaan entry · {data.strategy_session?.completed_positions.length || 0} posisi selesai</span></div>
-          {data.activation_request && <p className="hint">Aktivasi #{data.activation_request.command_id}: {['QUEUED', 'WAITING'].includes(data.activation_request.status) ? 'Menunggu kesiapan · belum aktif, entry berhenti' : data.activation_request.status === 'ACTIVATED' ? 'Aktivasi berhasil satu kali' : 'Dibatalkan / ditolak terminal'} · {data.activation_request.reason}. Batas persiapan: {time(data.activation_request.authorization_expires_epoch)}. Request {data.activation_request.request_id}.</p>}
-          {data.strategy_session && <p className="hint">Sesi {data.strategy_session.status}{data.strategy_session.stop_reason ? ` · ${data.strategy_session.stop_reason}` : ''}. Kuota mencakup pengiriman yang ditolak atau gagal; restart tidak melanjutkan entry dan tidak mengulang deadline.</p>}
-          <p className="hint">Probe 1× menguji satu transaksi dari status READY; entry strategi tetap berhenti. Perintah dicatat di antrean dan hasil order, cancel, serta close harus dikonfirmasi oleh Lighter.</p>
-          <div className="actions"><button disabled={!connected || !data.allow_live_orders || data.strategy_session?.status !== 'authorized' || data.loaded_session_permission_id !== data.strategy_session?.id || data.activation_request?.session_id === data.strategy_session?.id} onClick={() => command('START_WHEN_READY')}>Mulai saat siap</button><button disabled={!connected || !!data.activation_request && ['QUEUED', 'WAITING'].includes(data.activation_request.status) || data.state !== 'READY' || !!data.live_blockers?.length} onClick={() => command('START_LIVE')}>Mulai langsung</button><button disabled={!connected} onClick={() => command('STOP_ENTRIES')}>Hentikan entry</button><button disabled={!connected} onClick={() => command('CANCEL_ENTRIES')}>Batalkan entry</button><button className="danger" disabled={!connected} onClick={() => command('CLOSE_POSITION')}>Minta tutup posisi</button><button disabled={!connected || data.state !== 'READY' || !data.entries_stopped || !data.probe_blockers || !!data.probe_blockers.length || data.probe_used} onClick={() => command('PROBE_ONCE')}>Probe 1×</button></div>
-          {notice && <div className="notice">{notice}</div>}
-          <a className="export" href="/api/report" download="lighter-live-desk-report.json">Ekspor laporan JSON ↗</a>
-        </section>
+
       </div>
 
       <section className="card telemetry"><div className="sectionHead"><h2>Telemetri & jurnal</h2><span className={`pill ${data.journal_ok ? 'good' : 'bad'}`}>Jurnal {data.journal_ok ? 'sehat' : 'belum sehat'}</span></div>

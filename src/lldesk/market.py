@@ -227,6 +227,10 @@ class Recorder:
             self.handle.close()
 
 
+class DefiniteSourceStale(ConnectionError):
+    """A trusted engine assessment requested transport resnapshot, never timestamp repair."""
+
+
 class Feeds:
     def __init__(
         self,
@@ -244,6 +248,11 @@ class Feeds:
         self.reconnects = {"binance": 0, "lighter": 0}
         self.binance_public_ok = False
         self.binance_trades_ok = False
+        self.public_socket: Any = None
+        self.public_reader_done: tuple[str, asyncio.Event] | None = None
+        self.public_recovery_pending_id: str | None = None
+        self.public_recovery_blocked_id: str | None = None
+        self.public_recovery_reason: str | None = None
         self.transport_trace = TransportTrace()
         self.channels: dict[str, dict[str, Any]] = {
             name: {
@@ -265,7 +274,9 @@ class Feeds:
 
     def connection(self, name: str, url: str):
         connection = self.telemetry.connect(name, url) if self.telemetry else None
-        self.channels[name]["connection_id"] = connection.id if connection else None
+        self.channels[name]["connection_id"] = (
+            connection.id if connection else name + ":" + uuid.uuid4().hex
+        )
         return connection
 
     def channel_data(self, name: str) -> None:
@@ -342,6 +353,8 @@ class Feeds:
         if stamp.exchange_ms is None and exchange_ms is not None:
             stamp = replace(stamp, exchange_ms=exchange_ms)
         connection_id = CURRENT_CONNECTION.get()
+        if connection_id is None and venue == "binance" and kind in {"snapshot", "depthUpdate"}:
+            connection_id = self.channels["binance_public"].get("connection_id")
         if kind == "disconnect":
             name = "lighter" if venue == "lighter" else "binance_" + str(payload.get("channel"))
             connection_id = self.channels.get(name, {}).get("connection_id")
@@ -365,6 +378,38 @@ class Feeds:
             self._emitted_since_yield = 0
             await asyncio.sleep(0)
 
+    async def recover_public_source(self, expected_id: str) -> bool:
+        """Wait for this reader's context cleanup; never claims remote close ACK."""
+        completion = self.public_reader_done
+        if (
+            self.channels["binance_public"].get("connection_id") != expected_id
+            or self.public_socket is None
+            or completion is None
+            or completion[0] != expected_id
+        ):
+            return False
+        done = completion[1]
+        self.public_recovery_blocked_id = expected_id
+        self.public_recovery_reason = "trusted definite source age; two ordered depth receipts"
+        self.binance_public_ok = False
+        connection = self.telemetry.connections.get(expected_id) if self.telemetry else None
+        async with asyncio.timeout(12):
+            if self.public_recovery_pending_id != expected_id:
+                self.public_recovery_pending_id = expected_id
+                if connection:
+                    connection.begin_close("application_source_stale_recovery")
+                primitive_result = await self.public_socket.close()
+                if self.telemetry:
+                    self.telemetry.event(
+                        "public_close_primitive_returned",
+                        connection_id=expected_id,
+                        result=primitive_result,
+                        reader_completed=done.is_set(),
+                        remote_ack_claimed=False,
+                    )
+            await done.wait()
+        return True
+
     async def binance(self) -> None:
         async with asyncio.TaskGroup() as group:
             group.create_task(self._binance_public())
@@ -378,70 +423,48 @@ class Feeds:
                 if connection
                 else {}
             )
+            done = asyncio.Event()
+            self.public_reader_done = (self.channels["binance_public"]["connection_id"], done)
+            self.public_recovery_pending_id = None
             try:
-                async with (
-                    binance_session(
-                        self.dns_mode, trace_configs=[self.transport_trace.config()], **observed
-                    ) as client,
-                    client.ws_connect(BINANCE_PUBLIC_WS, heartbeat=20) as ws,
-                    connection.scope() if connection else nullcontext(),
-                ):
-                    if connection:
-                        connection.handshake_completed(ws, "aiohttp")
-                    self.channel_started("binance_public")
-                    buffered: list[tuple[dict[str, Any], Stamp]] = []
-                    snap_task = asyncio.create_task(self._binance_snapshot(client))
-                    try:
-                        while not snap_task.done():
-                            try:
-                                raw = await ws.receive_str(timeout=1)
-                            except TimeoutError:
-                                continue
-                            received = Stamp()
-                            if connection:
-                                connection.frame("application", "TEXT", len(raw.encode()))
-                            msg = json.loads(raw)
-                            data = msg.get("data", msg)
-                            buffered.append(
-                                (
-                                    data,
-                                    replace(
-                                        received,
-                                        exchange_ms=data.get("T"),
-                                        exchange_event_ms=data.get("E"),
-                                    ),
-                                )
-                            )
-                            if len(buffered) > 2048:
-                                raise GapError("Binance bootstrap buffer overflow")
-                        snapshot = await snap_task
-                        await self.emit(
-                            "binance",
-                            "snapshot",
-                            snapshot,
-                            snapshot.get("T"),
-                            stamp=replace(Stamp(), exchange_event_ms=snapshot.get("E")),
-                        )
-                    finally:
-                        if not snap_task.done():
-                            snap_task.cancel()
-                        await asyncio.gather(snap_task, return_exceptions=True)
-                    for data, stamp in buffered:
-                        if await self._binance_message(data, stamp=stamp):
-                            self.channel_data("binance_public")
-                    self.binance_public_ok = True
-                    async for frame in ws:
-                        received = Stamp()
-                        if frame.type != aiohttp.WSMsgType.TEXT:
-                            raise websocket_closed(ws, "public", frame.type.name)
-                        message = json.loads(frame.data)
+                try:
+                    async with (
+                        binance_session(
+                            self.dns_mode, trace_configs=[self.transport_trace.config()], **observed
+                        ) as client,
+                        client.ws_connect(
+                            BINANCE_PUBLIC_WS,
+                            heartbeat=20,
+                            timeout=aiohttp.ClientWSTimeout(ws_close=0.250),
+                        ) as ws,
+                        connection.scope() if connection else nullcontext(),
+                    ):
                         if connection:
-                            connection.frame("application", "TEXT", len(frame.data))
-                        if await self._binance_message(
-                            message.get("data", message), stamp=received
-                        ):
-                            self.channel_data("binance_public")
-                    raise websocket_closed(ws, "public")
+                            connection.handshake_completed(ws, "aiohttp")
+                        self.channel_started("binance_public")
+                        self.public_socket = ws
+                        self.public_recovery_reason = None
+                        await self._binance_bootstrap(client, ws, connection, publish=True)
+                        self.binance_public_ok = True
+                        async for frame in ws:
+                            received = Stamp()
+                            if self.public_recovery_reason:
+                                raise DefiniteSourceStale(self.public_recovery_reason)
+                            if frame.type != aiohttp.WSMsgType.TEXT:
+                                raise websocket_closed(ws, "public", frame.type.name)
+                            message = json.loads(frame.data)
+                            if connection:
+                                connection.frame("application", "TEXT", len(frame.data))
+                            if await self._binance_message(
+                                message.get("data", message), stamp=received
+                            ):
+                                self.channel_data("binance_public")
+                        if self.public_recovery_reason:
+                            raise DefiniteSourceStale(self.public_recovery_reason)
+                        raise websocket_closed(ws, "public")
+                finally:
+                    # Both public WS and client contexts have completed, before reconnect backoff.
+                    done.set()
             except asyncio.CancelledError:
                 if connection:
                     connection.begin_close("task_cancellation")
@@ -453,6 +476,8 @@ class Feeds:
                     connection.failure(exc)
                 self.binance_public_ok = False
                 await self.reconnect("binance", "public", exc)
+            finally:
+                self.public_socket = None
 
     async def _binance_trades(self) -> None:
         while True:
@@ -497,6 +522,138 @@ class Feeds:
                     connection.failure(exc)
                 self.binance_trades_ok = False
                 await self.reconnect("binance", "market", exc)
+
+    @staticmethod
+    def bootstrap_chain(
+        snapshot: dict[str, Any], buffered: list[tuple[dict[str, Any], Stamp]]
+    ) -> str:
+        """Validate with the actual book primitive before publishing any bootstrap event."""
+        book = Book("binance")
+        book.binance_snapshot(snapshot, Stamp(receipt_ns=0, monotonic_ns=0))
+        try:
+            for data, stamp in buffered:
+                book.binance_delta(data, stamp)
+        except GapError:
+            return "snapshot_or_chain_gap"
+        return "complete" if book.bridged else "awaiting_overlap"
+
+    async def _binance_bootstrap(
+        self,
+        client: aiohttp.ClientSession,
+        ws: aiohttp.ClientWebSocketResponse,
+        connection: Any,
+        *,
+        publish: bool = False,
+    ) -> tuple[dict[str, Any], Stamp, list[tuple[dict[str, Any], Stamp]]]:
+        """Bounded public snapshot retry; retain socket, sequence and original receipts."""
+        buffered: list[tuple[dict[str, Any], Stamp]] = []
+        task: asyncio.Task | None = None
+        snapshot: dict[str, Any] | None = None
+        snapshot_stamp: Stamp | None = None
+        attempts, last_start = 0, float("-inf")
+        generation = self.channels["binance_public"].get("connection_id")
+
+        def current():
+            if self.public_recovery_reason or (
+                generation
+                and (
+                    self.channels["binance_public"].get("connection_id") != generation
+                    or self.public_recovery_blocked_id == generation
+                )
+            ):
+                raise DefiniteSourceStale("public bootstrap generation invalidated")
+
+        async def fetch():
+            body = await self._binance_snapshot(client)
+            return body, Stamp(exchange_ms=body.get("T"), exchange_event_ms=body.get("E"))
+
+        try:
+            async with asyncio.timeout(12):
+                while True:
+                    current()
+                    if task is not None and task.done():
+                        snapshot, snapshot_stamp = task.result()
+                        task = None
+                    if snapshot is not None:
+                        outcome = self.bootstrap_chain(snapshot, buffered)
+                        if outcome == "complete":
+                            assert snapshot_stamp is not None
+                            if connection:
+                                connection.event(
+                                    "public_bootstrap_validated",
+                                    snapshot_attempts=attempts,
+                                    buffered_frames=len(buffered),
+                                    snapshot_sequence=snapshot["lastUpdateId"],
+                                )
+                            if publish:
+                                # Publication is inside the same 12s deadline. No restamping.
+                                current()
+                                await self.emit(
+                                    "binance",
+                                    "snapshot",
+                                    snapshot,
+                                    snapshot.get("T"),
+                                    stamp=snapshot_stamp,
+                                )
+                                for body, receipt in buffered:
+                                    current()
+                                    if await self._binance_message(body, stamp=receipt):
+                                        self.channel_data("binance_public")
+                                    current()
+                                if connection:
+                                    connection.event(
+                                        "public_bootstrap_enqueued",
+                                        buffered_frames=len(buffered),
+                                        eligibility_assessed=False,
+                                    )
+                            return snapshot, snapshot_stamp, buffered
+                        if outcome == "snapshot_or_chain_gap":
+                            if connection:
+                                connection.event(
+                                    "public_bootstrap_refetch",
+                                    snapshot_attempts=attempts,
+                                    buffered_frames=len(buffered),
+                                    snapshot_sequence=snapshot["lastUpdateId"],
+                                    reason=outcome,
+                                )
+                            snapshot = None
+                    if task is None and snapshot is None and time.monotonic() - last_start >= 1:
+                        if attempts >= 3:
+                            raise GapError("Binance public bootstrap snapshot attempts exhausted")
+                        attempts += 1
+                        last_start = time.monotonic()
+                        task = asyncio.create_task(fetch())
+                    # Continue reading during REST and retry spacing, preserving FIFO stamps.
+                    try:
+                        raw = await ws.receive_str(timeout=1)
+                    except TimeoutError:
+                        continue
+                    received = Stamp()
+                    if connection:
+                        connection.frame("application", "TEXT", len(raw.encode()))
+                    message = json.loads(raw)
+                    data = message.get("data", message)
+                    if (
+                        data.get("e") != "depthUpdate"
+                        or data.get("s") != "BTCUSDT"
+                        or data.get("st", 1) != 1
+                    ):
+                        continue
+                    buffered.append(
+                        (
+                            data,
+                            replace(
+                                received, exchange_ms=data.get("T"), exchange_event_ms=data.get("E")
+                            ),
+                        )
+                    )
+                    if len(buffered) > 2048:
+                        raise GapError("Binance bootstrap buffer overflow")
+        finally:
+            if task is not None:
+                if not task.done():
+                    task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
 
     async def _binance_snapshot(self, client: aiohttp.ClientSession) -> dict[str, Any]:
         async with client.get(BINANCE_DEPTH) as response:

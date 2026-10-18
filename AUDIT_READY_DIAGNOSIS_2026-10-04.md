@@ -102,7 +102,7 @@ tampil dan tombol probe/START_LIVE nonaktif, tanpa menekan tombol transaksi.
 
 Hasil observasi terbatas, snapshot akun/order akhir, batas request dan bukti
 tanpa rahasia disimpan di audits/ready-diagnosis-20261004.json. Artefak lengkap
-lokal berada di /home/yuri/Workspace/outputs/lighter-ready-diagnosis-20261004.
+lokal berada di ~/Workspace/outputs/lighter-ready-diagnosis-20261004.
 Observasi 600,4 detik (pagu 660) berakhir 07:15:03 WIB: umur buffer 629,8
 detik, 622 sampel total, 592 dalam window 600, gap maksimum 1,061 detik,
 tanpa gap >5 dan tanpa reconnect. Coverage lolos; engine IDLE karena izin

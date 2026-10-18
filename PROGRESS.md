@@ -461,7 +461,7 @@ diuraikan biaya/spread. Field funding_budget_remaining 0,570000 menghitung
 sisa terhadap inflow Lighter, bukan sisa budget sumber untuk deposit baru.
 
 Bukti sanitasi:
-`/home/yuri/Workspace/outputs/lighter-probe-only-20261003/followup-runtime.json`.
+`~/Workspace/outputs/lighter-probe-only-20261003/followup-runtime.json`.
 Satu probe nyata beserta fill/stop/close/cleanup/ledger dan validasi strategi
 tetap belum dilakukan. Semua pemeriksaan pada follow-up ini read-only.
 
@@ -504,8 +504,8 @@ dashboard IDLE; tombol live dan probe nonaktif karena allow_live_orders=false.
 Preview perhitungan tanpa order: BUY BTC 0,00012, IOC limit 84.187,5,
 nilai maksimum entry 10,1025 USD (pagu config 25 USD). Harga perlu disegarkan
 saat pelaksanaan. Tidak ada order mainnet yang dikirim. Bukti tanpa key/token:
-`/home/yuri/Workspace/outputs/lighter-probe-only-20261003/validation.json`
-dan `/home/yuri/Workspace/outputs/lighter-probe-only-20261003/runtime.json`.
+`~/Workspace/outputs/lighter-probe-only-20261003/validation.json`
+dan `~/Workspace/outputs/lighter-probe-only-20261003/runtime.json`.
 
 Sisa pekerjaan: instruksi jelas pengguna untuk satu probe mainnet, lalu
 verifikasi fill, stop, close, pembatalan sisa order dan ledger sampai flat.
@@ -536,7 +536,7 @@ nol error rekonsiliasi/setup akun/jurnal. DOM dashboard menampilkan IDLE,
 
 Kode implementasi/guard tidak diubah pada tahap ini; perubahan hanya config
 lokal dan dokumentasi. git diff --check lulus. Bukti sanitasi tanpa key/token:
-`/home/yuri/Workspace/outputs/lighter-preflight-20261003/confirmed-runtime.json`.
+`~/Workspace/outputs/lighter-preflight-20261003/confirmed-runtime.json`.
 
 Masih ada pekerjaan sebelum probe mainnet pertama: jalur PROBE_ONCE saat ini
 memerlukan LIVE dan UI mengharuskan START_LIVE lebih dulu. Perintah itu juga
@@ -573,7 +573,7 @@ bukti pada interval tersebut, bukan jaminan status terus-menerus.
 Tidak ada guard freshness/coverage yang dilonggarkan atau kode yang diubah.
 
 Bukti pemeriksaan tanpa key/token:
-`/home/yuri/Workspace/outputs/lighter-preflight-20261003/check.json`.
+`~/Workspace/outputs/lighter-preflight-20261003/check.json`.
 
 ## Terbaru — 2 Oktober 2026, idle terverifikasi
 
@@ -610,7 +610,7 @@ mulai live/probe nonaktif. Capture screenshot browser timeout; verifikasi
 tampilan memakai DOM dan tidak ada gambar yang dijadikan bukti.
 
 Data pemantauan dan hasil akhir (tanpa key/token):
-`/home/yuri/Workspace/outputs/lighter-idle-20261002/runtime.json`.
+`~/Workspace/outputs/lighter-idle-20261002/runtime.json`.
 Tidak ada order atau perubahan leverage/margin akun dikirim. Mesin dibiarkan
 nyala memantau sesuai asumsi idle; live masih memerlukan verifikasi margin
 BTC serta instruksi pengguna berikutnya.
@@ -692,7 +692,7 @@ tersambung, age Binance/Lighter 53/36 ms, backlog/gap/reconnect nol. Engine PID
 83706 dan API PID 82658 aktif, masing-masing NRestarts otomatis nol.
 
 Rincian perubahan, batas bukti, dan rollback: `LOCAL_FIX_2026-09-30.md`.
-Laporan ekspor: `/home/yuri/Workspace/outputs/lighter-live-desk-fix-20260930/LAPORAN.md`.
+Laporan ekspor: `~/Workspace/outputs/lighter-live-desk-fix-20260930/LAPORAN.md`.
 
 ## Riwayat 30 September sebelum perbaikan ini
 

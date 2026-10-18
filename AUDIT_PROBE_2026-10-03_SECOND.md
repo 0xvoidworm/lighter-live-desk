@@ -113,7 +113,7 @@ error runtime proses akhir nol. Unit aktif, autostart disabled, NRestarts 0.
 Snapshot akhir dan hasil cleanup disimpan dalam JSON audit.
 
 Bukti: [JSON audit](audits/probe-20261003-second.json) dan
-`/home/yuri/Workspace/outputs/lighter-mainnet-probe-20261003-second/`.
+`~/Workspace/outputs/lighter-mainnet-probe-20261003-second/`.
 Key, token, cookie dan signature tidak disimpan dalam bukti atau commit.
 
 Entry/fill dan close reduce-only mainnet telah dibuktikan. Stop yang diterima

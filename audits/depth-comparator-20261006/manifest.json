@@ -1,6 +1,6 @@
 {
   "created_at_utc": "2026-10-06T15:48:06.704983+00:00",
-  "private_root": "/home/yuri/Workspace/outputs/lighter-depth-comparator-20261006",
+  "private_root": "~/Workspace/outputs/lighter-depth-comparator-20261006",
   "production_code_commit": "8d785cbea81a2d257cb43353c99f0729bb85f68a",
   "production_pid": 391484,
   "recording_helper_commit": "e15a1f4",

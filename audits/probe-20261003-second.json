@@ -248,7 +248,7 @@
         "external_flows_unchanged": true,
         "position_zero": true,
         "all_orders_zero": true,
-        "artifact": "/home/yuri/Workspace/outputs/lighter-mainnet-probe-20261003-second/cash-ledger-audit.json"
+        "artifact": "~/Workspace/outputs/lighter-mainnet-probe-20261003-second/cash-ledger-audit.json"
       }
     },
     {

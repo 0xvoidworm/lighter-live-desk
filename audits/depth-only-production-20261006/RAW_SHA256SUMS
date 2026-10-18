@@ -1,7 +1,7 @@
-948ab55b002fe0729e6373e5f5873daf955c87b17e360c2f912b5a0c9bd5cd74  /home/yuri/Workspace/outputs/lighter-depth-production-20261006/started.json
-4fad2c6d5864f33dccbde78e4b7fc23b5ed285bf6448284aa513d5f542d151aa  /home/yuri/Workspace/outputs/lighter-depth-production-20261006/finished.json
-19bb5650b707297f68d74762754e35d49c0b66e63c6f6d77b8bf48393accb5e2  /home/yuri/Workspace/outputs/lighter-depth-production-20261006/snapshots.jsonl.gz
-9f6b0b82e4ba39ef12b53facf576055bf1bbb4ebf7db9af9450521bc073b2db9  /home/yuri/Workspace/outputs/lighter-depth-production-20261006/market/market-20261005-18-574ae81f79294ba2b12b7562d5dfa135-0001.jsonl.gz
-a8bc273989ac7a0b1ea861450756d7bce8904364ec870881340256b736fcbf1b  /home/yuri/Workspace/outputs/lighter-depth-production-20261006/before-restart.json
-46f92321dae73719e9dc1b8318e965217b8abf83639314ab7a64b8b3f74123de  /home/yuri/Workspace/outputs/lighter-depth-production-20261006/final-account.json
-7b0340341dcfcf8bea17fa616bb203d439f9f17aedd8f134928caad9cdd5b8f9  /home/yuri/Workspace/outputs/lighter-depth-production-20261006/restart.txt
+948ab55b002fe0729e6373e5f5873daf955c87b17e360c2f912b5a0c9bd5cd74  ~/Workspace/outputs/lighter-depth-production-20261006/started.json
+4fad2c6d5864f33dccbde78e4b7fc23b5ed285bf6448284aa513d5f542d151aa  ~/Workspace/outputs/lighter-depth-production-20261006/finished.json
+19bb5650b707297f68d74762754e35d49c0b66e63c6f6d77b8bf48393accb5e2  ~/Workspace/outputs/lighter-depth-production-20261006/snapshots.jsonl.gz
+9f6b0b82e4ba39ef12b53facf576055bf1bbb4ebf7db9af9450521bc073b2db9  ~/Workspace/outputs/lighter-depth-production-20261006/market/market-20261005-18-574ae81f79294ba2b12b7562d5dfa135-0001.jsonl.gz
+a8bc273989ac7a0b1ea861450756d7bce8904364ec870881340256b736fcbf1b  ~/Workspace/outputs/lighter-depth-production-20261006/before-restart.json
+46f92321dae73719e9dc1b8318e965217b8abf83639314ab7a64b8b3f74123de  ~/Workspace/outputs/lighter-depth-production-20261006/final-account.json
+7b0340341dcfcf8bea17fa616bb203d439f9f17aedd8f134928caad9cdd5b8f9  ~/Workspace/outputs/lighter-depth-production-20261006/restart.txt

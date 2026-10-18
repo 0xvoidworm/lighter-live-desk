@@ -1,6 +1,6 @@
 # Decisions and API evidence
 
-Checked 2026-09-30 (Asia/Jakarta), Fedora 44, user `yuri`, home `/home/yuri`.
+Checked 2026-09-30 (Asia/Jakarta), Fedora 44, user `yuri`, home `~`.
 
 | Source | Verified finding |
 | --- | --- |

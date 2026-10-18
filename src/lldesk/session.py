@@ -13,6 +13,7 @@ from .config import Config
 from .db import Database
 
 AUTHORIZATION_SECONDS = 1200
+FIVE_HOUR_PROPOSAL = "bounded-ui-2026-10-09-five-hour-v2"
 
 
 class ActivationDeferred(ValueError):
@@ -62,7 +63,7 @@ class BoundedSession:
             "started_at": None,
             "deadline_epoch": None,
             "ended_at": None,
-            "max_seconds": min(1800, config.session_seconds),
+            "max_seconds": min(18000, config.session_seconds),
             "max_attempts": min(3, config.max_session_positions),
             "attempts": [],
             "completed_positions": [],
@@ -96,7 +97,7 @@ class BoundedSession:
                 and record.get("ended_at") is None
                 and not record.get("attempts")
                 and not record.get("completed_positions")
-                and 0 < record["max_seconds"] <= 1800
+                and 0 < record["max_seconds"] <= 18000
                 and 0 < record["max_attempts"] <= 3
                 and not self.db.flag(f"session_used:{record['id']}")
             )

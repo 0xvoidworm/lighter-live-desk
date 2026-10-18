@@ -12,7 +12,7 @@
         "tests/test_permission_reload.py",
         "tests/test_session_supervisor.py"
       ],
-      "cwd": "/home/yuri/lighter-live-desk",
+      "cwd": "~/lighter-live-desk",
       "started_at": 1791284493.2978516,
       "ended_at": 1791284495.1114163,
       "returncode": 0,
@@ -24,7 +24,7 @@
         ".venv/bin/pytest",
         "-q"
       ],
-      "cwd": "/home/yuri/lighter-live-desk",
+      "cwd": "~/lighter-live-desk",
       "started_at": 1791284495.1115441,
       "ended_at": 1791284531.7255383,
       "returncode": 0,
@@ -39,7 +39,7 @@
         "tests",
         "scripts"
       ],
-      "cwd": "/home/yuri/lighter-live-desk",
+      "cwd": "~/lighter-live-desk",
       "started_at": 1791284531.725642,
       "ended_at": 1791284531.7317045,
       "returncode": 0,
@@ -51,7 +51,7 @@
         ".venv/bin/mypy",
         "src"
       ],
-      "cwd": "/home/yuri/lighter-live-desk",
+      "cwd": "~/lighter-live-desk",
       "started_at": 1791284531.731776,
       "ended_at": 1791284531.9823375,
       "returncode": 0,
@@ -64,7 +64,7 @@
         "run",
         "build"
       ],
-      "cwd": "/home/yuri/lighter-live-desk/frontend",
+      "cwd": "~/lighter-live-desk/frontend",
       "started_at": 1791284531.9824283,
       "ended_at": 1791284534.5642343,
       "returncode": 0,

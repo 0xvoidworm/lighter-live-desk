@@ -25,6 +25,7 @@ from .config import Config, load_config, repo_root
 from .db import Database
 from .diagnostics import observe as diagnostic_observation
 from .fee_audit import collect_export
+from .feed_liveness import StalePublicDetector
 from .fx import FRESH_SECONDS, FxMonitor, next_start
 from .market import Book, Feeds, GapError, Recorder, dec, market_metadata
 from .models import (
@@ -47,7 +48,7 @@ from .preflight import (
     state_digest,
 )
 from .risk import EquityBaseline, limit_price, size_entry
-from .session import ActivationDeferred, BoundedSession, parameter_hash
+from .session import FIVE_HOUR_PROPOSAL, ActivationDeferred, BoundedSession, parameter_hash
 from .source_time import BinanceSourceClock
 from .strategy import Decision, DeviationStrategy
 from .websocket_trace import WebsocketTrace
@@ -80,6 +81,9 @@ class Engine:
         self.ws_telemetry.context_provider = self.telemetry_context
         self._receipt_source_recorded = False
         self._coverage_observed: bool | None = None
+        self.source_liveness = StalePublicDetector()
+        self.public_recovery_task: asyncio.Task | None = None
+        self.last_public_depth: tuple[str, int, int] | None = None
         self.market_record_max_ns = 0
         self.strategy = DeviationStrategy(config.warmup_seconds)
         self.source_clock = BinanceSourceClock(config.max_data_age_ms)
@@ -99,6 +103,11 @@ class Engine:
         self.last_reconcile_diagnostic: dict = {}
         self.last_decision_inputs: dict = {}
         self._last_data_guard: dict | None = None
+        self._last_market_guard: dict | None = None
+        self.last_decision_diagnostic: dict = {}
+        self.decision_sequence = 0
+        self.last_diagnostic_sample_at = 0.0
+        self.diagnostic_emit_failures = 0
         self.market_processing: dict[str, dict] = {}
         self.session_end = 0.0
         self.session_positions = 0
@@ -134,6 +143,10 @@ class Engine:
         self.history_required = True
         self.history_reason = "startup: complete REST audit required"
         self.audit_binding: str | None = None
+        self.public_audit_episode: tuple[str, int, float] | None = None
+        self.public_audit_covered_episode: tuple[str, int, float] | None = None
+        self.public_audit_generation_pair: tuple[int, int] | None = None
+        self.full_audit_inflight: tuple[float, int] | None = None
         self.preflight_generation = 0
         self.preflight_boot_id = uuid.uuid4().hex
         self.preflight_evidence: Evidence | None = None
@@ -422,6 +435,7 @@ class Engine:
             ):
                 self.state_refresh_task = asyncio.create_task(self.refresh_account_state())
             self.decide()
+            self.monitor_public_source()
             self.session_tick()
             if self.probe_active and self.session_end and time.monotonic() >= self.session_end:
                 self.entries_stopped = True
@@ -443,6 +457,60 @@ class Engine:
                 self.reason = "jurnal/database gagal ditulis"
                 LOG.exception("journal failure")
             await asyncio.sleep(0)
+
+    def monitor_public_source(self) -> None:
+        """Public transport recovery only; eligibility and all session authority unchanged."""
+        if not self.feeds or not self.last_public_depth:
+            return
+        if self.public_recovery_task and not self.public_recovery_task.done():
+            return
+        generation, receipt, sequence = self.last_public_depth
+        if (
+            generation != self.feeds.channels["binance_public"].get("connection_id")
+            or receipt != self.books["binance"].stamp.monotonic_ns
+        ):
+            return
+        feeds = self.feeds
+        source = (self._last_data_guard or {}).get("source_freshness")
+        if not self.source_liveness.observe(
+            source, generation, receipt, sequence, time.monotonic(), self.config.max_data_age_ms
+        ):
+            return
+        self.feeds.binance_public_ok = False
+        self.feeds.public_recovery_blocked_id = generation
+        self.books["binance"].invalidate()
+        self.entries_stopped = True
+        self.state = EngineState.RECOVERING
+        self.strategy.interrupted("binance", "public", "DefiniteSourceStale")
+        self.invalidate_preflight("definitely stale public source recovery", history=True)
+        self.public_audit_episode = (generation, self.preflight_generation, time.monotonic())
+        self.ws_telemetry.event(
+            "source_stale_recovery_requested",
+            connection_id=generation,
+            source=source,
+            coverage=self.strategy.coverage(),
+            cooldown_seconds=60,
+        )
+
+        async def recover():
+            try:
+                ok = await feeds.recover_public_source(generation)
+                self.ws_telemetry.event(
+                    "source_stale_recovery_completed",
+                    connection_id=generation,
+                    reader_completed=ok,
+                    remote_ack_claimed=False,
+                )
+            except Exception as exc:
+                self.ws_telemetry.event(
+                    "source_stale_recovery_failed",
+                    connection_id=generation,
+                    error_type=type(exc).__name__,
+                )
+                # No retry/rearm here; blocked generation remains ineligible.
+
+        self.public_recovery_task = asyncio.create_task(recover())
+        self.tasks.append(self.public_recovery_task)
 
     async def restart_feeds(self) -> None:
         self.invalidate_preflight("feed recovery", history=True)
@@ -467,6 +535,19 @@ class Engine:
             asyncio.create_task(self.feeds.lighter()),
         ]
 
+    def public_event_obsolete(self, event: MarketEvent) -> bool:
+        public = event.kind in {"snapshot", "depthUpdate"} or (
+            event.kind == "disconnect" and event.payload.get("channel") == "public"
+        )
+        if event.venue != "binance" or not public or not event.connection_id or not self.feeds:
+            return False
+        return event.connection_id != self.feeds.channels["binance_public"].get(
+            "connection_id"
+        ) or (
+            event.kind != "disconnect"
+            and event.connection_id == self.feeds.public_recovery_blocked_id
+        )
+
     def on_market(self, event: MarketEvent) -> None:
         started = time.monotonic_ns()
         book = self.books.get(event.venue)
@@ -474,10 +555,13 @@ class Engine:
         previous_bridged = book.bridged if book else False
         previous_valid = book.valid if book else False
         outcome = "error"
+        obsolete = self.public_event_obsolete(event)
         try:
             self._apply_market(event)
             outcome = (
-                "applied"
+                "old_public_generation"
+                if obsolete
+                else "applied"
                 if book
                 and book.stamp.monotonic_ns == event.stamp.monotonic_ns
                 and book.stamp.monotonic_ns != previous_stamp
@@ -507,7 +591,7 @@ class Engine:
             processing = (finished - started) / 1e6
             record["max_processing_ms"] = max(record.get("max_processing_ms", 0), processing)
             record["processing_ms"] = processing
-            if (
+            if not obsolete and (
                 event.kind == "snapshot"
                 or (event.kind == "depthUpdate" and book and book.bridged and not previous_bridged)
                 or (event.venue == "lighter" and book and book.valid and not previous_valid)
@@ -554,9 +638,16 @@ class Engine:
         book = self.books.get(event.venue)
         if not book:
             return
+        if self.public_event_obsolete(event):
+            self.ws_telemetry.event(
+                "old_public_generation_dropped",
+                connection_id=event.connection_id,
+                event_kind=event.kind,
+            )
+            return
         if event.kind == "disconnect":
             self._receipt_source_recorded = False
-            self.invalidate_preflight("market reconnect: " + event.venue, history=True)
+            self.invalidate_market_disconnect(event)
             channel = str(event.payload.get("channel", "unknown"))
             self.strategy.interrupted(event.venue, channel, str(event.payload.get("reason", "")))
             # Loss of the trade channel does not invalidate an independent public book.
@@ -567,11 +658,26 @@ class Engine:
             self.state = EngineState.RECOVERING
             self.reason = f"{event.venue} terputus; menunggu snapshot baru"
             return
+        if (
+            event.venue == "binance"
+            and event.kind in {"snapshot", "depthUpdate"}
+            and self.public_audit_episode
+            and event.connection_id != self.public_audit_episode[0]
+        ):
+            # A new reader cannot inherit the previous attempt's narrow completion exception.
+            self.clear_public_audit_episode()
         if event.venue == "binance":
             if event.kind == "snapshot":
                 book.binance_snapshot(event.payload, event.stamp)
+                self.last_public_depth = None
             elif event.kind == "depthUpdate":
                 book.binance_delta(event.payload, event.stamp)
+                if event.connection_id and book.stamp == event.stamp and book.bridged:
+                    self.last_public_depth = (
+                        event.connection_id,
+                        event.stamp.monotonic_ns,
+                        int(event.payload["u"]),
+                    )
         elif event.venue == "lighter":
             if event.kind == "order_book":
                 if book.sequence is None:
@@ -650,16 +756,44 @@ class Engine:
         """Existing receipt/transport guards, also used for reducing exposure."""
         now = time.monotonic_ns()
         max_age = self.config.max_data_age_ms * 1_000_000
-        return (
+        fx_now = None
+        checked_backlog = None
+        valid = (
             all(book.valid and now - book.updated_ns < max_age for book in self.books.values())
             and self.books["binance"].bridged
             and self.feeds is not None
             and self.feeds.binance_public_ok
             and self.feeds.binance_trades_ok
             and self.fx is not None
-            and time.monotonic() - self.fx_at < FRESH_SECONDS
-            and self.queue.qsize() < 1500
+            and (fx_now := time.monotonic()) - self.fx_at < FRESH_SECONDS
+            and (checked_backlog := self.queue.qsize()) < 1500
         )
+        try:
+            self._last_market_guard = {
+                "observed_monotonic_ns": now,
+                "books": {
+                    name: {
+                        "valid": book.valid,
+                        "receipt_age_ms": (now - book.updated_ns) / 1e6,
+                        "receipt_fresh": now - book.updated_ns < max_age,
+                    }
+                    for name, book in self.books.items()
+                    if name in ("lighter", "binance")
+                },
+                "binance_bridged": self.books["binance"].bridged,
+                "feeds_present": self.feeds is not None,
+                "binance_public_ok": self.feeds.binance_public_ok if self.feeds else None,
+                "binance_trades_ok": self.feeds.binance_trades_ok if self.feeds else None,
+                "fx_present": self.fx is not None,
+                "fx_age_checked": fx_now is not None,
+                "fx_age_s": fx_now - self.fx_at if fx_now is not None else None,
+                "queue_checked": checked_backlog is not None,
+                "queue_backlog": checked_backlog,
+                "passed": valid,
+            }
+        except Exception:
+            self._last_market_guard = {"diagnostic_status": "unavailable"}
+        return valid
 
     def source_freshness(self) -> dict:
         return self.source_clock.assess(self.books["binance"].stamp)
@@ -678,6 +812,7 @@ class Engine:
             "finished_monotonic_ns": time.monotonic_ns(),
             "finished_wall_ns": time.time_ns(),
             "market_data_valid": market_valid,
+            "market_components": self._last_market_guard,
             "source_checked": source is not None,
             "source_freshness": source,
             "passed": valid,
@@ -782,6 +917,8 @@ class Engine:
                 "receipt_source_valid", data_guard=guard, context=self.telemetry_context()
             )
         self.last_decision = self.strategy.evaluate(lighter, binance, valid, self.fx)
+        self.decision_sequence += 1
+        self.record_decision_diagnostic()
         if valid and self.last_decision.basis_bps is not None:
             self.exit_basis_bps = self.last_decision.basis_bps
         if self.state == EngineState.RECOVERING and self.data_valid():
@@ -840,6 +977,7 @@ class Engine:
         self.audit_scheduler.refresh_requested = False
         started = time.monotonic()
         generation = self.preflight_generation
+        self.full_audit_inflight = (started, generation)
         acquired: float | None = None
         trace = getattr(self.account, "transport_trace", None)
         trace_start = trace.sequence if trace else 0
@@ -894,11 +1032,33 @@ class Engine:
                 "requests": requests,
                 "request_used_60s": len(rate.calls) if rate else None,
             }
+            if outcome != "ok":
+                self.clear_public_audit_episode()
             if outcome == "ok":
                 self.audit_scheduler.request_cost = max(
                     self.audit_scheduler.request_cost, len(requests)
                 )
-                if self.last_reconcile_ok >= started and generation == self.preflight_generation:
+                if (
+                    self.public_audit_episode
+                    and self.feeds
+                    and self.feeds.channels["binance_public"].get("connection_id")
+                    != self.public_audit_episode[0]
+                ):
+                    self.clear_public_audit_episode()
+                episode = self.public_audit_episode
+                pair = self.public_audit_generation_pair
+                coalesced = bool(
+                    episode
+                    and pair == (generation, self.preflight_generation)
+                    and generation == episode[1]
+                    and started >= episode[2]
+                    and self.preflight_generation == generation + 1
+                )
+                if self.last_reconcile_ok >= started and (
+                    generation == self.preflight_generation or coalesced
+                ):
+                    if episode and generation == episode[1] and started >= episode[2]:
+                        self.public_audit_covered_episode = episode
                     self.history_required = False
                     self.history_reason = "complete audit verified; idle periodic deadline 120s"
                     self.audit_binding = self.preflight_binding()
@@ -925,8 +1085,57 @@ class Engine:
                 )
             self._reconcile_owner = None
             self.db.event("ACCOUNT_RECONCILE_DIAGNOSTIC", self.last_reconcile_diagnostic)
+            if self.full_audit_inflight == (started, generation):
+                self.full_audit_inflight = None
+
+    def clear_public_audit_episode(self) -> None:
+        self.public_audit_episode = None
+        self.public_audit_covered_episode = None
+        self.public_audit_generation_pair = None
+
+    def invalidate_market_disconnect(self, event: MarketEvent) -> None:
+        episode = self.public_audit_episode
+        inflight = self.full_audit_inflight
+        covered = self.public_audit_covered_episode
+        same_episode = bool(
+            episode
+            and self.feeds
+            and event.venue == "binance"
+            and event.payload.get("channel") == "public"
+            and event.connection_id == episode[0]
+            and self.feeds.public_recovery_blocked_id == episode[0]
+            and self.preflight_generation == episode[1]
+        )
+        admitted_audit = bool(
+            episode
+            and (
+                covered == episode
+                or (self.history_required and self.audit_scheduler.refresh_requested)
+                or (
+                    self.history_required
+                    and inflight
+                    and inflight[0] >= episode[2]
+                    and inflight[1] == episode[1]
+                )
+            )
+        )
+        if same_episode and admitted_audit:
+            generation = self.preflight_generation
+            # Every disconnect still invalidates the market token and final atomic recheck.
+            self.invalidate_preflight("market reconnect: " + event.venue, history=False)
+            self.public_audit_episode, self.public_audit_covered_episode = episode, covered
+            self.public_audit_generation_pair = (generation, self.preflight_generation)
+            self.ws_telemetry.event(
+                "public_recovery_audit_coalesced",
+                connection_id=event.connection_id,
+                preflight_generation=self.preflight_generation,
+                history_required=self.history_required,
+            )
+        else:
+            self.invalidate_preflight("market reconnect: " + event.venue, history=True)
 
     def invalidate_preflight(self, reason: str, *, history: bool = False) -> None:
+        self.clear_public_audit_episode()
         self.preflight_generation += 1
         self.preflight_evidence = None
         if history:
@@ -1726,8 +1935,24 @@ class Engine:
         generation = self.preflight_generation
         before = self.preflight_binding()
         planned = self.audit_scheduler.request_cost
+        rate = self.account.rate if self.account else None
+        lease_before = rate.reservation_remaining("preflight") if rate else None
+        reconcile_before = rate.claimed_total("reconcile") if rate else 0
         await self.safe_reconcile(reserved=True)
-        actual = sum(t >= started for t in self.account.rate.calls) if self.account else 0
+        global_cost = sum(t >= started for t in rate.calls) if rate else 0
+        lease_after = rate.reservation_remaining("preflight") if rate else None
+        reconcile_cost = rate.claimed_total("reconcile") - reconcile_before if rate else 0
+        lease_bound = bool(
+            lease_before is not None
+            and lease_after is not None
+            and lease_before[0] == lease_after[0]
+            and lease_after[1] <= lease_before[1]
+        )
+        actual = (
+            max(lease_before[1] - lease_after[1], reconcile_cost)
+            if lease_bound and lease_before is not None and lease_after is not None
+            else global_cost
+        )
         snap = self.account_snapshot
         blockers = []
         if (
@@ -1781,6 +2006,10 @@ class Engine:
             "sendable": sendable,
             "planned_read_cost": planned,
             "actual_read_cost": actual,
+            "global_read_cost": global_cost,
+            "read_cost_attribution": "lease_with_conservative_reconcile_counter"
+            if lease_bound
+            else "global_fallback",
             "reserved_send_cost": 2,
             "broadcast": False,
             "ttl_seconds": PREFLIGHT_TTL_SECONDS,
@@ -2304,6 +2533,119 @@ class Engine:
                 self.db.order_state(client_id, OrderState.UNKNOWN)
         return "cancel diminta; hasil menunggu rekonsiliasi"
 
+    def record_decision_diagnostic(self) -> None:
+        try:
+            self.last_decision_diagnostic = self.sampled_decision_diagnostic()
+        except Exception:
+            self.last_decision_diagnostic = {
+                "decision_sequence": self.decision_sequence,
+                "diagnostic_status": "unavailable",
+            }
+            self.diagnostic_emit_failures += 1
+        sampled_at = time.monotonic()
+        if sampled_at - self.last_diagnostic_sample_at >= 1:
+            self.last_diagnostic_sample_at = sampled_at
+            try:
+                self.ws_telemetry.event(
+                    "strategy_decision_observed", diagnostic=self.last_decision_diagnostic
+                )
+            except Exception:
+                # Output-only: diagnostics cannot grant/deny entry or interrupt a decision.
+                self.diagnostic_emit_failures += 1
+
+    def sampled_decision_diagnostic(self) -> dict:
+        """Bounded output of this decision's actual inputs; never re-assess a quote."""
+        inputs = self.last_decision_inputs
+        guard = inputs.get("data_guard") or {}
+        source = guard.get("source_freshness") or {}
+        keys = (
+            "passed",
+            "reason",
+            "latest_proof_id",
+            "selected_proof_id",
+            "proof_selection_reason",
+            "source_age_low_ms",
+            "source_age_high_ms",
+            "receipt_age_ms",
+            "clock_offset_low_ms",
+            "clock_offset_high_ms",
+            "clock_uncertainty_ms",
+            "clock_evidence_age_s",
+            "clock_received_monotonic_ns",
+            "clock_received_wall_ns",
+            "clock_base_offset_low_ms",
+            "clock_base_offset_high_ms",
+            "clock_drift_allowance_ms",
+            "clock_ttl_seconds",
+            "evaluated_monotonic_ns",
+            "evaluated_wall_ns",
+            "source_indicator_ms",
+            "transaction_ms",
+            "max_source_age_ms",
+            "max_clock_uncertainty_ms",
+        )
+        coverage = getattr(
+            self.strategy,
+            "last_evaluation_diagnostic",
+            {"coverage_status": "not_available", "coverage": None},
+        )
+        coverage_values = coverage.get("coverage") or {}
+        coverage_keys = (
+            "duration_required_s",
+            "duration_observed_s",
+            "duration_remaining_s",
+            "total_samples_required",
+            "total_samples",
+            "window_s",
+            "recent_samples_required",
+            "recent_samples",
+            "max_sample_gap_s",
+            "allowed_gap_s",
+            "long_gap_count",
+            "gap_wait_remaining_s",
+            "last_sample_age_s",
+            "warmup_complete",
+            "coverage_complete",
+            "ready",
+        )
+
+        def scalar(value):
+            return value[:128] if isinstance(value, str) else value
+
+        return {
+            "decision_sequence": self.decision_sequence,
+            "decision_wall": inputs.get("evaluated_at"),
+            "decision_monotonic_ns": inputs.get("monotonic_ns"),
+            "data_passed": inputs.get("data_valid"),
+            "source_status": "checked" if guard.get("source_checked") else "not_checked",
+            "source": {key: scalar(source.get(key)) for key in keys},
+            "latest_proof": {
+                key: scalar((source.get("latest_proof") or {}).get(key))
+                for key in (
+                    "valid",
+                    "reason",
+                    "clock_proof_id",
+                    "clock_evidence_age_s",
+                    "clock_offset_low_ms",
+                    "clock_offset_high_ms",
+                    "clock_uncertainty_ms",
+                )
+            },
+            "market": deepcopy(guard.get("market_components")),
+            "source_quote": {
+                key: (inputs.get("quotes", {}).get("binance") or {}).get(key)
+                for key in ("receipt_ns", "monotonic_ns", "exchange_ms", "exchange_event_ms")
+            },
+            "coverage": {
+                "evaluated_monotonic": coverage.get("evaluated_monotonic"),
+                "coverage_status": coverage.get("coverage_status"),
+                "coverage": {key: coverage_values.get(key) for key in coverage_keys}
+                if coverage.get("coverage") is not None
+                else None,
+            },
+            "decision_reasons": list(self.last_decision.reasons),
+        }
+
     def decision_evidence(self) -> dict:
         d = self.last_decision
         return {
@@ -2389,7 +2731,7 @@ class Engine:
             return
         if record["status"] == "active":
             if time.monotonic() >= self.session_end or time.time() >= record["deadline_epoch"]:
-                self.end_session("deadline 30 menit tercapai")
+                self.end_session(f"deadline {record['max_seconds'] // 60} menit tercapai")
             elif not self.journal_ok:
                 self.end_session("jurnal gagal; entry sesi dihentikan")
             elif record["parameter_hash"] != parameter_hash(self.config):
@@ -2436,6 +2778,7 @@ class Engine:
                 {
                     "session_id": record["id"],
                     "signal": self.decision_evidence(),
+                    "diagnostic": self.last_decision_diagnostic,
                     "state": self.state,
                     "entries_stopped": self.entries_stopped,
                     "entry_blockers": self.entry_fee_blockers("ENTRY")
@@ -2663,6 +3006,52 @@ class Engine:
             temp.chmod(0o600)
             temp.replace(path)
 
+    def manual_five_hour_duration(self, candidate: Config, record: dict) -> bool:
+        """Only a new exact human v2 authorization may stage 1800 -> 18000."""
+        if self.loaded_session_permission_id is not None:
+            return False
+        if self.config.session_seconds != 1800 or candidate.session_seconds != 18000:
+            return False
+        if record.get("max_seconds") != 18000 or not self.session.authorization_valid(record):
+            return False
+        try:
+            marker = json.loads(self.db.flag("ui_proposal:" + FIVE_HOUR_PROPOSAL) or "null")
+            if not isinstance(marker, dict):
+                return False
+            scope = marker.get("proposal")
+            if scope != FIVE_HOUR_PROPOSAL:
+                if not isinstance(scope, str) or not scope.startswith(
+                    FIVE_HOUR_PROPOSAL + ":after:"
+                ):
+                    return False
+                suffix = scope.removeprefix(FIVE_HOUR_PROPOSAL + ":after:")
+                if str(uuid.UUID(suffix)) != suffix:
+                    return False
+            row = self.db.conn.execute(
+                "SELECT status,body FROM activation_requests WHERE request_id=?",
+                (marker.get("request_id"),),
+            ).fetchone()
+            request = json.loads(row[1]) if row else None
+            return bool(
+                request
+                and row[0] == request.get("status")
+                and request["status"] in {"QUEUED", "WAITING"}
+                and marker.get("state") == "QUEUED"
+                and marker.get("session_id") == record["id"] == request.get("session_id")
+                and marker.get("request_id") == request.get("request_id")
+                and marker.get("authorization_expires_epoch")
+                == record["authorization_expires_epoch"]
+                == request.get("authorization_expires_epoch")
+                and request.get("account_index")
+                == record["account_index"]
+                == candidate.account_index
+                and request.get("parameter_hash")
+                == record["parameter_hash"]
+                == parameter_hash(candidate)
+            )
+        except (KeyError, TypeError, ValueError, AttributeError):
+            return False
+
     def load_session_permission(self) -> str:
         """Explicit prepare only: no activation, network calls, or buffer reset."""
         try:
@@ -2682,6 +3071,8 @@ class Engine:
             "probe_accept_reported_fees",
             "live_entry_scope",
         }
+        if self.manual_five_hour_duration(candidate, record):
+            permission_fields.add("session_seconds")
         if (
             candidate.model_dump(exclude=permission_fields)
             != self.config.model_dump(exclude=permission_fields)
@@ -2847,6 +3238,43 @@ class Engine:
         request.update(status="WAITING", reason="waiting for production guards and fresh audit")
         self.activation.waiting(request)
 
+    def activation_audit_complete(self, request: dict) -> bool:
+        """Credit only the completed audit of this still-valid activation proof."""
+        proof = self.preflight_evidence
+        diagnostic = self.last_preflight_diagnostic or {}
+        attempt = self.activation_audit_attempt
+        record = self.session.read()
+        task = self.activation_audit_task
+        if task is not None and (
+            not task.done() or task.cancelled() or task.exception() is not None
+        ):
+            return False
+        return bool(
+            proof
+            and not proof.sendable
+            and attempt
+            and attempt.startswith("activation:" + request["request_id"] + ":")
+            and self.pending_activation_id == request["request_id"]
+            and record
+            and record["id"] == request["session_id"]
+            and record["status"] == "authorized"
+            and record["parameter_hash"] == request["parameter_hash"]
+            and record["account_index"] == request["account_index"]
+            and record["authorization_expires_epoch"] == request["authorization_expires_epoch"]
+            and self.session.authorization_valid(record)
+            and request["parameter_hash"] == parameter_hash(self.config)
+            and request["account_index"] == self.config.account_index
+            and diagnostic.get("attempt") == attempt
+            and diagnostic.get("outcome") == "complete_no_send"
+            and diagnostic.get("sendable") is False
+            and diagnostic.get("generation") == proof.generation
+            and diagnostic.get("binding") == proof.binding
+            and not diagnostic.get("blockers")
+            and diagnostic.get("finished_at", 0) >= request["requested_at"]
+            and proof.issued >= request["requested_monotonic"]
+            and self.preflight_valid(attempt)
+        )
+
     def activation_assessment(self, command_id: int | None, request: dict | None = None) -> dict:
         """Output-only: retain the actual checks and their assessment times, no replay."""
         record = self.session.read()
@@ -2877,7 +3305,8 @@ class Engine:
             else None,
             "quotes": quotes,
         }
-        blockers = self.live_blockers(evidence=evidence)
+        audit_complete = self.activation_audit_complete(request) if request else False
+        blockers = self.live_blockers(evidence=evidence, activation_audit_complete=audit_complete)
         if request:
             coverage = bool(self.strategy.coverage()["ready"])
             evidence["checks"]["coverage"] = {"result": "passed" if coverage else "failed"}
@@ -3272,7 +3701,13 @@ class Engine:
             blockers.append("fill/dana berubah setelah preflight probe")
         return blockers
 
-    def live_blockers(self, *, for_probe: bool = False, evidence: dict | None = None) -> list[str]:
+    def live_blockers(
+        self,
+        *,
+        for_probe: bool = False,
+        evidence: dict | None = None,
+        activation_audit_complete: bool = False,
+    ) -> list[str]:
         blockers: list[str] = []
         checks: dict = {}
 
@@ -3305,7 +3740,11 @@ class Engine:
             )
             check(
                 "request_capacity",
-                not self.entry_rate_ready(),
+                not (
+                    self.dispatch_rate_ready()
+                    if activation_audit_complete
+                    else self.entry_rate_ready()
+                ),
                 "cadangan request entry/proteksi belum cukup",
             )
             check(

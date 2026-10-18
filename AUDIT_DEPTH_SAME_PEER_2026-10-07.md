@@ -156,7 +156,7 @@ reported/evidence/presisi tetap terpisah, tidak diklaim exact nol. Tidak ada ord
 atau sinyal yang dieksekusi; threshold8bps, buffer5bps, risiko dan guard tetap.
 
 Raw, alamat lokal, reproducible analysis/controller dan prefix terikat hash di
-`/home/yuri/Workspace/outputs/lighter-depth-same-peer-20261007`.
+`~/Workspace/outputs/lighter-depth-same-peer-20261007`.
 **44file** diverifikasi; prefix gzip recorder produksi aktif dapat tidak mempunyai
 trailer, hanya baris lengkap dipakai dengan cutoff monotonic asli.
 [Summary aman](audits/depth-same-peer-20261007/summary.json),

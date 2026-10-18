@@ -33,7 +33,7 @@ class Config(BaseModel):
     max_data_age_ms: int = Field(default=1500, ge=250, le=10000)
     warmup_seconds: int = Field(default=600, ge=600)
     max_hold_seconds: int = Field(default=180, ge=30, le=180)
-    session_seconds: int = Field(default=1800, ge=60, le=1800)
+    session_seconds: int = Field(default=1800, ge=60, le=18000)
     max_session_positions: int = Field(default=3, ge=1, le=3)
     allow_live_orders: bool = False
     live_entry_scope: Literal["probe_only", "strategy"] = "probe_only"

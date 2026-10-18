@@ -1,6 +1,6 @@
 {
   "created_at_utc": "2026-10-06T14:50:30.487241+00:00",
-  "private_root": "/home/yuri/Workspace/outputs/lighter-calibration-reuse-20261006",
+  "private_root": "~/Workspace/outputs/lighter-calibration-reuse-20261006",
   "loaded_code_commit": "8d785cbea81a2d257cb43353c99f0729bb85f68a",
   "observation_seconds": 1200,
   "private_data_in_git": false,

@@ -13,3 +13,8 @@ __pycache__/
 .mypy_cache/
 *.pyc
 *.tsbuildinfo
+
+# Agent tool state & build outputs (not published)
+.serena/
+frontend/dist-*/
+frontend/.dist-*/

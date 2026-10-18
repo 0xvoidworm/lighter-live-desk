@@ -183,7 +183,7 @@ Perubahan kas net **0,000000USDC** dibedakan dari metadata individual fee.
 Summary dan manifest aman:
 `audits/strategy-proof-selection-preparation-20261006/{summary,manifest}.json`.
 Raw privat/ledger/control/status/derivasi berada di
-`/home/yuri/Workspace/outputs/lighter-strategy-session-20261006/a269dd7f-a216-4f21-b641-5bc909d5ba39/`;
+`~/Workspace/outputs/lighter-strategy-session-20261006/a269dd7f-a216-4f21-b641-5bc909d5ba39/`;
 direktori 0700 dan file 0600, tidak masuk Git. Salinan raw adalah prefix byte
 file runtime yang masih ditulis: trailer gzip belum lengkap; hanya record JSON
 lengkap diproses. Kedua prefix memuat record sesudah closed sehingga cakupan

@@ -261,7 +261,7 @@ dan hasil tes. Penutupan otorisasi sebelumnya tetap berlaku.
 
 ```bash
 .venv/bin/python scripts/analyze_diagnostic_recording.py \
-  --source /home/yuri/Workspace/outputs/lighter-diagnostic-20m-20261005 \
+  --source ~/Workspace/outputs/lighter-diagnostic-20m-20261005 \
   --output-prefix audits/diagnostic-20m-20261005
 ```
 

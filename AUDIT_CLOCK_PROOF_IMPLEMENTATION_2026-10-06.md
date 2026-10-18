@@ -140,7 +140,7 @@ seluruh bukti cocok. Tidak ada fill/command kontrol baru. **IDLE, orderOFF,
 sesi closed, loaded permissionNone**; riwayat/counter lama tetap.
 
 Raw privat dan backup ledger berada di
-`/home/yuri/Workspace/outputs/lighter-clock-selection-20261006` (dir0700/file0600),
+`~/Workspace/outputs/lighter-clock-selection-20261006` (dir0700/file0600),
 14hash dalam [RAW_SHA256SUMS](audits/clock-proof-implementation-20261006/RAW_SHA256SUMS).
 Open gzip prefix sengaja dibekukan tanpa mengubah byte; incomplete trailer
 dicatat, post-window record membuktikan batas lengkap. Filter window tetap1200s.

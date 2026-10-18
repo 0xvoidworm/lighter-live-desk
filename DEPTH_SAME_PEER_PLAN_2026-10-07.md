@@ -32,7 +32,7 @@ pemuatan izin, snapshot/kalibrasi tambahan atau polling akun exchange.
   yang sudah ada. Snapshot last-frame bukan timestamp setiap frame.
 - Peer IP sama tidak membuktikan backend atau jalur jaringan identik. Empat fee
   exactNULL/official reported policy, threshold8bps, buffer5bps dan risiko tetap.
-- Raw/alamat lokal hanya di `/home/yuri/Workspace/outputs`; manifest/hash dan
+- Raw/alamat lokal hanya di `~/Workspace/outputs`; manifest/hash dan
   ringkasan aman masuk Git. Tutup comparator, verifikasi akun/izin dan hash/PID
   produksi akhir. Tidak ada percobaan/observasi pengganti otomatis.
 

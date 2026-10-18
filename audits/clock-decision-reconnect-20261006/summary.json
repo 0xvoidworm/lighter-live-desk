@@ -183,7 +183,7 @@
             "cause": null,
             "exception_message": "sent 1011 (internal error) keepalive ping timeout; no close frame received",
             "cause_message": "timed out while closing connection",
-            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
+            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
           }
         },
         "last_messages": {
@@ -259,7 +259,7 @@
             "cause": "ServerTimeoutError",
             "exception_message": "Binance public websocket closed",
             "cause_message": "No PONG received after 10.0 seconds",
-            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 394, in _binance_public\n    raise websocket_closed(ws, \"public\", frame.type.name)\nConnectionError: Binance public websocket closed\n"
+            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/src/lldesk/market.py\", line 394, in _binance_public\n    raise websocket_closed(ws, \"public\", frame.type.name)\nConnectionError: Binance public websocket closed\n"
           }
         },
         "last_messages": {
@@ -353,7 +353,7 @@
             "cause": null,
             "exception_message": "sent 1011 (internal error) keepalive ping timeout; no close frame received",
             "cause_message": "timed out while closing connection",
-            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
+            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
           }
         },
         "last_messages": {
@@ -429,7 +429,7 @@
             "cause": "ServerTimeoutError",
             "exception_message": "Binance public websocket closed",
             "cause_message": "No PONG received after 10.0 seconds",
-            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 394, in _binance_public\n    raise websocket_closed(ws, \"public\", frame.type.name)\nConnectionError: Binance public websocket closed\n"
+            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/src/lldesk/market.py\", line 394, in _binance_public\n    raise websocket_closed(ws, \"public\", frame.type.name)\nConnectionError: Binance public websocket closed\n"
           }
         },
         "last_messages": {
@@ -523,7 +523,7 @@
             "cause": "ServerTimeoutError",
             "exception_message": "Binance market websocket closed",
             "cause_message": "No PONG received after 10.0 seconds",
-            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 423, in _binance_trades\n    raise websocket_closed(ws, \"market\", frame.type.name)\nConnectionError: Binance market websocket closed\n"
+            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/src/lldesk/market.py\", line 423, in _binance_trades\n    raise websocket_closed(ws, \"market\", frame.type.name)\nConnectionError: Binance market websocket closed\n"
           }
         },
         "last_messages": {
@@ -599,7 +599,7 @@
             "cause": null,
             "exception_message": "sent 1011 (internal error) keepalive ping timeout; no close frame received",
             "cause_message": "timed out while closing connection",
-            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
+            "exception_chain": "TimeoutError: timed out while closing connection\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/src/lldesk/market.py\", line 468, in lighter\n    async for raw in ws:\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 244, in __aiter__\n    yield await self.recv()\n          ^^^^^^^^^^^^^^^^^\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/websockets/asyncio/connection.py\", line 324, in recv\n    raise self.protocol.close_exc from self.recv_exc\nwebsockets.exceptions.ConnectionClosedError: sent 1011 (internal error) keepalive ping timeout; no close frame received\n"
           }
         },
         "last_messages": {
@@ -675,7 +675,7 @@
             "cause": "ServerTimeoutError",
             "exception_message": "Binance market websocket closed",
             "cause_message": "No PONG received after 10.0 seconds",
-            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 423, in _binance_trades\n    raise websocket_closed(ws, \"market\", frame.type.name)\nConnectionError: Binance market websocket closed\n"
+            "exception_chain": "aiohttp.client_exceptions.ServerTimeoutError: No PONG received after 10.0 seconds\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/src/lldesk/market.py\", line 423, in _binance_trades\n    raise websocket_closed(ws, \"market\", frame.type.name)\nConnectionError: Binance market websocket closed\n"
           }
         },
         "last_messages": {
@@ -751,7 +751,7 @@
             "cause": "ClientConnectionResetError",
             "exception_message": "Binance public websocket closed",
             "cause_message": "Cannot write to closing transport",
-            "exception_chain": "Traceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/client_ws.py\", line 411, in receive\n    msg = await self._reader.read()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"aiohttp/_websocket/reader_c.py\", line 122, in read\n  File \"aiohttp/_websocket/reader_c.py\", line 133, in aiohttp._websocket.reader_c.WebSocketDataQueue._read_from_buffer\naiohttp.streams.EofStream\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/client_ws.py\", line 336, in close\n    await self._writer.close(code, message)\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 257, in close\n    await self.send_frame(\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 82, in send_frame\n    self._write_websocket_frame(message, opcode, 0)\n  File \"/home/yuri/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 150, in _write_websocket_frame\n    raise ClientConnectionResetError(\"Cannot write to closing transport\")\naiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/yuri/lighter-live-desk/src/lldesk/market.py\", line 400, in _binance_public\n    raise websocket_closed(ws, \"public\")\nConnectionError: Binance public websocket closed\n"
+            "exception_chain": "Traceback (most recent call last):\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/client_ws.py\", line 411, in receive\n    msg = await self._reader.read()\n          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"aiohttp/_websocket/reader_c.py\", line 122, in read\n  File \"aiohttp/_websocket/reader_c.py\", line 133, in aiohttp._websocket.reader_c.WebSocketDataQueue._read_from_buffer\naiohttp.streams.EofStream\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/client_ws.py\", line 336, in close\n    await self._writer.close(code, message)\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 257, in close\n    await self.send_frame(\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 82, in send_frame\n    self._write_websocket_frame(message, opcode, 0)\n  File \"~/lighter-live-desk/.venv/lib/python3.12/site-packages/aiohttp/_websocket/writer.py\", line 150, in _write_websocket_frame\n    raise ClientConnectionResetError(\"Cannot write to closing transport\")\naiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"~/lighter-live-desk/src/lldesk/market.py\", line 400, in _binance_public\n    raise websocket_closed(ws, \"public\")\nConnectionError: Binance public websocket closed\n"
           }
         },
         "last_messages": {

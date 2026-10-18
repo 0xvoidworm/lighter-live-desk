@@ -647,5 +647,5 @@
     "tests/test_probe_only.py": "274d09edfba663c46db3d80670d0bebfefeed36047b4293423177e5c9d8b9540"
   },
   "mainnet_stop_acceptance_proven": false,
-  "local_output_dir": "/home/yuri/Workspace/outputs/lighter-ready-diagnosis-20261004"
+  "local_output_dir": "~/Workspace/outputs/lighter-ready-diagnosis-20261004"
 }

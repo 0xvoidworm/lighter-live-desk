@@ -497,3 +497,35 @@ Backup memakai API SQLite agar konsisten dengan WAL. Folder `state/` dan rahasia
 ## Pindah ke VPS kelak
 
 Belum ada deploy. VPS memerlukan verifikasi wilayah/jaringan, sinkronisasi jam, penyimpanan rahasia yang terlindungi, firewall/SSH, backup terenkripsi, dan audit akses. API sekarang sengaja bind `127.0.0.1`; gunakan tunnel SSH tepercaya bila perlu akses jarak jauh, tanpa mengubah bind ke `0.0.0.0` secara langsung. Jangan otomatis mengaktifkan sesi trading setelah boot.
+
+## Aktivasi manual melalui dashboard
+
+Dashboard menyediakan **Aktifkan satu sesi** lalu **Saya setuju, mulai satu sesi**.
+Ringkasan batas tampil sebelum konfirmasi: 30 menit aktif, tiga percobaan entry,
+minimum legal/max25USDC, plannedrisk0.50, daily5, exposure1×equity dan reserve2.
+Permintaan UI baru memakai UUID request terpisah dari UUID otorisasi baru.
+POST `/api/session/start` memerlukan CSRF, origin lokal dan consent eksplisit.
+GET preview/status tidak menulis config/DB atau menyiapkan izin. Membuka/reload
+halaman tidak memulai sesi. Satu proposal hanya dapat membuat satu izin;
+request yang sama idempotent, UUID pengganti ditolak termasuk setelah closed.
+
+Control admission memakai BoundedSession, LOAD_SESSION_PERMISSION dan tepat
+satu START_WHEN_READY existing. Engine tetap menjalankan audit/preflight5s,
+source guard, recheck atomic dan per-entry; QUEUED/WAITING belum aktif. Persiapan
+expires20menit sejak authorize, aktif1800s sejak activation. Tidak ada deposit,
+rearm/retry sesi, perubahan strategi/risiko, atau resume otomatis saat API start.
+**Hentikan entry** tetap memerintahkan revoke/ending melalui engine; pantau sampai
+flat/globalorder bersih/closed/OFF. ACK bukan bukti cleanup selesai.
+
+API mempertahankan shared advisory flock untuk request milik pengguna sampai
+proof fresh closed+flat+orders/intents bersih+OFF. Holder monitor hanya membaca
+status; tidak menandatangani/order/aktivasi. Shutdown API mencatat ownership
+`unconfirmed_api_shutdown` lalu melepaskan FD, bukan mengklaim sesi bersih;
+engine tetap mengelola batas/proteksi/exit. Kematian proses/SIGKILL melepaskan
+kernel flock, metadata bisa stale. Operator wajib membaca session/akun aktual
+sebelum service operations; jangan reload API/engine saat sesi pending/aktif.
+Deadline ownership bukan auto-stop. API baru tidak menghidupkan request/izin
+lama. DB transaction dan configrename merupakan unit berbeda; kegagalan parsial
+meminta satu STOP_ENTRIES engine-owned dan memegang lock sampai cleanup terbukti.
+Jika jurnal gagal menerima STOP, tidak ada klaim bersih; gunakan kontrol resmi
+setelah koneksi/jurnal pulih, tanpa session pengganti atau restart otomatis.

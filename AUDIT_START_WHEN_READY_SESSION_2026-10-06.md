@@ -185,7 +185,7 @@ Verifikasi akhir tersimpan **19:32:34,031 WIB**, engine tetap PID 378689:
 
 Ringkasan aman: `audits/start-when-ready-session-20261006/summary.json` dan
 `manifest.json`. **24 file privat** berada di
-`/home/yuri/Workspace/outputs/lighter-start-when-ready-session-20261006-185025`
+`~/Workspace/outputs/lighter-start-when-ready-session-20261006-185025`
 (0700/0600): authorization/binding, supervisor/gzip, journal/evidence,
 backup DB, status dan analisis offline. Hash manifest privat SHA-256
 `4b84f23432a6b5644470d6cc753c56a6f82fdacd000bdbb1cecea6b32c6b3682`.

@@ -232,10 +232,10 @@ Reproduksi statistik offline pada workspace ini:
 
 ```sh
 .venv/bin/python scripts/analyze_session_diagnostics.py \
-  --historical /home/yuri/Workspace/outputs/lighter-strategy-session-20261004/session-observation.jsonl \
+  --historical ~/Workspace/outputs/lighter-strategy-session-20261004/session-observation.jsonl \
   --prior-audit audits/strategy-session-20261004.json \
-  --journal /home/yuri/Workspace/outputs/lighter-diagnosis-20261004/original-engine-journal.jsonl \
-  --readonly /home/yuri/Workspace/outputs/lighter-diagnosis-20261004/readonly-observation.jsonl \
-    /home/yuri/Workspace/outputs/lighter-diagnosis-20261004/readonly-final-cycle.jsonl \
+  --journal ~/Workspace/outputs/lighter-diagnosis-20261004/original-engine-journal.jsonl \
+  --readonly ~/Workspace/outputs/lighter-diagnosis-20261004/readonly-observation.jsonl \
+    ~/Workspace/outputs/lighter-diagnosis-20261004/readonly-final-cycle.jsonl \
   --output-prefix audits/session-diagnosis-20261005
 ```
